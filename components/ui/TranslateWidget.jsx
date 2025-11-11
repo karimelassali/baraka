@@ -2,5 +2,7 @@
 import GoogleTranslate from "next-google-translate-widget";
 
 export default function TranslateWidget() {
-  return <GoogleTranslate pageLanguage="en" includedLanguages="ar,en,fr,it,es" />;
+  return (
+    <GoogleTranslate pageLanguage="it" includedLanguages="ar,en,fr,it,es" />
+  );
 }

@@ -82,17 +82,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Create customer registration form component in components/forms/RegistrationForm.jsx with all required fields validation
-- [ ] T028 [US2] Implement GDPR consent checkbox with validation in RegistrationForm.jsx
-- [ ] T029 [US2] Create API endpoint POST /api/register with Supabase Auth integration and customer profile creation
-- [ ] T030 [US2] Implement POST /api/register validation for all required fields and GDPR consent requirement
-- [ ] T031 [US2] Create customer login form component in components/forms/LoginForm.jsx with email/password and magic link options
-- [ ] T032 [US2] Create API endpoint POST /api/login with Supabase Auth integration
-- [ ] T033 [US2] Create API endpoint POST /api/logout with Supabase Auth integration
-- [ ] T034 [US2] Implement error handling for failed login scenarios in LoginForm.jsx
+- [x] T027 [P] [US2] Create customer registration form component in components/forms/RegistrationForm.jsx with all required fields validation
+- [x] T028 [US2] Implement GDPR consent checkbox with validation in RegistrationForm.jsx
+- [x] T029 [US2] Create API endpoint POST /api/register with Supabase Auth integration and customer profile creation
+- [x] T030 [US2] Implement POST /api/register validation for all required fields and GDPR consent requirement
+- [x] T031 [US2] Create customer login form component in components/forms/LoginForm.jsx with email/password and magic link options
+- [x] T032 [US2] Create API endpoint POST /api/login with Supabase Auth integration
+- [x] T033 [US2] Create API endpoint POST /api/logout with Supabase Auth integration
+- [x] T034 [US2] Implement error handling for failed login scenarios in LoginForm.jsx
 - [ ] T035 [US2] Create confirmation email/WhatsApp sending after registration in the registration API
-- [ ] T036 [US2] Create redirect to dashboard after successful login in LoginForm.jsx
-- [ ] T037 [US2] Create Customer model/service in lib/supabase/customer.js for customer data handling
+- [x] T036 [US2] Create redirect to dashboard after successful login in LoginForm.jsx
+- [x] T037 [US2] Create Customer model/service in lib/supabase/customer.js for customer data handling
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

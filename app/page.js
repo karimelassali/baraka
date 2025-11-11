@@ -11,12 +11,14 @@ export default function Home() {
       <header className="bg-white shadow-md sticky top-0 z-50">
         <div className="container mx-auto flex justify-between items-center p-4">
           <h1 className="text-3xl font-bold text-red-600">Baraka</h1>
-          <nav className="space-x-6">
+          <nav className="space-x-6 flex items-center">
             <a href="#gallery" className="text-gray-600 hover:text-red-600 transition">Gallery</a>
             <a href="#hours" className="text-gray-600 hover:text-red-600 transition">Hours</a>
             <a href="#contact" className="text-gray-600 hover:text-red-600 transition">Contact</a>
             <a href="/offers" className="text-gray-600 hover:text-red-600 transition">Offers</a>
             <a href="/reviews" className="text-gray-600 hover:text-red-600 transition">Reviews</a>
+            <a href="/login" className="text-gray-600 hover:text-red-600 transition">Login</a>
+            <a href="/register" className="bg-red-600 text-white font-bold py-2 px-4 rounded-full hover:bg-red-700 transition duration-300">Register</a>
           </nav>
         </div>
       </header>

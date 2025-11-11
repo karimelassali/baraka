@@ -1,0 +1,126 @@
+TECHNICAL SPECIFICATIONS – WEBSITE & CUSTOMER LOYALTY SYSTEM
+
+🔹 1. Domain and Hosting
+	•	The business will purchase its own domain.
+	•	Hosting/server will be managed through a paid subscription to an external provider.
+	•	The server must support:
+	•	Secure data storage (customer database).
+	•	Multi-language functionality.
+	•	SSL certificate (https).
+	•	Automatic data backups.
+
+⸻
+
+🔹 2. Website Structure (public section)
+
+Home Page
+
+Main content:
+	•	Business name and logo.
+	•	Short description (“About us”, “What we do”).
+	•	Product photo gallery.
+	•	Address with direct Google Maps link.
+	•	Opening hours.
+	•	WhatsApp Business button for direct chat.
+	•	Contact button (phone, email, message form).
+	•	“Weekly Offers” section.
+	•	“Permanent Offers” section.
+	•	“Customer Reviews” section (around 20 displayed).
+	•	Legal pages:
+	•	Privacy Policy
+	•	Cookie Policy
+	•	Terms and Conditions (only if e-commerce is added later).
+
+⸻
+
+🔹 3. Customer Registration System
+
+Registration Form
+
+Required fields:
+	•	First Name
+	•	Last Name
+	•	Date of Birth
+	•	Residence
+	•	Phone Number
+	•	Email
+	•	Country of Origin
+
+Functionality
+	•	All data stored securely in the customer database.
+	•	Confirmation message sent (via email or WhatsApp).
+	•	Each customer can log in to access their personal area.
+
+⸻
+
+🔹 4. Customer Dashboard (after login)
+	•	View and edit personal details.
+	•	“Wallet” section showing total loyalty points and purchase history.
+	•	Access to active offers and personalized promotions.
+
+⸻
+
+🔹 5. Admin Dashboard
+
+Private area for the store manager to:
+	•	View all registered customers.
+	•	Sort and filter customers by:
+	•	Name (alphabetically)
+	•	Country of origin
+	•	Area of residence
+	•	Add, edit, or delete customer records.
+	•	Manage “Weekly” and “Permanent” offers.
+	•	Manage visible customer reviews.
+	•	Manage loyalty points:
+	•	Enter the purchase amount → automatic conversion into points.
+	•	Assign points to the selected customer.
+	•	Convert points into shopping vouchers.
+	•	Track customer point history.
+	•	Send automated promotional messages via WhatsApp Business API integration (e.g., special offers, birthday greetings, targeted campaigns by nationality).
+
+⸻
+
+🔹 6. Loyalty Program System
+	•	Automatic conversion from euros to points (formula to be defined, e.g. €1 = 1 point).
+	•	Customers can see their updated points balance in real time.
+	•	Points can be redeemed for shopping vouchers.
+	•	Fully managed by the admin only.
+
+⸻
+
+🔹 7. Multi-language Support
+
+The website will be available in the following languages:
+	•	Italian 🇮🇹
+	•	English 🇬🇧
+	•	French 🇫🇷
+	•	Spanish 🇪🇸
+	•	Arabic 🇸🇦
+
+(Language selector displayed at the top of the homepage.)
+
+⸻
+
+🔹 8. Design
+	•	Modern, clean layout optimized for both mobile and desktop.
+	•	Colors and style to be defined in collaboration with the owner.
+	•	Priority: simplicity and clarity, suitable for customers with low digital experience.
+
+⸻
+
+🔹 9. Security and Compliance
+	•	All data must be handled in accordance with GDPR regulations.
+	•	Must include:
+	•	Privacy Policy
+	•	Cookie Policy
+	•	Explicit consent checkbox for personal data processing in the registration form.
+
+⸻
+
+🔹 10. Project Objective
+
+To create a web platform that:
+	•	Builds and maintains customer loyalty.
+	•	Simplifies direct communication through WhatsApp.
+	•	Encourages repeat purchases via the points system.
+	•	Ensures transparency, ease of use, and accessibility for all customers.

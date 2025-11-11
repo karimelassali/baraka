@@ -4,6 +4,7 @@ import Gallery from "../components/ui/Gallery";
 import Hours from "../components/ui/Hours";
 import WhatsAppButton from "../components/ui/WhatsAppButton";
 import ContactOptions from "../components/ui/ContactOptions";
+import TranslateWidget from "../components/ui/TranslateWidget";
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
@@ -304,6 +305,11 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center space-x-4">
+            {/* Add the translate widget here */}
+            <div className="mr-2">
+              <TranslateWidget />
+            </div>
+            
             <button
               className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}

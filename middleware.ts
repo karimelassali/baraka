@@ -31,36 +31,7 @@ export async function updateSession(request: NextRequest) {
 
   // Define protected routes (admin routes)
   const isAdminRoute = url.pathname.startsWith('/admin');
-  const isAuthRoute = url.pathname.startsWith('/auth');
-  const isApiRoute = url.pathname.startsWith('/api');
   
-  // Handle API routes with more specific authentication
-  if (isApiRoute && !url.pathname.includes('/api/auth') && !url.pathname.includes('/api/register') && !url.pathname.includes('/api/offers')) {
-    // For non-public API routes, check authentication
-    const isProtectedApi = !url.pathname.includes('/api/login') && !url.pathname.includes('/api/register');
-    
-    if (isProtectedApi) {
-      if (!session) {
-        // Return 401 for API routes
-        return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-      }
-      
-      // For admin API routes, check if user is an admin
-      if (url.pathname.includes('/api/admin')) {
-        const { data: adminData, error: adminError } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('auth_id', session.user.id)
-          .eq('is_active', true)
-          .single();
-
-        if (adminError || !adminData) {
-          return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-        }
-      }
-    }
-  }
-
   // For admin pages, redirect if not authenticated as admin
   if (isAdminRoute) {
     if (!session) {
@@ -116,9 +87,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      * - auth routes (login, register)
-     * - public API endpoints
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?!js|jsx|ts|tsx$)[^/]*$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|auth/login|auth/register|.*\\.(?!js|jsx|ts|tsx$)[^/]*$).*)',
     '/(api|trpc)(.*)',
   ],
 };

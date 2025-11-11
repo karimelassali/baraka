@@ -93,6 +93,7 @@
 - [ ] T035 [US2] Create confirmation email/WhatsApp sending after registration in the registration API
 - [x] T036 [US2] Create redirect to dashboard after successful login in LoginForm.jsx
 - [x] T037 [US2] Create Customer model/service in lib/supabase/customer.js for customer data handling
+- [x] T038 [P] [US2] use react-country-flag package for country flag display in RegistrationForm.jsx
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

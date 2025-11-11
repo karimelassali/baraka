@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "../../lib/auth";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -14,38 +15,33 @@ export default function LoginForm() {
     setError(null);
     setIsSubmitting(true);
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
+    // Use the client-side Supabase auth directly for better session handling
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
 
-    if (res.ok) {
-      router.push("/dashboard");
+    if (error) {
+      setError(error.message);
     } else {
-      const data = await res.json();
-      setError(data.message);
+      router.push("/client/dashboard");
     }
     setIsSubmitting(false);
   };
 
   const handleMagicLink = async () => {
     setError(null);
-    const res = await fetch("/api/login/magic-link", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: window.location.origin + '/client/dashboard'
+      }
     });
 
-    if (res.ok) {
-      alert("Check your email for the magic link!");
+    if (error) {
+      setError(error.message);
     } else {
-      const data = await res.json();
-      setError(data.message);
+      alert("Check your email for the magic link!");
     }
   };
 

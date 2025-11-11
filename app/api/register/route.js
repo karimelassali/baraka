@@ -1,3 +1,4 @@
+import { AuthService } from "../../../lib/auth";
 
 export async function POST(request) {
   try {
@@ -100,12 +101,13 @@ export async function POST(request) {
       // Log the error, but don't fail the registration
     });
 
-    // Return success response
+    // Return success response with user data
     return new Response(
       JSON.stringify({ 
         success: true, 
         message: "Registration successful",
-        user_id: registrationResult.profile.id 
+        user_id: registrationResult.profile.id,
+        user: registrationResult.user
       }),
       { 
         status: 201,

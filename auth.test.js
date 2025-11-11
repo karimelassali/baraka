@@ -1,6 +1,6 @@
 async function runTests() {
   const fetch = (await import('node-fetch')).default;
-  const BASE_URL = 'http://localhost:3000';
+  const BASE_URL = 'http://localhost:3000'; // Updated to use the current server port
 
   const email = `testuser_${Date.now()}@gmail.com`;
   const password = 'password123';
@@ -13,7 +13,13 @@ async function runTests() {
     const registerRes = await fetch(`${BASE_URL}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ 
+        first_name: 'Test',
+        last_name: 'User',
+        email, 
+        password,
+        gdpr_consent: true
+      }),
     });
 
     const registerData = await registerRes.json();

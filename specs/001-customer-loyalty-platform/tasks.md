@@ -24,12 +24,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize Next.js 14+ project with App Router
-- [ ] T002 [P] Install core dependencies: next-intl, TailwindCSS, Supabase client
-- [ ] T003 Setup project structure according to plan.md in app/, components/, lib/, styles/, public/
-- [ ] T004 Configure environment variables setup for Supabase (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
-- [ ] T005 [P] Configure TailwindCSS and globals.css with base styles
-- [ ] T006 Setup internationalization configuration for IT, EN, FR, ES, AR languages
+- [x] T001 Initialize Next.js 14+ project with App Router
+- [x] T002 [P] Install core dependencies: , TailwindCSS, Supabase client
+- [x] T003 Setup project structure according to plan.md in app/, components/, lib/, styles/, public/
+- [x] T004 Configure environment variables setup for Supabase (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
+- [x] T005 [P] Configure TailwindCSS and globals.css with base styles
 
 ---
 
@@ -39,14 +38,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 Setup Supabase client configuration in lib/supabase/client.js and lib/supabase/server.js
-- [ ] T008 [P] Create Supabase database schema with all tables from data-model.md
-- [ ] T009 [P] Configure Supabase Row Level Security (RLS) policies for all tables
-- [ ] T010 [P] Create authentication service in lib/auth/ with Supabase integration
+- [ x] T007 Setup Supabase client configuration in lib/supabase/client.js and lib/supabase/server.js
+- [ x] T008 [P] Create Supabase database schema with all tables from data-model.md
+- [ x] T009 [P] Configure Supabase Row Level Security (RLS) policies for all tables
+- [ x] T010 [P] Create authentication service in lib/auth/ with Supabase integration
 - [ ] T011 Create middleware for authentication and role-based access control
-- [ ] T012 Setup internationalization utilities in lib/i18n/ for language detection and routing
 - [ ] T013 Create base API route handlers with error handling middleware
-- [ ] T014 Setup database functions for points calculation and real-time updates
+- [ ] T014 Setup database for real-time updates
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,18 +58,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Create homepage component in app/[locale]/page.jsx with business info, logo, description
-- [ ] T016 [P] [US1] Implement photo gallery component in components/ui/Gallery.jsx with Next.js Image optimization
-- [ ] T017 [US1] Add Google Maps integration with address display in app/[locale]/page.jsx
-- [ ] T018 [P] [US1] Create opening hours display component in components/ui/Hours.jsx
-- [ ] T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
-- [ ] T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx
-- [ ] T021 [US1] Implement weekly and permanent offers sections with GET /api/offers data in app/[locale]/offers/page.jsx
-- [ ] T022 [US1] Create customer reviews section displaying up to 20 reviews in app/[locale]/reviews/page.jsx
-- [ ] T023 [P] [US1] Implement multi-language selector component in components/i18n/LanguageSelector.jsx
-- [ ] T024 [US1] Create Privacy Policy & Cookie Policy pages in app/[locale]/privacy/page.jsx and app/[locale]/cookies/page.jsx
-- [ ] T025 [US1] Create Terms & Conditions page in app/[locale]/terms/page.jsx for future e-commerce
-- [ ] T026 [US1] Add Arabic RTL support for all public pages using Tailwind CSS utilities
+- [x] T015 [P] [US1] Create homepage component in app/page.jsx with business info, logo, description
+- [x] T016 [P] [US1] Implement photo gallery component in components/ui/Gallery.jsx with Next.js Image optimization
+- [x] T018 [P] [US1] Create opening hours display component in components/ui/Hours.jsx
+- [x] T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
+- [x] T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx
+- [x] T021 [US1] Implement weekly and permanent offers sections with GET /api/offers data in app/offers/page.jsx
+- [x] T022 [US1] Create customer reviews section displaying up to 20 reviews in app/reviews/page.jsx
+- [x] T023 [P] [US1] Install next-google-translate-widget package
+- [x] T024 [US1] Create Privacy Policy & Cookie Policy pages in app/privacy/page.jsx and app/cookies/page.jsx
+- [x] T025 [US1] Create Terms & Conditions page in app/terms/page.jsx for future e-commerce
+- [x] T026 [US1] Integrate GoogleTranslate component into app/layout.js to provide multi-language support
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -85,17 +82,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] Create customer registration form component in components/forms/RegistrationForm.jsx with all required fields validation
-- [ ] T028 [US2] Implement GDPR consent checkbox with validation in RegistrationForm.jsx
-- [ ] T029 [US2] Create API endpoint POST /api/register with Supabase Auth integration and customer profile creation
-- [ ] T030 [US2] Implement POST /api/register validation for all required fields and GDPR consent requirement
-- [ ] T031 [US2] Create customer login form component in components/forms/LoginForm.jsx with email/password and magic link options
-- [ ] T032 [US2] Create API endpoint POST /api/login with Supabase Auth integration
-- [ ] T033 [US2] Create API endpoint POST /api/logout with Supabase Auth integration
-- [ ] T034 [US2] Implement error handling for failed login scenarios in LoginForm.jsx
+- [x] T027 [P] [US2] Create customer registration form component in components/forms/RegistrationForm.jsx with all required fields validation
+- [x] T028 [US2] Implement GDPR consent checkbox with validation in RegistrationForm.jsx
+- [x] T029 [US2] Create API endpoint POST /api/register with Supabase Auth integration and customer profile creation
+- [x] T030 [US2] Implement POST /api/register validation for all required fields and GDPR consent requirement
+- [x] T031 [US2] Create customer login form component in components/forms/LoginForm.jsx with email/password and magic link options
+- [x] T032 [US2] Create API endpoint POST /api/login with Supabase Auth integration
+- [x] T033 [US2] Create API endpoint POST /api/logout with Supabase Auth integration
+- [x] T034 [US2] Implement error handling for failed login scenarios in LoginForm.jsx
 - [ ] T035 [US2] Create confirmation email/WhatsApp sending after registration in the registration API
-- [ ] T036 [US2] Create redirect to dashboard after successful login in LoginForm.jsx
-- [ ] T037 [US2] Create Customer model/service in lib/supabase/customer.js for customer data handling
+- [x] T036 [US2] Create redirect to dashboard after successful login in LoginForm.jsx
+- [x] T037 [US2] Create Customer model/service in lib/supabase/customer.js for customer data handling
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -159,21 +156,19 @@
 
 ## Phase 7: User Story 5 - Multi-language Support (Priority: P5)
 
-**Goal**: Ensure all platform content is properly translated and accessible in Italian, English, French, Spanish, and Arabic with persistent language preference
+**Goal**: Ensure all platform content is properly translated and accessible in Italian, English, French, Spanish, and Arabic with persistent language preference using next-google-translate-widget.
 
-**Independent Test**: A user can select any of the supported languages and see all public content properly translated in that language.
+**Independent Test**: A user can select any of the supported languages from the Google Translate widget and see all public content properly translated in that language.
 
 ### Implementation for User Story 5
 
-- [ ] T068 [P] [US5] Update all components with internationalization support using next-intl
-- [ ] T069 [P] [US5] Create translation files for IT, EN, FR, ES, AR languages in public/locales/
-- [ ] T070 [US5] Implement persistent language preference in user accounts and localStorage
-- [ ] T071 [US5] Update all offer content to support multi-language fields (JSONB) in Offer API
-- [ ] T072 [US5] Update all static content across the platform to be translatable
-- [ ] T073 [US5] Implement RTL support for Arabic language throughout the platform
-- [ ] T074 [US5] Add Arabic language option to language selector and ensure proper UI display
+- [ ] T068 [P] [US5] Verify that all public pages are correctly translated by the Google Translate widget.
+- [ ] T069 [P] [US5] Ensure the widget is configured to support IT, EN, FR, ES, AR languages.
+- [ ] T070 [US5] Remove any leftover code related to next-intl or other manual translation libraries.
+- [ ] T071 [US5] Ensure offer content from the API is dynamically translated by the widget.
+- [ ] T072 [US5] Confirm that RTL support for Arabic is automatically handled by the widget.
 
-**Checkpoint**: Multi-language support is fully implemented across all platform features
+**Checkpoint**: Multi-language support is fully implemented across all platform features via the Google Translate widget.
 
 ---
 
@@ -275,11 +270,11 @@
 
 ```bash
 # Launch all components for User Story 1 together:
-T015 [P] [US1] Create homepage component in app/[locale]/page.jsx with business info, logo, description
+T015 [P] [US1] Create homepage component in app/page.jsx with business info, logo, description
 T016 [P] [US1] Implement photo gallery component in components/ui/Gallery.jsx with Next.js Image optimization
 T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
 T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx
-T023 [P] [US1] Implement multi-language selector component in components/i18n/LanguageSelector.jsx
+T023 [P] [US1] Install next-google-translate-widget package
 ```
 
 ---

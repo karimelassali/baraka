@@ -24,12 +24,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Initialize Next.js 14+ project with App Router
-- [ ] T002 [P] Install core dependencies: next-intl, TailwindCSS, Supabase client
-- [ ] T003 Setup project structure according to plan.md in app/, components/, lib/, styles/, public/
-- [ ] T004 Configure environment variables setup for Supabase (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
-- [ ] T005 [P] Configure TailwindCSS and globals.css with base styles
-- [ ] T006 Setup internationalization configuration for IT, EN, FR, ES, AR languages
+- [x] T001 Initialize Next.js 14+ project with App Router
+- [x] T002 [P] Install core dependencies: , TailwindCSS, Supabase client
+- [x] T003 Setup project structure according to plan.md in app/, components/, lib/, styles/, public/
+- [x] T004 Configure environment variables setup for Supabase (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY)
+- [x] T005 [P] Configure TailwindCSS and globals.css with base styles
 
 ---
 
@@ -39,14 +38,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 Setup Supabase client configuration in lib/supabase/client.js and lib/supabase/server.js
-- [ ] T008 [P] Create Supabase database schema with all tables from data-model.md
-- [ ] T009 [P] Configure Supabase Row Level Security (RLS) policies for all tables
-- [ ] T010 [P] Create authentication service in lib/auth/ with Supabase integration
+- [ x] T007 Setup Supabase client configuration in lib/supabase/client.js and lib/supabase/server.js
+- [ x] T008 [P] Create Supabase database schema with all tables from data-model.md
+- [ x] T009 [P] Configure Supabase Row Level Security (RLS) policies for all tables
+- [ x] T010 [P] Create authentication service in lib/auth/ with Supabase integration
 - [ ] T011 Create middleware for authentication and role-based access control
-- [ ] T012 Setup internationalization utilities in lib/i18n/ for language detection and routing
 - [ ] T013 Create base API route handlers with error handling middleware
-- [ ] T014 Setup database functions for points calculation and real-time updates
+- [ ] T014 Setup database for real-time updates
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -60,9 +58,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Create homepage component in app/[locale]/page.jsx with business info, logo, description
+- [ ] T015 [P] [US1] Create homepage component in app/page.jsx with business info, logo, description
 - [ ] T016 [P] [US1] Implement photo gallery component in components/ui/Gallery.jsx with Next.js Image optimization
-- [ ] T017 [US1] Add Google Maps integration with address display in app/[locale]/page.jsx
 - [ ] T018 [P] [US1] Create opening hours display component in components/ui/Hours.jsx
 - [ ] T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
 - [ ] T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx

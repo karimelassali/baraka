@@ -63,12 +63,12 @@
 - [x] T018 [P] [US1] Create opening hours display component in components/ui/Hours.jsx
 - [x] T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
 - [x] T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx
-- [ ] T021 [US1] Implement weekly and permanent offers sections with GET /api/offers data in app/offers/page.jsx
-- [ ] T022 [US1] Create customer reviews section displaying up to 20 reviews in app/[locale]/reviews/page.jsx
-- [ ] T023 [P] [US1] Implement multi-language selector component in components/i18n/LanguageSelector.jsx
-- [ ] T024 [US1] Create Privacy Policy & Cookie Policy pages in app/[locale]/privacy/page.jsx and app/[locale]/cookies/page.jsx
-- [ ] T025 [US1] Create Terms & Conditions page in app/[locale]/terms/page.jsx for future e-commerce
-- [ ] T026 [US1] Add Arabic RTL support for all public pages using Tailwind CSS utilities
+- [x] T021 [US1] Implement weekly and permanent offers sections with GET /api/offers data in app/offers/page.jsx
+- [x] T022 [US1] Create customer reviews section displaying up to 20 reviews in app/reviews/page.jsx
+- [x] T023 [P] [US1] Install next-google-translate-widget package
+- [x] T024 [US1] Create Privacy Policy & Cookie Policy pages in app/privacy/page.jsx and app/cookies/page.jsx
+- [x] T025 [US1] Create Terms & Conditions page in app/terms/page.jsx for future e-commerce
+- [x] T026 [US1] Integrate GoogleTranslate component into app/layout.js to provide multi-language support
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -156,21 +156,19 @@
 
 ## Phase 7: User Story 5 - Multi-language Support (Priority: P5)
 
-**Goal**: Ensure all platform content is properly translated and accessible in Italian, English, French, Spanish, and Arabic with persistent language preference
+**Goal**: Ensure all platform content is properly translated and accessible in Italian, English, French, Spanish, and Arabic with persistent language preference using next-google-translate-widget.
 
-**Independent Test**: A user can select any of the supported languages and see all public content properly translated in that language.
+**Independent Test**: A user can select any of the supported languages from the Google Translate widget and see all public content properly translated in that language.
 
 ### Implementation for User Story 5
 
-- [ ] T068 [P] [US5] Update all components with internationalization support using next-intl
-- [ ] T069 [P] [US5] Create translation files for IT, EN, FR, ES, AR languages in public/locales/
-- [ ] T070 [US5] Implement persistent language preference in user accounts and localStorage
-- [ ] T071 [US5] Update all offer content to support multi-language fields (JSONB) in Offer API
-- [ ] T072 [US5] Update all static content across the platform to be translatable
-- [ ] T073 [US5] Implement RTL support for Arabic language throughout the platform
-- [ ] T074 [US5] Add Arabic language option to language selector and ensure proper UI display
+- [ ] T068 [P] [US5] Verify that all public pages are correctly translated by the Google Translate widget.
+- [ ] T069 [P] [US5] Ensure the widget is configured to support IT, EN, FR, ES, AR languages.
+- [ ] T070 [US5] Remove any leftover code related to next-intl or other manual translation libraries.
+- [ ] T071 [US5] Ensure offer content from the API is dynamically translated by the widget.
+- [ ] T072 [US5] Confirm that RTL support for Arabic is automatically handled by the widget.
 
-**Checkpoint**: Multi-language support is fully implemented across all platform features
+**Checkpoint**: Multi-language support is fully implemented across all platform features via the Google Translate widget.
 
 ---
 
@@ -272,11 +270,11 @@
 
 ```bash
 # Launch all components for User Story 1 together:
-T015 [P] [US1] Create homepage component in app/[locale]/page.jsx with business info, logo, description
+T015 [P] [US1] Create homepage component in app/page.jsx with business info, logo, description
 T016 [P] [US1] Implement photo gallery component in components/ui/Gallery.jsx with Next.js Image optimization
 T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
 T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx
-T023 [P] [US1] Implement multi-language selector component in components/i18n/LanguageSelector.jsx
+T023 [P] [US1] Install next-google-translate-widget package
 ```
 
 ---

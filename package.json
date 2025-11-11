@@ -12,6 +12,7 @@
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.81.0",
     "next": "15.3.5",
+    "next-google-translate-widget": "^1.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

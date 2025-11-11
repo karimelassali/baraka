@@ -58,12 +58,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Create homepage component in app/page.jsx with business info, logo, description
-- [ ] T016 [P] [US1] Implement photo gallery component in components/ui/Gallery.jsx with Next.js Image optimization
-- [ ] T018 [P] [US1] Create opening hours display component in components/ui/Hours.jsx
-- [ ] T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
-- [ ] T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx
-- [ ] T021 [US1] Implement weekly and permanent offers sections with GET /api/offers data in app/[locale]/offers/page.jsx
+- [x] T015 [P] [US1] Create homepage component in app/page.jsx with business info, logo, description
+- [x] T016 [P] [US1] Implement photo gallery component in components/ui/Gallery.jsx with Next.js Image optimization
+- [x] T018 [P] [US1] Create opening hours display component in components/ui/Hours.jsx
+- [x] T019 [P] [US1] Implement WhatsApp Business button component in components/ui/WhatsAppButton.jsx
+- [x] T020 [P] [US1] Create contact options component with phone, email, message form in components/ui/ContactOptions.jsx
+- [ ] T021 [US1] Implement weekly and permanent offers sections with GET /api/offers data in app/offers/page.jsx
 - [ ] T022 [US1] Create customer reviews section displaying up to 20 reviews in app/[locale]/reviews/page.jsx
 - [ ] T023 [P] [US1] Implement multi-language selector component in components/i18n/LanguageSelector.jsx
 - [ ] T024 [US1] Create Privacy Policy & Cookie Policy pages in app/[locale]/privacy/page.jsx and app/[locale]/cookies/page.jsx

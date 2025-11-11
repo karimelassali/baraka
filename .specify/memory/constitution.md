@@ -1,43 +1,50 @@
-<!-- 
-Sync Impact Report:
-- Version change: 1.0.0 → 1.1.0
-- Modified principles: Added 5 new principles based on shop platform requirements
-- Added sections: Customer Loyalty System, Multi-language Support, Security & Compliance
-- Removed sections: None
-- Templates requiring updates: All marked as ✅ updated as they are generic templates that don't reference specific principles
-- Follow-up TODOs: None
--->
-# Baraka Shop Platform Constitution
+# [PROJECT_NAME] Constitution
+<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
 
 ## Core Principles
 
-### I. Customer-Centric Design
-The platform MUST prioritize user experience and accessibility for customers with varying digital literacy levels. All interfaces MUST be intuitive, simple, and clear. The design MUST accommodate users from diverse backgrounds and with different levels of technical expertise.
+### [PRINCIPLE_1_NAME]
+<!-- Example: I. Library-First -->
+[PRINCIPLE_1_DESCRIPTION]
+<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
 
-### II. Data Security & Privacy Compliance
-All customer data MUST be handled in strict accordance with GDPR regulations. The platform MUST implement secure data storage, SSL encryption, explicit consent mechanisms, and provide customers with control over their personal information. Privacy and cookie policies MUST be clearly accessible and comprehensive.
+### [PRINCIPLE_2_NAME]
+<!-- Example: II. CLI Interface -->
+[PRINCIPLE_2_DESCRIPTION]
+<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
 
-### III. Multi-Language Accessibility
-The platform MUST support multiple languages (Italian, English, French, Spanish, Arabic) to serve diverse customer demographics. Language selection MUST be easily accessible from all pages. Content MUST be properly localized, not just translated, to serve different cultural contexts.
+### [PRINCIPLE_3_NAME]
+<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
+[PRINCIPLE_3_DESCRIPTION]
+<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
 
-### IV. Loyalty Program Integration
-The platform MUST incorporate a robust customer loyalty system that automatically converts purchases to points, tracks customer history, and enables redemption of shopping vouchers. The system MUST provide real-time visibility of points balances to customers and flexible administration controls for store managers.
+### [PRINCIPLE_4_NAME]
+<!-- Example: IV. Integration Testing -->
+[PRINCIPLE_4_DESCRIPTION]
+<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
 
-### V. WhatsApp Business Integration
-The platform MUST include native WhatsApp Business API integration for direct customer communication. This includes automated promotional messages, birthday greetings, and targeted campaigns. The system MUST facilitate direct customer communication while respecting privacy preferences.
+### [PRINCIPLE_5_NAME]
+<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
+[PRINCIPLE_5_DESCRIPTION]
+<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 
-## Customer Registration and Management
+## [SECTION_2_NAME]
+<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
 
-The system MUST provide secure customer registration including name, contact information, and demographic data. All customer data MUST be stored securely with appropriate access controls. Customers MUST have access to their personal dashboard to view and edit their information, track loyalty points, and access personalized offers.
+[SECTION_2_CONTENT]
+<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
 
-## Development Workflow
+## [SECTION_3_NAME]
+<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
 
-All development MUST follow security-first principles. Code reviews MUST include verification of data protection measures and privacy compliance. Features MUST be tested for accessibility and multi-language support before deployment. The system architecture MUST support the required server specifications including secure data storage, SSL certificates, and automatic backups.
+[SECTION_3_CONTENT]
+<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
 
 ## Governance
+<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-This constitution serves as the governing document for all development and operational decisions for the Baraka Shop Platform. All code changes, feature implementations, and system updates MUST align with these principles. Amendments to this constitution require documentation of the change, business justification, and approval from project stakeholders.
+[GOVERNANCE_RULES]
+<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-The platform MUST maintain compliance with all applicable regulations, particularly GDPR for data protection. Regular compliance reviews MUST be conducted to ensure continued adherence to these principles.
-
-**Version**: 1.1.0 | **Ratified**: TODO(RATIFICATION_DATE): Original adoption date unknown | **Last Amended**: 2025-11-10
+**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
+<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->

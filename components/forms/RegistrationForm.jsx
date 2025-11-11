@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import CountryFlag from "react-country-flag";
 
 /**
  * CustomerRegistration
@@ -36,6 +37,62 @@ export default function CustomerRegistration() {
   const [status, setStatus] = useState({ type: "", message: "" });
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+
+  // Country name to country code mapping for flags
+  const getCountryCode = (countryName) => {
+    const countryMap = {
+      'Italy': 'IT',
+      'France': 'FR',
+      'Spain': 'ES',
+      'United States': 'US',
+      'United Kingdom': 'GB',
+      'Germany': 'DE',
+      'Algeria': 'DZ',
+      'Angola': 'AO',
+      'Argentina': 'AR',
+      'Australia': 'AU',
+      'Austria': 'AT',
+      'Belgium': 'BE',
+      'Brazil': 'BR',
+      'Canada': 'CA',
+      'China': 'CN',
+      'Egypt': 'EG',
+      'India': 'IN',
+      'Japan': 'JP',
+      'Mexico': 'MX',
+      'Morocco': 'MA',
+      'Nigeria': 'NG',
+      'Russia': 'RU',
+      'Saudi Arabia': 'SA',
+      'South Africa': 'ZA',
+      'Turkey': 'TR',
+      'Algeria': 'DZ',
+      'Libya': 'LY',
+      'Mali': 'ML',
+      'Mauritania': 'MR',
+      'Niger': 'NE',
+      'Tunisia': 'TN',
+      'Lebanon': 'LB',
+      'Jordan': 'JO',
+      'Iraq': 'IQ',
+      'Syria': 'SY',
+      'Yemen': 'YE',
+      'Oman': 'OM',
+      'UAE': 'AE',
+      'Kuwait': 'KW',
+      'Qatar': 'QA',
+      'Bahrain': 'BH',
+      'Iran': 'IR'
+    };
+    
+    // Handle special cases and normalize input
+    if (countryName.toLowerCase().includes('united states')) return 'US';
+    if (countryName.toLowerCase().includes('united kingdom')) return 'GB';
+    if (countryName.toLowerCase().includes('south africa')) return 'ZA';
+    if (countryName.toLowerCase().includes('saudi arabia')) return 'SA';
+    
+    return countryMap[countryName] || 'UN'; // Use 'UN' for unknown countries
+  };
 
   // small validators
   const isEmailValid = (email) =>
@@ -184,9 +241,9 @@ export default function CustomerRegistration() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="w-full max-w-2xl"
+        className="w-full max-w-6xl"
       >
-        <div className="bg-white rounded-2xl shadow-2xl border border-black overflow-hidden">
+        <div className="bg-white  rounded-2xl shadow-2xl border border-black overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {/* Left visual panel */}
             <div className="hidden md:flex flex-col justify-center items-center gap-4 p-8 bg-gradient-to-br from-red-600 to-black text-white">
@@ -372,16 +429,30 @@ export default function CustomerRegistration() {
                   <span className="text-xs font-medium text-gray-700">
                     Country of Origin *
                   </span>
-                  <input
-                    name="country_of_origin"
-                    value={form.country_of_origin}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
-                    placeholder="Italy"
-                    list="countries-list"
-                  />
-                  {/* small datalist with common countries (extendable) */}
+                  <div className="relative mt-1">
+                    <input
+                      name="country_of_origin"
+                      value={form.country_of_origin}
+                      onChange={handleChange}
+                      required
+                      className="block w-full rounded-lg border border-gray-300 px-3 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      placeholder="Italy"
+                      list="countries-list"
+                    />
+                    {form.country_of_origin && (
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                        <CountryFlag 
+                          countryCode={getCountryCode(form.country_of_origin)} 
+                          svg 
+                          style={{
+                            width: '1.5em',
+                            height: '1.5em'
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {/* datalist with common countries that have flags */}
                   <datalist id="countries-list">
                     <option>Italy</option>
                     <option>France</option>
@@ -389,6 +460,25 @@ export default function CustomerRegistration() {
                     <option>United States</option>
                     <option>United Kingdom</option>
                     <option>Germany</option>
+                    <option>Algeria</option>
+                    <option>Angola</option>
+                    <option>Argentina</option>
+                    <option>Australia</option>
+                    <option>Austria</option>
+                    <option>Belgium</option>
+                    <option>Brazil</option>
+                    <option>Canada</option>
+                    <option>China</option>
+                    <option>Egypt</option>
+                    <option>India</option>
+                    <option>Japan</option>
+                    <option>Mexico</option>
+                    <option>Morocco</option>
+                    <option>Nigeria</option>
+                    <option>Russia</option>
+                    <option>Saudi Arabia</option>
+                    <option>South Africa</option>
+                    <option>Turkey</option>
                   </datalist>
                 </label>
 

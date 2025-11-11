@@ -461,7 +461,7 @@ export default function Home() {
                 whileHover={{ y: -5 }}
               >
                 <p className="text-gray-700 italic">
-                  "We pride ourselves on quality and customer satisfaction."
+                  &quot;We pride ourselves on quality and customer satisfaction.&quot;
                 </p>
                 <p className="text-sm text-gray-500 mt-2">- Baraka Team</p>
               </motion.div>

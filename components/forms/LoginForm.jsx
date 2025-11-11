@@ -24,7 +24,7 @@ export default function LoginForm() {
     if (error) {
       setError(error.message);
     } else {
-      router.push("/client/dashboard");
+      router.push("/dashboard");
     }
     setIsSubmitting(false);
   };
@@ -34,7 +34,7 @@ export default function LoginForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: window.location.origin + '/client/dashboard'
+        emailRedirectTo: window.location.origin + '/dashboard'
       }
     });
 

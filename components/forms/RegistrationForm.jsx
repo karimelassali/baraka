@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import CountryFlag from "react-country-flag";
+import { useRouter } from "next/navigation";
 
 /**
  * CustomerRegistration
@@ -37,6 +38,7 @@ export default function CustomerRegistration() {
   const [status, setStatus] = useState({ type: "", message: "" });
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
+  const router = useRouter();
 
   // Country name to country code mapping for flags
   const getCountryCode = (countryName) => {
@@ -205,25 +207,9 @@ export default function CustomerRegistration() {
         throw new Error(result.error || result.message || "Registration failed");
       }
 
-      // Set registered email and show verification modal
-      setRegisteredEmail(form.email);
-      setShowVerificationModal(true);
+      // Redirect to login page
+      router.push("/login");
 
-      // Reset form (keep language preference)
-      setForm({
-        first_name: "",
-        last_name: "",
-        date_of_birth: "",
-        residence: "",
-        phone_number: "",
-        email: "",
-        country_of_origin: "",
-        password: "",
-        password_confirmation: "",
-        gdpr_consent: false,
-        terms_and_conditions: false,
-        language_preference: form.language_preference || "en",
-      });
     } catch (err) {
       console.error("Registration error:", err);
       setStatus({
@@ -562,46 +548,6 @@ export default function CustomerRegistration() {
               </footer>
             </div>
           </div>
-          
-          {/* Verification Email Modal */}
-          {showVerificationModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full"
-              >
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check Your Email</h3>
-                  <p className="text-gray-600 mb-4">
-                    We've sent a verification link to <span className="font-semibold">{registeredEmail}</span>. 
-                    Please check your inbox and follow the instructions to verify your account.
-                  </p>
-                  
-                  <div className="flex justify-center space-x-3">
-                    <button
-                      onClick={() => setShowVerificationModal(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition duration-300"
-                    >
-                      Close
-                    </button>
-                    <a
-                      href="/login"
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-300"
-                    >
-                      Go to Login
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          )}
         </div>
       </motion.div>
     </div>

@@ -94,13 +94,6 @@ export async function POST(request) {
       );
     }
 
-    // Send confirmation email in the background
-    // Don't wait for it to complete - registration should succeed regardless
-    AuthService.sendConfirmationEmail(email, registrationResult.profile).catch(error => {
-      console.error('Error sending confirmation email:', error);
-      // Log the error, but don't fail the registration
-    });
-
     // Return success response with user data
     return new Response(
       JSON.stringify({ 

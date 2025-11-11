@@ -3,23 +3,20 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { createClient } from "@/lib/supabaseClient";
 
 /**
  * CustomerRegistration
  *
  * - Next.js 15 client component
  * - Tailwind CSS styling (red / black / white)
- * - Supabase insert using your createClient()
+ * - Supabase authentication and customer profile creation
  *
  * Notes:
- * - Make sure your Supabase client (createClient) is properly configured.
- * - Replace sendConfirmationEmail / sendWhatsApp with real implementations if you want automatic confirmations.
+ * - Uses dedicated API endpoint for registration to handle both auth and profile
+ * - Sends confirmation email via API endpoint
  */
 
 export default function CustomerRegistration() {
-  const supabase = createClient();
-
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -28,6 +25,8 @@ export default function CustomerRegistration() {
     phone_number: "",
     email: "",
     country_of_origin: "",
+    password: "",
+    password_confirmation: "",
     gdpr_consent: false,
     terms_and_conditions: false,
     language_preference: "en",
@@ -44,6 +43,9 @@ export default function CustomerRegistration() {
     // accept digits, space, +, -, parentheses (simple)
     /^[\d +()-]{7,20}$/.test(phone);
 
+  const isPasswordValid = (password) =>
+    password.length >= 8;
+
   const requiredFieldsFilled = () =>
     form.first_name.trim() &&
     form.last_name.trim() &&
@@ -51,7 +53,8 @@ export default function CustomerRegistration() {
     form.residence.trim() &&
     form.phone_number.trim() &&
     form.email.trim() &&
-    form.country_of_origin.trim();
+    form.country_of_origin.trim() &&
+    form.password;
 
   // Generic input change handler (handles checkboxes too)
   const handleChange = (e) => {
@@ -64,29 +67,6 @@ export default function CustomerRegistration() {
     // clear status messages on change
     if (status.type) setStatus({ type: "", message: "" });
   };
-
-  // Format a friendly date (optional)
-  const friendlyDate = (iso) => {
-    try {
-      return new Date(iso).toLocaleDateString();
-    } catch {
-      return iso;
-    }
-  };
-
-  // Placeholder: implement email sending (Supabase functions, SendGrid, etc.)
-  async function sendConfirmationEmail(toEmail, customer) {
-    // TODO: Replace with a real email-sending implementation.
-    // e.g. call an API route or Supabase Edge function that triggers SendGrid/Mailgun
-    // return await fetch("/api/send-confirmation-email", { method: "POST", body: JSON.stringify({toEmail, customer}) });
-    return { ok: true };
-  }
-
-  // Placeholder: implement WhatsApp sending (Twilio or other)
-  async function sendWhatsApp(phoneNumber, customer) {
-    // TODO: Replace with a real WhatsApp-sending implementation.
-    return { ok: true };
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -111,6 +91,20 @@ export default function CustomerRegistration() {
       });
       return;
     }
+    if (!isPasswordValid(form.password)) {
+      setStatus({
+        type: "error",
+        message: "Password must be at least 8 characters long.",
+      });
+      return;
+    }
+    if (form.password !== form.password_confirmation) {
+      setStatus({
+        type: "error",
+        message: "Passwords do not match.",
+      });
+      return;
+    }
     if (!form.gdpr_consent || !form.terms_and_conditions) {
       setStatus({
         type: "error",
@@ -123,7 +117,7 @@ export default function CustomerRegistration() {
     setStatus({ type: "", message: "" });
 
     try {
-      // Assemble payload matching your DB columns
+      // Assemble payload for registration API
       const payload = {
         first_name: form.first_name.trim(),
         last_name: form.last_name.trim(),
@@ -133,35 +127,28 @@ export default function CustomerRegistration() {
         email: form.email.trim().toLowerCase(),
         country_of_origin: form.country_of_origin.trim(),
         gdpr_consent: true,
-        // Supabase TIMESTAMPTZ - use ISO string
-        gdpr_consent_at: new Date().toISOString(),
+        password: form.password,
         language_preference: form.language_preference || "en",
-        // is_active omitted (DB default TRUE)
       };
 
-      const { data, error } = await supabase
-        .from("customers")
-        .insert([payload])
-        .select()
-        .single();
+      // Call registration API endpoint
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-      if (error) {
-        throw error;
-      }
+      const result = await response.json();
 
-      // Optional: send confirmation (no-op until you implement real functions)
-      try {
-        await Promise.all([
-          sendConfirmationEmail(payload.email, data).catch(() => null),
-          // sendWhatsApp(payload.phone_number, data).catch(() => null),
-        ]);
-      } catch {
-        // don't fail registration if confirmation sending fails — log it on server in real app
+      if (!response.ok) {
+        throw new Error(result.error || result.message || "Registration failed");
       }
 
       setStatus({
         type: "success",
-        message: `Registered successfully — Welcome ${data.first_name}!`,
+        message: `Registered successfully — Welcome ${result.user_id ? 'customer' : form.first_name}!`,
       });
 
       // Reset form (keep language preference)
@@ -173,12 +160,14 @@ export default function CustomerRegistration() {
         phone_number: "",
         email: "",
         country_of_origin: "",
+        password: "",
+        password_confirmation: "",
         gdpr_consent: false,
         terms_and_conditions: false,
         language_preference: form.language_preference || "en",
       });
     } catch (err) {
-      console.error("Insert error:", err);
+      console.error("Registration error:", err);
       setStatus({
         type: "error",
         message: err?.message || "Registration failed. Try again later.",
@@ -342,6 +331,38 @@ export default function CustomerRegistration() {
                       required
                       placeholder="email@example.com"
                       className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                    />
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="block">
+                    <span className="text-xs font-medium text-gray-700">
+                      Password *
+                    </span>
+                    <input
+                      name="password"
+                      type="password"
+                      value={form.password}
+                      onChange={handleChange}
+                      required
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      placeholder="At least 8 characters"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="text-xs font-medium text-gray-700">
+                      Confirm Password *
+                    </span>
+                    <input
+                      name="password_confirmation"
+                      type="password"
+                      value={form.password_confirmation}
+                      onChange={handleChange}
+                      required
+                      className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      placeholder="Confirm your password"
                     />
                   </label>
                 </div>

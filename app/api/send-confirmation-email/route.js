@@ -1,23 +1,25 @@
-import { createServer } from '../../../lib/supabaseServer';
 import { NextResponse } from 'next/server';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const fromEmail = process.env.ADMIN_EMAIL;
 
 export async function POST(request) {
-  const { email } = await request.json();
-  const supabase = createServer();
+  const { email, first_name } = await request.json();
 
-  // The original code had `supabase.auth.api.sendConfirmationEmail(email)`.
-  // The method has been updated in newer Supabase versions.
-  // The correct way to send a confirmation email is typically part of the sign-up process.
-  // Since this is a standalone endpoint, we'll assume we need to re-send a confirmation.
-  // The `resend` method is suitable for this.
-  const { error } = await supabase.auth.resend({
-    type: 'signup',
-    email: email,
-  });
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!email || !first_name) {
+    return NextResponse.json({ error: 'Email and first name are required' }, { status: 400 });
   }
 
-  return NextResponse.json({ message: 'Confirmation email sent' });
+  try {
+    await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: 'Welcome to our platform!',
+      html: `<p>Hi ${first_name},</p><p>Thank you for registering. We're excited to have you on board!</p>`,
+    });
+    return NextResponse.json({ message: 'Confirmation email sent successfully' });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to send confirmation email' }, { status: 500 });
+  }
 }

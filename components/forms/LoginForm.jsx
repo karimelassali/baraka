@@ -15,33 +15,41 @@ export default function LoginForm() {
     setError(null);
     setIsSubmitting(true);
 
-    // Use the client-side Supabase auth directly for better session handling
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      router.push("/dashboard");
+      if (error) {
+        throw error;
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      setError(err.message || "An unexpected error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   const handleMagicLink = async () => {
     setError(null);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: window.location.origin + '/dashboard'
-      }
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: window.location.origin + '/dashboard'
+        }
+      });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      alert("Check your email for the magic link!");
+      if (error) {
+        throw error;
+      } else {
+        alert("Check your email for the magic link!");
+      }
+    } catch (err) {
+      setError(err.message || "An unexpected error occurred. Please try again.");
     }
   };
 

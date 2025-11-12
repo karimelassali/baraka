@@ -1,24 +1,21 @@
-import { createServer } from "../../../../lib/supabaseServer";
+import { createSupabaseServerClient } from "../../../../lib/supabase/server";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST(request) {
+  const cookieStore = cookies();
+  const supabase = await createSupabaseServerClient(cookieStore);
   const { email } = await request.json();
-
-  if (!email) {
-    return NextResponse.json({ message: "Email is required." }, { status: 400 });
-  }
-
-  const supabase = createServer();
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      shouldCreateUser: false,
-    }
+      emailRedirectTo: `${request.nextUrl.origin}/dashboard`,
+    },
   });
 
   if (error) {
-    return NextResponse.json({ message: error.message }, { status: 401 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json({ message: "Magic link sent!" });

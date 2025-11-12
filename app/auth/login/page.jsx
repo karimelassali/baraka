@@ -1,19 +1,26 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "../../lib/auth";
+import { createSupabaseClient } from "@/lib/supabase/client";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [supabase, setSupabase] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    setSupabase(createSupabaseClient());
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
+
+    if (!supabase) return;
 
     // Use the client-side Supabase auth directly for better session handling
     const { error } = await supabase.auth.signInWithPassword({
@@ -31,6 +38,8 @@ export default function LoginForm() {
 
   const handleMagicLink = async () => {
     setError(null);
+    if (!supabase) return;
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -83,7 +92,7 @@ export default function LoginForm() {
             autoComplete="current-password"
             required
             value={password}
-            onChange={(e) => setPassword(e.targe.value)}
+            onChange={(e) => setPassword(e.target.value)}
             className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
           />
         </div>

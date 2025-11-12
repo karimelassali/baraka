@@ -1,25 +1,9 @@
-import { createServerClient } from '@supabase/ssr';
+import { createSupabaseServerClient } from './lib/supabase/server.js';
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
-  // Create a Supabase client using the request
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value);
-          });
-        },
-      },
-    }
-  );
+  const supabase = await createSupabaseServerClient(request.cookies);
 
   // Get the current session
   const {

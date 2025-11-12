@@ -10,11 +10,9 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
-    "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.81.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "dotenv": "^17.2.3",
     "framer-motion": "^12.23.24",
     "install": "^0.13.0",
     "lucide-react": "^0.553.0",
@@ -25,6 +23,7 @@
     "react": "^19.0.0",
     "react-country-flag": "^3.1.0",
     "react-dom": "^19.0.0",
+    "resend": "^6.4.2",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

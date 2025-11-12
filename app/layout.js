@@ -24,6 +24,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <div className="fixed bottom-4 right-4 z-50">
+          <TranslateWidget />
+        </div>
       </body>
     </html>
   );

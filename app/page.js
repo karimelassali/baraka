@@ -1065,6 +1065,12 @@ export default function Home() {
                   Privacy Policy
                 </a>
                 <a
+                  href="/how-to-use"
+                  className="text-gray-400 hover:text-red-400 text-sm"
+                >
+                  How to Use
+                </a>
+                <a
                   href="/cookies"
                   className="text-gray-400 hover:text-red-400 text-sm"
                 >

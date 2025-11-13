@@ -179,8 +179,8 @@ CREATE OR REPLACE VIEW customer_points_balance AS
 SELECT
     customer_id,
     SUM(points) AS total_points,
-    SUM(CASE WHEN points > 0 THEN points ELSE 0 END) AS available_points,
-    SUM(CASE WHEN points < 0 THEN ABS(points) ELSE 0 END) AS pending_points_redeemed
+    SUM(points) AS available_points,  -- Available points after all transactions (including redemptions)
+    SUM(CASE WHEN transaction_type = 'PENDING' THEN points ELSE 0 END) AS pending_points
 FROM loyalty_points
 GROUP BY customer_id;
 

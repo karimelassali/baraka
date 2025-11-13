@@ -1,20 +1,22 @@
-// app/api/admin/messages/route.js
-
-import { createSupabaseServerClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 
-export async function GET(request) {
-  const cookieStore = cookies();
-  const supabase = await createSupabaseServerClient(cookieStore);
+export async function GET() {
+  const supabase = createRouteHandlerClient({ cookies });
 
-  const { data: messages, error } = await supabase
-    .from('whatsapp_messages')
-    .select('*');
+  try {
+    const { data, error } = await supabase
+      .from('whatsapp_messages')
+      .select('*')
+      .order('sent_at', { ascending: false });
 
-  if (error) {
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json(data);
+  } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  return NextResponse.json(messages);
 }

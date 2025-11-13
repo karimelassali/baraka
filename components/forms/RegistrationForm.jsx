@@ -207,8 +207,16 @@ export default function CustomerRegistration() {
         throw new Error(result.error || result.message || "Registration failed");
       }
 
-      // Redirect to login page
-      router.push("/login");
+      // Check for redirect URL in query parameters after registration
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectUrl = urlParams.get('redirect');
+      
+      // Redirect to login page (with potential redirect) after registration
+      if (redirectUrl) {
+        router.push(`/auth/login?redirect=${redirectUrl}`);
+      } else {
+        router.push("/auth/login");
+      }
 
     } catch (err) {
       console.error("Registration error:", err);
@@ -232,27 +240,9 @@ export default function CustomerRegistration() {
         <div className="bg-white  rounded-2xl shadow-2xl border border-black overflow-hidden">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {/* Left visual panel */}
-            <div className="hidden md:flex flex-col justify-center items-center gap-4 p-8 bg-gradient-to-br from-red-600 to-black text-white">
+            <div className="hidden md:flex flex-col justify-center items-center gap-4 p-8 bg-gradient-to-br from-red-900 to-red-500 text-white">
               <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center">
-                <svg
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden
-                >
-                  <path
-                    d="M12 12a4 4 0 100-8 4 4 0 000 8z"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                  />
-                  <path
-                    d="M4 20a8 8 0 0116 0"
-                    stroke="currentColor"
-                    strokeWidth="1.2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <img className="rounded-full w-full h-full" src="/logo.jpeg" alt="" />
               </div>
               <h2 className="text-2xl font-semibold">Join our community</h2>
               <p className="text-sm text-white/90 text-center px-2">
@@ -540,7 +530,7 @@ export default function CustomerRegistration() {
               {/* micro footer */}
               <footer className="mt-4 text-xs text-gray-500">
                 Already registered?{" "}
-                <a className="text-red-600 underline">Login here</a>
+                <a href="/auth/login" className="text-red-600 underline">Login here</a>
                 <span className="block mt-1">
                   Need help?{" "}
                   <a className="text-red-600 underline">Contact support</a>

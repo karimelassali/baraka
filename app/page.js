@@ -333,7 +333,7 @@ export default function Home() {
             </button>
 
             <motion.a
-              href="/login"
+              href="/auth/login"
               className="text-gray-600 hover:text-red-600 transition hidden md:block"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -342,7 +342,7 @@ export default function Home() {
             </motion.a>
 
             <motion.a
-              href="/register"
+              href="/auth/register"
               className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition duration-300 text-sm"
               whileHover={{
                 scale: 1.05,
@@ -379,7 +379,7 @@ export default function Home() {
                 )
               )}
               <motion.a
-                href="/login"
+                href="/auth/login"
                 className="text-gray-600 hover:text-red-600 transition py-2"
               >
                 Login

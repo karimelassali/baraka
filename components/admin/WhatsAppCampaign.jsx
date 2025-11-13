@@ -14,8 +14,8 @@ export default function WhatsAppCampaign() {
     if (formData.targetGroup === 'nationality' && !formData.nationality) {
       newErrors.nationality = 'Nationality is required';
     }
-    if (formData.targetGroup === 'points' && !formData.pointsThreshold) {
-      newErrors.pointsThreshold = 'Points threshold is required';
+    if (formData.targetGroup === 'points' && (!formData.pointsThreshold || formData.pointsThreshold <= 0)) {
+      newErrors.pointsThreshold = 'Points threshold must be greater than 0';
     }
     return newErrors;
   };
@@ -45,7 +45,7 @@ export default function WhatsAppCampaign() {
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: 'Campaign sent successfully' });
+        setStatus({ type: 'success', message: result.message || 'Campaign sent successfully' });
         setFormData({ message: '', targetGroup: 'all', nationality: '', pointsThreshold: 0 });
       } else {
         setStatus({ type: 'error', message: result.error || 'Failed to send campaign' });
@@ -56,34 +56,84 @@ export default function WhatsAppCampaign() {
   };
 
   return (
-    <div className="p-4 border rounded-lg">
-      <h2 className="text-xl font-bold">WhatsApp Campaign</h2>
+    <div className="bg-white rounded-xl shadow p-6">
+      <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        </svg>
+        WhatsApp Campaign
+      </h2>
+      
       {status.message && (
-        <div className={`mt-4 text-sm ${status.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+        <div className={`mb-4 p-3 rounded-md ${status.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
           {status.message}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="mt-4">
-        <textarea name="message" placeholder="Message" value={formData.message} onChange={handleChange} />
-        {errors.message && <p className="text-red-500 text-sm">{errors.message}</p>}
-        <select name="targetGroup" value={formData.targetGroup} onChange={handleChange}>
-          <option value="all">All Customers</option>
-          <option value="nationality">By Nationality</option>
-          <option value="points">By Points Threshold</option>
-        </select>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+          <textarea 
+            name="message" 
+            placeholder="Enter your WhatsApp message here" 
+            value={formData.message} 
+            onChange={handleChange}
+            rows="4"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          />
+          {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message}</p>}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Target Group</label>
+          <select 
+            name="targetGroup" 
+            value={formData.targetGroup} 
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          >
+            <option value="all">All Customers</option>
+            <option value="nationality">By Nationality</option>
+            <option value="points">By Points Threshold</option>
+          </select>
+        </div>
+        
         {formData.targetGroup === 'nationality' && (
           <div>
-            <input name="nationality" placeholder="Nationality" value={formData.nationality} onChange={handleChange} />
-            {errors.nationality && <p className="text-red-500 text-sm">{errors.nationality}</p>}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nationality</label>
+            <input 
+              name="nationality" 
+              placeholder="Enter nationality" 
+              value={formData.nationality} 
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+            {errors.nationality && <p className="mt-1 text-sm text-red-600">{errors.nationality}</p>}
           </div>
         )}
+        
         {formData.targetGroup === 'points' && (
           <div>
-            <input name="pointsThreshold" type="number" placeholder="Points Threshold" value={formData.pointsThreshold} onChange={handleChange} />
-            {errors.pointsThreshold && <p className="text-red-500 text-sm">{errors.pointsThreshold}</p>}
+            <label className="block text-sm font-medium text-gray-700 mb-1">Points Threshold</label>
+            <input 
+              name="pointsThreshold" 
+              type="number" 
+              placeholder="Minimum points required" 
+              value={formData.pointsThreshold} 
+              onChange={handleChange}
+              min="1"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+            {errors.pointsThreshold && <p className="mt-1 text-sm text-red-600">{errors.pointsThreshold}</p>}
           </div>
         )}
-        <button type="submit">Send Campaign</button>
+        
+        <button 
+          type="submit" 
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-300"
+        >
+          Send Campaign
+        </button>
       </form>
     </div>
   );

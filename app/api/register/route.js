@@ -1,4 +1,4 @@
-import { AuthService } from "../../../lib/auth";
+import { registerCustomer } from "../../../lib/auth/register";
 
 export async function POST(request) {
   try {
@@ -75,20 +75,28 @@ export async function POST(request) {
       language_preference
     };
 
-    // Register customer using auth service
-    const registrationResult = await AuthService.registerCustomer({
+    // Register customer using register function
+    const registrationResult = await registerCustomer({
       ...customerData,
       password
     });
 
     if (!registrationResult.success) {
+      // Check if it's a rate limit error
+      const errorMessage = registrationResult.message || "Unknown error occurred";
+      const isRateLimitError = errorMessage.toLowerCase().includes("rate limit") || 
+                              errorMessage.toLowerCase().includes("too many requests") ||
+                              errorMessage.includes("email rate limit exceeded");
+      
       return new Response(
         JSON.stringify({ 
           error: "Registration failed",
-          details: [registrationResult.message || "Unknown error occurred"] 
+          details: [isRateLimitError 
+            ? "Too many registration attempts. Please try again later." 
+            : errorMessage]
         }),
         { 
-          status: 400,
+          status: isRateLimitError ? 429 : 400, // 429 for rate limit errors
           headers: { "Content-Type": "application/json" }
         }
       );
@@ -110,14 +118,22 @@ export async function POST(request) {
   } catch (error) {
     console.error("Registration error:", error);
     
+    // Check if it's a rate limit error
+    const errorMessage = error.message || "An unexpected error occurred";
+    const isRateLimitError = errorMessage.toLowerCase().includes("rate limit") || 
+                            errorMessage.toLowerCase().includes("too many requests") ||
+                            errorMessage.includes("email rate limit exceeded");
+
     // Return error response
     return new Response(
       JSON.stringify({ 
         error: "Registration failed",
-        details: [error.message || "An unexpected error occurred"] 
+        details: [isRateLimitError 
+          ? "Too many registration attempts. Please try again later." 
+          : errorMessage]
       }),
       { 
-        status: 500,
+        status: isRateLimitError ? 429 : 500, // 429 for rate limit errors
         headers: { "Content-Type": "application/json" }
       }
     );

@@ -14,17 +14,20 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: profile, error } = await supabase
+  // The issue was that the auth user ID doesn't match the customer table ID
+  // We need to first get the customer record using the auth_id field
+  const { data: profile, error, status } = await supabase
     .from('customers')
     .select('*')
-    .eq('id', user.id)
+    .eq('auth_id', user.id)
     .single();
 
-  if (error) {
+  if (error && status !== 406) {
+    // Don't return error if no rows found (status 406), just return empty profile
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(profile);
+  return NextResponse.json(profile || {});
 }
 
 export async function PUT(request) {
@@ -46,6 +49,7 @@ export async function PUT(request) {
       residence,
       phone_number,
       country_of_origin,
+      language_preference,
     } = await request.json();
 
     const { data, error } = await supabase
@@ -57,12 +61,13 @@ export async function PUT(request) {
         residence,
         phone_number,
         country_of_origin,
+        language_preference,
       })
-      .eq('id', user.id);
+      .eq('auth_id', user.id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ ...data, message: 'Profile updated successfully' });
   }

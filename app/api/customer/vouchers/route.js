@@ -16,13 +16,25 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { data: vouchers, error } = await supabase
+  // First, get the customer record to retrieve the correct customer ID
+  const { data: customer, error: customerError } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('auth_id', user.id)
+    .single();
+
+  if (customerError) {
+    return NextResponse.json({ error: customerError.message }, { status: 500 });
+  }
+
+  // Now fetch vouchers for this customer
+  const { data: vouchers, error: vouchersError } = await supabase
     .from('vouchers')
     .select('*')
-    .eq('customer_id', user.id);
+    .eq('customer_id', customer.id);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (vouchersError) {
+    return NextResponse.json({ error: vouchersError.message }, { status: 500 });
   }
 
   return NextResponse.json(vouchers);

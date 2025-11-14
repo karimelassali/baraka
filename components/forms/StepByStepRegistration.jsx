@@ -5,65 +5,71 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import CountryFlag from "react-country-flag";
+import { useI18n } from '../../lib/i18n';
 
 // Step components
-const Step1 = ({ formData, updateForm, errors }) => (
-  <motion.div
-    initial={{ x: "100%", opacity: 0 }}
-    animate={{ x: 0, opacity: 1 }}
-    exit={{ x: "-100%", opacity: 0 }}
-    className="space-y-6"
-  >
-    <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
-    <p className="text-gray-600">Let's start with your name</p>
-    
-    <div className="space-y-4">
-      <div>
-        <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
-        <input
-          id="first_name"
-          name="first_name"
-          value={formData.first_name}
-          onChange={(e) => updateForm({ first_name: e.target.value })}
-          placeholder="Maria"
-          className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.first_name ? "border-red-500" : "border-gray-300"}`}
-        />
-        {errors.first_name && (
-          <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
-        )}
-      </div>
+const Step1 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
+    <motion.div
+      initial={{ x: "100%", opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: "-100%", opacity: 0 }}
+      className="space-y-6"
+    >
+      <h2 className="text-2xl font-bold text-gray-900">{t('auth_personal_information')}</h2>
+      <p className="text-gray-600">{t('auth_start_with_name')}</p>
       
-      <div>
-        <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
-        <input
-          id="last_name"
-          name="last_name"
-          value={formData.last_name}
-          onChange={(e) => updateForm({ last_name: e.target.value })}
-          placeholder="Rossi"
-          className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.last_name ? "border-red-500" : "border-gray-300"}`}
-        />
-        {errors.last_name && (
-          <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
-        )}
-      </div>
-    </div>
-  </motion.div>
-);
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_first_name')} *</label>
+          <input
+            id="first_name"
+            name="first_name"
+            value={formData.first_name}
+            onChange={(e) => updateForm({ first_name: e.target.value })}
+            placeholder={t('auth_first_name')}
+            className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.first_name ? "border-red-500" : "border-gray-300"}`}
+          />
+          {errors.first_name && (
+            <p className="text-red-500 text-sm mt-1">{errors.first_name}</p>
+          )}
+        </div>
 
-const Step2 = ({ formData, updateForm, errors }) => (
+        <div>
+          <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_last_name')} *</label>
+          <input
+            id="last_name"
+            name="last_name"
+            value={formData.last_name}
+            onChange={(e) => updateForm({ last_name: e.target.value })}
+            placeholder={t('auth_last_name')}
+            className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.last_name ? "border-red-500" : "border-gray-300"}`}
+          />
+          {errors.last_name && (
+            <p className="text-red-500 text-sm mt-1">{errors.last_name}</p>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  )
+};
+
+const Step2 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Date of Birth</h2>
-    <p className="text-gray-600">When were you born?</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_date_of_birth')}</h2>
+    <p className="text-gray-600">{t('auth_when_were_you_born')}</p>
     
     <div className="space-y-4">
       <div>
-        <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
+        <label htmlFor="date_of_birth" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_date_of_birth')} *</label>
         <input
           id="date_of_birth"
           name="date_of_birth"
@@ -78,27 +84,29 @@ const Step2 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step3 = ({ formData, updateForm, errors }) => (
+const Step3 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Residence</h2>
-    <p className="text-gray-600">Where do you currently live?</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_residence')}</h2>
+    <p className="text-gray-600">{t('auth_where_do_you_live')}</p>
     
     <div className="space-y-4">
       <div>
-        <label htmlFor="residence" className="block text-sm font-medium text-gray-700 mb-1">City / Address *</label>
+        <label htmlFor="residence" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_city_address')} *</label>
         <input
           id="residence"
           name="residence"
           value={formData.residence}
           onChange={(e) => updateForm({ residence: e.target.value })}
-          placeholder="City, Address..."
+          placeholder={t('auth_city_address')}
           className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.residence ? "border-red-500" : "border-gray-300"}`}
         />
         {errors.residence && (
@@ -107,21 +115,23 @@ const Step3 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step4 = ({ formData, updateForm, errors }) => (
+const Step4 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Contact Information</h2>
-    <p className="text-gray-600">How can we reach you?</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_contact_information')}</h2>
+    <p className="text-gray-600">{t('auth_how_can_we_reach_you')}</p>
     
     <div className="space-y-4">
       <div>
-        <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+        <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_phone_number')} *</label>
         <input
           id="phone_number"
           name="phone_number"
@@ -137,7 +147,7 @@ const Step4 = ({ formData, updateForm, errors }) => (
       </div>
       
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_email_address')} *</label>
         <input
           id="email"
           name="email"
@@ -153,28 +163,30 @@ const Step4 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step5 = ({ formData, updateForm, errors }) => (
+const Step5 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Security</h2>
-    <p className="text-gray-600">Secure your account</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_security')}</h2>
+    <p className="text-gray-600">{t('auth_secure_your_account')}</p>
     
     <div className="space-y-4">
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_password')} *</label>
         <input
           id="password"
           name="password"
           type="password"
           value={formData.password}
           onChange={(e) => updateForm({ password: e.target.value })}
-          placeholder="At least 8 characters"
+          placeholder={t('auth_password_placeholder')}
           className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.password ? "border-red-500" : "border-gray-300"}`}
         />
         {errors.password && (
@@ -183,14 +195,14 @@ const Step5 = ({ formData, updateForm, errors }) => (
       </div>
       
       <div>
-        <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
+        <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_confirm_password')} *</label>
         <input
           id="password_confirmation"
           name="password_confirmation"
           type="password"
           value={formData.password_confirmation}
           onChange={(e) => updateForm({ password_confirmation: e.target.value })}
-          placeholder="Confirm your password"
+          placeholder={t('auth_confirm_password_placeholder')}
           className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.password_confirmation ? "border-red-500" : "border-gray-300"}`}
         />
         {errors.password_confirmation && (
@@ -199,21 +211,23 @@ const Step5 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step6 = ({ formData, updateForm, errors }) => (
+const Step6 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Country of Origin</h2>
-    <p className="text-gray-600">Where are you from?</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_country_of_origin')}</h2>
+    <p className="text-gray-600">{t('auth_where_are_you_from')}</p>
     
     <div className="space-y-4">
       <div>
-        <label htmlFor="country_of_origin" className="block text-sm font-medium text-gray-700 mb-1">Country of Origin *</label>
+        <label htmlFor="country_of_origin" className="block text-sm font-medium text-gray-700 mb-1">{t('auth_country_of_origin')} *</label>
         <div className="relative">
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
             {formData.country_of_origin && (
@@ -267,17 +281,19 @@ const Step6 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step7 = ({ formData, updateForm, errors }) => (
+const Step7 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Language Preference</h2>
-    <p className="text-gray-600">Which language do you prefer?</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_language_preference')}</h2>
+    <p className="text-gray-600">{t('auth_which_language')}</p>
     
     <div className="space-y-4">
       <div>
@@ -296,17 +312,19 @@ const Step7 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step8 = ({ formData, updateForm, errors }) => (
+const Step8 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Privacy Policy</h2>
-    <p className="text-gray-600">We need your consent to process your data</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_privacy_policy')}</h2>
+    <p className="text-gray-600">{t('auth_privacy_policy_consent')}</p>
     
     <div className="space-y-4">
       <div className="flex items-start space-x-3">
@@ -319,7 +337,7 @@ const Step8 = ({ formData, updateForm, errors }) => (
         />
         <div>
           <label htmlFor="gdpr_consent" className="text-sm font-medium text-gray-700">
-            I agree to the <a href="/privacy" className="text-red-600 underline">Privacy Policy</a> *
+            {t('auth_i_agree_privacy')} <a href="/privacy" className="text-red-600 underline">{t('auth_privacy_policy')}</a> *
           </label>
           {errors.gdpr_consent && (
             <p className="text-red-500 text-sm">{errors.gdpr_consent}</p>
@@ -328,17 +346,19 @@ const Step8 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step9 = ({ formData, updateForm, errors }) => (
+const Step9 = ({ formData, updateForm, errors }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Terms & Conditions</h2>
-    <p className="text-gray-600">Please confirm you agree to our terms</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_terms_and_conditions')}</h2>
+    <p className="text-gray-600">{t('auth_terms_and_conditions_consent')}</p>
     
     <div className="space-y-4">
       <div className="flex items-start space-x-3">
@@ -351,7 +371,7 @@ const Step9 = ({ formData, updateForm, errors }) => (
         />
         <div>
           <label htmlFor="terms_and_conditions" className="text-sm font-medium text-gray-700">
-            I accept the <a href="/terms" className="text-red-600 underline">Terms & Conditions</a> *
+            {t('auth_i_accept_terms')} <a href="/terms" className="text-red-600 underline">{t('auth_terms_and_conditions')}</a> *
           </label>
           {errors.terms_and_conditions && (
             <p className="text-red-500 text-sm">{errors.terms_and_conditions}</p>
@@ -360,49 +380,51 @@ const Step9 = ({ formData, updateForm, errors }) => (
       </div>
     </div>
   </motion.div>
-);
+)};
 
-const Step10 = ({ formData, errors, handleSubmit, loading }) => (
+const Step10 = ({ formData, errors, handleSubmit, loading }) => {
+  const { t } = useI18n();
+  return (
   <motion.div
     initial={{ x: "100%", opacity: 0 }}
     animate={{ x: 0, opacity: 1 }}
     exit={{ x: "-100%", opacity: 0 }}
     className="space-y-6"
   >
-    <h2 className="text-2xl font-bold text-gray-900">Review & Submit</h2>
-    <p className="text-gray-600">Please review your information before submitting</p>
+    <h2 className="text-2xl font-bold text-gray-900">{t('auth_review_submit')}</h2>
+    <p className="text-gray-600">{t('auth_review_your_information')}</p>
     
     <div className="bg-gray-50 p-4 rounded-lg space-y-3">
       <div className="grid grid-cols-2 gap-2">
-        <strong>First Name:</strong>
+        <strong>{t('auth_first_name')}:</strong>
         <span>{formData.first_name}</span>
         
-        <strong>Last Name:</strong>
+        <strong>{t('auth_last_name')}:</strong>
         <span>{formData.last_name}</span>
         
-        <strong>Date of Birth:</strong>
+        <strong>{t('auth_date_of_birth')}:</strong>
         <span>{formData.date_of_birth}</span>
         
-        <strong>Residence:</strong>
+        <strong>{t('auth_residence')}:</strong>
         <span>{formData.residence}</span>
         
-        <strong>Phone:</strong>
+        <strong>{t('auth_phone_number')}:</strong>
         <span>{formData.phone_number}</span>
         
-        <strong>Email:</strong>
+        <strong>{t('auth_email_address')}:</strong>
         <span>{formData.email}</span>
         
-        <strong>Country of Origin:</strong>
+        <strong>{t('auth_country_of_origin')}:</strong>
         <span>{formData.country_of_origin}</span>
         
-        <strong>Language:</strong>
+        <strong>{t('auth_language_preference')}:</strong>
         <span>{formData.language_preference}</span>
         
-        <strong>GDPR Consent:</strong>
-        <span>{formData.gdpr_consent ? 'Agreed' : 'Not Agreed'}</span>
+        <strong>{t('auth_gdpr_consent')}:</strong>
+        <span>{formData.gdpr_consent ? t('auth_agreed') : t('auth_not_agreed')}</span>
         
-        <strong>Terms & Conditions:</strong>
-        <span>{formData.terms_and_conditions ? 'Agreed' : 'Not Agreed'}</span>
+        <strong>{t('auth_terms_and_conditions')}:</strong>
+        <span>{formData.terms_and_conditions ? t('auth_agreed') : t('auth_not_agreed')}</span>
       </div>
     </div>
     
@@ -417,11 +439,11 @@ const Step10 = ({ formData, errors, handleSubmit, loading }) => (
             : "bg-red-600 hover:bg-red-700 text-white"
         }`}
       >
-        {loading ? "Processing..." : "Complete Registration"}
+        {loading ? t('auth_processing') : t('auth_complete_registration')}
       </button>
     </div>
   </motion.div>
-);
+)};
 
 // Country code mapping function
 const getCountryCode = (countryName) => {
@@ -480,90 +502,94 @@ const getCountryCode = (countryName) => {
 };
 
 // Validation functions
-const validateStep = (step, formData) => {
+const validateStep = (step, formData, t) => {
   const errors = {};
   
   switch(step) {
     case 1:
-      if (!formData.first_name.trim()) errors.first_name = "First name is required";
-      if (!formData.last_name.trim()) errors.last_name = "Last name is required";
+      if (!formData.first_name.trim()) errors.first_name = t('auth_first_name_error');
+      if (!formData.last_name.trim()) errors.last_name = t('auth_last_name_error');
       break;
     case 2:
-      if (!formData.date_of_birth) errors.date_of_birth = "Date of birth is required";
+      if (!formData.date_of_birth) errors.date_of_birth = t('auth_dob_error');
       break;
     case 3:
-      if (!formData.residence.trim()) errors.residence = "Residence is required";
+      if (!formData.residence.trim()) errors.residence = t('auth_residence_error');
       break;
     case 4:
-      if (!formData.phone_number.trim()) errors.phone_number = "Phone number is required";
+      if (!formData.phone_number.trim()) errors.phone_number = t('auth_phone_error');
       else if (!/^[\d +()-]{7,20}$/.test(formData.phone_number)) 
-        errors.phone_number = "Please enter a valid phone number (digits, + - parentheses allowed).";
+        errors.phone_number = t('auth_phone_error_invalid');
       
-      if (!formData.email.trim()) errors.email = "Email is required";
+      if (!formData.email.trim()) errors.email = t('auth_email_error');
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) 
-        errors.email = "Please enter a valid email address.";
+        errors.email = t('auth_email_error_invalid');
       break;
     case 5:
-      if (!formData.password) errors.password = "Password is required";
+      if (!formData.password) errors.password = t('auth_password_error');
       else if (formData.password.length < 8) 
-        errors.password = "Password must be at least 8 characters long";
+        errors.password = t('auth_password_error_length');
       
-      if (!formData.password_confirmation) errors.password_confirmation = "Please confirm your password";
+      if (!formData.password_confirmation) errors.password_confirmation = t('auth_password_confirmation_error');
       else if (formData.password !== formData.password_confirmation) 
-        errors.password_confirmation = "Passwords do not match";
+        errors.password_confirmation = t('auth_password_confirmation_error_match');
       break;
     case 6:
-      if (!formData.country_of_origin.trim()) errors.country_of_origin = "Country of origin is required";
+      if (!formData.country_of_origin.trim()) errors.country_of_origin = t('auth_country_error');
       break;
     case 7:
-      if (!formData.language_preference) errors.language_preference = "Please select a language preference";
+      if (!formData.language_preference) errors.language_preference = t('auth_language_error');
       break;
     case 8:
-      if (!formData.gdpr_consent) errors.gdpr_consent = "You must agree to the Privacy Policy";
+      if (!formData.gdpr_consent) errors.gdpr_consent = t('auth_privacy_error');
       break;
     case 9:
-      if (!formData.terms_and_conditions) errors.terms_and_conditions = "You must accept the Terms & Conditions";
+      if (!formData.terms_and_conditions) errors.terms_and_conditions = t('auth_terms_error');
       break;
     case 10:
       // All fields were validated in previous steps, so just ensure required ones are filled
-      if (!formData.first_name.trim()) errors.first_name = "First name is required";
-      if (!formData.last_name.trim()) errors.last_name = "Last name is required";
-      if (!formData.date_of_birth) errors.date_of_birth = "Date of birth is required";
-      if (!formData.residence.trim()) errors.residence = "Residence is required";
-      if (!formData.phone_number.trim()) errors.phone_number = "Phone number is required";
-      if (!formData.email.trim()) errors.email = "Email is required";
-      if (!formData.password) errors.password = "Password is required";
-      if (!formData.country_of_origin.trim()) errors.country_of_origin = "Country of origin is required";
-      if (!formData.gdpr_consent) errors.gdpr_consent = "You must agree to the Privacy Policy";
-      if (!formData.terms_and_conditions) errors.terms_and_conditions = "You must accept the Terms & Conditions";
+      if (!formData.first_name.trim()) errors.first_name = t('auth_first_name_error');
+      if (!formData.last_name.trim()) errors.last_name = t('auth_last_name_error');
+      if (!formData.date_of_birth) errors.date_of_birth = t('auth_dob_error');
+      if (!formData.residence.trim()) errors.residence = t('auth_residence_error');
+      if (!formData.phone_number.trim()) errors.phone_number = t('auth_phone_error');
+      if (!formData.email.trim()) errors.email = t('auth_email_error');
+      if (!formData.password) errors.password = t('auth_password_error');
+      if (!formData.country_of_origin.trim()) errors.country_of_origin = t('auth_country_error');
+      if (!formData.gdpr_consent) errors.gdpr_consent = t('auth_privacy_error');
+      if (!formData.terms_and_conditions) errors.terms_and_conditions = t('auth_terms_error');
       break;
   }
   
   return errors;
 };
 
-const ProgressBar = ({ currentStep, totalSteps }) => (
-  <div className="mb-8">
-    <div className="flex justify-between items-center mb-2">
-      <span className="text-sm font-medium text-gray-700">
-        Step {currentStep} of {totalSteps}
-      </span>
-      <span className="text-sm font-medium text-gray-700">
-        {Math.round((currentStep / totalSteps) * 100)}% Complete
-      </span>
+const ProgressBar = ({ currentStep, totalSteps }) => {
+  const { t } = useI18n();
+  return (
+    <div className="mb-8">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-sm font-medium text-gray-700">
+          Step {currentStep} of {totalSteps}
+        </span>
+        <span className="text-sm font-medium text-gray-700">
+          {Math.round((currentStep / totalSteps) * 100)}% Complete
+        </span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-2.5">
+        <motion.div
+          className="bg-red-600 h-2.5 rounded-full"
+          initial={{ width: "0%" }}
+          animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
+          transition={{ duration: 0.5 }}
+        />
+      </div>
     </div>
-    <div className="w-full bg-gray-200 rounded-full h-2.5">
-      <motion.div 
-        className="bg-red-600 h-2.5 rounded-full"
-        initial={{ width: "0%" }}
-        animate={{ width: `${(currentStep / totalSteps) * 100}%` }}
-        transition={{ duration: 0.5 }}
-      />
-    </div>
-  </div>
-);
+  )
+};
 
 export default function StepByStepRegistration() {
+  const { t } = useI18n();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 10;
   
@@ -598,7 +624,7 @@ export default function StepByStepRegistration() {
   };
 
   const nextStep = () => {
-    const newErrors = validateStep(currentStep, formData);
+    const newErrors = validateStep(currentStep, formData, t);
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length === 0) {
@@ -615,7 +641,7 @@ export default function StepByStepRegistration() {
   };
 
   const handleSubmit = async () => {
-    const newErrors = validateStep(10, formData);
+    const newErrors = validateStep(10, formData, t);
     setErrors(newErrors);
     
     if (Object.keys(newErrors).length > 0) {
@@ -652,7 +678,7 @@ export default function StepByStepRegistration() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || result.message || "Registration failed");
+        throw new Error(result.error || result.message || t('auth_registration_failed'));
       }
 
       // Store the registered email to show in the modal
@@ -665,7 +691,7 @@ export default function StepByStepRegistration() {
       console.error("Registration error:", err);
       setStatus({
         type: "error",
-        message: err?.message || "Registration failed. Try again later.",
+        message: err?.message || t('auth_registration_failed'),
       });
     } finally {
       setLoading(false);
@@ -766,7 +792,7 @@ export default function StepByStepRegistration() {
                       : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                   }`}
                 >
-                  Back
+                  {t('auth_back')}
                 </button>
                 
                 {currentStep < totalSteps ? (
@@ -775,7 +801,7 @@ export default function StepByStepRegistration() {
                     onClick={nextStep}
                     className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                   >
-                    Next
+                    {t('auth_next')}
                   </button>
                 ) : (
                   <button 
@@ -788,18 +814,18 @@ export default function StepByStepRegistration() {
                         : "bg-red-600 hover:bg-red-700 text-white"
                     }`}
                   >
-                    {loading ? "Processing..." : "Complete Registration"}
+                    {loading ? t('auth_processing') : t('auth_complete_registration')}
                   </button>
                 )}
               </div>
 
               {/* micro footer */}
               <footer className="mt-4 text-xs text-gray-500">
-                Already registered?{" "}
-                <a href="/auth/login" className="text-red-600 underline">Login here</a>
+                {t('auth_already_registered')}{" "}
+                <a href="/auth/login" className="text-red-600 underline">{t('auth_login_here')}</a>
                 <span className="block mt-1">
-                  Need help?{" "}
-                  <a className="text-red-600 underline">Contact support</a>
+                  {t('auth_need_help')}{" "}
+                  <a className="text-red-600 underline">{t('auth_contact_support')}</a>
                 </span>
               </footer>
             </div>
@@ -821,16 +847,16 @@ export default function StepByStepRegistration() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Complete!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('auth_registration_complete')}</h2>
             <p className="text-gray-600 mb-6">
-              We've sent a confirmation link to <span className="font-semibold">{registeredEmail}</span>.
-              Please check your email to verify your account.
+              {t('auth_confirmation_sent')} <span className="font-semibold">{registeredEmail}</span>.
+              {t('auth_check_your_email')}
             </p>
             <button
               onClick={handleGotIt}
               className="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-medium transition-colors"
             >
-              Got it
+              {t('auth_got_it')}
             </button>
           </motion.div>
         </div>

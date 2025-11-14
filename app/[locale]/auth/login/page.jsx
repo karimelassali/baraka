@@ -3,7 +3,10 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseClient } from "@/lib/supabase/client";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
+import { useI18n } from '../../../lib/i18n';
+
 export default function LoginForm() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -117,7 +120,7 @@ export default function LoginForm() {
         setError(error.message);
       } else {
         // For magic link, we don't want to redirect, just show success message
-        setSuccess("Magic link sent! Check your email.");
+        setSuccess(t('auth_magic_link_sent'));
       }
     } catch (err) {
       setError(err.message || "An unexpected error occurred. Please try again.");
@@ -138,8 +141,8 @@ export default function LoginForm() {
       <div className="relative z-10   w-xl min-h-screen flex items-center justify-center">
         <form onSubmit={handleSubmit} className="space-y-6 w-full mx-auto mt-8 p-5  backdrop-blur-sm rounded-xl ">
           <div>
-            <h2 className="text-2xl font-bold text-center text-gray-800">Welcome Back</h2>
-            <p className="text-center text-gray-600 mt-2">Sign in to your account</p>
+            <h2 className="text-2xl font-bold text-center text-gray-800">{t('auth_welcome_back')}</h2>
+            <p className="text-center text-gray-600 mt-2">{t('auth_sign_in_to_account')}</p>
           </div>
           
           <div className='' >
@@ -148,11 +151,11 @@ export default function LoginForm() {
               
               className="block text-sm font-medium text-gray-700"
             >
-              Email address
+              {t('auth_email_address')}
             </label>
             <div className="mt-1">
               <input
-              placeholder="Email"
+              placeholder={t('auth_email_address')}
                 id="email"
                 name="email"
                 type="email"
@@ -170,11 +173,11 @@ export default function LoginForm() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              {t('auth_password')}
             </label>
             <div className="mt-1">
               <input
-                placeholder="Password"
+                placeholder={t('auth_password')}
                 id="password"
                 name="password"
                 type="password"
@@ -196,7 +199,7 @@ export default function LoginForm() {
               disabled={isSubmitting}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
             >
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? t('auth_signing_in') : t('auth_sign_in')}
             </button>
           </div>
           <div className="text-center">
@@ -205,14 +208,14 @@ export default function LoginForm() {
               onClick={handleMagicLink}
               className="text-sm text-red-600 hover:underline"
             >
-              Sign in with Magic Link
+              {t('auth_magic_link')}
             </button>
           </div>
           
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <a href="/auth/register" className="text-red-600 hover:underline">Register</a>
+              {t('auth_no_account')}{' '}
+              <a href="/auth/register" className="text-red-600 hover:underline">{t('auth_register')}</a>
             </p>
           </div>
         </form>

@@ -1,6 +1,14 @@
 import { createSupabaseServerClient } from './lib/supabase/server.js';
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
+import { createI18nMiddleware } from 'next-international/middleware';
+
+const i18nConfig = require('./i18n.config.js');
+
+const I18nMiddleware = createI18nMiddleware({
+  locales: i18nConfig.locales,
+  defaultLocale: i18nConfig.defaultLocale,
+});
 
 export async function updateSession(request: NextRequest) {
   const supabase = await createSupabaseServerClient(request.cookies);
@@ -13,8 +21,18 @@ export async function updateSession(request: NextRequest) {
   // Get URL for routing
   const url = request.nextUrl.clone();
 
+  const locale = request.headers.get('x-next-international-locale');
+  let pathname = request.nextUrl.pathname;
+  if (locale) {
+      if (pathname.startsWith(`/${locale}/`)) {
+          pathname = pathname.substring(`/${locale}`.length);
+      } else if (pathname === `/${locale}`) {
+          pathname = '/';
+      }
+  }
+
   // Define protected routes (admin routes)
-  const isAdminRoute = url.pathname.startsWith('/admin');
+  const isAdminRoute = pathname.startsWith('/admin');
   
   // For admin pages, redirect if not authenticated as admin
   if (isAdminRoute) {
@@ -41,7 +59,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // For dashboard pages, ensure user is authenticated
-  if (url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/api/customer')) {
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/customer')) {
     if (!session) {
       url.pathname = '/auth/login';
       url.search = `?redirect=${encodeURIComponent(request.nextUrl.pathname)}`;
@@ -58,21 +76,30 @@ export async function updateSession(request: NextRequest) {
 }
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  const supabase = await createSupabaseServerClient(request.cookies);
+  const { data: { user } } = await supabase.auth.getUser();
+  const preferredLocale = user?.user_metadata?.language_preference || i18nConfig.defaultLocale;
+
+  const I18nMiddleware = createI18nMiddleware({
+    locales: i18nConfig.locales,
+    defaultLocale: preferredLocale,
+  });
+
+  const i18nResponse = I18nMiddleware(request);
+
+  if (i18nResponse.status >= 300 && i18nResponse.status < 400) {
+    return i18nResponse;
+  }
+
+  const finalRequest = new NextRequest(i18nResponse.url, request);
+  i18nResponse.headers.forEach((v, k) => finalRequest.headers.set(k, v));
+
+  return await updateSession(finalRequest);
 }
 
 // Define which routes the middleware should run for
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - auth routes (login, register)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|auth/login|auth/register|.*\\.(?!js|jsx|ts|tsx$)[^/]*$).*)',
-    '/(api|trpc)(.*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

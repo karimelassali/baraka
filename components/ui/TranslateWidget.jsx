@@ -1,34 +1,37 @@
-"use client";
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import GoogleTranslate from "next-google-translate-widget";
+'use client';
+import { useChangeLocale, useCurrentLocale } from '../../lib/i18n';
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TranslateWidget() {
+  const changeLocale = useChangeLocale();
+  const currentLocale = useCurrentLocale();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  
+
   const languages = [
-    { code: "ar", name: "Arabic", flag: "🇸🇦" },
-    { code: "en", name: "English", flag: "🇺🇸" },
-    { code: "fr", name: "French", flag: "🇫🇷" },
-    { code: "it", name: "Italian", flag: "🇮🇹" },
-    { code: "es", name: "Spanish", flag: "🇪🇸" }
+    { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'fr', name: 'French', flag: '🇫🇷' },
+    { code: 'it', name: 'Italian', flag: '🇮🇹' },
+    { code: 'es', name: 'Spanish', flag: '🇪🇸' },
   ];
-  
-  // Close dropdown when clicking outside
+
+  const currentLanguage = languages.find(lang => lang.code === currentLocale) || languages.find(lang => lang.code === 'en');
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     }
-    
-    document.addEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  
+
   return (
     <div className="relative" ref={dropdownRef}>
       <motion.button
@@ -39,23 +42,23 @@ export default function TranslateWidget() {
         aria-label="Language selector"
         title="Change language"
       >
-        <span className="text-base mr-1">🇮🇹</span>
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-4 w-4 text-gray-700" 
-          fill="none" 
-          viewBox="0 0 24 24" 
+        <span className="text-base mr-1">{currentLanguage.flag}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-4 w-4 text-gray-700"
+          fill="none"
+          viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M19 9l-7 7-7-7" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
           />
         </svg>
       </motion.button>
-      
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -63,10 +66,22 @@ export default function TranslateWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.9 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden"
+            className="absolute right-0 bottom-full mb-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden"
           >
             <div className="py-2">
-              <GoogleTranslate pageLanguage="it" includedLanguages="ar,en,fr,it,es" />
+              {languages.map(lang => (
+                <button
+                  key={lang.code}
+                  onClick={() => {
+                    changeLocale(lang.code);
+                    setIsOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                >
+                  <span className="text-base mr-3">{lang.flag}</span>
+                  {lang.name}
+                </button>
+              ))}
             </div>
           </motion.div>
         )}

@@ -9,8 +9,10 @@ import Profile from '../../components/dashboard/Profile';
 import Offers from '../../components/dashboard/Offers';
 import Vouchers from '../../components/dashboard/Vouchers';
 import Statistics from '../../components/dashboard/Statistics';
+import { useI18n } from '../../lib/i18n';
 
 export default function DashboardPage() {
+  const { t } = useI18n();
   const [user, setUser] = useState(null);
   const [supabase, setSupabase] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -40,7 +42,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-lg text-gray-600">Loading dashboard...</p>
+          <p className="mt-4 text-lg text-gray-600">{t('dashboard_loading')}</p>
         </div>
       </div>
     );
@@ -48,11 +50,11 @@ export default function DashboardPage() {
 
   // Navigation items for the sidebar
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'profile', label: 'Profile', icon: '👤' },
-    { id: 'wallet', label: 'Loyalty Wallet', icon: '💳' },
-    { id: 'offers', label: 'Special Offers', icon: '🎁' },
-    { id: 'vouchers', label: 'My Vouchers', icon: '🏷️' },
+    { id: 'overview', label: t('dashboard_overview'), icon: '📊' },
+    { id: 'profile', label: t('dashboard_profile'), icon: '👤' },
+    { id: 'wallet', label: t('dashboard_wallet'), icon: '💳' },
+    { id: 'offers', label: t('dashboard_offers'), icon: '🎁' },
+    { id: 'vouchers', label: t('dashboard_vouchers'), icon: '🏷️' },
   ];
 
   // Render the active component based on the selected tab
@@ -113,7 +115,7 @@ export default function DashboardPage() {
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg flex flex-col">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-800">Customer Dashboard</h1>
+          <h1 className="text-xl font-bold text-gray-800">{t('dashboard_title')}</h1>
           <p className="text-sm text-gray-600 truncate">{user.email}</p>
         </div>
         
@@ -146,7 +148,7 @@ export default function DashboardPage() {
             className="w-full flex items-center justify-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <span>🚪</span>
-            <span>Sign Out</span>
+            <span>{t('dashboard_sign_out')}</span>
           </button>
         </div>
       </div>
@@ -158,11 +160,11 @@ export default function DashboardPage() {
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 capitalize">{activeTab}</h1>
               <p className="text-gray-600 mt-2">
-                {activeTab === 'overview' && 'Welcome back! Here\'s an overview of your account'}
-                {activeTab === 'profile' && 'Manage your personal information and preferences'}
-                {activeTab === 'wallet' && 'Track your loyalty points and rewards'}
-                {activeTab === 'offers' && 'Discover exclusive deals and promotions'}
-                {activeTab === 'vouchers' && 'Manage and redeem your vouchers'}
+                {activeTab === 'overview' && t('dashboard_welcome')}
+                {activeTab === 'profile' && t('dashboard_profile_manage')}
+                {activeTab === 'wallet' && t('dashboard_wallet_track')}
+                {activeTab === 'offers' && t('dashboard_offers_discover')}
+                {activeTab === 'vouchers' && t('dashboard_vouchers_manage')}
               </p>
             </div>
 

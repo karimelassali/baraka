@@ -1,0 +1,21 @@
+/* app/dashboard/dashboard.css */
+.dashboard-container {
+  font-family: sans-serif;
+}
+
+:root {
+  --primary-color: #ef4444; /* red-500 */
+  --primary-color-hover: #dc2626; /* red-600 */
+}
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-primary-hover:hover {
+  background-color: var(--primary-color-hover);
+}
+
+.text-primary {
+  color: var(--primary-color);
+}

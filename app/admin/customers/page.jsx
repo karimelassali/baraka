@@ -1,26 +1,29 @@
 // app/admin/customers/page.jsx
 "use client";
 
-import CustomerManagement from '../../../components/admin/CustomerManagement';
+import EnhancedCustomerManagement from '../../../components/admin/EnhancedCustomerManagement';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Plus } from 'lucide-react';
+import { Button } from '../../../components/ui/button';
 
-export default function AdminCustomersPage() {
+export default function EnhancedAdminCustomersPage() {
   return (
-    <>
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">Customer Management</h1>
-        <p className="text-gray-600">View, edit, and manage your customers</p>
-        <div className="w-24 h-1 bg-red-500 mx-auto mt-4 rounded-full"></div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Customer Management</h1>
+            <p className="text-muted-foreground mt-1">Manage your customer information and details</p>
+          </div>
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-end mb-4">
-          <Link href="/admin/customers/new" className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
-            Add New Customer
-          </Link>
-        </div>
-        <CustomerManagement />
-      </div>
-    </>
+      <EnhancedCustomerManagement />
+    </motion.div>
   );
 }

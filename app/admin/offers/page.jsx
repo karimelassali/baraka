@@ -1,20 +1,22 @@
 // app/admin/offers/page.jsx
 "use client";
 
-import OfferManagement from '../../../components/admin/OfferManagement';
+import EnhancedOfferManagement from '../../../components/admin/EnhancedOfferManagement';
+import { motion } from 'framer-motion';
 
-export default function AdminOffersPage() {
+export default function EnhancedAdminOffersPage() {
   return (
-    <>
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">Offer Management</h1>
-        <p className="text-gray-600">Create and manage weekly and permanent offers</p>
-        <div className="w-24 h-1 bg-blue-500 mx-auto mt-4 rounded-full"></div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Offer Management</h1>
+        <p className="text-muted-foreground mt-1">Create and manage weekly and permanent offers</p>
       </div>
 
-      <div className="max-w-6xl mx-auto">
-        <OfferManagement />
-      </div>
-    </>
+      <EnhancedOfferManagement />
+    </motion.div>
   );
 }

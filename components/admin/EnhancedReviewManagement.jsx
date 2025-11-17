@@ -1,0 +1,285 @@
+// components/admin/EnhancedReviewManagement.jsx
+"use client";
+
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  MessageCircle, 
+  Star, 
+  CheckCircle, 
+  Clock, 
+  Search, 
+  Filter,
+  Eye,
+  EyeOff
+} from 'lucide-react';
+import { Button } from '../../components/ui/button';
+import { Badge } from '../../components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { getReviews, updateReviewApproval } from '../../lib/supabase/review';
+
+function SkeletonRow() {
+  return (
+    <motion.tr 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="border-b border-border"
+    >
+      <td className="py-4 px-6">
+        <div className="h-4 bg-muted rounded w-3/4"></div>
+      </td>
+      <td className="py-4 px-6">
+        <div className="h-4 bg-muted rounded w-1/2"></div>
+      </td>
+      <td className="py-4 px-6">
+        <div className="h-4 bg-muted rounded w-1/4"></div>
+      </td>
+      <td className="py-4 px-6">
+        <div className="h-8 w-16 bg-muted rounded"></div>
+      </td>
+    </motion.tr>
+  );
+}
+
+export default function EnhancedReviewManagement() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedReviewId, setExpandedReviewId] = useState(null);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const data = await getReviews();
+        setReviews(data);
+      } catch (error) {
+        console.error('Failed to fetch reviews:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, []);
+
+  const handleToggleApproved = async (reviewId, approved) => {
+    try {
+      const updatedReview = await updateReviewApproval(reviewId, approved);
+      setReviews((prev) =>
+        prev.map((r) => (r.id === updatedReview.id ? updatedReview : r))
+      );
+    } catch (error) {
+      console.error('Failed to update review:', error);
+    }
+  };
+
+  const toggleReviewDetails = (reviewId) => {
+    setExpandedReviewId(expandedReviewId === reviewId ? null : reviewId);
+  };
+
+  return (
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                Review Management
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Manage customer reviews and feedback
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search reviews..."
+                  className="pl-10 pr-4 py-2 min-w-[240px]"
+                />
+              </div>
+              <Button variant="outline" className="border-input hover:bg-primary/10 hover:text-primary">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Total Reviews: <span className="font-medium">{reviews.length}</span></span>
+            <span className="text-xs">Last updated: Today</span>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Reviews Table */}
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted/50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Content</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Rating</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {loading ? (
+                  <AnimatePresence>
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <SkeletonRow key={`skeleton-${index}`} />
+                    ))}
+                  </AnimatePresence>
+                ) : reviews.length > 0 ? (
+                  reviews.map((review) => (
+                    <React.Fragment key={review.id}>
+                      <tr 
+                        className={`hover:bg-accent transition-colors ${expandedReviewId === review.id ? 'bg-muted/30' : ''}`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="max-w-xs truncate">
+                            <div className="font-medium">Customer</div>
+                            <div className="text-sm text-muted-foreground truncate mt-1">{review.content}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-4 h-4 ${
+                                  i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'
+                                }`}
+                              />
+                            ))}
+                            <span className="ml-1 text-sm font-medium">{review.rating}.0</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Badge variant={review.approved ? 'default' : 'secondary'} className={review.approved ? 'bg-green-100 text-green-800 hover:bg-green-100' : 'bg-red-100 text-red-800 hover:bg-red-100'}>
+                            {review.approved ? (
+                              <>
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Approved
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="h-3 w-3 mr-1" />
+                                Pending
+                              </>
+                            )}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                          {new Date(review.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => toggleReviewDetails(review.id)}
+                              title={expandedReviewId === review.id ? "Hide details" : "Show details"}
+                            >
+                              {expandedReviewId === review.id ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={review.approved ? "outline" : "default"}
+                              className={review.approved ? "border-input hover:bg-red-50 hover:text-red-700" : "bg-primary hover:bg-red-700"}
+                              onClick={() => handleToggleApproved(review.id, !review.approved)}
+                            >
+                              {review.approved ? (
+                                <>
+                                  <EyeOff className="h-4 w-4 mr-1" />
+                                  Hide
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="h-4 w-4 mr-1" />
+                                  Approve
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                      
+                      {/* Expanded details row */}
+                      <AnimatePresence>
+                        {expandedReviewId === review.id && (
+                          <motion.tr
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <td colSpan="5" className="px-6 py-4">
+                              <div className="bg-muted/30 p-4 rounded-lg">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <h4 className="font-medium mb-2">Review Content</h4>
+                                    <p className="text-sm text-muted-foreground">{review.content}</p>
+                                  </div>
+                                
+                                  <div>
+                                    <h4 className="font-medium mb-2">Review Details</h4>
+                                    <div className="space-y-1 text-sm">
+                                      <div className="flex">
+                                        <span className="w-32 text-muted-foreground">Rating:</span>
+                                        <span>
+                                          {[...Array(5)].map((_, i) => (
+                                            <Star
+                                              key={i}
+                                              className={`w-4 h-4 inline ${
+                                                i < review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground'
+                                              }`}
+                                            />
+                                          ))}
+                                        </span>
+                                      </div>
+                                      <div className="flex">
+                                        <span className="w-32 text-muted-foreground">Status:</span>
+                                        <span>{review.approved ? 'Approved' : 'Pending'}</span>
+                                      </div>
+                                      <div className="flex">
+                                        <span className="w-32 text-muted-foreground">Date:</span>
+                                        <span>{new Date(review.created_at).toLocaleString()}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        )}
+                      </AnimatePresence>
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-8 text-center text-sm text-muted-foreground">
+                      No reviews found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}

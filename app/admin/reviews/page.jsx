@@ -1,20 +1,22 @@
 // app/admin/reviews/page.jsx
 "use client";
 
-import ReviewManagement from '../../../components/admin/ReviewManagement';
+import EnhancedReviewManagement from '../../../components/admin/EnhancedReviewManagement';
+import { motion } from 'framer-motion';
 
-export default function AdminReviewsPage() {
+export default function EnhancedAdminReviewsPage() {
   return (
-    <>
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">Review Management</h1>
-        <p className="text-gray-600">Moderate and manage customer reviews</p>
-        <div className="w-24 h-1 bg-green-500 mx-auto mt-4 rounded-full"></div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">Review Management</h1>
+        <p className="text-muted-foreground mt-1">Moderate and manage customer reviews</p>
       </div>
 
-      <div className="max-w-6xl mx-auto">
-        <ReviewManagement />
-      </div>
-    </>
+      <EnhancedReviewManagement />
+    </motion.div>
   );
 }

@@ -3,8 +3,22 @@
 
 import { useEffect, useState } from 'react';
 import { getReviews } from '../../lib/supabase/review';
+import { motion } from 'framer-motion';
+import { 
+  Users, 
+  Gift, 
+  MessageCircle, 
+  Ticket, 
+  Activity,
+  TrendingUp,
+  Calendar,
+  Filter,
+  Search
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import EnhancedStatsCard from '../../components/admin/EnhancedStatsCard';
 
-export default function AdminDashboardPage() {
+export default function EnhancedAdminDashboardPage() {
   const [stats, setStats] = useState({
     customers: 0,
     offers: 0,
@@ -64,105 +78,199 @@ export default function AdminDashboardPage() {
     fetchRecentActivity();
   }, []);
 
+  const statCards = [
+    {
+      title: "Total Customers",
+      value: stats.customers,
+      change: "+12.5%",
+      icon: Users,
+      color: "bg-red-500",
+      changeColor: "text-green-500"
+    },
+    {
+      title: "Active Offers",
+      value: stats.offers,
+      change: "+8.2%",
+      icon: Gift,
+      color: "bg-red-500",
+      changeColor: "text-green-500"
+    },
+    {
+      title: "Pending Reviews",
+      value: stats.reviews,
+      change: "-3.2%",
+      icon: MessageCircle,
+      color: "bg-red-500",
+      changeColor: "text-red-500"
+    },
+    {
+      title: "Issued Vouchers",
+      value: stats.vouchers,
+      change: "+24.7%",
+      icon: Ticket,
+      color: "bg-red-500",
+      changeColor: "text-green-500"
+    }
+  ];
+
   return (
-    <div>
-      <header className="mb-10">
-        <h1 className="text-4xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-lg text-gray-600 mt-1">Welcome back, Admin!</p>
-      </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatCard title="Total Customers" value={stats.customers} icon={<UsersIcon />} color="blue" loading={loading} />
-        <StatCard title="Active Offers" value={stats.offers} icon={<GiftIcon />} color="green" loading={loading} />
-        <StatCard title="Pending Reviews" value={stats.reviews} icon={<ChatBubbleIcon />} color="yellow" loading={loading} />
-        <StatCard title="Issued Vouchers" value={stats.vouchers} icon={<TicketIcon />} color="purple" loading={loading} />
-      </div>
-
-      <div className="mt-12 bg-white p-8 rounded-xl shadow-md">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Recent Activity</h2>
-        {loading ? (
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
-            ))}
+    <div className="space-y-6">
+      <motion.header 
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back, Admin!</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="pl-10 pr-4 py-2 bg-card border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
           </div>
-        ) : recentActivity.length > 0 ? (
-          <ul className="divide-y divide-gray-200">
-            {recentActivity.map((activity) => (
-              <li key={activity.id} className="py-4 flex items-center justify-between">
-                <div>
-                  <p className="text-md font-medium text-gray-800">{activity.message_content}</p>
-                  <p className="text-sm text-gray-500">To: {activity.phone_number || 'N/A'}</p>
+          <button className="p-2 bg-card border border-input rounded-lg hover:bg-accent transition-colors">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+      </motion.header>
+
+      {/* Stats Grid */}
+      <motion.div 
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        {statCards.map((stat, index) => (
+          <EnhancedStatsCard 
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            change={stat.change}
+            icon={stat.icon}
+            color={stat.color}
+            changeColor={stat.changeColor}
+            loading={loading}
+            index={index}
+          />
+        ))}
+      </motion.div>
+
+      {/* Charts and Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Activity Feed */}
+        <motion.div
+          className="lg:col-span-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Recent Activity</CardTitle>
+              <Activity className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-16 bg-muted rounded-lg animate-pulse"></div>
+                  ))}
                 </div>
-                <div className="text-sm text-gray-600">
-                  {new Date(activity.sent_at).toLocaleDateString()}
+              ) : recentActivity.length > 0 ? (
+                <ul className="space-y-4">
+                  {recentActivity.map((activity) => (
+                    <li key={activity.id} className="flex items-start space-x-4 p-2 hover:bg-accent rounded-lg transition-colors">
+                      <div className="bg-primary/10 p-2 rounded-lg">
+                        <MessageCircle className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">{activity.message_content}</p>
+                        <div className="flex items-center text-sm text-muted-foreground mt-1">
+                          <span>To: {activity.phone_number || 'N/A'}</span>
+                          <span className="mx-2">•</span>
+                          <span>{new Date(activity.sent_at).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-center py-8 text-muted-foreground">No recent activity to display.</p>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Performance Overview */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Performance</CardTitle>
+              <TrendingUp className="h-5 w-5 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <div className="bg-primary/10 w-40 h-40 rounded-full flex items-center justify-center mx-auto">
+                    <TrendingUp className="h-16 w-16 text-primary" />
+                  </div>
+                  <p className="mt-4 font-medium">Performance Metrics</p>
+                  <p className="text-sm text-muted-foreground">Data visualization coming soon</p>
                 </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-600">No recent activity to display.</p>
-        )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );
 }
 
-function StatCard({ title, value, icon, color, loading }) {
-  const colors = {
-    blue: 'bg-blue-100 text-blue-600',
-    green: 'bg-green-100 text-green-600',
-    yellow: 'bg-yellow-100 text-yellow-600',
-    purple: 'bg-purple-100 text-purple-600',
-  };
+function StatCard({ title, value, change, icon, color, changeColor, loading, index }) {
+  const Icon = icon;
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md flex items-center justify-between transition-transform transform hover:-translate-y-1">
-      <div>
-        <p className="text-md font-medium text-gray-600">{title}</p>
-        {loading ? (
-          <div className="h-10 bg-gray-200 rounded animate-pulse w-24 mt-2"></div>
-        ) : (
-          <p className="text-4xl font-bold text-gray-900">{value}</p>
-        )}
-      </div>
-      <div className={`p-4 rounded-full ${colors[color]}`}>
-        {icon}
-      </div>
-    </div>
-  );
-}
-
-// SVG Icons for Stat Cards
-
-function UsersIcon() {
-  return (
-    <svg className="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
-  );
-}
-
-function GiftIcon() {
-  return (
-    <svg className="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-    </svg>
-  );
-}
-
-function ChatBubbleIcon() {
-  return (
-    <svg className="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-    </svg>
-  );
-}
-
-function TicketIcon() {
-  return (
-    <svg className="h-7 w-7" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-    </svg>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.05 }}
+      whileHover={{ y: -5 }}
+    >
+      <Card className="overflow-hidden h-full">
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              {loading ? (
+                <div className="h-10 w-24 bg-muted rounded mt-2 animate-pulse"></div>
+              ) : (
+                <p className="text-3xl font-bold mt-1">{value}</p>
+              )}
+            </div>
+            <div className={`p-3 rounded-lg ${color} text-white`}>
+              <Icon className="h-6 w-6" />
+            </div>
+          </div>
+          <div className="flex items-center mt-4">
+            <TrendingUp className={`h-4 w-4 ${changeColor}`} />
+            <span className={`text-sm font-medium ml-1 ${changeColor}`}>
+              {change}
+            </span>
+            <span className="text-xs text-muted-foreground ml-1">from last month</span>
+          </div>
+        </div>
+      </Card>
+    </motion.div>
   );
 }

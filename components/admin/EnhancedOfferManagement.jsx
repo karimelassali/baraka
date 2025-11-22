@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 import {
   Plus,
   Gift,
@@ -47,7 +48,7 @@ function SkeletonRow() {
   );
 }
 
-function OfferModal({ isOpen, onClose, onSave, offer }) {
+function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -69,6 +70,14 @@ function OfferModal({ isOpen, onClose, onSave, offer }) {
           image_url: offer.image_url || '',
           badge_text: offer.badge_text || ''
         });
+      } else if (initialData) {
+        setFormData({
+          title: initialData.title || '',
+          description: initialData.description || '',
+          type: initialData.type || 'WEEKLY',
+          image_url: '',
+          badge_text: initialData.value ? `${initialData.value}${initialData.type === 'percentage' ? '%' : '€'} OFF` : ''
+        });
       } else {
         setFormData({
           title: '',
@@ -81,7 +90,7 @@ function OfferModal({ isOpen, onClose, onSave, offer }) {
       setErrors({});
       setStatus({ type: '', message: '' });
     }
-  }, [isOpen, offer]);
+  }, [isOpen, offer, initialData]);
 
   const validate = () => {
     const newErrors = {};
@@ -276,10 +285,26 @@ export default function EnhancedOfferManagement() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState(null);
+  const [initialData, setInitialData] = useState(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     fetchOffers();
-  }, []);
+
+    // Check for AI draft params
+    const create = searchParams.get('create');
+    if (create === 'true') {
+      const title = searchParams.get('title');
+      const type = searchParams.get('type');
+      const value = searchParams.get('value');
+
+      if (title || type || value) {
+        setInitialData({ title, type, value });
+        setEditingOffer(null);
+        setIsModalOpen(true);
+      }
+    }
+  }, [searchParams]);
 
   const fetchOffers = async () => {
     setLoading(true);
@@ -489,6 +514,7 @@ export default function EnhancedOfferManagement() {
         onClose={() => setIsModalOpen(false)}
         onSave={fetchOffers}
         offer={editingOffer}
+        initialData={initialData}
       />
     </motion.div>
   );

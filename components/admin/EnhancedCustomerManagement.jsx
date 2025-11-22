@@ -500,6 +500,10 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
   );
 }
 
+import { useSearchParams } from 'next/navigation';
+
+// ... (imports remain the same)
+
 export default function EnhancedCustomerManagement() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -509,6 +513,7 @@ export default function EnhancedCustomerManagement() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [expandedCustomerId, setExpandedCustomerId] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const searchParams = useSearchParams();
 
   // Filter and sort states
   const [locationFilter, setLocationFilter] = useState('');
@@ -550,7 +555,13 @@ export default function EnhancedCustomerManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, []);
+
+    // Check for AI search param
+    const search = searchParams.get('search');
+    if (search) {
+      setSearchTerm(search);
+    }
+  }, [searchParams]);
 
   // Filtering and sorting on the client side
   const filteredAndSortedCustomers = customers.filter(customer => {

@@ -44,9 +44,12 @@ export async function GET(request) {
                     };
                 }
 
+                const isDummyEmail = user.email?.endsWith('@noemail.baraka');
+                const isVerified = !!user.email_confirmed_at && !isDummyEmail;
+
                 return {
                     ...customer,
-                    is_verified: !!user.email_confirmed_at,
+                    is_verified: isVerified,
                     email_confirmed_at: user.email_confirmed_at
                 };
             } catch (e) {

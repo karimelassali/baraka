@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { ClientAuthService } from '../../lib/auth/client-auth';
 import EnhancedAdminSidebar from '../../components/admin/EnhancedAdminSidebar';
+import AICopilot from '../../components/admin/ai/AICopilot';
 import { motion } from 'framer-motion';
 
 export default function AdminLayout({ children }) {
@@ -52,6 +53,8 @@ export default function AdminLayout({ children }) {
           {children}
         </motion.div>
       </main>
+
+      <AICopilot />
     </div>
   );
 }

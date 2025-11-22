@@ -1,8 +1,9 @@
 // components/admin/WhatsAppCampaign.jsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'next/navigation';
 import {
   Send,
   MessageCircle,
@@ -20,6 +21,7 @@ import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 
 export default function WhatsAppCampaign() {
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     message: '',
     targetGroup: 'all',
@@ -31,6 +33,24 @@ export default function WhatsAppCampaign() {
   const [loading, setLoading] = useState(false);
   const [recipientCount, setRecipientCount] = useState(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
+
+  useEffect(() => {
+    const aiFilter = searchParams.get('ai_filter');
+    if (aiFilter) {
+      // Parse filter string like "country=Italy, status=active"
+      // For now, we only support country filter mapping to nationality
+      if (aiFilter.toLowerCase().includes('country=')) {
+        const countryMatch = aiFilter.match(/country=([^,]*)/i);
+        if (countryMatch && countryMatch[1]) {
+          setFormData(prev => ({
+            ...prev,
+            targetGroup: 'nationality',
+            nationality: countryMatch[1].trim()
+          }));
+        }
+      }
+    }
+  }, [searchParams]);
 
   const validate = () => {
     const newErrors = {};
@@ -153,8 +173,8 @@ export default function WhatsAppCampaign() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${status.type === 'success'
-                  ? 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
-                  : 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+                ? 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
+                : 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
                 }`}
             >
               {status.type === 'success' ? (

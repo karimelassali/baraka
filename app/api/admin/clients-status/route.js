@@ -1,12 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request) {
     try {
-        // Initialize Supabase Admin Client with Service Role Key
-        // Note: We use the environment variable directly. 
-        // Ideally, this key should NOT be prefixed with NEXT_PUBLIC_ to avoid exposing it to the client.
-        // However, we are using it server-side here, so it's safe within this scope.
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page')) || 1;
+        const limit = parseInt(searchParams.get('limit')) || 10;
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
+
+        // Initialize Supabase Admin Client
         const supabaseAdmin = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
             process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
@@ -18,40 +21,47 @@ export async function GET() {
             }
         );
 
-        // 1. Fetch all customers from the public table
-        const { data: customers, error: customersError } = await supabaseAdmin
+        // 1. Fetch paginated customers
+        const { data: customers, count, error: customersError } = await supabaseAdmin
             .from('customers')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .select('*', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(from, to);
 
         if (customersError) throw customersError;
 
-        // 2. Fetch all users from Auth (to check email verification status)
-        // Note: listUsers might be paginated. For now, we fetch the first page (default 50).
-        // In a real app, you'd handle pagination.
-        const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers({
-            perPage: 1000 // Fetch up to 1000 users to cover most cases for now
+        // 2. Fetch auth details for these specific customers
+        const enrichedCustomers = await Promise.all(customers.map(async (customer) => {
+            try {
+                const { data: { user }, error: userError } = await supabaseAdmin.auth.admin.getUserById(customer.auth_id);
+
+                // If user not found (deleted?), handle gracefully
+                if (userError || !user) {
+                    return {
+                        ...customer,
+                        is_verified: false,
+                        email_confirmed_at: null
+                    };
+                }
+
+                return {
+                    ...customer,
+                    is_verified: !!user.email_confirmed_at,
+                    email_confirmed_at: user.email_confirmed_at
+                };
+            } catch (e) {
+                console.error(`Error fetching auth user for ${customer.id}:`, e);
+                return { ...customer, is_verified: false };
+            }
+        }));
+
+        return NextResponse.json({
+            clients: enrichedCustomers,
+            total: count,
+            page,
+            limit,
+            hasMore: (from + limit) < count
         });
-
-        if (authError) throw authError;
-
-        // 3. Map customers to their auth status
-        const enrichedCustomers = customers.map(customer => {
-            const authUser = users.find(u => u.id === customer.auth_id);
-
-            // Determine verification status
-            // A user is "Verified" if they have a confirmed email address
-            const isVerified = authUser ? !!authUser.email_confirmed_at : false;
-
-            return {
-                ...customer,
-                is_verified: isVerified,
-                // Add other auth details if needed
-                email_confirmed_at: authUser?.email_confirmed_at
-            };
-        });
-
-        return NextResponse.json(enrichedCustomers);
 
     } catch (error) {
         console.error('Error fetching clients status:', error);

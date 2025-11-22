@@ -17,6 +17,10 @@ export default function AddClientPage() {
     const [showClients, setShowClients] = useState(false);
     const [clients, setClients] = useState([]);
     const [loadingClients, setLoadingClients] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [totalClients, setTotalClients] = useState(0);
+    const [loadingMore, setLoadingMore] = useState(false);
 
     // Unverified Users Modal State
     const [showUnverifiedModal, setShowUnverifiedModal] = useState(false);
@@ -109,23 +113,43 @@ export default function AddClientPage() {
         country.name.toLowerCase().includes(countrySearch.toLowerCase())
     );
 
-    const fetchClients = async () => {
-        setLoadingClients(true);
+    const fetchClients = async (pageNum = 1, isLoadMore = false) => {
+        if (isLoadMore) {
+            setLoadingMore(true);
+        } else {
+            setLoadingClients(true);
+        }
+
         try {
-            const res = await fetch('/api/admin/clients-status');
+            const res = await fetch(`/api/admin/clients-status?page=${pageNum}&limit=10`);
             if (!res.ok) throw new Error('Impossibile recuperare i clienti');
             const data = await res.json();
-            setClients(data || []);
+            const newClients = Array.isArray(data.clients) ? data.clients : [];
+
+            if (isLoadMore) {
+                setClients(prev => [...(Array.isArray(prev) ? prev : []), ...newClients]);
+            } else {
+                setClients(newClients);
+            }
+
+            setHasMore(data.hasMore);
+            setTotalClients(data.total);
+            setPage(pageNum);
+
         } catch (err) {
             console.error('Error fetching clients:', err);
         } finally {
             setLoadingClients(false);
+            setLoadingMore(false);
         }
     };
 
     const toggleClients = () => {
         if (!showClients) {
-            fetchClients();
+            setClients([]);
+            setPage(1);
+            setHasMore(true);
+            fetchClients(1, false);
         }
         setShowClients(!showClients);
     };
@@ -154,7 +178,7 @@ export default function AddClientPage() {
             }
 
             // Remove from local state
-            setClients(prev => prev.filter(c => c.id !== clientToDelete.id));
+            setClients(prev => (Array.isArray(prev) ? prev.filter(c => c.id !== clientToDelete.id) : []));
             setClientToDelete(null);
         } catch (err) {
             console.error('Error deleting client:', err);
@@ -204,7 +228,7 @@ export default function AddClientPage() {
                 residence: ''
             });
             // Refresh client list if open
-            if (showClients) fetchClients();
+            if (showClients) fetchClients(1, false);
             setTimeout(() => setSuccess(false), 3000);
 
         } catch (err) {
@@ -215,7 +239,7 @@ export default function AddClientPage() {
     };
 
     const getUnverifiedClients = () => {
-        return clients.filter(client => !client.is_verified);
+        return Array.isArray(clients) ? clients.filter(client => !client.is_verified) : [];
     };
 
     const handleBulkVerification = async () => {
@@ -799,10 +823,10 @@ export default function AddClientPage() {
                                     ) : (
                                         <div className="divide-y divide-gray-100">
                                             <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-sm text-gray-600">
-                                                <span className="font-semibold text-gray-800">Totale Clienti: {clients.length}</span>
+                                                <span className="font-semibold text-gray-800">Totale Clienti: {totalClients}</span>
                                                 <div className="flex gap-4">
-                                                    <span>Verificati: {clients.filter(client => client.is_verified).length}</span>
-                                                    <span>Non Verificati: {clients.filter(client => !client.is_verified).length}</span>
+                                                    {/* Note: Counts here are only for loaded clients now, or we'd need separate API for totals */}
+                                                    <span>Visualizzati: {clients.length}</span>
                                                 </div>
                                             </div>
                                             <AnimatePresence>
@@ -868,6 +892,28 @@ export default function AddClientPage() {
                                                     </motion.div>
                                                 ))}
                                             </AnimatePresence>
+
+                                            {hasMore && (
+                                                <div className="p-4 text-center border-t border-gray-100 bg-gray-50">
+                                                    <button
+                                                        onClick={() => fetchClients(page + 1, true)}
+                                                        disabled={loadingMore}
+                                                        className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm hover:bg-gray-50 hover:text-red-600 transition-colors flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
+                                                    >
+                                                        {loadingMore ? (
+                                                            <>
+                                                                <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                                                Caricamento...
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <ChevronDown className="w-4 h-4" />
+                                                                Carica Altri
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>

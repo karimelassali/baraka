@@ -6,7 +6,7 @@ export async function POST(request) {
         const body = await request.json();
         const { email, password, firstName, lastName, phoneNumber, countryOfOrigin, residence } = body;
 
-        if (!email || !password || !firstName || !lastName) {
+        if (!password || !firstName || !lastName || !phoneNumber) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
@@ -22,18 +22,30 @@ export async function POST(request) {
             }
         );
 
-        // 1. Create user with email_confirm: false to prevent auto-email
-        // Note: email_confirm: true would automatically confirm them. 
-        // We want them unverified but NO email sent. 
-        // Supabase's default behavior sends an email unless we auto-confirm.
-        // However, to suppress the email but keep them unverified, we might need to rely on 
-        // Supabase settings or use the admin API carefully.
-        // Actually, admin.createUser usually auto-confirms unless specified otherwise, 
-        // BUT it does NOT send an email by default unlike signUp.
+        // Check for existing client
+        const { data: existingClients, error: searchError } = await supabaseAdmin
+            .from('customers')
+            .select('id, email, phone_number')
+            .or(`phone_number.eq.${phoneNumber}${email ? `,email.eq.${email}` : ''}`);
+
+        if (searchError) throw searchError;
+
+        if (existingClients && existingClients.length > 0) {
+            return NextResponse.json({
+                error: 'Client already exists',
+                code: 'DUPLICATE_CLIENT',
+                details: existingClients[0]
+            }, { status: 409 });
+        }
+
+        // Handle missing email
+        const finalEmail = email || `${phoneNumber.replace(/\D/g, '')}@noemail.baraka`;
+
+        // 1. Create user
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-            email,
+            email: finalEmail,
             password,
-            email_confirm: false, // This ensures they are NOT verified immediately
+            email_confirm: true, // Auto confirm since we are admin
             user_metadata: {
                 first_name: firstName,
                 last_name: lastName,
@@ -49,7 +61,7 @@ export async function POST(request) {
                 .from('customers')
                 .insert([{
                     auth_id: authData.user.id,
-                    email: email,
+                    email: finalEmail,
                     first_name: firstName,
                     last_name: lastName,
                     phone_number: phoneNumber,

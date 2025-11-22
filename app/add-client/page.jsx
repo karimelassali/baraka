@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
 
 export default function AddClientPage() {
@@ -42,6 +42,10 @@ export default function AddClientPage() {
         residence: ''
     });
 
+    // New Modals State
+    const [showExistingModal, setShowExistingModal] = useState(false);
+    const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
+
     useEffect(() => {
         const session = localStorage.getItem('add_client_session');
         if (session) {
@@ -55,6 +59,12 @@ export default function AddClientPage() {
             }
         }
 
+        // Check for What's New Modal
+        const hasSeenWhatsNew = localStorage.getItem('whats_new_modal_seen_v1');
+        if (!hasSeenWhatsNew) {
+            setShowWhatsNewModal(true);
+        }
+
         // Close country dropdown when clicking outside
         const handleClickOutside = (event) => {
             if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
@@ -64,6 +74,11 @@ export default function AddClientPage() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    const closeWhatsNew = () => {
+        localStorage.setItem('whats_new_modal_seen_v1', 'true');
+        setShowWhatsNewModal(false);
+    };
 
     const handlePasswordSubmit = (e) => {
         e.preventDefault();
@@ -172,6 +187,10 @@ export default function AddClientPage() {
 
             if (!res.ok) {
                 const errorData = await res.json();
+                if (res.status === 409) {
+                    setShowExistingModal(true);
+                    return;
+                }
                 throw new Error(errorData.error || 'Impossibile creare il cliente');
             }
 
@@ -314,6 +333,100 @@ export default function AddClientPage() {
                                         )}
                                     </button>
                                 </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Existing Client Modal */}
+            <AnimatePresence>
+                {showExistingModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden"
+                        >
+                            <div className="p-6 text-center">
+                                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <AlertTriangle className="w-8 h-8 text-yellow-600" />
+                                </div>
+                                <h3 className="text-xl font-bold text-gray-900 mb-2">Cliente Esistente</h3>
+                                <p className="text-gray-500 mb-6">
+                                    Esiste già un cliente con questo numero di telefono o email. Controlla la lista clienti.
+                                </p>
+                                <button
+                                    onClick={() => setShowExistingModal(false)}
+                                    className="w-full px-4 py-3 rounded-xl bg-yellow-500 text-white font-medium hover:bg-yellow-600 transition-colors"
+                                >
+                                    Ho capito
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* What's New Modal */}
+            <AnimatePresence>
+                {showWhatsNewModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-[80] flex items-center justify-center p-4 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden"
+                        >
+                            <div className="bg-gradient-to-r from-red-600 to-red-500 p-6 text-white">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                        <Info className="w-6 h-6 text-white" />
+                                    </div>
+                                    <h3 className="text-xl font-bold">Novità di Oggi!</h3>
+                                </div>
+                                <p className="text-red-100 opacity-90 text-sm">
+                                    Abbiamo aggiornato il sistema per renderlo più veloce e semplice.
+                                </p>
+                            </div>
+                            <div className="p-6">
+                                <ul className="space-y-4 mb-8">
+                                    <li className="flex items-start gap-3">
+                                        <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                            <CheckCircle className="w-4 h-4 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800">Email Facoltativa</h4>
+                                            <p className="text-sm text-gray-500">Ora puoi aggiungere clienti anche senza indirizzo email.</p>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                            <Phone className="w-4 h-4 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800">Verifica Duplicati</h4>
+                                            <p className="text-sm text-gray-500">Il sistema ti avviserà se provi ad aggiungere un numero già esistente.</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <button
+                                    onClick={closeWhatsNew}
+                                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors shadow-lg"
+                                >
+                                    Fantastico, Iniziamo!
+                                </button>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -514,9 +627,8 @@ export default function AddClientPage() {
                                                     name="email"
                                                     value={formData.email}
                                                     onChange={handleFormChange}
-                                                    required
                                                     className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
-                                                    placeholder="mario@esempio.com"
+                                                    placeholder="mario@esempio.com (Opzionale)"
                                                 />
                                             </div>
                                         </div>

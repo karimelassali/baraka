@@ -1,0 +1,48 @@
+{
+    "Common": {
+        "dashboard": "لوحة القيادة",
+        "admin": "إدارة",
+        "home": "الرئيسية",
+        "logout": "تسجيل الخروج",
+        "settings": "إعدادات",
+        "language": "اللغة"
+    },
+    "Admin": {
+        "welcome": "مرحبًا بك في لوحة الإدارة",
+        "users": "المستخدمين",
+        "analytics": "تحليلات",
+        "admins": "المسؤولين",
+        "dashboard": "لوحة القيادة",
+        "inventory": "المخزون",
+        "offers": "العروض",
+        "reviews": "المراجعات",
+        "points": "النقاط",
+        "vouchers": "القسائم",
+        "campaigns": "الحملات",
+        "gallery": "المعرض",
+        "logs": "السجلات"
+    },
+    "Dashboard": {
+        "welcome": "مرحبًا بعودتك",
+        "overview": "نظرة عامة",
+        "profile": "الملف الشخصي",
+        "wallet": "محفظة الولاء",
+        "offers": "عروض خاصة",
+        "vouchers": "قسائمي",
+        "sign_out": "تسجيل الخروج",
+        "customer_dashboard": "لوحة تحكم العميل"
+    },
+    "Home": {
+        "welcome": "مرحبًا بك في بركة",
+        "description": "منصة ولاء العملاء",
+        "privacy_policy": "سياسة الخصوصية",
+        "terms_of_service": "شروط الخدمة",
+        "rights_reserved": "جميع الحقوق محفوظة.",
+        "login": "تسجيل الدخول",
+        "register": "تسجيل",
+        "about": "من نحن",
+        "gallery": "المعرض",
+        "reviews": "المراجعات",
+        "contact": "اتصل بنا"
+    }
+}

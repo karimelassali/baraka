@@ -1,0 +1,48 @@
+{
+    "Common": {
+        "dashboard": "Dashboard",
+        "admin": "Amministrazione",
+        "home": "Home",
+        "logout": "Esci",
+        "settings": "Impostazioni",
+        "language": "Lingua"
+    },
+    "Admin": {
+        "welcome": "Benvenuto nel Pannello di Amministrazione",
+        "users": "Utenti",
+        "analytics": "Analisi",
+        "admins": "Amministratori",
+        "dashboard": "Dashboard",
+        "inventory": "Inventario",
+        "offers": "Offerte",
+        "reviews": "Recensioni",
+        "points": "Punti",
+        "vouchers": "Voucher",
+        "campaigns": "Campagne",
+        "gallery": "Galleria",
+        "logs": "Log"
+    },
+    "Dashboard": {
+        "welcome": "Bentornato",
+        "overview": "Panoramica",
+        "profile": "Profilo",
+        "wallet": "Portafoglio Fedeltà",
+        "offers": "Offerte Speciali",
+        "vouchers": "I Miei Voucher",
+        "sign_out": "Esci",
+        "customer_dashboard": "Dashboard Cliente"
+    },
+    "Home": {
+        "welcome": "Benvenuto su Baraka",
+        "description": "Piattaforma di Fidelizzazione Clienti",
+        "privacy_policy": "Privacy Policy",
+        "terms_of_service": "Termini di Servizio",
+        "rights_reserved": "Tutti i diritti riservati.",
+        "login": "Accedi",
+        "register": "Registrati",
+        "about": "Chi Siamo",
+        "gallery": "Galleria",
+        "reviews": "Recensioni",
+        "contact": "Contatti"
+    }
+}

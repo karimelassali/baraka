@@ -1,0 +1,48 @@
+{
+    "Common": {
+        "dashboard": "Dashboard",
+        "admin": "Admin",
+        "home": "Home",
+        "logout": "Logout",
+        "settings": "Settings",
+        "language": "Language"
+    },
+    "Admin": {
+        "welcome": "Welcome to Admin Panel",
+        "users": "Users",
+        "analytics": "Analytics",
+        "admins": "Admins",
+        "dashboard": "Dashboard",
+        "inventory": "Inventory",
+        "offers": "Offers",
+        "reviews": "Reviews",
+        "points": "Points",
+        "vouchers": "Vouchers",
+        "campaigns": "Campaigns",
+        "gallery": "Gallery",
+        "logs": "Logs"
+    },
+    "Dashboard": {
+        "welcome": "Welcome back",
+        "overview": "Overview",
+        "profile": "Profile",
+        "wallet": "Loyalty Wallet",
+        "offers": "Special Offers",
+        "vouchers": "My Vouchers",
+        "sign_out": "Sign Out",
+        "customer_dashboard": "Customer Dashboard"
+    },
+    "Home": {
+        "welcome": "Welcome to Baraka",
+        "description": "Customer Loyalty Platform",
+        "privacy_policy": "Privacy Policy",
+        "terms_of_service": "Terms of Service",
+        "rights_reserved": "All rights reserved.",
+        "login": "Login",
+        "register": "Register",
+        "about": "About",
+        "gallery": "Gallery",
+        "reviews": "Reviews",
+        "contact": "Contact"
+    }
+}

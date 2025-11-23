@@ -65,7 +65,7 @@ export default function EnhancedAdminSidebar() {
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard' },
     { name: 'Analytics', path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard' },
     { name: 'Customers', path: '/admin/customers', icon: Users, permission: 'manage_users' },
-    { name: 'Inventory', path: '/admin/inventory', icon: Package, permission: 'manage_offers' }, // Assuming inventory is related to offers or general management
+    { name: 'Inventory', path: '/admin/inventory', icon: Package, permission: 'manage_offers' },
     { name: 'Offers', path: '/admin/offers', icon: Gift, permission: 'manage_offers' },
     { name: 'Reviews', path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews' },
     { name: 'Points', path: '/admin/points', icon: CheckCircle, permission: 'manage_users' },
@@ -76,16 +76,9 @@ export default function EnhancedAdminSidebar() {
   ];
 
   const filteredNavItems = navItems.filter(item => {
-    // Show all items during loading or if user data is not available yet
     if (!currentUser) return true;
-
-    // Super admin has access to everything
     if (currentUser.role === 'super_admin') return true;
-
-    // Items without specific permission requirement are visible to all
     if (!item.permission) return true;
-
-    // Check if user has the specific permission
     return currentUser.permissions && currentUser.permissions.includes(item.permission);
   });
 
@@ -164,10 +157,12 @@ export default function EnhancedAdminSidebar() {
             className="flex-1 flex items-center space-x-3 p-2 rounded-xl hover:bg-accent transition-colors cursor-pointer group min-w-0"
             onClick={() => setIsProfileOpen(true)}
           >
-            <div className="bg-primary/10 w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0">
-              <span className="font-bold text-primary">
-                {currentUser?.full_name?.charAt(0).toUpperCase() || 'A'}
-              </span>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0 overflow-hidden border border-primary/20 bg-background">
+              <img
+                src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${currentUser?.full_name || 'User'}`}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">

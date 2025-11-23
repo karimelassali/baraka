@@ -138,8 +138,12 @@ export default function AdminManagement() {
                                     <tr key={admin.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                                                    {admin.full_name?.charAt(0) || '?'}
+                                                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20">
+                                                    <img
+                                                        src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${admin.full_name}`}
+                                                        alt={admin.full_name}
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <div className="font-medium">{admin.full_name}</div>

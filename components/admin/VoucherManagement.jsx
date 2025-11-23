@@ -9,13 +9,15 @@ import {
   X,
   User,
   Mail,
-  MapPin,
-  Phone,
   Calendar,
   CreditCard,
-  CheckCircle,
-  XCircle,
-  Clock
+  Plus,
+  Sparkles,
+  Gift,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -23,34 +25,85 @@ import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 
-function History({ className }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-      <path d="M12 7v5l4 2" />
-    </svg>
-  )
-}
+// --- Sub-components ---
 
-function VoucherDetailsModal({ customer, vouchers, isOpen, onClose, onSave }) {
+const VoucherTicket = ({ voucher }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="relative group"
+  >
+    <div className={`
+      relative overflow-hidden rounded-xl border-2 
+      ${voucher.is_used
+        ? 'bg-muted border-muted-foreground/20 opacity-75'
+        : voucher.is_active
+          ? 'bg-background border-purple-500/30 hover:border-purple-500/60'
+          : 'bg-background border-red-200 dark:border-red-900/30'}
+      transition-all duration-300 shadow-sm hover:shadow-md
+    `}>
+      {/* Ticket Cutouts */}
+      <div className="absolute top-1/2 -left-3 w-6 h-6 bg-background rounded-full border-2 border-inherit z-10 transform -translate-y-1/2" />
+      <div className="absolute top-1/2 -right-3 w-6 h-6 bg-background rounded-full border-2 border-inherit z-10 transform -translate-y-1/2" />
+
+      <div className="p-5 flex flex-col h-full relative z-0">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-2">
+            <div className={`p-2 rounded-lg ${voucher.is_active && !voucher.is_used ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-muted text-muted-foreground'}`}>
+              <Ticket className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-mono font-bold text-lg tracking-wider">{voucher.code}</p>
+              <p className="text-xs text-muted-foreground">Code</p>
+            </div>
+          </div>
+          <Badge variant="outline" className={`
+            ${voucher.is_used
+              ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400'
+              : voucher.is_active
+                ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400'}
+          `}>
+            {voucher.is_used ? 'Redeemed' : voucher.is_active ? 'Active' : 'Expired'}
+          </Badge>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Value</span>
+            <span className="font-bold text-lg">{voucher.value} {voucher.currency}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Cost</span>
+            <span className="font-medium text-purple-600 dark:text-purple-400">{voucher.points_redeemed} pts</span>
+          </div>
+        </div>
+
+        <div className="mt-auto pt-4 border-t border-dashed border-border flex justify-between items-center text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3 h-3" />
+            {new Date(voucher.created_at).toLocaleDateString()}
+          </div>
+          {voucher.expires_at && (
+            <div className="flex items-center gap-1 text-orange-500">
+              <Clock className="w-3 h-3" />
+              Exp: {new Date(voucher.expires_at).toLocaleDateString()}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
   const [newVoucherData, setNewVoucherData] = useState({
-    pointsToRedeem: 0,
+    pointsToRedeem: '',
     description: ''
   });
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -76,14 +129,18 @@ function VoucherDetailsModal({ customer, vouchers, isOpen, onClose, onSave }) {
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: 'Voucher created successfully' });
-        setNewVoucherData({ pointsToRedeem: 0, description: '' });
-        onSave && onSave(); // Refresh the vouchers list
+        setStatus({ type: 'success', message: 'Voucher issued successfully!' });
+        setNewVoucherData({ pointsToRedeem: '', description: '' });
+        onSave && onSave();
+        setTimeout(() => {
+          setShowCreateForm(false);
+          setStatus({ type: '', message: '' });
+        }, 1500);
       } else {
-        setStatus({ type: 'error', message: result.error || 'Failed to create voucher' });
+        setStatus({ type: 'error', message: result.error || 'Failed to issue voucher' });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'An error occurred while creating the voucher' });
+      setStatus({ type: 'error', message: 'An error occurred' });
     } finally {
       setLoading(false);
     }
@@ -92,175 +149,150 @@ function VoucherDetailsModal({ customer, vouchers, isOpen, onClose, onSave }) {
   if (!isOpen || !customer) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <motion.div
-        className="bg-card rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
+        className="bg-background/95 border border-border/50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
       >
-        <GlassCard className="h-full flex flex-col border-0 shadow-none rounded-none">
-          <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/50">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Ticket className="h-6 w-6 text-purple-500" />
-              Voucher Management - {customer.first_name} {customer.last_name}
-            </CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
-              <X className="h-5 w-5" />
-            </Button>
-          </CardHeader>
-
-          <div className="flex-1 overflow-y-auto grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-            {/* Customer Information */}
-            <div className="md:col-span-1 space-y-6">
-              <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
-                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <User className="h-4 w-4" /> Customer Info
-                </h4>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-3 w-3" />
-                    <span className="truncate">{customer.email}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Phone className="h-3 w-3" />
-                    <span>{customer.phone_number || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="h-3 w-3" />
-                    <span>{customer.country_of_origin || 'N/A'}</span>
-                  </div>
-                  <div className="pt-2 mt-2 border-t border-border/50">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Points</p>
-                    <p className="text-2xl font-bold text-purple-500">{customer.total_points || 0}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Create Voucher Form */}
-              <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4">
-                <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Ticket className="h-4 w-4 text-purple-500" /> Create New Voucher
-                </h4>
-                {status.message && (
-                  <div className={`mb-3 p-2 rounded text-sm ${status.type === 'success'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                    }`}>
-                    {status.message}
-                  </div>
-                )}
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Points to Redeem</label>
-                    <Input
-                      name="pointsToRedeem"
-                      type="number"
-                      value={newVoucherData.pointsToRedeem}
-                      onChange={handleChange}
-                      min="1"
-                      placeholder="Enter points"
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Description</label>
-                    <Input
-                      name="description"
-                      value={newVoucherData.description}
-                      onChange={handleChange}
-                      placeholder="Voucher description"
-                      className="bg-background"
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    {loading ? 'Creating...' : 'Create Voucher'}
-                  </Button>
-                </form>
-              </div>
+        {/* Header */}
+        <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-purple-500/10 rounded-xl">
+              <Gift className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
-
-            {/* Voucher History */}
-            <div className="md:col-span-2 flex flex-col h-full">
-              <div className="bg-muted/30 rounded-lg border border-border/50 flex flex-col h-full overflow-hidden">
-                <div className="p-4 border-b border-border/50 bg-muted/20">
-                  <h4 className="font-semibold text-foreground flex items-center gap-2">
-                    <History className="h-4 w-4" /> Voucher History
-                  </h4>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-4">
-                  {vouchers && vouchers.length > 0 ? (
-                    <div className="space-y-3">
-                      {vouchers.map((voucher) => (
-                        <div key={voucher.id} className="bg-background border border-border rounded-lg p-3 shadow-sm">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono font-bold text-lg tracking-wider bg-muted px-2 py-0.5 rounded border border-border">
-                                  {voucher.code}
-                                </span>
-                                <Badge variant="outline" className={`
-                                  ${voucher.is_used
-                                    ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
-                                    : voucher.is_active
-                                      ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
-                                      : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'}
-                                `}>
-                                  {voucher.is_used ? 'Used' : voucher.is_active ? 'Active' : 'Expired'}
-                                </Badge>
-                              </div>
-                              <p className="text-sm font-medium flex items-center gap-1 mt-2">
-                                <CreditCard className="h-3 w-3 text-muted-foreground" />
-                                {voucher.value} {voucher.currency}
-                              </p>
-                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                Created: {new Date(voucher.created_at).toLocaleString()}
-                              </p>
-                              {voucher.expires_at && (
-                                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  Expires: {new Date(voucher.expires_at).toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm font-bold text-purple-500 flex items-center justify-end gap-1">
-                                {voucher.points_redeemed} pts
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                      <Ticket className="h-12 w-12 mb-2 opacity-20" />
-                      <p>No vouchers available for this customer</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+            <div>
+              <h2 className="text-xl font-bold">Voucher Wallet</h2>
+              <p className="text-sm text-muted-foreground">Manage vouchers for {customer.first_name}</p>
             </div>
           </div>
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
 
-          <div className="p-4 border-t border-border/50 flex justify-end bg-muted/10">
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
+        <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+          {/* Left Panel: Create Voucher */}
+          <div className="w-full md:w-1/3 p-6 border-r border-border/50 bg-muted/10 overflow-y-auto">
+            <div className="bg-purple-500/5 border border-purple-500/10 rounded-xl p-6 mb-6">
+              <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Available Points</p>
+              <p className="text-3xl font-black">{customer.total_points || 0}</p>
+            </div>
+
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Issue New Voucher
+            </h3>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase text-muted-foreground">Points to Redeem</label>
+                <Input
+                  name="pointsToRedeem"
+                  type="number"
+                  value={newVoucherData.pointsToRedeem}
+                  onChange={handleChange}
+                  placeholder="e.g. 500"
+                  className="bg-background"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase text-muted-foreground">Description</label>
+                <Input
+                  name="description"
+                  value={newVoucherData.description}
+                  onChange={handleChange}
+                  placeholder="e.g. Loyalty Reward"
+                  className="bg-background"
+                />
+              </div>
+
+              {status.message && (
+                <div className={`text-xs p-3 rounded-lg flex items-center gap-2 ${status.type === 'success' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                  {status.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                  {status.message}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                disabled={loading || !newVoucherData.pointsToRedeem}
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                {loading ? 'Issuing...' : 'Issue Voucher'}
+              </Button>
+            </form>
           </div>
-        </GlassCard>
+
+          {/* Right Panel: Voucher List */}
+          <div className="w-full md:w-2/3 p-6 bg-background overflow-y-auto custom-scrollbar">
+            <h3 className="font-semibold mb-6 flex items-center gap-2">
+              <Ticket className="w-4 h-4 text-muted-foreground" /> Active & Past Vouchers
+            </h3>
+
+            {vouchers && vouchers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {vouchers.map((voucher) => (
+                  <VoucherTicket key={voucher.id} voucher={voucher} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-64 text-muted-foreground opacity-50">
+                <Ticket className="w-16 h-16 mb-4 stroke-1" />
+                <p>No vouchers issued yet</p>
+              </div>
+            )}
+          </div>
+        </div>
       </motion.div>
     </div>
   );
 }
+
+const CustomerVoucherCard = ({ customer, onClick }) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+    onClick={() => onClick(customer)}
+    className="group cursor-pointer relative"
+  >
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <GlassCard className="h-full border-border/50 hover:border-purple-500/50 transition-colors overflow-hidden relative">
+      <div className="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
+        <div className="bg-purple-500/10 p-2 rounded-full">
+          <Ticket className="w-4 h-4 text-purple-600" />
+        </div>
+      </div>
+
+      <CardContent className="p-6 flex flex-col items-center text-center pt-8">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-900/10 flex items-center justify-center mb-4 shadow-inner overflow-hidden border-2 border-purple-500/20">
+          <img
+            src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
+            alt={customer.first_name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
+        <p className="text-sm text-muted-foreground truncate w-full px-2 mb-4">{customer.email}</p>
+
+        <div className="mt-auto w-full pt-4 border-t border-border/50 flex justify-between items-center px-2">
+          <div className="text-left">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Points</p>
+            <p className="font-bold">{customer.total_points || 0}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider">Vouchers</p>
+            <p className="font-bold text-purple-600 dark:text-purple-400">{customer.vouchers_count || 0}</p>
+          </div>
+        </div>
+      </CardContent>
+    </GlassCard>
+  </motion.div>
+);
 
 export default function VoucherManagement() {
   const [customers, setCustomers] = useState([]);
@@ -272,7 +304,8 @@ export default function VoucherManagement() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
 
-  // Load initial batch of customers
+  const LIMIT = 10;
+
   const loadCustomers = async (reset = false) => {
     if (reset) {
       setLoading(true);
@@ -282,7 +315,7 @@ export default function VoucherManagement() {
     }
 
     try {
-      let url = `/api/admin/customers?limit=20&offset=${reset ? 0 : offset}`;
+      let url = `/api/admin/customers?limit=${LIMIT}&offset=${reset ? 0 : offset}`;
       if (searchTerm) {
         url += `&search=${encodeURIComponent(searchTerm)}`;
       }
@@ -291,34 +324,23 @@ export default function VoucherManagement() {
       const data = await response.json();
 
       if (response.ok) {
+        const newCustomers = data.customers || data;
         if (reset) {
-          setCustomers(data.customers || data);
+          setCustomers(newCustomers);
         } else {
-          setCustomers(prev => [...prev, ...(data.customers || data)]);
+          setCustomers(prev => [...prev, ...newCustomers]);
         }
-
-        // Check if we have more customers to load
-        setHasMore((data.customers || data).length === 20);
-        if (!reset) {
-          setOffset(prev => prev + 20);
-        }
+        setHasMore(newCustomers.length === LIMIT);
+        if (!reset) setOffset(prev => prev + LIMIT);
+        else setOffset(LIMIT);
       } else {
-        console.error('Failed to load customers:', data.error);
-        if (reset) {
-          setCustomers([]);
-        }
+        if (reset) setCustomers([]);
       }
     } catch (error) {
-      console.error('Error loading customers:', error);
-      if (reset) {
-        setCustomers([]);
-      }
+      if (reset) setCustomers([]);
     } finally {
-      if (reset) {
-        setLoading(false);
-      } else {
-        setLoadingMore(false);
-      }
+      if (reset) setLoading(false);
+      else setLoadingMore(false);
     }
   };
 
@@ -326,180 +348,113 @@ export default function VoucherManagement() {
     loadCustomers(true);
   }, [searchTerm]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  const handleSearch = (e) => setSearchTerm(e.target.value);
 
   const handleCustomerSelect = async (customer) => {
-    // Load customer's vouchers
+    setSelectedCustomer(customer);
     try {
       const response = await fetch(`/api/admin/customers/${customer.id}/vouchers`);
       const data = await response.json();
-
       if (response.ok) {
         setCustomerVouchers(data.vouchers || []);
       } else {
-        console.error('Failed to load vouchers:', data.error);
         setCustomerVouchers([]);
       }
     } catch (error) {
-      console.error('Error loading customer vouchers:', error);
       setCustomerVouchers([]);
     }
-
-    setSelectedCustomer(customer);
   };
 
-  const loadMoreCustomers = async () => {
+  const handleLoadMore = () => {
     if (!hasMore || loadingMore) return;
-    await loadCustomers(false);
+    loadCustomers(false);
   };
-
-  // Load more customers when scrolling
-  useEffect(() => {
-    const handleScroll = async () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight ||
-        loadingMore ||
-        !hasMore
-      ) {
-        return;
-      }
-
-      await loadMoreCustomers();
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadingMore, hasMore, offset]);
 
   return (
     <motion.div
-      className="space-y-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8 pb-20"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
-      <GlassCard>
-        <CardHeader>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Ticket className="h-5 w-5 text-purple-500" />
-                Voucher Management
-              </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Create and manage customer vouchers
-              </p>
-            </div>
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Voucher Center</h2>
+          <p className="text-muted-foreground mt-2">Issue and track vouchers for your customers.</p>
+        </div>
 
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search customers..."
-                value={searchTerm}
-                onChange={handleSearch}
-                className="pl-10 pr-4 py-2 min-w-[300px]"
-              />
-            </div>
+        <div className="relative w-full md:w-96">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-muted-foreground" />
           </div>
-        </CardHeader>
-      </GlassCard>
+          <input
+            type="text"
+            placeholder="Search customers..."
+            value={searchTerm}
+            onChange={handleSearch}
+            className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-sm"
+          />
+        </div>
+      </div>
 
-      <GlassCard className="overflow-hidden">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Country</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Points</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Vouchers</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {loading && customers.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center">
-                      <div className="flex justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                      </div>
-                    </td>
-                  </tr>
-                ) : customers.length > 0 ? (
-                  customers.map((customer) => (
-                    <motion.tr
-                      key={customer.id}
-                      className="hover:bg-accent/50 transition-colors"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-foreground">{customer.first_name} {customer.last_name}</div>
-                        <div className="text-xs text-muted-foreground">{customer.date_of_birth ? new Date(customer.date_of_birth).toLocaleDateString() : 'N/A'}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {customer.email}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm">{customer.country_of_origin || 'N/A'}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant="outline" className="bg-purple-500/10 text-purple-600 border-purple-200 hover:bg-purple-500/20">
-                          {customer.total_points || 0} pts
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {customer.vouchers_count || 0}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleCustomerSelect(customer)}
-                          className="hover:bg-purple-500/10 hover:text-purple-600 hover:border-purple-200"
-                        >
-                          Manage Vouchers
-                        </Button>
-                      </td>
-                    </motion.tr>
-                  ))
+      {/* Content Grid */}
+      {loading && customers.length === 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div key={i} className="h-64 rounded-2xl bg-muted/20 animate-pulse" />
+          ))}
+        </div>
+      ) : customers.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <AnimatePresence>
+              {customers.map((customer) => (
+                <CustomerVoucherCard
+                  key={customer.id}
+                  customer={customer}
+                  onClick={handleCustomerSelect}
+                />
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {hasMore && (
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="bg-purple-600 hover:bg-purple-700 text-white min-w-[200px]"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Loading...
+                  </>
                 ) : (
-                  <tr>
-                    <td colSpan="6" className="px-6 py-12 text-center text-muted-foreground">
-                      <div className="flex flex-col items-center justify-center gap-2">
-                        <User className="h-8 w-8 text-muted-foreground/50" />
-                        <p>{searchTerm ? 'No customers found matching your search' : 'No customers found'}</p>
-                      </div>
-                    </td>
-                  </tr>
+                  'Load More Customers'
                 )}
-              </tbody>
-            </table>
-          </div>
-
-          {loadingMore && (
-            <div className="flex justify-center py-4 border-t border-border">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+              </Button>
             </div>
           )}
-        </CardContent>
-      </GlassCard>
+        </>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+          <div className="bg-muted/30 p-6 rounded-full mb-4">
+            <User className="h-10 w-10 opacity-50" />
+          </div>
+          <p className="text-lg font-medium">No customers found</p>
+          <p className="text-sm">Try adjusting your search terms</p>
+        </div>
+      )}
 
-      <VoucherDetailsModal
+      <VoucherWallet
         customer={selectedCustomer}
         vouchers={customerVouchers}
         isOpen={!!selectedCustomer}
         onClose={() => setSelectedCustomer(null)}
         onSave={() => {
-          // Reload the customer list to reflect changes
           loadCustomers(true);
-          // Reload the current customer's voucher list
-          if (selectedCustomer) {
-            handleCustomerSelect(selectedCustomer);
-          }
+          if (selectedCustomer) handleCustomerSelect(selectedCustomer);
         }}
       />
     </motion.div>

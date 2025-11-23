@@ -427,6 +427,15 @@ export default function AddClientPage() {
                             <div className="p-6">
                                 <ul className="space-y-4 mb-8">
                                     <li className="flex items-start gap-3">
+                                        <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                            <User className="w-4 h-4 text-purple-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800">Nuovi Profili DiceBear</h4>
+                                            <p className="text-sm text-gray-500">Abbiamo aggiunto i profili DiceBear per rendere più facile ricordare i clienti.</p>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-start gap-3">
                                         <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                                             <CheckCircle className="w-4 h-4 text-green-600" />
                                         </div>
@@ -839,8 +848,12 @@ export default function AddClientPage() {
                                                         className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                                                     >
                                                         <div className="flex items-start gap-4">
-                                                            <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 font-bold shrink-0">
-                                                                {client.first_name?.[0]}{client.last_name?.[0]}
+                                                            <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 font-bold shrink-0 overflow-hidden border border-red-100">
+                                                                <img
+                                                                    src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${client.first_name}`}
+                                                                    alt={client.first_name}
+                                                                    className="w-full h-full object-cover"
+                                                                />
                                                             </div>
                                                             <div className="flex-grow">
                                                                 <h4 className="font-semibold text-gray-800">{client.first_name} {client.last_name}</h4>

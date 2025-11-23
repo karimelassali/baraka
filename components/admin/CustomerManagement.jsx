@@ -2,6 +2,21 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import {
+  Search,
+  Filter,
+  Edit2,
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  ChevronDown,
+  Download,
+  Plus
+} from 'lucide-react';
 
 function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
@@ -51,7 +66,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
 
       if (response.ok) {
         setStatus({ type: 'success', message: 'Customer updated successfully' });
-        onSave && onSave({...customer, ...formData}); // Update customer in parent
+        onSave && onSave({ ...customer, ...formData }); // Update customer in parent
         setTimeout(() => onClose(), 1500); // Close after success message
       } else {
         setStatus({ type: 'error', message: result.error || 'Failed to update customer' });
@@ -66,109 +81,143 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
   if (!isOpen || !customer) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-100">
+        <div className="p-6 border-b border-gray-100 bg-gray-50/50">
           <div className="flex justify-between items-center">
-            <h3 className="text-xl font-bold text-gray-800">Edit Customer - {customer.first_name} {customer.last_name}</h3>
-            <button 
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <User size={20} />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Edit Customer</h3>
+                <p className="text-sm text-gray-500">Update profile information</p>
+              </div>
+            </div>
+            <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700"
+              className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <XCircle size={24} />
             </button>
           </div>
         </div>
-        
-        <div className="p-6">
+
+        <div className="p-8">
           {status.message && (
-            <div className={`mb-4 p-3 rounded ${status.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-              {status.message}
+            <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${status.type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+              {status.type === 'success' ? <CheckCircle size={20} /> : <XCircle size={20} />}
+              <p className="font-medium">{status.message}</p>
             </div>
           )}
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                <input
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">First Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="John"
+                  />
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <input
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Last Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="Doe"
+                  />
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="john@example.com"
+                  />
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                <input
-                  name="phone_number"
-                  value={formData.phone_number}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    name="phone_number"
+                    value={formData.phone_number}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="+1 234 567 890"
+                  />
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country of Origin</label>
-                <input
-                  name="country_of_origin"
-                  value={formData.country_of_origin}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Country of Origin</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    name="country_of_origin"
+                    value={formData.country_of_origin}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="United States"
+                  />
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Residence</label>
-                <input
-                  name="residence"
-                  value={formData.residence}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Residence</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    name="residence"
+                    value={formData.residence}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                    placeholder="New York"
+                  />
+                </div>
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                <input
-                  name="date_of_birth"
-                  type="date"
-                  value={formData.date_of_birth}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                />
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-700">Date of Birth</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    name="date_of_birth"
+                    type="date"
+                    value={formData.date_of_birth}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
               </div>
             </div>
-            
-            <div className="flex justify-end space-x-3 pt-4">
+
+            <div className="flex justify-end gap-3 pt-6 border-t border-gray-100">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
+                className="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium"
                 disabled={loading}
               >
                 Cancel
@@ -176,9 +225,19 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition disabled:opacity-50"
+                className="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary/90 transition-all font-medium shadow-lg shadow-primary/20 disabled:opacity-70 disabled:shadow-none flex items-center gap-2"
               >
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle size={18} />
+                    <span>Save Changes</span>
+                  </>
+                )}
               </button>
             </div>
           </form>
@@ -192,14 +251,15 @@ export default function CustomerManagement() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState('first_name'); // Default sort by first name
-  const [sortDirection, setSortDirection] = useState('asc'); // Default sort ascending
+  const [sortField, setSortField] = useState('first_name');
+  const [sortDirection, setSortDirection] = useState('asc');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
 
-  // Load initial batch of customers
+  const ITEMS_PER_PAGE = 10;
+
   const loadCustomers = async (reset = false) => {
     if (reset) {
       setLoading(true);
@@ -207,45 +267,40 @@ export default function CustomerManagement() {
     } else {
       setLoadingMore(true);
     }
-    
+
     try {
-      let url = `/api/admin/customers?limit=20&offset=${reset ? 0 : offset}&sort_by=${sortField}&sort_order=${sortDirection}`;
+      let url = `/api/admin/customers?limit=${ITEMS_PER_PAGE}&offset=${reset ? 0 : offset}&sort_by=${sortField}&sort_order=${sortDirection}`;
       if (searchTerm) {
         url += `&search=${encodeURIComponent(searchTerm)}`;
       }
-      
+
       const response = await fetch(url);
       const data = await response.json();
 
       if (response.ok) {
+        const newCustomers = data.customers || data;
         if (reset) {
-          setCustomers(data.customers || data);
+          setCustomers(newCustomers);
         } else {
-          setCustomers(prev => [...prev, ...(data.customers || data)]);
+          setCustomers(prev => [...prev, ...newCustomers]);
         }
-        
-        // Check if we have more customers to load
-        setHasMore((data.customers || data).length === 20);
+
+        setHasMore(newCustomers.length === ITEMS_PER_PAGE);
         if (!reset) {
-          setOffset(prev => prev + 20);
+          setOffset(prev => prev + ITEMS_PER_PAGE);
+        } else {
+          setOffset(ITEMS_PER_PAGE);
         }
       } else {
         console.error('Failed to load customers:', data.error);
-        if (reset) {
-          setCustomers([]);
-        }
+        if (reset) setCustomers([]);
       }
     } catch (error) {
       console.error('Error loading customers:', error);
-      if (reset) {
-        setCustomers([]);
-      }
+      if (reset) setCustomers([]);
     } finally {
-      if (reset) {
-        setLoading(false);
-      } else {
-        setLoadingMore(false);
-      }
+      if (reset) setLoading(false);
+      else setLoadingMore(false);
     }
   };
 
@@ -257,185 +312,236 @@ export default function CustomerManagement() {
     setSearchTerm(e.target.value);
   };
 
-  const handleCustomerSelect = (customer) => {
-    setSelectedCustomer(customer);
-  };
-
-  const loadMoreCustomers = async () => {
-    if (!hasMore || loadingMore) return;
-    await loadCustomers(false);
-  };
-
-  // Load more customers when scrolling
-  useEffect(() => {
-    const handleScroll = async () => {
-      if (
-        window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight ||
-        loadingMore ||
-        !hasMore
-      ) {
-        return;
-      }
-
-      await loadMoreCustomers();
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadingMore, hasMore, offset]);
-
-  // Change sort when header is clicked
   const handleSort = (field) => {
     if (sortField === field) {
-      // If clicking same field, reverse direction
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      // If clicking new field, sort by that field ascending
       setSortField(field);
       setSortDirection('asc');
     }
   };
 
-  // Function to get sort indicator for a field
   const getSortIndicator = (field) => {
     if (sortField !== field) return null;
-    return sortDirection === 'asc' ? '↑' : '↓';
+    return (
+      <ChevronDown
+        size={14}
+        className={`transition-transform duration-200 ${sortDirection === 'asc' ? 'rotate-180' : ''}`}
+      />
+    );
+  };
+
+  // Helper to generate consistent avatar colors
+  const getAvatarColor = (name) => {
+    const colors = [
+      'bg-blue-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500',
+      'bg-teal-500', 'bg-orange-500', 'bg-emerald-500', 'bg-cyan-500'
+    ];
+    const index = name.length % colors.length;
+    return colors[index];
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          Customer Management
-        </h2>
-        <div className="text-sm text-gray-600 mt-2 md:mt-0">
-          Total Customers: <span className="font-semibold">{customers.length}</span>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <User className="w-6 h-6 text-primary" />
+              </div>
+              Customer Management
+            </h2>
+            <p className="text-gray-500 mt-1 ml-11">Manage and track your customer base</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/5 px-4 py-2 rounded-lg border border-primary/10">
+              <span className="text-sm text-gray-600">Total Customers</span>
+              <p className="text-xl font-bold text-primary">{customers.length}{hasMore ? '+' : ''}</p>
+            </div>
+            <button className="p-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors">
+              <Download size={20} />
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-lg shadow-primary/20">
+              <Plus size={20} />
+              <span>Add Customer</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Search by name, email, or location..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            />
+          </div>
+          <button className="flex items-center gap-2 px-4 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+            <Filter size={20} />
+            <span>Filters</span>
+          </button>
         </div>
       </div>
 
-      <div className="mb-4 flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search customers by name, email, country..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th 
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('first_name')}
-              >
-                <div className="flex items-center">
-                  Name {getSortIndicator('first_name')}
-                </div>
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email Verified</th>
-              <th 
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('country_of_origin')}
-              >
-                <div className="flex items-center">
-                  Country {getSortIndicator('country_of_origin')}
-                </div>
-              </th>
-              <th 
-                className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('residence')}
-              >
-                <div className="flex items-center">
-                  Residence {getSortIndicator('residence')}
-                </div>
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {loading && customers.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="px-4 py-6 text-center">
-                  <div className="flex justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
-                  </div>
-                </td>
+      {/* Table Section */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-100">
+            <thead>
+              <tr className="bg-gray-50/50">
+                {[
+                  { key: 'first_name', label: 'Customer' },
+                  { key: 'email', label: 'Contact Info' },
+                  { key: 'email_confirmed', label: 'Status' },
+                  { key: 'country_of_origin', label: 'Location' },
+                  { key: 'total_points', label: 'Points' },
+                  { key: 'actions', label: 'Actions' }
+                ].map((header) => (
+                  <th
+                    key={header.key}
+                    className={`px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider ${header.key !== 'actions' ? 'cursor-pointer hover:bg-gray-100/50' : ''} transition-colors`}
+                    onClick={() => header.key !== 'actions' && handleSort(header.key)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {header.label}
+                      {getSortIndicator(header.key)}
+                    </div>
+                  </th>
+                ))}
               </tr>
-            ) : customers.length > 0 ? (
-              customers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{customer.first_name} {customer.last_name}</div>
-                    <div className="text-sm text-gray-500">{customer.date_of_birth ? new Date(customer.date_of_birth).toLocaleDateString() : 'N/A'}</div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                    {customer.email}
-                    <div className="text-xs text-gray-400">{customer.phone_number || 'N/A'}</div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm">
-                    {customer.email_confirmed ? (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Verified
-                      </span>
-                    ) : (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        Not Verified
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{customer.country_of_origin || 'N/A'}</div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{customer.residence || 'N/A'}</div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 font-semibold">
-                    {customer.total_points || 0}
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap text-sm">
-                    <button
-                      onClick={() => handleCustomerSelect(customer)}
-                      className="text-red-600 hover:text-red-900 font-medium"
-                    >
-                      Edit
-                    </button>
+            </thead>
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {loading && customers.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                      <p className="text-gray-500 animate-pulse">Loading customers...</p>
+                    </div>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="px-4 py-6 text-center text-sm text-gray-500">
-                  {searchTerm ? 'No customers found matching your search' : 'No customers found'}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-      
-      {loadingMore && (
-        <div className="flex justify-center my-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
+              ) : customers.length > 0 ? (
+                customers.map((customer) => (
+                  <tr key={customer.id} className="group hover:bg-gray-50/50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-10 h-10 rounded-full ${getAvatarColor(customer.first_name || '')} flex items-center justify-center text-white font-bold shadow-sm`}>
+                          {(customer.first_name?.[0] || '')}{(customer.last_name?.[0] || '')}
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-gray-900 group-hover:text-primary transition-colors">
+                            {customer.first_name} {customer.last_name}
+                          </div>
+                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                            <Calendar size={12} />
+                            {customer.date_of_birth ? new Date(customer.date_of_birth).toLocaleDateString() : 'No DOB'}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Mail size={14} className="text-gray-400" />
+                          {customer.email}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <Phone size={12} className="text-gray-400" />
+                          {customer.phone_number || 'No phone'}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {customer.email_confirmed ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                          <CheckCircle size={12} />
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+                          <XCircle size={12} />
+                          Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-1">
+                        <div className="text-sm text-gray-900 font-medium">{customer.country_of_origin || 'N/A'}</div>
+                        <div className="text-xs text-gray-500">{customer.residence || 'N/A'}</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="inline-flex items-center px-3 py-1 rounded-lg bg-primary/5 text-primary text-sm font-bold">
+                        {(customer.total_points || 0).toLocaleString()} pts
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => setSelectedCustomer(customer)}
+                        className="p-2 text-gray-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
+                        title="Edit Customer"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center gap-3 text-gray-400">
+                      <div className="p-4 bg-gray-50 rounded-full">
+                        <User size={32} className="opacity-50" />
+                      </div>
+                      <p className="text-lg font-medium text-gray-900">No customers found</p>
+                      <p className="text-sm">Try adjusting your search or filters</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+
+        {/* Footer / Load More */}
+        <div className="p-6 border-t border-gray-100 bg-gray-50/50 flex flex-col items-center gap-4">
+          <p className="text-sm text-gray-500">
+            Showing <span className="font-medium text-gray-900">{customers.length}</span> customers
+          </p>
+
+          {hasMore && (
+            <button
+              onClick={() => loadCustomers(false)}
+              disabled={loadingMore}
+              className="px-6 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all font-medium shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loadingMore ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  <span>Loading more...</span>
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={18} />
+                  <span>Load More Customers</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </div>
 
       <EditCustomerModal
         customer={selectedCustomer}
         isOpen={!!selectedCustomer}
         onClose={() => setSelectedCustomer(null)}
         onSave={(updatedCustomer) => {
-          // Update the customer in the list
-          setCustomers(prev => 
+          setCustomers(prev =>
             prev.map(c => c.id === updatedCustomer.id ? updatedCustomer : c)
           );
           setSelectedCustomer(null);

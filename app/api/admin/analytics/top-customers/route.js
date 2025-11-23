@@ -2,17 +2,21 @@ import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request) {
     const cookieStore = await cookies();
     const supabase = createClient(cookieStore);
 
     try {
-        // Fetch top 5 customers by points balance
+        const { searchParams } = new URL(request.url);
+        const limit = parseInt(searchParams.get('limit')) || 5;
+        const offset = parseInt(searchParams.get('offset')) || 0;
+
+        // Fetch top customers by points balance
         const { data: pointsData, error: pointsError } = await supabase
             .from('customer_points_balance')
             .select('customer_id, total_points')
             .order('total_points', { ascending: false })
-            .limit(5);
+            .range(offset, offset + limit - 1);
 
         if (pointsError) throw pointsError;
 

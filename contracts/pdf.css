@@ -1,0 +1,47 @@
+@page {
+  size: A4;
+  margin: 15mm;
+}
+
+body.markdown-body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #111;
+}
+
+.markdown-body h1 {
+  font-size: 20px;
+  margin: 0 0 10px 0;
+}
+
+.markdown-body h2 {
+  font-size: 16px;
+  margin: 18px 0 8px 0;
+}
+
+.markdown-body table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid #ddd;
+  padding: 6px;
+  vertical-align: top;
+  word-break: break-word;
+}
+
+.markdown-body thead th {
+  background: #f6f6f6;
+  font-weight: 600;
+}
+
+.markdown-body ul { margin: 6px 0 6px 18px; }
+.markdown-body li { margin: 2px 0; }
+
+.page-break {
+  page-break-after: always;
+}

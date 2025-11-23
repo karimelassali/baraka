@@ -31,6 +31,9 @@ export default function AnalyticsDashboard() {
     const [messageActivity, setMessageActivity] = useState([]);
     const [activityLogs, setActivityLogs] = useState([]);
     const [topCustomers, setTopCustomers] = useState([]);
+    const [topCustomersOffset, setTopCustomersOffset] = useState(0);
+    const [topCustomersHasMore, setTopCustomersHasMore] = useState(true);
+    const [loadingMoreCustomers, setLoadingMoreCustomers] = useState(false);
     const [inventoryStats, setInventoryStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -43,7 +46,7 @@ export default function AnalyticsDashboard() {
                     fetch(`/api/admin/analytics/clients?range=${range}`),
                     fetch('/api/admin/analytics/messages'),
                     fetch('/api/admin/analytics/activity'),
-                    fetch('/api/admin/analytics/top-customers'),
+                    fetch('/api/admin/analytics/top-customers?limit=10'),
                     fetch('/api/admin/analytics/inventory')
                 ]);
 
@@ -58,7 +61,13 @@ export default function AnalyticsDashboard() {
                 setClientGrowth(clientsData);
                 setMessageActivity(messagesData);
                 setActivityLogs(activityData);
-                setTopCustomers(topCustomersData);
+
+                // Ensure topCustomersData is always an array
+                const validTopCustomers = Array.isArray(topCustomersData) ? topCustomersData : [];
+                setTopCustomers(validTopCustomers);
+                setTopCustomersOffset(10);
+                setTopCustomersHasMore(validTopCustomers.length === 10);
+
                 setInventoryStats(inventoryData);
             } catch (error) {
                 console.error('Failed to fetch analytics:', error);
@@ -69,6 +78,26 @@ export default function AnalyticsDashboard() {
 
         fetchData();
     }, [range]);
+
+    const loadMoreTopCustomers = async () => {
+        if (loadingMoreCustomers || !topCustomersHasMore) return;
+
+        setLoadingMoreCustomers(true);
+        try {
+            const res = await fetch(`/api/admin/analytics/top-customers?limit=10&offset=${topCustomersOffset}`);
+            const newData = await res.json();
+
+            if (Array.isArray(newData)) {
+                setTopCustomers(prev => [...prev, ...newData]);
+                setTopCustomersOffset(prev => prev + 10);
+                setTopCustomersHasMore(newData.length === 10);
+            }
+        } catch (error) {
+            console.error('Failed to load more customers:', error);
+        } finally {
+            setLoadingMoreCustomers(false);
+        }
+    };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -202,7 +231,7 @@ export default function AnalyticsDashboard() {
 
             {/* Secondary Metrics Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <GlassCard className="h-[400px] flex flex-col">
+                <GlassCard className="h-[600px] flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="text-xl font-semibold text-foreground">Message Activity</h3>
@@ -214,7 +243,7 @@ export default function AnalyticsDashboard() {
                     </div>
                 </GlassCard>
 
-                <GlassCard className="h-[400px] flex flex-col">
+                <GlassCard className="h-[600px] flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                         <div>
                             <h3 className="text-xl font-semibold text-foreground">Top Loyal Customers</h3>
@@ -222,7 +251,12 @@ export default function AnalyticsDashboard() {
                         </div>
                     </div>
                     <div className="flex-1 overflow-hidden">
-                        <TopCustomersTable data={topCustomers} />
+                        <TopCustomersTable
+                            data={topCustomers}
+                            onLoadMore={loadMoreTopCustomers}
+                            hasMore={topCustomersHasMore}
+                            loading={loadingMoreCustomers}
+                        />
                     </div>
                 </GlassCard>
             </div>

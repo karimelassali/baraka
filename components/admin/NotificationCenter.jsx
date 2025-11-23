@@ -149,16 +149,18 @@ export default function NotificationCenter() {
                             animate={{ opacity: 1, x: 0, scale: 1 }}
                             exit={{ opacity: 0, x: 300, scale: 0.9 }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="fixed top-20 right-4 z-50 w-full max-w-md"
+                            className="fixed top-24 right-6 left-6 md:left-auto z-50 w-auto md:w-full md:max-w-md"
                         >
-                            <GlassCard className="shadow-2xl border-2 overflow-hidden flex flex-col max-h-[calc(100vh-120px)]">
-                                <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-border/50 bg-gradient-to-r from-red-500/10 to-red-600/10 shrink-0">
+                            <GlassCard className="rounded-2xl shadow-2xl border overflow-hidden flex flex-col max-h-[calc(100vh-160px)] min-h-[420px]">
+                                <CardHeader className="sticky top-0 z-10 flex flex-row items-center justify-between px-6 py-4 border-b border-border/50 bg-gradient-to-r from-red-500/10 to-red-600/10 backdrop-blur">
                                     <div>
-                                        <CardTitle className="flex items-center gap-2">
+                                        <CardTitle className="flex items-center gap-2 text-base">
                                             <Bell className="h-5 w-5 text-red-600" />
+                                      
                                             Notifiche
                                         </CardTitle>
                                         <p className="text-sm text-muted-foreground mt-1">
+                                        
                                             {totalCount} {totalCount === 1 ? 'notifica' : 'notifiche'} da leggere
                                         </p>
                                     </div>
@@ -179,7 +181,7 @@ export default function NotificationCenter() {
                                     </div>
                                 </CardHeader>
 
-                                <CardContent className="p-0 overflow-y-auto flex-1">
+                                <CardContent className="p-0 overflow-y-auto flex-1 scroll-smooth">
                                     {loading && !notifications ? (
                                         <div className="flex justify-center items-center py-12">
                                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600" />
@@ -204,7 +206,7 @@ export default function NotificationCenter() {
                                                         initial={{ opacity: 0, y: 10 }}
                                                         animate={{ opacity: 1, y: 0 }}
                                                         exit={{ opacity: 0, height: 0 }}
-                                                        className="p-4 hover:bg-accent/50 transition-colors cursor-pointer group relative"
+                                                        className="px-6 py-4 hover:bg-accent/50 transition-colors cursor-pointer group relative"
                                                         onClick={() => handleNavigate(category.key)}
                                                     >
                                                         <div className="flex items-start gap-3">
@@ -225,7 +227,7 @@ export default function NotificationCenter() {
 
                                                                 {/* Preview items */}
                                                                 {data.items.length > 0 && (
-                                                                    <div className="space-y-1.5 bg-muted/30 p-2 rounded-md mb-2">
+                                                                    <div className="space-y-1.5 bg-muted/30 p-3 rounded-md mb-2">
                                                                         {data.items.slice(0, 2).map((item, index) => (
                                                                             <div key={index} className="text-xs text-muted-foreground flex items-center gap-2">
                                                                                 <div className={`h-1.5 w-1.5 rounded-full ${data.color === 'red' ? 'bg-red-500' : 'bg-primary'} shrink-0`} />

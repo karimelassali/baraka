@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=24.4.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.4",
-    "@react-three/drei": "^10.7.7",
+    "@react-three/drei": "10.0.0",
     "@react-three/fiber": "^9.4.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.7.0",

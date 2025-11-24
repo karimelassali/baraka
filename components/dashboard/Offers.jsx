@@ -2,21 +2,24 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { Tag, Calendar, ArrowRight, Clock } from 'lucide-react';
 
 function Skeleton() {
   return (
-    <div className="p-8 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 animate-pulse">
-      <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-      <div className="space-y-4">
-        <div className="h-24 bg-gray-200 rounded w-full"></div>
-        <div className="h-24 bg-gray-200 rounded w-full"></div>
-        <div className="h-24 bg-gray-200 rounded w-full"></div>
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="bg-white rounded-xl border border-gray-200 p-6 animate-pulse">
+          <div className="h-40 bg-gray-100 rounded-lg mb-4"></div>
+          <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-full mb-4"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+        </div>
+      ))}
     </div>
   );
 }
 
-export default function Offers() {
+export default function Offers({ limit }) {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,61 +50,71 @@ export default function Offers() {
     return <Skeleton />;
   }
 
+  const displayOffers = limit ? offers.slice(0, limit) : offers;
+
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Special Offers</h2>
-        <span className="bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-medium">
-          {offers.length} active
-        </span>
-      </div>
-      
-      {offers.length > 0 ? (
-        <div className="space-y-4">
-          {offers.map((offer) => (
-            <div 
-              key={offer.id} 
-              className="p-5 bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-100 rounded-xl hover:shadow-md transition-shadow"
+      {!limit && (
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Special Offers</h2>
+          <span className="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full font-medium">
+            {offers.length} active
+          </span>
+        </div>
+      )}
+
+      {displayOffers.length > 0 ? (
+        <div className={`grid grid-cols-1 ${limit ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
+          {displayOffers.map((offer) => (
+            <div
+              key={offer.id}
+              className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
             >
-              <div className="flex items-start">
-                <div className="flex-shrink-0 mr-4">
-                  <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                    </svg>
-                  </div>
+              <div className="h-40 bg-gradient-to-br from-indigo-500 to-purple-600 relative p-6 flex items-center justify-center">
+                <div className="absolute top-0 right-0 p-4 opacity-20">
+                  <Tag className="w-24 h-24 text-white" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-lg text-gray-800">{offer.title}</h3>
-                  <p className="text-gray-600 mt-1">{offer.description}</p>
-                  <div className="mt-3 flex items-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      offer.offer_type === 'WEEKLY' 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-green-100 text-green-800'
+                <h3 className="text-2xl font-bold text-white text-center relative z-10">{offer.title}</h3>
+              </div>
+
+              <div className="p-6 flex-1 flex flex-col">
+                <div className="flex items-center space-x-2 mb-4">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${offer.offer_type === 'WEEKLY'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-green-100 text-green-800'
                     }`}>
-                      {offer.offer_type}
+                    {offer.offer_type}
+                  </span>
+                  {offer.end_date && (
+                    <span className="flex items-center text-xs text-gray-500">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {Math.ceil((new Date(offer.end_date) - new Date()) / (1000 * 60 * 60 * 24))} days left
                     </span>
-                    {offer.start_date && (
-                      <span className="ml-2 text-xs text-gray-500">
-                        {new Date(offer.start_date).toLocaleDateString()} - {new Date(offer.end_date).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
+                  )}
+                </div>
+
+                <p className="text-gray-600 text-sm mb-6 flex-1 line-clamp-3">{offer.description}</p>
+
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
+                  <span className="text-xs text-gray-500 flex items-center">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    Valid until {new Date(offer.end_date).toLocaleDateString()}
+                  </span>
+                  <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform">
+                    Details <ArrowRight className="w-4 h-4 ml-1" />
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="text-center py-10">
-          <div className="mx-auto w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="text-center py-16 bg-white rounded-xl border border-gray-200 border-dashed">
+          <div className="mx-auto w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+            <Tag className="h-8 w-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-1">No offers available</h3>
-          <p className="text-gray-500">Check back later for new exclusive deals!</p>
+          <p className="text-gray-500 text-sm">Check back later for new exclusive deals!</p>
         </div>
       )}
     </div>

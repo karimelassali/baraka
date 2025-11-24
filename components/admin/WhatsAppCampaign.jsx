@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import {
   Send,
@@ -13,7 +13,11 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
-  ChevronDown
+  ChevronDown,
+  History,
+  Plus,
+  Smartphone,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -21,9 +25,13 @@ import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 import { countries } from '../../lib/constants/countries';
+import CampaignHistory from './CampaignHistory';
 
 export default function WhatsAppCampaign() {
   const searchParams = useSearchParams();
+  const [activeTab, setActiveTab] = useState('new'); // 'new' or 'history'
+
+  // Form State
   const [formData, setFormData] = useState({
     message: '',
     targetGroup: 'all',
@@ -39,8 +47,6 @@ export default function WhatsAppCampaign() {
   useEffect(() => {
     const aiFilter = searchParams.get('ai_filter');
     if (aiFilter) {
-      // Parse filter string like "country=Italy, status=active"
-      // For now, we only support country filter mapping to nationality
       if (aiFilter.toLowerCase().includes('country=')) {
         const countryMatch = aiFilter.match(/country=([^,]*)/i);
         if (countryMatch && countryMatch[1]) {
@@ -53,6 +59,28 @@ export default function WhatsAppCampaign() {
       }
     }
   }, [searchParams]);
+
+  // Listen for AI commands
+  useEffect(() => {
+    const handleAICommand = (e) => {
+      const { command } = e.detail;
+      if (command) {
+        // Simple heuristic to fill message from AI suggestion
+        // In a real app, this might call an AI API to generate the text
+        if (command.includes("festività")) {
+          setFormData(prev => ({ ...prev, message: "🎄 Auguri di Buone Feste! Passa a trovarci per scoprire le nostre offerte speciali natalizie. 🎁" }));
+        } else if (command.includes("filtri")) {
+          setFormData(prev => ({ ...prev, targetGroup: 'points', pointsThreshold: 100 }));
+        } else if (command.includes("consigli")) {
+          // Just focus the message area
+          document.querySelector('textarea[name="message"]')?.focus();
+        }
+      }
+    };
+
+    window.addEventListener('baraka-ai-command', handleAICommand);
+    return () => window.removeEventListener('baraka-ai-command', handleAICommand);
+  }, []);
 
   const validate = () => {
     const newErrors = {};
@@ -74,7 +102,6 @@ export default function WhatsAppCampaign() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear errors for this field
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
@@ -106,7 +133,6 @@ export default function WhatsAppCampaign() {
 
   const handleTargetGroupChange = (e) => {
     handleChange(e);
-    // Reset recipient count when target group changes
     setRecipientCount(null);
   };
 
@@ -118,9 +144,8 @@ export default function WhatsAppCampaign() {
       return;
     }
 
-    // Show confirmation dialog
     const confirmed = window.confirm(
-      `Are you sure you want to send this campaign to ${recipientCount || 'all'} customers? This action cannot be undone.`
+      `Are you sure you want to send this campaign to ${recipientCount || 'all'} customers?`
     );
     if (!confirmed) return;
 
@@ -140,6 +165,8 @@ export default function WhatsAppCampaign() {
         setStatus({ type: 'success', message: result.message || 'Campaign sent successfully' });
         setFormData({ message: '', targetGroup: 'all', nationality: '', pointsThreshold: 0 });
         setRecipientCount(null);
+        // Switch to history tab after success after a delay
+        setTimeout(() => setActiveTab('history'), 2000);
       } else {
         setStatus({ type: 'error', message: result.error || 'Failed to send campaign' });
       }
@@ -151,209 +178,262 @@ export default function WhatsAppCampaign() {
   };
 
   return (
-    <motion.div
-      className="space-y-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <GlassCard>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5 text-green-500" />
-            WhatsApp Campaign
-          </CardTitle>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create and send WhatsApp messages to your customers
-          </p>
-        </CardHeader>
-      </GlassCard>
+    <div className="space-y-6">
+      {/* Tabs Navigation */}
+      <div className="flex p-1 bg-muted/30 rounded-xl w-fit border border-white/10">
+        <button
+          onClick={() => setActiveTab('new')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'new'
+              ? 'bg-white shadow-sm text-gray-900'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
+            }`}
+        >
+          <Plus className="h-4 w-4" />
+          New Campaign
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'history'
+              ? 'bg-white shadow-sm text-gray-900'
+              : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
+            }`}
+        >
+          <History className="h-4 w-4" />
+          History
+        </button>
+      </div>
 
-      <GlassCard>
-        <CardContent className="pt-6">
-          {status.message && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${status.type === 'success'
-                ? 'bg-green-50 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
-                : 'bg-red-50 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
-                }`}
-            >
-              {status.type === 'success' ? (
-                <CheckCircle2 className="h-5 w-5 mt-0.5" />
-              ) : (
-                <AlertCircle className="h-5 w-5 mt-0.5" />
-              )}
-              <p className="flex-1">{status.message}</p>
-            </motion.div>
-          )}
+      <AnimatePresence mode="wait">
+        {activeTab === 'new' ? (
+          <motion.div
+            key="new"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          >
+            {/* Left Column: Campaign Settings */}
+            <div className="lg:col-span-2 space-y-6">
+              <GlassCard className="overflow-hidden">
+                <CardHeader className="border-b border-border/50 bg-muted/20">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <Sparkles className="h-5 w-5 text-indigo-500" />
+                    Campaign Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  {status.message && (
+                    <div className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${status.type === 'success'
+                        ? 'bg-green-50 text-green-800 border border-green-200'
+                        : 'bg-red-50 text-red-800 border border-red-200'
+                      }`}>
+                      {status.type === 'success' ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
+                      <p>{status.message}</p>
+                    </div>
+                  )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Message Input */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Message</label>
-              <textarea
-                name="message"
-                placeholder="Enter your WhatsApp message here..."
-                value={formData.message}
-                onChange={handleChange}
-                rows="5"
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
-              />
-              <div className="flex justify-between items-center mt-1">
-                {errors.message && (
-                  <p className="text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="h-3 w-3" />
-                    {errors.message}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground ml-auto">
-                  {formData.message.length} / 1000 characters
-                </p>
-              </div>
-            </div>
-
-            {/* Target Group */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Target Group</label>
-              <select
-                name="targetGroup"
-                value={formData.targetGroup}
-                onChange={handleTargetGroupChange}
-                className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              >
-                <option value="all">All Customers</option>
-                <option value="nationality">By Nationality</option>
-                <option value="points">By Points Threshold</option>
-              </select>
-            </div>
-
-            {/* Conditional Fields */}
-            <motion.div
-              initial={false}
-              animate={{ height: 'auto' }}
-            >
-              {formData.targetGroup === 'nationality' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    Nationality
-                  </label>
-                  <div className="relative">
-                    <select
-                      name="nationality"
-                      value={formData.nationality}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
-                    >
-                      <option value="">Select Nationality</option>
-                      {countries.map((c) => (
-                        <option key={c.code} value={c.name}>
-                          {c.flag} {c.name}
-                        </option>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Target Group Selection */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {[
+                        { id: 'all', icon: Users, label: 'All Customers' },
+                        { id: 'nationality', icon: Globe, label: 'By Nationality' },
+                        { id: 'points', icon: Award, label: 'By Points' }
+                      ].map((type) => (
+                        <div
+                          key={type.id}
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, targetGroup: type.id }));
+                            setRecipientCount(null);
+                          }}
+                          className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${formData.targetGroup === type.id
+                              ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20'
+                              : 'border-transparent bg-muted/30 hover:bg-muted/50'
+                            }`}
+                        >
+                          <type.icon className={`h-6 w-6 mb-2 ${formData.targetGroup === type.id ? 'text-indigo-600' : 'text-muted-foreground'
+                            }`} />
+                          <div className="font-medium text-sm">{type.label}</div>
+                        </div>
                       ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-                  </div>
-                  {errors.nationality && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
-                      {errors.nationality}
-                    </p>
-                  )}
-                </motion.div>
-              )}
+                    </div>
 
-              {formData.targetGroup === 'points' && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <label className="block text-sm font-medium mb-2 flex items-center gap-2">
-                    <Award className="h-4 w-4" />
-                    Minimum Points
-                  </label>
-                  <Input
-                    name="pointsThreshold"
-                    type="number"
-                    placeholder="e.g., 100"
-                    value={formData.pointsThreshold}
-                    onChange={handleChange}
-                    min="1"
-                    className="bg-background"
-                  />
-                  {errors.pointsThreshold && (
-                    <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                      <AlertCircle className="h-3 w-3" />
-                      {errors.pointsThreshold}
-                    </p>
-                  )}
-                </motion.div>
-              )}
-            </motion.div>
+                    {/* Conditional Inputs */}
+                    <div className="bg-muted/10 rounded-xl p-4 border border-border/50">
+                      {formData.targetGroup === 'all' && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Users className="h-4 w-4" />
+                          Sending to all registered customers with phone numbers.
+                        </p>
+                      )}
 
-            {/* Recipient Preview */}
-            <div className="bg-muted/30 border border-border rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Users className="h-4 w-4 text-green-500" />
-                  Recipient Preview
-                </h4>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={loadRecipientPreview}
-                  disabled={loadingPreview}
-                >
-                  {loadingPreview ? (
-                    <>
-                      <Loader2 className="h-3 w-3 mr-2 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    'Refresh Count'
-                  )}
-                </Button>
-              </div>
+                      {formData.targetGroup === 'nationality' && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Select Nationality</label>
+                          <div className="relative">
+                            <select
+                              name="nationality"
+                              value={formData.nationality}
+                              onChange={handleChange}
+                              className="w-full px-4 py-2.5 rounded-lg border bg-background appearance-none focus:ring-2 focus:ring-indigo-500"
+                            >
+                              <option value="">Choose country...</option>
+                              {countries.map((c) => (
+                                <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
+                              ))}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                          </div>
+                        </div>
+                      )}
 
-              {recipientCount !== null ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-200">
-                    {recipientCount} {recipientCount === 1 ? 'customer' : 'customers'} will receive this message
-                  </Badge>
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Click "Refresh Count" to see how many customers will receive this message
-                </p>
-              )}
+                      {formData.targetGroup === 'points' && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Minimum Points Threshold</label>
+                          <Input
+                            name="pointsThreshold"
+                            type="number"
+                            value={formData.pointsThreshold}
+                            onChange={handleChange}
+                            className="bg-background"
+                            placeholder="e.g. 100"
+                          />
+                        </div>
+                      )}
+
+                      {/* Recipient Count */}
+                      <div className="mt-4 flex items-center justify-between pt-4 border-t border-border/50">
+                        <div className="text-sm">
+                          {recipientCount !== null ? (
+                            <span className="text-green-600 font-medium flex items-center gap-2">
+                              <CheckCircle2 className="h-4 w-4" />
+                              {recipientCount} recipients found
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">Estimate recipients before sending</span>
+                          )}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={loadRecipientPreview}
+                          disabled={loadingPreview}
+                          className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                        >
+                          {loadingPreview ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Calculate Audience'}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Message Input */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium flex justify-between">
+                        Message Content
+                        <span className={`text-xs ${formData.message.length > 900 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                          {formData.message.length}/1000
+                        </span>
+                      </label>
+                      <textarea
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        placeholder="Type your message here... Use emojis to make it engaging! 🚀"
+                        rows={6}
+                        className="w-full px-4 py-3 rounded-xl border bg-background focus:ring-2 focus:ring-indigo-500 resize-none"
+                      />
+                      {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={loading || !formData.message}
+                      className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white text-lg shadow-lg shadow-indigo-200 dark:shadow-none transition-all hover:scale-[1.01]"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-5 w-5 mr-2" />
+                          Send Campaign Now
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </GlassCard>
             </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={loading || !formData.message}
-              className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-base"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Sending Campaign...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Send Campaign
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </GlassCard>
-    </motion.div>
+            {/* Right Column: Preview */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-6">
+                <div className="bg-gray-900 rounded-[2.5rem] p-4 shadow-2xl border-4 border-gray-800 max-w-[320px] mx-auto">
+                  <div className="bg-white dark:bg-gray-950 rounded-[2rem] overflow-hidden h-[600px] relative flex flex-col">
+                    {/* Phone Header */}
+                    <div className="bg-[#075E54] p-4 text-white flex items-center gap-3 shadow-md z-10">
+                      <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                        <Users className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <div className="font-semibold text-sm">Baraka Store</div>
+                        <div className="text-[10px] opacity-80">Business Account</div>
+                      </div>
+                    </div>
+
+                    {/* Chat Area */}
+                    <div className="flex-1 bg-[#e5ded8] dark:bg-gray-800 p-4 overflow-y-auto bg-opacity-90 relative">
+                      {/* Background Pattern */}
+                      <div className="absolute inset-0 opacity-5 pointer-events-none"
+                        style={{ backgroundImage: 'url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png")' }}
+                      />
+
+                      {formData.message ? (
+                        <div className="bg-white dark:bg-gray-900 p-3 rounded-lg rounded-tl-none shadow-sm max-w-[85%] mb-4 relative z-10">
+                          <p className="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap">
+                            {formData.message}
+                          </p>
+                          <div className="text-[10px] text-gray-400 text-right mt-1">
+                            {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-400 text-sm italic z-10 relative">
+                          Preview your message here
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Phone Footer */}
+                    <div className="bg-gray-100 dark:bg-gray-900 p-3 flex items-center gap-2 border-t">
+                      <div className="w-6 h-6 rounded-full bg-gray-300 dark:bg-gray-700" />
+                      <div className="flex-1 h-8 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700" />
+                      <div className="w-8 h-8 rounded-full bg-[#00a884] flex items-center justify-center text-white">
+                        <Send className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-center text-sm text-muted-foreground mt-4">
+                  Live Preview
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="history"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <CampaignHistory />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
+

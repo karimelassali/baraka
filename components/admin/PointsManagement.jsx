@@ -5,119 +5,88 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
-  Filter,
+  TrendingUp,
+  History,
   X,
   User,
-  Mail,
-  MapPin,
-  Award,
-  History,
-  TrendingUp,
-  TrendingDown,
   Plus,
   Minus,
   Save,
-  Sparkles,
-  Zap,
-  Loader2
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Globe,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
 import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
+import { countries } from '../../lib/constants/countries';
 
 // --- Sub-components ---
 
-const QuickPointButton = ({ amount, onClick, type = 'add' }) => (
-  <motion.button
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={() => onClick(type === 'add' ? amount : -amount)}
-    className={`
-      flex items-center justify-center gap-1 px-4 py-2 rounded-xl font-bold text-sm transition-all
-      ${type === 'add'
-        ? 'bg-green-500/10 text-green-600 border border-green-500/20 hover:bg-green-500/20'
-        : 'bg-red-500/10 text-red-600 border border-red-500/20 hover:bg-red-500/20'}
-    `}
-  >
-    {type === 'add' ? <Plus className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-    {amount}
-  </motion.button>
-);
-
 function PointsConsole({ customer, isOpen, onClose, onSave }) {
-  const [formData, setFormData] = useState({
-    points: '',
-    reason: ''
-  });
-  const [transactionHistory, setTransactionHistory] = useState([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [pointsChange, setPointsChange] = useState('');
+  const [reason, setReason] = useState('');
+  const [action, setAction] = useState('add'); // 'add' or 'deduct'
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   useEffect(() => {
-    if (customer && isOpen) {
-      loadTransactionHistory();
-      setFormData({ points: '', reason: '' });
+    if (isOpen && customer) {
+      loadHistory();
+      setPointsChange('');
+      setReason('');
       setStatus({ type: '', message: '' });
     }
-  }, [customer, isOpen]);
+  }, [isOpen, customer]);
 
-  const loadTransactionHistory = async () => {
-    if (!customer) return;
-
+  const loadHistory = async () => {
     setLoadingHistory(true);
     try {
-      const response = await fetch(`/api/customer/${customer.id}/points`);
+      const response = await fetch(`/api/admin/customers/${customer.id}/points`);
       const data = await response.json();
-
       if (response.ok) {
-        setTransactionHistory(data.points_history || []);
-      } else {
-        setTransactionHistory([]);
+        setHistory(data.history || []);
       }
     } catch (error) {
-      console.error('Error loading transaction history:', error);
-      setTransactionHistory([]);
+      console.error('Failed to load history', error);
     } finally {
       setLoadingHistory(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleQuickAdd = (amount) => {
-    setFormData(prev => ({ ...prev, points: amount }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.points) return;
-
     setStatus({ type: '', message: '' });
     setLoading(true);
 
     try {
-      const response = await fetch(`/api/admin/customers/${customer.id}/points`, {
-        method: 'PUT',
+      const points = parseInt(pointsChange);
+      const finalPoints = action === 'add' ? points : -points;
+
+      const response = await fetch('/api/admin/points', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          points: parseInt(formData.points),
-          reason: formData.reason || 'Manual adjustment'
+          customer_id: customer.id,
+          points: finalPoints,
+          description: reason || (action === 'add' ? 'Manual Adjustment (Add)' : 'Manual Adjustment (Deduct)')
         }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: 'Points updated successfully' });
-        setFormData({ points: '', reason: '' });
+        setStatus({ type: 'success', message: 'Points updated successfully!' });
+        setPointsChange('');
+        setReason('');
+        loadHistory();
         onSave && onSave();
-        loadTransactionHistory();
+        setTimeout(() => setStatus({ type: '', message: '' }), 2000);
       } else {
         setStatus({ type: 'error', message: result.error || 'Failed to update points' });
       }
@@ -133,29 +102,33 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <motion.div
-        className="bg-background/95 border border-border/50 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col md:flex-row"
+        className="bg-background/95 border border-border/50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
       >
-        {/* Left Panel: Profile & Actions */}
-        <div className="w-full md:w-2/5 bg-muted/30 p-6 md:p-8 flex flex-col border-r border-border/50 relative overflow-hidden">
-          {/* Decorative background elements */}
-          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-yellow-500/10 to-transparent pointer-events-none" />
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-yellow-500/20 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-6">
-              <div className="p-3 bg-yellow-500/20 rounded-2xl">
-                <Award className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
-              </div>
-              <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full md:hidden">
-                <X className="h-5 w-5" />
-              </Button>
+        {/* Header */}
+        <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-yellow-500/10 rounded-xl">
+              <TrendingUp className="w-6 h-6 text-yellow-600" />
             </div>
+            <div>
+              <h2 className="text-xl font-bold">Points Console</h2>
+              <p className="text-sm text-muted-foreground">Manage points for {customer.first_name}</p>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
 
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-yellow-500/20">
+        <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
+          {/* Left Panel: Action */}
+          <div className="w-full md:w-1/3 p-6 border-r border-border/50 bg-muted/10 overflow-y-auto">
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-yellow-500/20 shrink-0">
                 <img
                   src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
                   alt={customer.first_name}
@@ -163,106 +136,108 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
                 />
               </div>
               <div>
-                <h2 className="text-xl font-bold">{customer.first_name} {customer.last_name}</h2>
-                <p className="text-muted-foreground text-sm flex items-center gap-1">
-                  <Mail className="w-3 h-3" /> {customer.email}
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-background/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 mb-8 text-center shadow-sm">
-              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-2">Current Balance</p>
-              <div className="text-5xl font-black text-foreground tracking-tight flex items-center justify-center gap-2">
-                {customer.total_points || 0}
-                <span className="text-lg font-normal text-muted-foreground mt-4">pts</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="font-semibold flex items-center gap-2">
-                <Zap className="w-4 h-4 text-yellow-500" /> Quick Actions
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                <QuickPointButton amount={50} onClick={handleQuickAdd} type="add" />
-                <QuickPointButton amount={100} onClick={handleQuickAdd} type="add" />
-                <QuickPointButton amount={500} onClick={handleQuickAdd} type="add" />
-                <QuickPointButton amount={50} onClick={handleQuickAdd} type="subtract" />
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Custom Adjustment</label>
-                <div className="flex gap-2">
-                  <Input
-                    name="points"
-                    type="number"
-                    value={formData.points}
-                    onChange={handleChange}
-                    placeholder="+/- Points"
-                    className="bg-background font-mono"
-                  />
-                  <Button type="submit" disabled={loading} className="bg-yellow-500 hover:bg-yellow-600 text-white min-w-[100px]">
-                    {loading ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" /> : 'Apply'}
-                  </Button>
+                <h3 className="font-bold text-lg leading-tight">{customer.first_name} {customer.last_name}</h3>
+                <p className="text-xs text-muted-foreground">{customer.email}</p>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                  <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
+                  <span>{customer.country_of_origin || 'N/A'}</span>
                 </div>
               </div>
-              <Input
-                name="reason"
-                value={formData.reason}
-                onChange={handleChange}
-                placeholder="Reason (optional)"
-                className="bg-background text-sm"
-              />
+            </div>
+
+            <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-6 mb-6">
+              <p className="text-sm font-medium text-yellow-600 mb-1">Current Balance</p>
+              <p className="text-3xl font-black">{customer.total_points || 0}</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex bg-muted rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => setAction('add')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${action === 'add' ? 'bg-background shadow-sm text-green-600' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <Plus className="w-4 h-4" /> Add
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAction('deduct')}
+                  className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${action === 'deduct' ? 'bg-background shadow-sm text-red-600' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <Minus className="w-4 h-4" /> Deduct
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase text-muted-foreground">Points Amount</label>
+                <Input
+                  type="number"
+                  value={pointsChange}
+                  onChange={(e) => setPointsChange(e.target.value)}
+                  placeholder="0"
+                  className="bg-background text-lg font-bold"
+                  min="1"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-medium uppercase text-muted-foreground">Reason (Optional)</label>
+                <Input
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="e.g. Bonus, Refund..."
+                  className="bg-background"
+                />
+              </div>
+
               {status.message && (
-                <div className={`text-xs p-2 rounded ${status.type === 'success' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                <div className={`text-xs p-3 rounded-lg flex items-center gap-2 ${status.type === 'success' ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                  {status.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                   {status.message}
                 </div>
               )}
+
+              <Button
+                type="submit"
+                disabled={loading || !pointsChange}
+                className={`w-full ${action === 'add' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white`}
+              >
+                {loading ? 'Updating...' : (action === 'add' ? 'Add Points' : 'Deduct Points')}
+              </Button>
             </form>
           </div>
-        </div>
 
-        {/* Right Panel: History */}
-        <div className="w-full md:w-3/5 bg-background p-6 md:p-8 flex flex-col h-full overflow-hidden">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-bold flex items-center gap-2">
-              <History className="w-5 h-5 text-muted-foreground" /> Transaction History
+          {/* Right Panel: History */}
+          <div className="w-full md:w-2/3 p-6 bg-background overflow-y-auto custom-scrollbar">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <History className="w-4 h-4 text-muted-foreground" /> Transaction History
             </h3>
-            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hidden md:flex">
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
 
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
             {loadingHistory ? (
-              <div className="flex justify-center items-center h-40">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+              <div className="flex justify-center py-10">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
               </div>
-            ) : transactionHistory.length > 0 ? (
-              <div className="relative border-l-2 border-muted ml-3 space-y-8 py-2">
-                {transactionHistory.map((transaction, idx) => (
+            ) : history.length > 0 ? (
+              <div className="space-y-3">
+                {history.map((transaction) => (
                   <motion.div
                     key={transaction.id}
-                    initial={{ opacity: 0, x: 20 }}
+                    initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="relative pl-8"
+                    className="flex items-center justify-between p-4 rounded-xl border border-border/40 hover:bg-muted/30 transition-colors"
                   >
-                    <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-background ${transaction.points > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
-                    <div className="flex justify-between items-start group">
-                      <div>
-                        <p className="font-medium text-foreground group-hover:text-yellow-600 transition-colors">
-                          {transaction.description || (transaction.points > 0 ? 'Points Added' : 'Points Deducted')}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(transaction.created_at).toLocaleString()}
-                        </p>
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-full ${transaction.points > 0 ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
+                        {transaction.points > 0 ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
                       </div>
-                      <span className={`font-mono font-bold ${transaction.points > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {transaction.points > 0 ? '+' : ''}{transaction.points}
-                      </span>
+                      <div>
+                        <p className="font-medium text-sm">{transaction.description || 'Manual Adjustment'}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(transaction.created_at).toLocaleDateString()} at {new Date(transaction.created_at).toLocaleTimeString()}</p>
+                      </div>
                     </div>
+                    <span className={`font-mono font-bold ${transaction.points > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {transaction.points > 0 ? '+' : ''}{transaction.points}
+                    </span>
                   </motion.div>
                 ))}
               </div>
@@ -308,6 +283,11 @@ const CustomerCard = ({ customer, onClick }) => (
         <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
         <p className="text-sm text-muted-foreground truncate w-full px-2 mb-4">{customer.email}</p>
 
+        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mb-4">
+          <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
+          <span className="truncate max-w-[100px]">{customer.country_of_origin || 'N/A'}</span>
+        </div>
+
         <div className="mt-auto w-full pt-4 border-t border-border/50">
           <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Points</p>
           <p className="text-3xl font-black text-foreground group-hover:text-yellow-500 transition-colors">
@@ -328,6 +308,11 @@ export default function PointsManagement() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
 
+  // Filter states
+  const [locationFilter, setLocationFilter] = useState('');
+  const [sortField, setSortField] = useState('created_at');
+  const [sortDirection, setSortDirection] = useState('desc');
+
   const LIMIT = 10;
 
   const loadCustomers = async (reset = false) => {
@@ -340,8 +325,16 @@ export default function PointsManagement() {
 
     try {
       let url = `/api/admin/customers?limit=${LIMIT}&offset=${reset ? 0 : offset}`;
+
+      // Add sorting
+      url += `&sort_by=${sortField}&sort_order=${sortDirection}`;
+
       if (searchTerm) {
         url += `&search=${encodeURIComponent(searchTerm)}`;
+      }
+
+      if (locationFilter) {
+        url += `&country=${encodeURIComponent(locationFilter)}`;
       }
 
       const response = await fetch(url);
@@ -370,7 +363,7 @@ export default function PointsManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, [searchTerm]);
+  }, [searchTerm, sortField, sortDirection, locationFilter]);
 
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -386,23 +379,71 @@ export default function PointsManagement() {
       animate={{ opacity: 1 }}
     >
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Points Dashboard</h2>
-          <p className="text-muted-foreground mt-2">Manage customer loyalty points and view transaction history.</p>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Points Dashboard</h2>
+            <p className="text-muted-foreground mt-2">Manage customer loyalty points and view transaction history.</p>
+          </div>
+
+          <div className="relative w-full md:w-96">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search customers..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all shadow-sm"
+            />
+          </div>
         </div>
 
-        <div className="relative w-full md:w-96">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-muted-foreground" />
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
+            <div className="relative">
+              <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <select
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 appearance-none transition-all"
+              >
+                <option value="">All Countries</option>
+                {countries.map((c) => (
+                  <option key={c.code} value={c.name}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+            </div>
           </div>
-          <input
-            type="text"
-            placeholder="Search customers..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all shadow-sm"
-          />
+
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Sort By</label>
+            <div className="relative">
+              <select
+                value={`${sortField}-${sortDirection}`}
+                onChange={(e) => {
+                  const [field, direction] = e.target.value.split('-');
+                  setSortField(field);
+                  setSortDirection(direction);
+                }}
+                className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 appearance-none transition-all"
+              >
+                <option value="created_at-desc">Newest First</option>
+                <option value="created_at-asc">Oldest First</option>
+                <option value="first_name-asc">Name (A-Z)</option>
+                <option value="first_name-desc">Name (Z-A)</option>
+                <option value="country_of_origin-asc">Nationality (A-Z)</option>
+                <option value="country_of_origin-desc">Nationality (Z-A)</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+            </div>
+          </div>
         </div>
       </div>
 

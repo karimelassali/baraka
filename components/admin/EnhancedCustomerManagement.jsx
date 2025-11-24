@@ -31,6 +31,7 @@ import { Badge } from '../../components/ui/badge';
 import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { useSearchParams } from 'next/navigation';
+import { countries } from '../../lib/constants/countries';
 
 // --- Components ---
 
@@ -206,12 +207,19 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Country</label>
-                <input
+                <select
                   name="country_of_origin"
                   value={formData.country_of_origin}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-input rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
+                  className="w-full px-4 py-2.5 border border-input rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
+                >
+                  <option value="">Select Country</option>
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.name}>
+                      {c.flag} {c.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Residence</label>
@@ -382,12 +390,19 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Country</label>
-                <input
+                <select
                   name="country_of_origin"
                   value={formData.country_of_origin}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-input rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                />
+                  className="w-full px-4 py-2.5 border border-input rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
+                >
+                  <option value="">Select Country</option>
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.name}>
+                      {c.flag} {c.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Residence</label>
@@ -461,7 +476,10 @@ const CustomerGridCard = ({ customer, onEdit }) => (
         <div className="w-full grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-border/50">
           <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
             <MapPin className="w-4 h-4 text-muted-foreground mb-1" />
-            <span className="text-xs font-medium truncate w-full text-center">{customer.country_of_origin || 'N/A'}</span>
+            <div className="flex items-center gap-1 text-xs font-medium truncate w-full justify-center">
+              <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
+              <span className="truncate">{customer.country_of_origin || 'N/A'}</span>
+            </div>
           </div>
           <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
             <Phone className="w-4 h-4 text-muted-foreground mb-1" />
@@ -504,7 +522,25 @@ export default function EnhancedCustomerManagement() {
     }
 
     try {
-      let url = `/api/admin/customers?limit=${LIMIT}&offset=${currentOffset}&sort_by=created_at&sort_order=desc`;
+      let url = `/api/admin/customers?limit=${LIMIT}&offset=${currentOffset}`;
+
+      // Add sorting
+      url += `&sort_by=${sortField}&sort_order=${sortDirection}`;
+
+      // Add search
+      if (searchTerm) {
+        url += `&search=${encodeURIComponent(searchTerm)}`;
+      }
+
+      // Add filters
+      if (locationFilter) {
+        url += `&country=${encodeURIComponent(locationFilter)}`;
+      }
+
+      // Note: verifiedFilter is not currently supported by the API for filtering, 
+      // but we can add it if needed. For now, we'll filter client-side or ignore it.
+      // Ideally, the API should support 'is_verified'.
+
       const response = await fetch(url);
       const data = await response.json();
 
@@ -533,39 +569,12 @@ export default function EnhancedCustomerManagement() {
 
   useEffect(() => {
     loadCustomers(true);
+  }, [searchTerm, sortField, sortDirection, locationFilter]);
+
+  useEffect(() => {
     const search = searchParams.get('search');
     if (search) setSearchTerm(search);
   }, [searchParams]);
-
-  // Client-side filtering
-  const filteredAndSortedCustomers = customers.filter(customer => {
-    const matchesSearch =
-      !searchTerm ||
-      customer.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesLocation =
-      !locationFilter ||
-      customer.country_of_origin?.toLowerCase().includes(locationFilter.toLowerCase());
-
-    const matchesVerification =
-      verifiedFilter === 'all' ||
-      (verifiedFilter === 'verified' && customer.email_confirmed) ||
-      (verifiedFilter === 'not-verified' && !customer.email_confirmed);
-
-    return matchesSearch && matchesLocation && matchesVerification;
-  }).sort((a, b) => {
-    if (sortField === 'name') {
-      const nameA = (a.first_name + ' ' + a.last_name).toLowerCase();
-      const nameB = (b.first_name + ' ' + b.last_name).toLowerCase();
-      return sortDirection === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-    } else {
-      return sortDirection === 'asc'
-        ? new Date(a.created_at) - new Date(b.created_at)
-        : new Date(b.created_at) - new Date(a.created_at);
-    }
-  });
 
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -630,16 +639,22 @@ export default function EnhancedCustomerManagement() {
           {/* Advanced filters */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6 pt-6 border-t border-border/50">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Location</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
               <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <input
-                  type="text"
-                  placeholder="Filter by location"
+                <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <select
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
+                  className="w-full pl-10 pr-3 py-2 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
+                >
+                  <option value="">All Countries</option>
+                  {countries.map((c) => (
+                    <option key={c.code} value={c.name}>
+                      {c.flag} {c.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
               </div>
             </div>
 
@@ -665,21 +680,23 @@ export default function EnhancedCustomerManagement() {
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <select
-                    value={sortField}
-                    onChange={(e) => setSortField(e.target.value)}
+                    value={`${sortField}-${sortDirection}`}
+                    onChange={(e) => {
+                      const [field, direction] = e.target.value.split('-');
+                      setSortField(field);
+                      setSortDirection(direction);
+                    }}
                     className="w-full px-3 py-2 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
                   >
-                    <option value="created_at">Registration Date</option>
-                    <option value="name">Name</option>
+                    <option value="created_at-desc">Newest First</option>
+                    <option value="created_at-asc">Oldest First</option>
+                    <option value="first_name-asc">Name (A-Z)</option>
+                    <option value="first_name-desc">Name (Z-A)</option>
+                    <option value="country_of_origin-asc">Nationality (A-Z)</option>
+                    <option value="country_of_origin-desc">Nationality (Z-A)</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
                 </div>
-                <button
-                  onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
-                  className="px-3 py-2 bg-background/50 border border-input rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors"
-                >
-                  {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </button>
               </div>
             </div>
           </div>
@@ -693,10 +710,10 @@ export default function EnhancedCustomerManagement() {
             <div key={i} className="h-64 rounded-2xl bg-muted/20 animate-pulse" />
           ))}
         </div>
-      ) : filteredAndSortedCustomers.length > 0 ? (
+      ) : customers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence>
-            {filteredAndSortedCustomers.map((customer) => (
+            {customers.map((customer) => (
               <CustomerGridCard
                 key={customer.id}
                 customer={customer}

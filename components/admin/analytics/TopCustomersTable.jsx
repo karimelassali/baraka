@@ -45,14 +45,16 @@ export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }
                                 </td>
                                 <td className="py-3 px-4">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white shadow-sm
-                                            ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
-                                                index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500' :
-                                                    index === 2 ? 'bg-gradient-to-br from-orange-300 to-red-400' :
-                                                        'bg-gradient-to-br from-blue-400 to-indigo-500'}`}>
-                                            <span className="text-xs font-bold">
-                                                {item.customer.first_name?.[0]}{item.customer.last_name?.[0]}
-                                            </span>
+                                        <div className={`w-8 h-8 rounded-full overflow-hidden shadow-sm border-2 
+                                            ${index === 0 ? 'border-yellow-400' :
+                                                index === 1 ? 'border-gray-300' :
+                                                    index === 2 ? 'border-orange-300' :
+                                                        'border-transparent'}`}>
+                                            <img
+                                                src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${item.customer.first_name}`}
+                                                alt={item.customer.first_name}
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
                                         <div>
                                             <p className="font-medium text-foreground text-sm group-hover:text-primary transition-colors">

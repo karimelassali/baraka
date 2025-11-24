@@ -17,13 +17,16 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Loader2
+  Loader2,
+  Globe,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
+import { countries } from '../../lib/constants/countries';
 
 // --- Sub-components ---
 
@@ -175,6 +178,25 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
         <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
           {/* Left Panel: Create Voucher */}
           <div className="w-full md:w-1/3 p-6 border-r border-border/50 bg-muted/10 overflow-y-auto">
+
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500/20 shrink-0">
+                <img
+                  src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
+                  alt={customer.first_name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg leading-tight">{customer.first_name} {customer.last_name}</h3>
+                <p className="text-xs text-muted-foreground">{customer.email}</p>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                  <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
+                  <span>{customer.country_of_origin || 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-purple-500/5 border border-purple-500/10 rounded-xl p-6 mb-6">
               <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Available Points</p>
               <p className="text-3xl font-black">{customer.total_points || 0}</p>
@@ -279,6 +301,11 @@ const CustomerVoucherCard = ({ customer, onClick }) => (
         <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
         <p className="text-sm text-muted-foreground truncate w-full px-2 mb-4">{customer.email}</p>
 
+        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mb-4">
+          <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
+          <span className="truncate max-w-[100px]">{customer.country_of_origin || 'N/A'}</span>
+        </div>
+
         <div className="mt-auto w-full pt-4 border-t border-border/50 flex justify-between items-center px-2">
           <div className="text-left">
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Points</p>
@@ -304,6 +331,11 @@ export default function VoucherManagement() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
 
+  // Filter states
+  const [locationFilter, setLocationFilter] = useState('');
+  const [sortField, setSortField] = useState('created_at');
+  const [sortDirection, setSortDirection] = useState('desc');
+
   const LIMIT = 10;
 
   const loadCustomers = async (reset = false) => {
@@ -316,8 +348,16 @@ export default function VoucherManagement() {
 
     try {
       let url = `/api/admin/customers?limit=${LIMIT}&offset=${reset ? 0 : offset}`;
+
+      // Add sorting
+      url += `&sort_by=${sortField}&sort_order=${sortDirection}`;
+
       if (searchTerm) {
         url += `&search=${encodeURIComponent(searchTerm)}`;
+      }
+
+      if (locationFilter) {
+        url += `&country=${encodeURIComponent(locationFilter)}`;
       }
 
       const response = await fetch(url);
@@ -346,7 +386,7 @@ export default function VoucherManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, [searchTerm]);
+  }, [searchTerm, sortField, sortDirection, locationFilter]);
 
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -377,23 +417,71 @@ export default function VoucherManagement() {
       animate={{ opacity: 1 }}
     >
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Voucher Center</h2>
-          <p className="text-muted-foreground mt-2">Issue and track vouchers for your customers.</p>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Voucher Center</h2>
+            <p className="text-muted-foreground mt-2">Issue and track vouchers for your customers.</p>
+          </div>
+
+          <div className="relative w-full md:w-96">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search customers..."
+              value={searchTerm}
+              onChange={handleSearch}
+              className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-sm"
+            />
+          </div>
         </div>
 
-        <div className="relative w-full md:w-96">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-muted-foreground" />
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
+            <div className="relative">
+              <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <select
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
+              >
+                <option value="">All Countries</option>
+                {countries.map((c) => (
+                  <option key={c.code} value={c.name}>
+                    {c.flag} {c.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+            </div>
           </div>
-          <input
-            type="text"
-            placeholder="Search customers..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-sm"
-          />
+
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Sort By</label>
+            <div className="relative">
+              <select
+                value={`${sortField}-${sortDirection}`}
+                onChange={(e) => {
+                  const [field, direction] = e.target.value.split('-');
+                  setSortField(field);
+                  setSortDirection(direction);
+                }}
+                className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
+              >
+                <option value="created_at-desc">Newest First</option>
+                <option value="created_at-asc">Oldest First</option>
+                <option value="first_name-asc">Name (A-Z)</option>
+                <option value="first_name-desc">Name (Z-A)</option>
+                <option value="country_of_origin-asc">Nationality (A-Z)</option>
+                <option value="country_of_origin-desc">Nationality (Z-A)</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+            </div>
+          </div>
         </div>
       </div>
 

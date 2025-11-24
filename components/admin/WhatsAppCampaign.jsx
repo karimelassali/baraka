@@ -12,13 +12,15 @@ import {
   Award,
   AlertCircle,
   CheckCircle2,
-  Loader2
+  Loader2,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
+import { countries } from '../../lib/constants/countries';
 
 export default function WhatsAppCampaign() {
   const searchParams = useSearchParams();
@@ -240,13 +242,22 @@ export default function WhatsAppCampaign() {
                     <Globe className="h-4 w-4" />
                     Nationality
                   </label>
-                  <Input
-                    name="nationality"
-                    placeholder="e.g., Italy, Morocco, Tunisia..."
-                    value={formData.nationality}
-                    onChange={handleChange}
-                    className="bg-background"
-                  />
+                  <div className="relative">
+                    <select
+                      name="nationality"
+                      value={formData.nationality}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent appearance-none"
+                    >
+                      <option value="">Select Nationality</option>
+                      {countries.map((c) => (
+                        <option key={c.code} value={c.name}>
+                          {c.flag} {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+                  </div>
                   {errors.nationality && (
                     <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" />

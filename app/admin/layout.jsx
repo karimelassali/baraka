@@ -43,7 +43,7 @@ export default function AdminLayout({ children }) {
     <div className="flex min-h-screen w-full bg-background text-foreground overflow-hidden">
       <EnhancedAdminSidebar />
 
-      <main className="flex-1 md:ml-64 relative z-10 h-screen overflow-y-auto">
+      <main className="flex-1 md:ml-64 relative z-10 h-screen overflow-y-auto pt-16 md:pt-0">
         <motion.div
           className="max-w-7xl mx-auto p-6 md:p-8"
           initial={{ opacity: 0, y: 20 }}

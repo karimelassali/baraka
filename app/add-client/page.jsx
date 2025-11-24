@@ -435,24 +435,7 @@ export default function AddClientPage() {
                                             <p className="text-sm text-gray-500">Abbiamo aggiunto i profili DiceBear per rendere più facile ricordare i clienti.</p>
                                         </div>
                                     </li>
-                                    <li className="flex items-start gap-3">
-                                        <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                                            <CheckCircle className="w-4 h-4 text-green-600" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-gray-800">Email Facoltativa</h4>
-                                            <p className="text-sm text-gray-500">Ora puoi aggiungere clienti anche senza indirizzo email.</p>
-                                        </div>
-                                    </li>
-                                    <li className="flex items-start gap-3">
-                                        <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                                            <Phone className="w-4 h-4 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-gray-800">Verifica Duplicati</h4>
-                                            <p className="text-sm text-gray-500">Il sistema ti avviserà se provi ad aggiungere un numero già esistente.</p>
-                                        </div>
-                                    </li>
+
                                 </ul>
                                 <button
                                     onClick={closeWhatsNew}

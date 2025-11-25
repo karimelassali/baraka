@@ -16,7 +16,7 @@ async function runTests() {
       body: JSON.stringify({ 
         first_name: 'Test',
         last_name: 'User',
-        email, 
+        email,    
         password,
         gdpr_consent: true
       }),

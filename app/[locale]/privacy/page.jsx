@@ -15,7 +15,7 @@ export default function PrivacyPage() {
             company/tax number [Number if applicable]. You can contact us at [privacy email] 
             or [phone], or by post to the address above. If appointed, our Data Protection 
             Officer (DPO) can be reached at [DPO email]. If we are not established in the 
-            EU, our EU Representative is [Name, Address, Email].
+            EU, our EU Representative is [Name, Address     , Email].
           </p>
         </PolicySection>
 

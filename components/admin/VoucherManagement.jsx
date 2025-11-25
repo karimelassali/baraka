@@ -272,6 +272,163 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
   );
 }
 
+const VoucherVerifier = () => {
+  const [code, setCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setResult(null);
+
+    try {
+      const response = await fetch('/api/admin/vouchers/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setResult(data.voucher);
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Failed to verify voucher');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRedeem = async () => {
+    if (!result) return;
+    setLoading(true);
+    try {
+      const response = await fetch('/api/admin/vouchers/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: result.code }),
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        setResult(data.voucher);
+        // Show success message or toast here if needed
+      } else {
+        setError(data.error);
+      }
+    } catch (err) {
+      setError('Failed to redeem voucher');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <GlassCard className="p-8">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Sparkles className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+          </div>
+          <h2 className="text-2xl font-bold">Verify & Redeem Voucher</h2>
+          <p className="text-muted-foreground mt-2">Enter the voucher code to check its validity and redeem it.</p>
+        </div>
+
+        <form onSubmit={handleVerify} className="flex gap-4 mb-8">
+          <Input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Enter voucher code (e.g. VOUCH-123)"
+            className="text-lg py-6"
+          />
+          <Button type="submit" size="lg" disabled={loading || !code} className="bg-purple-600 hover:bg-purple-700">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify'}
+          </Button>
+        </form>
+
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 p-4 rounded-xl flex items-center gap-3"
+            >
+              <AlertCircle className="w-5 h-5" />
+              {error}
+            </motion.div>
+          )}
+
+          {result && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-6"
+            >
+              <div className={`border-l-4 p-6 rounded-r-xl ${result.is_used
+                  ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-400'
+                  : !result.is_active
+                    ? 'bg-red-50 dark:bg-red-900/10 border-red-500'
+                    : 'bg-green-50 dark:bg-green-900/10 border-green-500'
+                }`}>
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="font-bold text-xl">{result.value} {result.currency}</h3>
+                    <p className="text-muted-foreground">Voucher Value</p>
+                  </div>
+                  <Badge className={`text-sm px-3 py-1 ${result.is_used
+                      ? 'bg-gray-200 text-gray-700'
+                      : !result.is_active
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-green-100 text-green-700'
+                    }`}>
+                    {result.is_used ? 'REDEEMED' : !result.is_active ? 'INACTIVE' : 'VALID'}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Issued To</p>
+                    <p className="font-medium">{result.customers?.first_name} {result.customers?.last_name}</p>
+                    <p className="text-xs text-muted-foreground">{result.customers?.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Expires On</p>
+                    <p className="font-medium">{new Date(result.expires_at).toLocaleDateString()}</p>
+                  </div>
+                  {result.is_used && (
+                    <div className="col-span-2 mt-2 pt-2 border-t border-dashed border-gray-300 dark:border-gray-700">
+                      <p className="text-muted-foreground">Redeemed At</p>
+                      <p className="font-medium">{new Date(result.used_at).toLocaleString()}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {!result.is_used && result.is_active && (
+                <Button
+                  onClick={handleRedeem}
+                  disabled={loading}
+                  className="w-full py-6 text-lg bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"
+                >
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CheckCircle2 className="w-5 h-5 mr-2" />}
+                  Redeem Voucher Now
+                </Button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </GlassCard>
+    </div>
+  );
+};
+
 const CustomerVoucherCard = ({ customer, onClick }) => (
   <motion.div
     layout
@@ -330,6 +487,7 @@ export default function VoucherManagement() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [activeTab, setActiveTab] = useState('customers'); // 'customers' or 'verify'
 
   // Filter states
   const [locationFilter, setLocationFilter] = useState('');
@@ -438,102 +596,142 @@ export default function VoucherManagement() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
-            <div className="relative">
-              <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <select
-                value={locationFilter}
-                onChange={(e) => setLocationFilter(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
-              >
-                <option value="">All Countries</option>
-                {countries.map((c) => (
-                  <option key={c.code} value={c.name}>
-                    {c.flag} {c.name}
-                  </option>
+        {/* Navigation Tabs */}
+        <div className="flex gap-4 border-b border-border/50">
+          <button
+            onClick={() => setActiveTab('customers')}
+            className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'customers'
+                ? 'text-purple-600 dark:text-purple-400'
+                : 'text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            Customer Vouchers
+            {activeTab === 'customers' && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 dark:bg-purple-400"
+              />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('verify')}
+            className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'verify'
+                ? 'text-purple-600 dark:text-purple-400'
+                : 'text-muted-foreground hover:text-foreground'
+              }`}
+          >
+            Verify & Redeem
+            {activeTab === 'verify' && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 dark:bg-purple-400"
+              />
+            )}
+          </button>
+        </div>
+
+        {activeTab === 'customers' ? (
+          <>
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <select
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
+                  >
+                    <option value="">All Countries</option>
+                    {countries.map((c) => (
+                      <option key={c.code} value={c.name}>
+                        {c.flag} {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Sort By</label>
+                <div className="relative">
+                  <select
+                    value={`${sortField}-${sortDirection}`}
+                    onChange={(e) => {
+                      const [field, direction] = e.target.value.split('-');
+                      setSortField(field);
+                      setSortDirection(direction);
+                    }}
+                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
+                  >
+                    <option value="created_at-desc">Newest First</option>
+                    <option value="created_at-asc">Oldest First</option>
+                    <option value="first_name-asc">Name (A-Z)</option>
+                    <option value="first_name-desc">Name (Z-A)</option>
+                    <option value="country_of_origin-asc">Nationality (A-Z)</option>
+                    <option value="country_of_origin-desc">Nationality (Z-A)</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            {/* Content Grid */}
+            {loading && customers.length === 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <div key={i} className="h-64 rounded-2xl bg-muted/20 animate-pulse" />
                 ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-            </div>
-          </div>
+              </div>
+            ) : customers.length > 0 ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <AnimatePresence>
+                    {customers.map((customer) => (
+                      <CustomerVoucherCard
+                        key={customer.id}
+                        customer={customer}
+                        onClick={handleCustomerSelect}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Sort By</label>
-            <div className="relative">
-              <select
-                value={`${sortField}-${sortDirection}`}
-                onChange={(e) => {
-                  const [field, direction] = e.target.value.split('-');
-                  setSortField(field);
-                  setSortDirection(direction);
-                }}
-                className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
-              >
-                <option value="created_at-desc">Newest First</option>
-                <option value="created_at-asc">Oldest First</option>
-                <option value="first_name-asc">Name (A-Z)</option>
-                <option value="first_name-desc">Name (Z-A)</option>
-                <option value="country_of_origin-asc">Nationality (A-Z)</option>
-                <option value="country_of_origin-desc">Nationality (Z-A)</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Grid */}
-      {loading && customers.length === 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-64 rounded-2xl bg-muted/20 animate-pulse" />
-          ))}
-        </div>
-      ) : customers.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <AnimatePresence>
-              {customers.map((customer) => (
-                <CustomerVoucherCard
-                  key={customer.id}
-                  customer={customer}
-                  onClick={handleCustomerSelect}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {hasMore && (
-            <div className="flex justify-center mt-8">
-              <Button
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="bg-purple-600 hover:bg-purple-700 text-white min-w-[200px]"
-              >
-                {loadingMore ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
-                  </>
-                ) : (
-                  'Load More Customers'
+                {hasMore && (
+                  <div className="flex justify-center mt-8">
+                    <Button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      className="bg-purple-600 hover:bg-purple-700 text-white min-w-[200px]"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        'Load More Customers'
+                      )}
+                    </Button>
+                  </div>
                 )}
-              </Button>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <div className="bg-muted/30 p-6 rounded-full mb-4">
-            <User className="h-10 w-10 opacity-50" />
-          </div>
-          <p className="text-lg font-medium">No customers found</p>
-          <p className="text-sm">Try adjusting your search terms</p>
-        </div>
-      )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <div className="bg-muted/30 p-6 rounded-full mb-4">
+                  <User className="h-10 w-10 opacity-50" />
+                </div>
+                <p className="text-lg font-medium">No customers found</p>
+                <p className="text-sm">Try adjusting your search terms</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <VoucherVerifier />
+        )}
+      </div>
 
       <VoucherWallet
         customer={selectedCustomer}

@@ -1,9 +1,10 @@
-// components/dashboard/Vouchers.jsx
 "use client";
 
-import { useEffect, useState } from 'react';
-import { Ticket, Copy, Check, Clock, AlertCircle } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { Ticket, Copy, Check, Clock, AlertCircle, Download, QrCode, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { QRCodeSVG } from 'qrcode.react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Skeleton() {
   return (
@@ -28,6 +29,8 @@ export default function Vouchers({ limit }) {
   const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState(null);
+  const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const voucherRefs = useRef({});
 
   useEffect(() => {
     const fetchVouchers = async () => {
@@ -58,9 +61,82 @@ export default function Vouchers({ limit }) {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  if (loading) {
-    return <Skeleton />;
-  }
+  const handleDownload = async (voucher) => {
+    const element = voucherRefs.current[voucher.id];
+    if (!element) {
+      alert('Could not find voucher element.');
+      return;
+    }
+
+    try {
+      const { domToBlob } = await import('modern-screenshot');
+      const QRCode = await import('qrcode');
+
+      const baseUrl = window.location.origin;
+      const redemptionUrl = `${baseUrl}/admin/vouchers?code=${voucher.code}`;
+
+      const ignoreElements = element.querySelectorAll('[data-html2canvas-ignore="true"]');
+      ignoreElements.forEach(el => el.style.display = 'none');
+
+      const codeElement = element.querySelector('p.font-mono');
+      let qrSection = null;
+
+      if (codeElement) {
+        qrSection = document.createElement('div');
+        qrSection.className = 'mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200';
+        qrSection.innerHTML = `
+          <div class="flex justify-center mb-3">
+            <div id="download-qr-${voucher.id}" class="bg-white p-3 rounded-lg"></div>
+          </div>
+          <p class="text-xs text-center text-gray-600 font-medium mb-2">Scan to verify & redeem</p>
+          <p class="text-xs text-center text-gray-500">Valid until: ${new Date(voucher.expires_at).toLocaleDateString()}</p>
+          <div class="mt-3 pt-3 border-t border-gray-300">
+            <p class="text-xs text-gray-500 text-center">Baraka - Loyalty Program</p>
+          </div>
+        `;
+
+        codeElement.parentNode.insertBefore(qrSection, codeElement.nextSibling);
+
+        const qrContainer = element.querySelector(`#download-qr-${voucher.id}`);
+        const qrDataURL = await QRCode.toDataURL(redemptionUrl, { width: 140, margin: 1 });
+
+        const img = document.createElement('img');
+        img.src = qrDataURL;
+        img.style.width = '140px';
+        img.style.height = '140px';
+        qrContainer.appendChild(img);
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const blob = await domToBlob(element, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+      });
+
+      ignoreElements.forEach(el => el.style.display = '');
+      if (qrSection) qrSection.remove();
+
+      if (!blob) throw new Error('Failed to create image');
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = `voucher-${voucher.code}.png`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Could not generate voucher image.');
+
+      const ignoreElements = element.querySelectorAll('[data-html2canvas-ignore="true"]');
+      ignoreElements.forEach(el => el.style.display = '');
+      const qrSection = element.querySelector('[id^="download-qr-"]')?.closest('.mt-6');
+      if (qrSection) qrSection.remove();
+    }
+  };
+
+  if (loading) return <Skeleton />;
 
   const displayVouchers = limit ? vouchers.slice(0, limit) : vouchers;
 
@@ -80,6 +156,8 @@ export default function Vouchers({ limit }) {
           {displayVouchers.map((voucher) => (
             <div
               key={voucher.id}
+              ref={el => voucherRefs.current[voucher.id] = el}
+              data-voucher-id={voucher.id}
               className={`relative bg-white border rounded-xl p-6 transition-all duration-200 ${voucher.is_used || !voucher.is_active
                 ? 'border-gray-200 opacity-75'
                 : 'border-indigo-100 shadow-sm hover:shadow-md hover:border-indigo-200'
@@ -103,7 +181,7 @@ export default function Vouchers({ limit }) {
               </div>
 
               <h3 className="text-lg font-bold text-gray-900 mb-1">
-                {voucher.discount_value ? `€${voucher.discount_value} ${t('value')}` : voucher.code}
+                {voucher.value} {voucher.currency}
               </h3>
               <p className="text-sm text-gray-500 mb-6 font-mono tracking-wider">
                 {voucher.code}
@@ -111,9 +189,27 @@ export default function Vouchers({ limit }) {
 
               {!voucher.is_used && voucher.is_active ? (
                 <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2" data-html2canvas-ignore="true">
+                    <button
+                      onClick={() => setSelectedVoucher(voucher)}
+                      className="flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                    >
+                      <QrCode className="w-4 h-4 mr-2" />
+                      {t('use')}
+                    </button>
+                    <button
+                      onClick={() => handleDownload(voucher)}
+                      className="flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {t('download')}
+                    </button>
+                  </div>
+
                   <button
                     onClick={() => copyToClipboard(voucher.code, voucher.id)}
-                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    data-html2canvas-ignore="true"
                   >
                     {copiedId === voucher.id ? (
                       <>
@@ -127,6 +223,7 @@ export default function Vouchers({ limit }) {
                       </>
                     )}
                   </button>
+
                   {voucher.expires_at && (
                     <p className="text-xs text-center text-gray-500 flex items-center justify-center">
                       <Clock className="w-3 h-3 mr-1" />
@@ -163,6 +260,56 @@ export default function Vouchers({ limit }) {
           <p className="text-gray-500 text-sm mb-6">{t('start_earning')}</p>
         </div>
       )}
+
+      {/* QR Code Modal */}
+      <AnimatePresence>
+        {selectedVoucher && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden"
+            >
+              <div className="p-6 text-center">
+                <div className="flex justify-end mb-2">
+                  <button
+                    onClick={() => setSelectedVoucher(null)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
+
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {selectedVoucher.value} {selectedVoucher.currency}
+                </h3>
+                <p className="text-gray-500 mb-8">Show this code to the cashier</p>
+
+                <div className="bg-white p-4 rounded-xl border-2 border-dashed border-gray-200 inline-block mb-6">
+                  <QRCodeSVG
+                    value={selectedVoucher.code}
+                    size={200}
+                    level="H"
+                    includeMargin={true}
+                  />
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-xl mb-6">
+                  <p className="text-sm text-gray-500 mb-1">Voucher Code</p>
+                  <p className="text-xl font-mono font-bold tracking-wider text-indigo-600">
+                    {selectedVoucher.code}
+                  </p>
+                </div>
+
+                <p className="text-xs text-gray-400">
+                  Expires on {new Date(selectedVoucher.expires_at).toLocaleDateString()}
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

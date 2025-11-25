@@ -261,6 +261,8 @@
             "expires": "Scade:",
             "redeemed": "Riscattato",
             "redeem_now": "Riscatta Ora",
+            "use": "Usa",
+            "download": "Scarica",
             "no_vouchers": "Nessun voucher ancora",
             "start_earning": "Inizia a guadagnare punti per sbloccare voucher esclusivi!"
         }

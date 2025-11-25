@@ -261,6 +261,8 @@
             "expires": "Expires:",
             "redeemed": "Redeemed",
             "redeem_now": "Redeem Now",
+            "use": "Use",
+            "download": "Download",
             "no_vouchers": "No vouchers yet",
             "start_earning": "Start earning points to unlock exclusive vouchers!"
         }

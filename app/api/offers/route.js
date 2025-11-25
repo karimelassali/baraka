@@ -4,11 +4,12 @@ import { cookies } from 'next/headers';
 
 export async function GET(request) {
   const cookieStore = await cookies();
-  const supabase = await createClient(cookieStore);
+  const supabase = createClient(cookieStore);
 
   const { searchParams } = new URL(request.url);
   const locale = searchParams.get('locale') || 'en';
   const type = searchParams.get('type');
+  const isPopup = searchParams.get('is_popup');
 
   let query = supabase
     .from('offers')
@@ -17,6 +18,10 @@ export async function GET(request) {
 
   if (type) {
     query = query.eq('offer_type', type);
+  }
+
+  if (isPopup === 'true') {
+    query = query.eq('is_popup', true);
   }
 
   const { data: offers, error } = await query;
@@ -34,7 +39,10 @@ export async function GET(request) {
     offer_type: offer.offer_type,
     start_date: offer.start_date,
     end_date: offer.end_date,
-    created_at: offer.created_at
+    created_at: offer.created_at,
+    is_popup: offer.is_popup,
+    category_id: offer.category_id,
+    badge_text: offer.badge_text
   }));
 
   return NextResponse.json({ offers: localizedOffers });

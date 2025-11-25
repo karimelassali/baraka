@@ -21,6 +21,7 @@ import Vouchers from '@/components/dashboard/Vouchers';
 import Statistics from '@/components/dashboard/Statistics';
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import PopupOffer from '@/components/home/PopupOffer';
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
@@ -125,6 +126,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-sans">
+      <PopupOffer />
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div

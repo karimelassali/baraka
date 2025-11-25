@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { createClient } from '../../lib/supabaseClient';
 import {
   Plus,
   Gift,
@@ -17,13 +18,18 @@ import {
   XCircle,
   X,
   Edit,
-  Trash2
+  Trash2,
+  Maximize2,
+  Star
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
+import { Switch } from '../../components/ui/switch';
+import { Label } from '../../components/ui/label';
+import CategoryManagement from './CategoryManagement';
 
 function SkeletonRow() {
   return (
@@ -48,17 +54,22 @@ function SkeletonRow() {
   );
 }
 
-function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
+function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories }) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     type: 'WEEKLY',
     image_url: '',
-    badge_text: ''
+    badge_text: '',
+    category_id: '',
+    is_popup: false
   });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -68,27 +79,37 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
           description: offer.description || '',
           type: offer.type || 'WEEKLY',
           image_url: offer.image_url || '',
-          badge_text: offer.badge_text || ''
+          badge_text: offer.badge_text || '',
+          category_id: offer.category_id || '',
+          is_popup: offer.is_popup || false
         });
+        setPreview(offer.image_url || '');
       } else if (initialData) {
         setFormData({
           title: initialData.title || '',
           description: initialData.description || '',
           type: initialData.type || 'WEEKLY',
           image_url: '',
-          badge_text: initialData.value ? `${initialData.value}${initialData.type === 'percentage' ? '%' : '€'} OFF` : ''
+          badge_text: initialData.value ? `${initialData.value}${initialData.type === 'percentage' ? '%' : '€'} OFF` : '',
+          category_id: '',
+          is_popup: false
         });
+        setPreview('');
       } else {
         setFormData({
           title: '',
           description: '',
           type: 'WEEKLY',
           image_url: '',
-          badge_text: ''
+          badge_text: '',
+          category_id: '',
+          is_popup: false
         });
+        setPreview('');
       }
       setErrors({});
       setStatus({ type: '', message: '' });
+      setFile(null);
     }
   }, [isOpen, offer, initialData]);
 
@@ -100,8 +121,51 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const objectUrl = URL.createObjectURL(selectedFile);
+      setPreview(objectUrl);
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!file) return null;
+
+    setUploading(true);
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('bucket', 'offers');
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Upload failed');
+      }
+
+      return data.url;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setStatus({ type: 'error', message: 'Failed to upload image: ' + error.message });
+      return null;
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -116,13 +180,35 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
     setLoading(true);
 
     try {
+      let imageUrl = formData.image_url;
+
+      if (file) {
+        const uploadedUrl = await uploadImage();
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        } else {
+          setLoading(false);
+          return; // Stop if upload failed
+        }
+      }
+
+      // Ensure category_id is null if empty string to avoid UUID syntax error
+      const payload = {
+        ...formData,
+        category_id: formData.category_id === '' ? null : formData.category_id,
+        image_url: imageUrl
+      };
+
+      if (offer) {
+        payload.id = offer.id;
+      }
+
       const method = offer ? 'PUT' : 'POST';
-      const body = offer ? { ...formData, id: offer.id } : formData;
 
       const response = await fetch('/api/admin/offers', {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -205,8 +291,40 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
                     >
                       <option value="WEEKLY">Weekly</option>
                       <option value="PERMANENT">Permanent</option>
+                      <option value="SPECIAL">Special</option>
+                      <option value="FLASH_SALE">Flash Sale</option>
+                      <option value="SEASONAL">Seasonal</option>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <select
+                    name="category_id"
+                    value={formData.category_id}
+                    // Ensure category_id is set to null if empty string
+                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === '' ? '' : e.target.value } })}
+                    className="w-full px-3 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name?.en || cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-2 pt-6">
+                  <Switch
+                    id="is_popup"
+                    checked={formData.is_popup}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_popup: checked }))}
+                  />
+                  <Label htmlFor="is_popup">Show as Popup Offer</Label>
                 </div>
               </div>
 
@@ -228,16 +346,43 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Image URL</label>
-                  <div className="relative">
-                    <ImageIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                    <Input
-                      name="image_url"
-                      placeholder="https://..."
-                      value={formData.image_url}
-                      onChange={handleChange}
-                      className="pl-10"
-                    />
+                  <label className="block text-sm font-medium mb-1">Offer Image</label>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-4">
+                      <div className="relative h-20 w-20 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                        {preview ? (
+                          <img src={preview} alt="Preview" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                            <ImageIcon className="h-8 w-8 opacity-50" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Upload an image for the offer. Max 5MB.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <ImageIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Input
+                        name="image_url"
+                        placeholder="Or enter image URL..."
+                        value={formData.image_url}
+                        onChange={(e) => {
+                          handleChange(e);
+                          setPreview(e.target.value);
+                        }}
+                        className="pl-10 text-sm"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div>
@@ -260,28 +405,29 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData }) {
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  disabled={loading}
+                  disabled={loading || uploading}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || uploading}
                   className="bg-primary hover:bg-red-700 text-white shadow-md hover:shadow-lg transition-all"
                 >
-                  {loading ? 'Saving...' : (offer ? 'Update Offer' : 'Create Offer')}
+                  {uploading ? 'Uploading...' : (loading ? 'Saving...' : (offer ? 'Update Offer' : 'Create Offer'))}
                 </Button>
               </div>
             </form>
           </CardContent>
         </GlassCard>
-      </motion.div>
-    </div>
+      </motion.div >
+    </div >
   );
 }
 
 export default function EnhancedOfferManagement() {
   const [offers, setOffers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOffer, setEditingOffer] = useState(null);
@@ -290,6 +436,7 @@ export default function EnhancedOfferManagement() {
 
   useEffect(() => {
     fetchOffers();
+    fetchCategories();
 
     // Check for AI draft params
     const create = searchParams.get('create');
@@ -305,6 +452,18 @@ export default function EnhancedOfferManagement() {
       }
     }
   }, [searchParams]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/admin/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch categories:', error);
+    }
+  };
 
   const fetchOffers = async () => {
     setLoading(true);
@@ -323,8 +482,19 @@ export default function EnhancedOfferManagement() {
             description: description,
             type: offer.offer_type,
             image_url: offer.image_url,
-            badge_text: offer.badge_text
+            badge_text: offer.badge_text,
+            category_id: offer.category_id,
+            is_popup: offer.is_popup,
+            is_active: offer.is_active // Ensure is_active is included
           };
+        });
+
+        // Sort: Popup offers first, then by date
+        transformedData.sort((a, b) => {
+          if (a.is_popup === b.is_popup) {
+            return new Date(b.created_at) - new Date(a.created_at);
+          }
+          return a.is_popup ? -1 : 1;
         });
 
         setOffers(transformedData);
@@ -366,12 +536,37 @@ export default function EnhancedOfferManagement() {
     }
   };
 
+  const toggleActive = async (offer) => {
+    try {
+      const response = await fetch('/api/admin/offers', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: offer.id,
+          is_active: !offer.is_active
+        }),
+      });
+
+      if (response.ok) {
+        setOffers(offers.map(o =>
+          o.id === offer.id ? { ...o, is_active: !o.is_active } : o
+        ));
+      } else {
+        console.error('Failed to toggle active status:', await response.json());
+      }
+    } catch (error) {
+      console.error('Error toggling active status:', error);
+    }
+  };
+
   return (
     <motion.div
       className="space-y-6"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
+      <CategoryManagement />
+
       <GlassCard>
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -420,7 +615,8 @@ export default function EnhancedOfferManagement() {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Offer</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Active</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -435,7 +631,7 @@ export default function EnhancedOfferManagement() {
                   offers.map((offer) => (
                     <motion.tr
                       key={offer.id}
-                      className="hover:bg-accent/50 transition-colors"
+                      className={`hover:bg-accent/50 transition-colors ${offer.is_popup ? 'bg-yellow-50/50 dark:bg-yellow-900/10' : ''}`}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                     >
@@ -456,20 +652,43 @@ export default function EnhancedOfferManagement() {
                             )}
                           </div>
                           <div>
-                            <div className="font-medium text-foreground">{offer.title}</div>
+                            <div className="font-medium text-foreground flex items-center gap-2">
+                              {offer.title}
+                              {offer.is_popup && (
+                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-600 bg-amber-50 flex items-center gap-1">
+                                  <Star className="h-3 w-3 fill-amber-600" />
+                                  Popup Offer
+                                </Badge>
+                              )}
+                            </div>
                             <div className="text-sm text-muted-foreground truncate max-w-xs mt-1">{offer.description}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant={offer.type === 'WEEKLY' ? 'default' : 'secondary'} className={offer.type === 'WEEKLY' ? 'bg-red-100 text-red-800 hover:bg-red-200 border-red-200' : 'bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200'}>
-                          {offer.type}
+                        <Badge variant="secondary" className="capitalize">
+                          {offer.type.replace('_', ' ').toLowerCase()}
                         </Badge>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <Badge variant={offer.is_active ? 'default' : 'outline'} className={offer.is_active ? 'bg-green-100 text-green-800 hover:bg-green-200 border-green-200' : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200'}>
-                          {offer.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
+                        {offer.category_id ? (
+                          <span className="text-sm text-muted-foreground">
+                            {categories.find(cat => cat.id === offer.category_id)?.name?.en || 'N/A'}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={offer.is_active}
+                            onCheckedChange={() => toggleActive(offer)}
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            {offer.is_active ? 'On' : 'Off'}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
@@ -495,7 +714,7 @@ export default function EnhancedOfferManagement() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="px-6 py-12 text-center text-muted-foreground">
+                    <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Gift className="h-8 w-8 text-muted-foreground/50" />
                         <p>No offers found</p>
@@ -515,6 +734,7 @@ export default function EnhancedOfferManagement() {
         onSave={fetchOffers}
         offer={editingOffer}
         initialData={initialData}
+        categories={categories}
       />
     </motion.div>
   );

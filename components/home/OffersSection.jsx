@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Tag, ShoppingBag } from "lucide-react";
+import { Tag, ShoppingBag, ArrowRight } from "lucide-react";
 import { useTranslations } from 'next-intl';
 
 export default function OffersSection() {
@@ -69,8 +69,12 @@ export default function OffersSection() {
                             {/* Price placeholder if we had price data */}
                             <span className="text-red-600 font-bold text-lg">{t('special_offer')}</span>
                         </div>
-                        <button className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-300">
-                            <ShoppingBag className="w-5 h-5" />
+                        <button
+                            onClick={() => window.open(`https://wa.me/393245668944?text=Hello Baraka! I'm interested in the offer: ${title}`, '_blank')}
+                            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition duration-300 flex items-center gap-2 text-sm font-medium shadow-md hover:shadow-lg"
+                        >
+                            <span>Claim</span>
+                            <ArrowRight className="w-4 h-4" />
                         </button>
                     </div>
                 </div>

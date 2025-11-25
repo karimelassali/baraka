@@ -8,7 +8,10 @@ export async function GET(request) {
 
   const { data: offers, error } = await supabase
     .from('offers')
-    .select('*')
+    .select(`
+      *,
+      category:offer_categories(*)
+    `)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -23,6 +26,14 @@ export async function POST(request) {
   const supabase = createClient(cookieStore);
   const data = await request.json();
 
+  // If this offer is set to be a popup, disable all other popups first
+  if (data.is_popup) {
+    await supabase
+      .from('offers')
+      .update({ is_popup: false })
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Update all
+  }
+
   const offerData = {
     title: { en: data.title },
     description: { en: data.description },
@@ -30,6 +41,8 @@ export async function POST(request) {
     image_url: data.image_url,
     badge_text: data.badge_text,
     is_active: true,
+    category_id: data.category_id || null,
+    is_popup: data.is_popup || false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
@@ -56,6 +69,14 @@ export async function PUT(request) {
     return NextResponse.json({ error: 'ID is required' }, { status: 400 });
   }
 
+  // If this offer is set to be a popup, disable all other popups first
+  if (data.is_popup) {
+    await supabase
+      .from('offers')
+      .update({ is_popup: false })
+      .neq('id', data.id);
+  }
+
   const updateData = {
     updated_at: new Date().toISOString()
   };
@@ -66,6 +87,8 @@ export async function PUT(request) {
   if (data.image_url !== undefined) updateData.image_url = data.image_url;
   if (data.badge_text !== undefined) updateData.badge_text = data.badge_text;
   if (data.is_active !== undefined) updateData.is_active = data.is_active;
+  if (data.category_id !== undefined) updateData.category_id = data.category_id;
+  if (data.is_popup !== undefined) updateData.is_popup = data.is_popup;
 
   const { data: updatedOffer, error } = await supabase
     .from('offers')

@@ -9,6 +9,8 @@ import GallerySection from "../../components/home/GallerySection";
 import OffersSection from "../../components/home/OffersSection";
 import ReviewsSection from "../../components/home/ReviewsSection";
 import ContactSection from "../../components/home/ContactSection";
+import CategoriesSection from "../../components/home/CategoriesSection";
+import PopupOffer from "../../components/home/PopupOffer";
 
 import { useTranslations } from 'next-intl';
 
@@ -37,12 +39,14 @@ export default function Home() {
 
       <main className="flex-grow">
         <Hero />
+        <CategoriesSection />
         <About />
         <GallerySection />
         <OffersSection />
         <ReviewsSection />
         <ContactSection />
       </main>
+      <PopupOffer />
 
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4">

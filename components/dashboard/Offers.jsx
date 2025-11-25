@@ -82,17 +82,30 @@ export default function Offers({ limit, user }) {
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
               className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col"
             >
-              <div className="h-48 bg-gradient-to-br from-red-500 to-orange-600 relative p-6 flex items-center justify-center overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
-                  <Gift className="w-32 h-32 text-white" />
-                </div>
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
-
-                <div className="relative z-10 text-center">
-                  <div className="bg-white/20 backdrop-blur-md p-3 rounded-full inline-flex mb-3 shadow-lg">
-                    <Tag className="w-8 h-8 text-white" />
+              <div className="h-48 relative overflow-hidden">
+                {offer.image_url ? (
+                  <img
+                    src={offer.image_url}
+                    alt={offer.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                      <Gift className="w-32 h-32 text-white" />
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-white text-center drop-shadow-md px-2 line-clamp-2">{offer.title}</h3>
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-colors duration-300"></div>
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 text-center">
+                  {!offer.image_url && (
+                    <div className="bg-white/20 backdrop-blur-md p-3 rounded-full inline-flex mb-3 shadow-lg">
+                      <Tag className="w-8 h-8 text-white" />
+                    </div>
+                  )}
+                  <h3 className="text-xl font-bold text-white drop-shadow-md px-2 line-clamp-2">{offer.title}</h3>
                 </div>
 
                 {/* Badges */}

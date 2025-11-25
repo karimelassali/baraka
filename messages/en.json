@@ -47,7 +47,9 @@
         "no_weekly_offers": "No weekly offers available at the moment.",
         "permanent": "Permanent",
         "permanent_subtitle": "Always Great Value",
-        "no_permanent_offers": "No permanent offers available at the moment."
+        "no_permanent_offers": "No permanent offers available at the moment.",
+        "special": "Special",
+        "special_subtitle": "Exclusive Deals"
     },
     "Reviews": {
         "title": "Customer Reviews",

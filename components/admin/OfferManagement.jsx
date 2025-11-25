@@ -38,14 +38,14 @@ export default function OfferManagement() {
     try {
       const response = await fetch('/api/admin/offers');
       const data = await response.json();
-      
+
       if (response.ok) {
         // Transform the data to match what we expect in the UI
         const transformedData = data.map(offer => {
           // Convert JSONB title and description to strings if needed
           const title = typeof offer.title === 'object' ? offer.title.en || Object.values(offer.title)[0] : offer.title || 'N/A';
           const description = typeof offer.description === 'object' ? offer.description.en || Object.values(offer.description)[0] : offer.description || 'N/A';
-          
+
           return {
             ...offer,
             title: title,
@@ -54,7 +54,7 @@ export default function OfferManagement() {
             image_url: offer.image_url
           };
         });
-        
+
         setOffers(transformedData);
       } else {
         console.error('Failed to fetch offers:', data.error);
@@ -118,67 +118,68 @@ export default function OfferManagement() {
         </svg>
         Offer Management
       </h2>
-      
+
       {status.message && (
         <div className={`mb-4 p-3 rounded-md ${status.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
           {status.message}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="space-y-4 mb-8">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input 
-            name="title" 
-            placeholder="Offer title" 
-            value={formData.title} 
+          <input
+            name="title"
+            placeholder="Offer title"
+            value={formData.title}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
           />
           {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea 
-            name="description" 
-            placeholder="Offer description" 
-            value={formData.description} 
+          <textarea
+            name="description"
+            placeholder="Offer description"
+            value={formData.description}
             onChange={handleChange}
             rows="3"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
           />
           {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-            <select 
-              name="type" 
-              value={formData.type} 
+            <select
+              name="type"
+              value={formData.type}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
               <option value="WEEKLY">Weekly</option>
               <option value="PERMANENT">Permanent</option>
+              <option value="SPECIAL">Special</option>
             </select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Badge/Image URL</label>
-            <input 
-              name="badge" 
-              placeholder="Badge or Image URL" 
-              value={formData.badge} 
+            <input
+              name="badge"
+              placeholder="Badge or Image URL"
+              value={formData.badge}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
           </div>
         </div>
-        
-        <button 
-          type="submit" 
+
+        <button
+          type="submit"
           className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition duration-300"
         >
           Create Offer
@@ -214,7 +215,7 @@ export default function OfferManagement() {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                        ${offer.type === 'WEEKLY' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+                        ${offer.type === 'WEEKLY' ? 'bg-blue-100 text-blue-800' : offer.type === 'PERMANENT' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
                         {offer.type}
                       </span>
                     </td>

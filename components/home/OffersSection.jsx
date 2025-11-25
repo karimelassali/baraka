@@ -32,14 +32,15 @@ export default function OffersSection() {
 
     const weeklyOffers = offers.filter(o => o.offer_type === 'WEEKLY');
     const permanentOffers = offers.filter(o => o.offer_type === 'PERMANENT');
+    const otherOffers = offers.filter(o => o.offer_type !== 'WEEKLY' && o.offer_type !== 'PERMANENT');
 
-    const OfferCard = ({ offer }) => {
+    const OfferCard = ({ offer, isSpecial }) => {
         const title = typeof offer.title === 'object' ? offer.title.en || Object.values(offer.title)[0] : offer.title;
         const description = typeof offer.description === 'object' ? offer.description.en || Object.values(offer.description)[0] : offer.description;
 
         return (
             <motion.div
-                className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow duration-300"
+                className={`${isSpecial ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'} rounded-xl shadow-sm border p-6 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow duration-300`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -154,6 +155,23 @@ export default function OffersSection() {
                         </div>
                     </div>
                 </div>
+
+                {/* Special/Other Offers */}
+                {otherOffers.length > 0 && (
+                    <div className="mt-16">
+                        <h3 className="text-2xl font-bold text-black mb-8 flex items-center justify-center">
+                            <span className="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full mr-3 uppercase tracking-wide">
+                                {t('special')}
+                            </span>
+                            {t('special_subtitle')}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {otherOffers.map((offer) => (
+                                <OfferCard key={offer.id} offer={offer} isSpecial={true} />
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </section>
     );

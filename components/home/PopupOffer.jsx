@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocale } from 'next-intl';
-import { X, Gift, Sparkles } from 'lucide-react';
+import { X, Gift } from 'lucide-react';
 import { Button } from '../ui/button';
 
 export default function PopupOffer() {
@@ -97,7 +97,7 @@ export default function PopupOffer() {
                             )}
                             {popupOffer.badge_text && (
                                 <div className="absolute top-4 left-4 bg-[#D4AF37] text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
-                                    <Sparkles className="h-3 w-3" />
+                                    <Gift className="h-3 w-3" />
                                     {popupOffer.badge_text}
                                 </div>
                             )}
@@ -118,7 +118,7 @@ export default function PopupOffer() {
                                     window.open(`https://wa.me/393245668944?text=${message}`, '_blank');
                                     handleClose();
                                 }}
-                                className="w-full bg-[#D4AF37] hover:bg-[#B5952F] text-white font-bold py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                className="w-full bg-red-500 hover:bg-red-400 text-white font-bold py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
                             >
                                 <Gift className="h-5 w-5" />
                                 Claim Offer on WhatsApp

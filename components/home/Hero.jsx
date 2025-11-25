@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from 'next-intl';
 
 export default function Hero() {
+    const t = useTranslations('Hero');
+
     return (
         <section className="relative bg-gradient-to-r from-red-50 to-white overflow-hidden">
             <div className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center">
@@ -13,7 +16,7 @@ export default function Hero() {
                     transition={{ duration: 0.7 }}
                 >
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight">
-                        Welcome to <span className="text-red-600">Baraka</span>
+                        {t('welcome_to')} <span className="text-red-600">{t('baraka')}</span>
                     </h1>
                     <motion.p
                         className="text-lg md:text-xl text-gray-700 mt-4 mb-8 max-w-lg"
@@ -21,8 +24,7 @@ export default function Hero() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.3, duration: 0.5 }}
                     >
-                        Your trusted local business offering quality products and services
-                        with exceptional customer care.
+                        {t('description')}
                     </motion.p>
                     <motion.div
                         className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
@@ -39,7 +41,7 @@ export default function Hero() {
                             }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            View Our Products
+                            {t('view_products')}
                         </motion.a>
                         <motion.a
                             href="#contact"
@@ -50,7 +52,7 @@ export default function Hero() {
                             }}
                             whileTap={{ scale: 0.95 }}
                         >
-                            Contact Us
+                            {t('contact_us')}
                         </motion.a>
                     </motion.div>
                 </motion.div>
@@ -84,11 +86,11 @@ export default function Hero() {
                             whileHover={{ y: -5 }}
                         >
                             <p className="text-gray-700 italic font-medium">
-                                &quot;We pride ourselves on quality and customer satisfaction.&quot;
+                                &quot;{t('quote')}&quot;
                             </p>
                             <div className="flex items-center mt-4">
                                 <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 font-bold text-xs mr-2">B</div>
-                                <p className="text-sm text-gray-500 font-semibold">Baraka Team</p>
+                                <p className="text-sm text-gray-500 font-semibold">{t('team')}</p>
                             </div>
                         </motion.div>
                     </div>

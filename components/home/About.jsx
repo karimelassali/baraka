@@ -2,23 +2,26 @@
 
 import { motion } from "framer-motion";
 import { Award, Heart, ShieldCheck } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 export default function About() {
+    const t = useTranslations('About');
+
     const features = [
         {
             icon: <ShieldCheck className="w-8 h-8 text-red-600" />,
-            title: "Quality Products",
-            description: "We carefully select each product to ensure the highest standards."
+            title: t('our_mission'),
+            description: t('mission_desc')
         },
         {
             icon: <Award className="w-8 h-8 text-red-600" />,
-            title: "Best Service",
-            description: "Our team is dedicated to providing personalized attention."
+            title: t('our_vision'),
+            description: t('vision_desc')
         },
         {
             icon: <Heart className="w-8 h-8 text-red-600" />,
-            title: "Customer Care",
-            description: "Your satisfaction is our top priority."
+            title: t('our_values'),
+            description: t('values_desc')
         }
     ];
 
@@ -33,7 +36,7 @@ export default function About() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
                     >
-                        About Baraka
+                        {t('title')}
                     </motion.h2>
                     <motion.p
                         className="text-lg text-gray-600 leading-relaxed"
@@ -42,12 +45,7 @@ export default function About() {
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                     >
-                        At Baraka, we are committed to providing our customers with the
-                        highest quality products and exceptional service. Located in the
-                        heart of Castel San Giovanni, we have been serving our community
-                        for years with dedication and care. Our team takes pride in
-                        offering personalized service and ensuring every customer leaves
-                        satisfied.
+                        {t('description')}
                     </motion.p>
                 </div>
 

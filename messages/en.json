@@ -1,48 +1,268 @@
 {
-    "Common": {
-        "dashboard": "Dashboard",
-        "admin": "Admin",
-        "home": "Home",
-        "logout": "Logout",
-        "settings": "Settings",
-        "language": "Language"
+    "Home": {
+        "rights_reserved": "All rights reserved.",
+        "privacy_policy": "Privacy Policy",
+        "terms_of_service": "Terms of Service"
     },
-    "Admin": {
-        "welcome": "Welcome to Admin Panel",
-        "users": "Users",
-        "analytics": "Analytics",
-        "admins": "Admins",
-        "dashboard": "Dashboard",
-        "inventory": "Inventory",
+    "Navbar": {
+        "about": "About",
+        "gallery": "Gallery",
         "offers": "Offers",
         "reviews": "Reviews",
-        "points": "Points",
-        "vouchers": "Vouchers",
-        "campaigns": "Campaigns",
-        "gallery": "Gallery",
-        "logs": "Logs"
+        "contact": "Contact",
+        "login": "Login",
+        "register": "Register"
+    },
+    "Hero": {
+        "welcome_to": "Welcome to",
+        "baraka": "Baraka",
+        "description": "Your trusted local business offering quality products and services with exceptional customer care.",
+        "view_products": "View Our Products",
+        "contact_us": "Contact Us",
+        "quote": "We pride ourselves on quality and customer satisfaction.",
+        "team": "Baraka Team"
+    },
+    "About": {
+        "title": "About Us",
+        "description": "Baraka is a premier local business dedicated to providing top-notch services and products to our community. With years of experience and a passion for excellence, we strive to exceed customer expectations in everything we do.",
+        "our_mission": "Our Mission",
+        "mission_desc": "To deliver quality, value, and satisfaction to every customer we serve.",
+        "our_vision": "Our Vision",
+        "vision_desc": "To be the most trusted and preferred local business in our region.",
+        "our_values": "Our Values",
+        "values_desc": "Integrity, Excellence, Customer Focus, and Innovation."
+    },
+    "Gallery": {
+        "title": "Our Gallery",
+        "subtitle": "A glimpse into our world",
+        "view_all": "View All",
+        "no_images": "No images in gallery yet."
+    },
+    "Offers": {
+        "title": "Special Offers",
+        "subtitle": "Exclusive deals just for you",
+        "special_offer": "Special Offer",
+        "weekly": "Weekly",
+        "weekly_subtitle": "Limited Time Deals",
+        "no_weekly_offers": "No weekly offers available at the moment.",
+        "permanent": "Permanent",
+        "permanent_subtitle": "Always Great Value",
+        "no_permanent_offers": "No permanent offers available at the moment."
+    },
+    "Reviews": {
+        "title": "Customer Reviews",
+        "subtitle": "What our clients say about us",
+        "no_reviews": "No reviews yet. Be the first to leave one!"
+    },
+    "Contact": {
+        "title": "Visit Our Store",
+        "subtitle": "We are conveniently located in Castel San Giovanni. Come visit us and experience our quality service firsthand.",
+        "info_title": "Contact Information",
+        "name": "Name",
+        "email": "Email",
+        "message": "Message",
+        "send": "Send Message",
+        "address": "Address",
+        "phone": "Phone",
+        "working_hours": "Opening Hours",
+        "open_maps": "Open in Google Maps"
+    },
+    "Hours": {
+        "weekdays": "Monday - Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        "closed": "Closed"
+    },
+    "Auth": {
+        "Login": {
+            "title": "Welcome Back",
+            "subtitle": "Sign in to your account",
+            "email_label": "Email address",
+            "email_placeholder": "Email",
+            "password_label": "Password",
+            "password_placeholder": "Password",
+            "submit": "Sign in",
+            "submitting": "Signing in...",
+            "magic_link": "Sign in with Magic Link",
+            "no_account": "Don't have an account?",
+            "register_link": "Register",
+            "success": "Login successful! Redirecting...",
+            "magic_link_sent": "Magic link sent! Check your email.",
+            "error_generic": "An unexpected error occurred. Please try again."
+        },
+        "Register": {
+            "title": "Customer Registration",
+            "subtitle": "Step-by-step registration process",
+            "join_community": "Join our community",
+            "join_desc": "Fast registration, secure storage, and access to your personal area. We respect your privacy.",
+            "step": "Step",
+            "of": "of",
+            "complete": "Complete",
+            "back": "Back",
+            "next": "Next",
+            "submit": "Complete Registration",
+            "processing": "Processing...",
+            "already_registered": "Already registered?",
+            "login_link": "Login here",
+            "steps": {
+                "1": {
+                    "title": "Personal Information",
+                    "subtitle": "Let's start with your name",
+                    "first_name": "First Name",
+                    "last_name": "Last Name"
+                },
+                "2": {
+                    "title": "Date of Birth",
+                    "subtitle": "When were you born?",
+                    "label": "Date of Birth"
+                },
+                "3": {
+                    "title": "Residence",
+                    "subtitle": "Where do you currently live?",
+                    "label": "City / Address",
+                    "placeholder": "City, Address..."
+                },
+                "4": {
+                    "title": "Contact Information",
+                    "subtitle": "How can we reach you?",
+                    "phone": "Phone Number",
+                    "email": "Email"
+                },
+                "5": {
+                    "title": "Security",
+                    "subtitle": "Secure your account",
+                    "password": "Password",
+                    "password_placeholder": "At least 8 characters",
+                    "confirm_password": "Confirm Password",
+                    "confirm_placeholder": "Confirm your password"
+                },
+                "6": {
+                    "title": "Country of Origin",
+                    "subtitle": "Where are you from?",
+                    "label": "Country of Origin"
+                },
+                "7": {
+                    "title": "Language Preference",
+                    "subtitle": "Which language do you prefer?",
+                    "label": "Language"
+                },
+                "8": {
+                    "title": "Privacy Policy",
+                    "subtitle": "We need your consent to process your data",
+                    "agree": "I agree to the",
+                    "link": "Privacy Policy"
+                },
+                "9": {
+                    "title": "Terms & Conditions",
+                    "subtitle": "Please confirm you agree to our terms",
+                    "accept": "I accept the",
+                    "link": "Terms & Conditions"
+                },
+                "10": {
+                    "title": "Review & Submit",
+                    "subtitle": "Please review your information before submitting",
+                    "agreed": "Agreed",
+                    "not_agreed": "Not Agreed"
+                }
+            },
+            "errors": {
+                "required": "is required",
+                "invalid_phone": "Please enter a valid phone number (digits, + - parentheses allowed).",
+                "invalid_email": "Please enter a valid email address.",
+                "password_length": "Password must be at least 8 characters long",
+                "password_mismatch": "Passwords do not match",
+                "privacy_policy": "You must agree to the Privacy Policy",
+                "terms": "You must accept the Terms & Conditions"
+            }
+        }
     },
     "Dashboard": {
-        "welcome": "Welcome back",
+        "customer_dashboard": "Customer Dashboard",
         "overview": "Overview",
         "profile": "Profile",
         "wallet": "Loyalty Wallet",
         "offers": "Special Offers",
         "vouchers": "My Vouchers",
         "sign_out": "Sign Out",
-        "customer_dashboard": "Customer Dashboard"
-    },
-    "Home": {
-        "welcome": "Welcome to Baraka",
-        "description": "Customer Loyalty Platform",
-        "privacy_policy": "Privacy Policy",
-        "terms_of_service": "Terms of Service",
-        "rights_reserved": "All rights reserved.",
-        "login": "Login",
-        "register": "Register",
-        "about": "About",
-        "gallery": "Gallery",
-        "reviews": "Reviews",
-        "contact": "Contact"
+        "overview_desc": "Overview of your account activity and rewards.",
+        "profile_desc": "Manage your personal information and preferences.",
+        "wallet_desc": "Track your loyalty points and transaction history.",
+        "offers_desc": "Discover exclusive deals and promotions available for you.",
+        "vouchers_desc": "Manage and redeem your earned vouchers.",
+        "Wallet": {
+            "title": "Loyalty Wallet",
+            "available_balance": "Available Balance",
+            "pts": "pts",
+            "pending": "pending",
+            "no_pending": "No pending points",
+            "recent_activity": "Recent Activity",
+            "no_activity": "No recent activity",
+            "download_statement": "Download Statement",
+            "total_balance": "Total Balance",
+            "gold_member": "Gold Member",
+            "available_to_redeem": "Available to Redeem",
+            "pending_points": "Pending Points",
+            "earned_this_month": "Earned this month",
+            "spent_this_month": "Spent this month",
+            "transaction_history": "Transaction History",
+            "all_transactions": "All Transactions",
+            "earned": "Earned",
+            "redeemed": "Redeemed",
+            "description": "Description",
+            "date": "Date",
+            "type": "Type",
+            "points": "Points",
+            "no_transactions": "No transactions found",
+            "view_all": "View All Transactions"
+        },
+        "Statistics": {
+            "total_points": "Total Points",
+            "available_vouchers": "Available Vouchers",
+            "active_offers": "Active Offers",
+            "total_vouchers": "Total Vouchers",
+            "from_last_month": "from last month",
+            "this_month": "this month",
+            "new_offers": "new offers",
+            "lifetime_rewards": "Lifetime rewards"
+        },
+        "Profile": {
+            "title": "Profile Information",
+            "active": "Active",
+            "success_update": "Profile updated successfully",
+            "error_update": "Failed to update profile",
+            "error_generic": "An error occurred while updating the profile",
+            "first_name": "First Name",
+            "last_name": "Last Name",
+            "email": "Email",
+            "phone": "Phone Number",
+            "country": "Country of Origin",
+            "residence": "Residence",
+            "cancel": "Cancel",
+            "save": "Save Changes",
+            "edit": "Edit Profile"
+        },
+        "Offers": {
+            "title": "Special Offers",
+            "active": "active",
+            "days_left": "days left",
+            "valid_until": "Valid until",
+            "details": "Details",
+            "no_offers": "No offers available",
+            "check_back": "Check back later for new exclusive deals!"
+        },
+        "Vouchers": {
+            "title": "My Vouchers",
+            "available": "available",
+            "used": "Used",
+            "active": "Active",
+            "expired": "Expired",
+            "value": "Value",
+            "copy_code": "Copy Code",
+            "expires": "Expires:",
+            "redeemed": "Redeemed",
+            "redeem_now": "Redeem Now",
+            "no_vouchers": "No vouchers yet",
+            "start_earning": "Start earning points to unlock exclusive vouchers!"
+        }
     }
 }

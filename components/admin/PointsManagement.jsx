@@ -68,11 +68,10 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
       const points = parseInt(pointsChange);
       const finalPoints = action === 'add' ? points : -points;
 
-      const response = await fetch('/api/admin/points', {
-        method: 'POST',
+      const response = await fetch(`/api/admin/customers/${customer.id}/points`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          customer_id: customer.id,
           points: finalPoints,
           description: reason || (action === 'add' ? 'Manual Adjustment (Add)' : 'Manual Adjustment (Deduct)')
         }),

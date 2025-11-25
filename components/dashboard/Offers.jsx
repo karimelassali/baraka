@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { Tag, Calendar, ArrowRight, Clock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 function Skeleton() {
   return (
@@ -20,6 +21,7 @@ function Skeleton() {
 }
 
 export default function Offers({ limit }) {
+  const t = useTranslations('Dashboard.Offers');
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,9 +58,9 @@ export default function Offers({ limit }) {
     <div className="w-full">
       {!limit && (
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Special Offers</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
           <span className="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full font-medium">
-            {offers.length} active
+            {offers.length} {t('active')}
           </span>
         </div>
       )}
@@ -80,15 +82,15 @@ export default function Offers({ limit }) {
               <div className="p-6 flex-1 flex flex-col">
                 <div className="flex items-center space-x-2 mb-4">
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${offer.offer_type === 'WEEKLY'
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-green-100 text-green-800'
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-green-100 text-green-800'
                     }`}>
                     {offer.offer_type}
                   </span>
                   {offer.end_date && (
                     <span className="flex items-center text-xs text-gray-500">
                       <Clock className="w-3 h-3 mr-1" />
-                      {Math.ceil((new Date(offer.end_date) - new Date()) / (1000 * 60 * 60 * 24))} days left
+                      {Math.ceil((new Date(offer.end_date) - new Date()) / (1000 * 60 * 60 * 24))} {t('days_left')}
                     </span>
                   )}
                 </div>
@@ -98,10 +100,10 @@ export default function Offers({ limit }) {
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                   <span className="text-xs text-gray-500 flex items-center">
                     <Calendar className="w-3 h-3 mr-1" />
-                    Valid until {new Date(offer.end_date).toLocaleDateString()}
+                    {t('valid_until')} {new Date(offer.end_date).toLocaleDateString()}
                   </span>
                   <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform">
-                    Details <ArrowRight className="w-4 h-4 ml-1" />
+                    {t('details')} <ArrowRight className="w-4 h-4 ml-1" />
                   </button>
                 </div>
               </div>
@@ -113,8 +115,8 @@ export default function Offers({ limit }) {
           <div className="mx-auto w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
             <Tag className="h-8 w-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No offers available</h3>
-          <p className="text-gray-500 text-sm">Check back later for new exclusive deals!</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">{t('no_offers')}</h3>
+          <p className="text-gray-500 text-sm">{t('check_back')}</p>
         </div>
       )}
     </div>

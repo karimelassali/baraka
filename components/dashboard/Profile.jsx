@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { User, Mail, Phone, Globe, MapPin, Edit3, Check, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -26,6 +27,7 @@ function Skeleton({ compact }) {
 }
 
 export default function Profile({ compact = false }) {
+  const t = useTranslations('Dashboard.Profile');
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({});
   const [editing, setEditing] = useState(false);
@@ -75,12 +77,12 @@ export default function Profile({ compact = false }) {
       if (response.ok) {
         setProfile(result);
         setEditing(false);
-        setStatus({ type: 'success', message: 'Profile updated successfully' });
+        setStatus({ type: 'success', message: t('success_update') });
       } else {
-        setStatus({ type: 'error', message: result.error || 'Failed to update profile' });
+        setStatus({ type: 'error', message: result.error || t('error_update') });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'An error occurred while updating the profile' });
+      setStatus({ type: 'error', message: t('error_generic') });
     }
   };
 
@@ -124,10 +126,10 @@ export default function Profile({ compact = false }) {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Profile Information</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 rounded-full bg-green-500"></div>
-          <span className="text-sm text-gray-500">Active</span>
+          <span className="text-sm text-gray-500">{t('active')}</span>
         </div>
       </div>
 
@@ -144,7 +146,7 @@ export default function Profile({ compact = false }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <User className="w-4 h-4 mr-1.5 text-gray-400" />
-                First Name
+                {t('first_name')}
               </label>
               <input
                 name="first_name"
@@ -159,7 +161,7 @@ export default function Profile({ compact = false }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <User className="w-4 h-4 mr-1.5 text-gray-400" />
-                Last Name
+                {t('last_name')}
               </label>
               <input
                 name="last_name"
@@ -174,7 +176,7 @@ export default function Profile({ compact = false }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <Mail className="w-4 h-4 mr-1.5 text-gray-400" />
-                Email
+                {t('email')}
               </label>
               <input
                 type="email"
@@ -187,7 +189,7 @@ export default function Profile({ compact = false }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <Phone className="w-4 h-4 mr-1.5 text-gray-400" />
-                Phone Number
+                {t('phone')}
               </label>
               <input
                 name="phone_number"
@@ -202,7 +204,7 @@ export default function Profile({ compact = false }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <Globe className="w-4 h-4 mr-1.5 text-gray-400" />
-                Country of Origin
+                {t('country')}
               </label>
               <input
                 name="country_of_origin"
@@ -217,7 +219,7 @@ export default function Profile({ compact = false }) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <MapPin className="w-4 h-4 mr-1.5 text-gray-400" />
-                Residence
+                {t('residence')}
               </label>
               <input
                 name="residence"
@@ -243,14 +245,14 @@ export default function Profile({ compact = false }) {
                   className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition font-medium flex items-center"
                 >
                   <X className="w-4 h-4 mr-1.5" />
-                  Cancel
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium flex items-center shadow-sm"
                 >
                   <Check className="w-4 h-4 mr-1.5" />
-                  Save Changes
+                  {t('save')}
                 </button>
               </div>
             ) : (
@@ -260,7 +262,7 @@ export default function Profile({ compact = false }) {
                 className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium flex items-center shadow-sm"
               >
                 <Edit3 className="w-4 h-4 mr-1.5" />
-                Edit Profile
+                {t('edit')}
               </button>
             )}
           </div>

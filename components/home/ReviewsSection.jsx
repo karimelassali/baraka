@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 export default function ReviewsSection() {
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const t = useTranslations('Reviews');
 
     useEffect(() => {
         const fetchReviews = async () => {
@@ -37,7 +39,7 @@ export default function ReviewsSection() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            Customer Reviews
+                            {t('title')}
                         </motion.h2>
                         <motion.p
                             className="text-gray-600"
@@ -46,7 +48,7 @@ export default function ReviewsSection() {
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
                         >
-                            See what our happy customers are saying.
+                            {t('subtitle')}
                         </motion.p>
                     </div>
                 </div>
@@ -97,7 +99,7 @@ export default function ReviewsSection() {
                         ))
                     ) : (
                         <div className="col-span-full text-center py-12 text-gray-500">
-                            No reviews yet. Be the first to leave one!
+                            {t('no_reviews')}
                         </div>
                     )}
                 </div>

@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { CreditCard, History, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -30,6 +31,7 @@ function Skeleton({ compact }) {
 }
 
 export default function LoyaltyWallet({ compact = false }) {
+  const t = useTranslations('Dashboard.Wallet');
   const [points, setPoints] = useState(0);
   const [availablePoints, setAvailablePoints] = useState(0);
   const [pendingPoints, setPendingPoints] = useState(0);
@@ -74,17 +76,17 @@ export default function LoyaltyWallet({ compact = false }) {
           <div className="absolute top-0 right-0 p-4 opacity-10">
             <Wallet className="w-24 h-24" />
           </div>
-          <p className="text-indigo-100 text-sm font-medium">Available Balance</p>
-          <h3 className="text-3xl font-bold mt-1">{availablePoints.toLocaleString()} <span className="text-lg font-normal opacity-80">pts</span></h3>
+          <p className="text-indigo-100 text-sm font-medium">{t('available_balance')}</p>
+          <h3 className="text-3xl font-bold mt-1">{availablePoints.toLocaleString()} <span className="text-lg font-normal opacity-80">{t('pts')}</span></h3>
           <div className="mt-4 flex items-center text-xs text-indigo-200">
             <span className="bg-indigo-500/30 px-2 py-1 rounded-full border border-indigo-400/30">
-              {pendingPoints > 0 ? `${pendingPoints} pending` : 'No pending points'}
+              {pendingPoints > 0 ? `${pendingPoints} ${t('pending')}` : t('no_pending')}
             </span>
           </div>
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">Recent Activity</h4>
+          <h4 className="text-sm font-semibold text-gray-900 mb-3">{t('recent_activity')}</h4>
           <div className="space-y-3">
             {recentTransactions.length > 0 ? (
               recentTransactions.map((item) => (
@@ -108,7 +110,7 @@ export default function LoyaltyWallet({ compact = false }) {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-gray-500 text-center py-2">No recent activity</p>
+              <p className="text-sm text-gray-500 text-center py-2">{t('no_activity')}</p>
             )}
           </div>
         </div>
@@ -119,9 +121,9 @@ export default function LoyaltyWallet({ compact = false }) {
   return (
     <div className="w-full space-y-8">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Loyalty Wallet</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
         <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
-          Download Statement
+          {t('download_statement')}
         </button>
       </div>
 
@@ -135,21 +137,21 @@ export default function LoyaltyWallet({ compact = false }) {
           <div className="relative z-10 flex flex-col justify-between h-full min-h-[200px]">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-indigo-200 font-medium">Total Balance</p>
+                <p className="text-indigo-200 font-medium">{t('total_balance')}</p>
                 <h3 className="text-5xl font-bold mt-2 tracking-tight">{points.toLocaleString()}</h3>
               </div>
               <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
-                <span className="text-sm font-medium text-indigo-100">Gold Member</span>
+                <span className="text-sm font-medium text-indigo-100">{t('gold_member')}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-8 mt-8">
               <div>
-                <p className="text-indigo-300 text-sm">Available to Redeem</p>
+                <p className="text-indigo-300 text-sm">{t('available_to_redeem')}</p>
                 <p className="text-2xl font-semibold mt-1">{availablePoints.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-indigo-300 text-sm">Pending Points</p>
+                <p className="text-indigo-300 text-sm">{t('pending_points')}</p>
                 <p className="text-2xl font-semibold mt-1">{pendingPoints.toLocaleString()}</p>
               </div>
             </div>
@@ -164,7 +166,7 @@ export default function LoyaltyWallet({ compact = false }) {
                 <ArrowDownLeft className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Earned this month</p>
+                <p className="text-sm text-gray-500">{t('earned_this_month')}</p>
                 <p className="text-xl font-bold text-gray-900">+1,250</p>
               </div>
             </div>
@@ -175,7 +177,7 @@ export default function LoyaltyWallet({ compact = false }) {
                 <ArrowUpRight className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-500">Spent this month</p>
+                <p className="text-sm text-gray-500">{t('spent_this_month')}</p>
                 <p className="text-xl font-bold text-gray-900">-450</p>
               </div>
             </div>
@@ -187,13 +189,13 @@ export default function LoyaltyWallet({ compact = false }) {
         <div className="p-6 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-bold text-gray-900 flex items-center">
             <History className="w-5 h-5 mr-2 text-gray-400" />
-            Transaction History
+            {t('transaction_history')}
           </h3>
           <div className="flex space-x-2">
             <select className="text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-              <option>All Transactions</option>
-              <option>Earned</option>
-              <option>Redeemed</option>
+              <option>{t('all_transactions')}</option>
+              <option>{t('earned')}</option>
+              <option>{t('redeemed')}</option>
             </select>
           </div>
         </div>
@@ -202,10 +204,10 @@ export default function LoyaltyWallet({ compact = false }) {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('description')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('date')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t('type')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{t('points')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -226,7 +228,7 @@ export default function LoyaltyWallet({ compact = false }) {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${item.points > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                         }`}>
-                        {item.points > 0 ? 'Earned' : 'Redeemed'}
+                        {item.points > 0 ? t('earned') : t('redeemed')}
                       </span>
                     </td>
                     <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${item.points > 0 ? 'text-green-600' : 'text-gray-900'
@@ -238,7 +240,7 @@ export default function LoyaltyWallet({ compact = false }) {
               ) : (
                 <tr>
                   <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
-                    No transactions found
+                    {t('no_transactions')}
                   </td>
                 </tr>
               )}
@@ -249,7 +251,7 @@ export default function LoyaltyWallet({ compact = false }) {
         {history.length > 10 && (
           <div className="p-4 border-t border-gray-200 bg-gray-50">
             <button className="w-full py-2 text-sm text-indigo-600 font-medium hover:text-indigo-800 transition-colors">
-              View All Transactions
+              {t('view_all')}
             </button>
           </div>
         )}

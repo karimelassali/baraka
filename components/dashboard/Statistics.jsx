@@ -1,8 +1,10 @@
 // components/dashboard/Statistics.jsx
 import { useEffect, useState } from 'react';
 import { Star, Ticket, Gift, CreditCard, TrendingUp, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function Statistics() {
+  const t = useTranslations('Dashboard.Statistics');
   const [stats, setStats] = useState({
     totalPoints: 0,
     availableVouchers: 0,
@@ -51,36 +53,36 @@ export default function Statistics() {
 
   const statCards = [
     {
-      title: "Total Points",
+      title: t('total_points'),
       value: stats.totalPoints.toLocaleString(),
       icon: Star,
       color: "text-amber-500",
       bgColor: "bg-amber-50",
-      change: "+12% from last month"
+      change: `+12% ${t('from_last_month')}`
     },
     {
-      title: "Available Vouchers",
+      title: t('available_vouchers'),
       value: stats.availableVouchers,
       icon: Ticket,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      change: "+5 this month"
+      change: `+5 ${t('this_month')}`
     },
     {
-      title: "Active Offers",
+      title: t('active_offers'),
       value: stats.activeOffers,
       icon: Gift,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
-      change: "3 new offers"
+      change: `3 ${t('new_offers')}`
     },
     {
-      title: "Total Vouchers",
+      title: t('total_vouchers'),
       value: stats.totalVouchers,
       icon: CreditCard,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
-      change: "Lifetime rewards"
+      change: t('lifetime_rewards')
     }
   ];
 

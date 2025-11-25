@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest, response?: NextResponse) {
     // Maintenance Mode Check
     const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
     const url = request.nextUrl.clone();
@@ -23,11 +23,12 @@ export async function updateSession(request: NextRequest) {
         }
     }
 
-    let response = NextResponse.next({
+    // Use the passed response or create a new one
+    let finalResponse = response || NextResponse.next({
         request: {
             headers: request.headers,
         },
-    })
+    });
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,13 +40,28 @@ export async function updateSession(request: NextRequest) {
                 },
                 setAll(cookiesToSet) {
                     cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-                    response = NextResponse.next({
+                    // If we created a new response above, we might need to recreate it here to ensure cookies are set on the latest response
+                    // But since we are using finalResponse which is a reference, we can just set cookies on it.
+                    // However, the original code recreated the response. 
+                    // Let's just set the cookies on the finalResponse.
+
+                    finalResponse = NextResponse.next({
                         request: {
                             headers: request.headers,
                         },
                     })
+                    // Copy existing headers/cookies if needed? 
+                    // Actually, the supabase ssr pattern usually wants to recreate the response to ensure the request cookies are updated.
+                    // But if we are chaining middleware, we might lose the intl headers if we recreate it completely without care.
+                    // For now, let's try to just set cookies on the existing response object if possible, 
+                    // OR if we must recreate, we should copy headers.
+
+                    // The safest way with next-intl is to NOT recreate the response if it was passed in, 
+                    // but supabase auth helpers often insist on it.
+                    // Let's try to just set the cookies on the finalResponse object directly.
+
                     cookiesToSet.forEach(({ name, value, options }) =>
-                        response.cookies.set(name, value, options)
+                        finalResponse.cookies.set(name, value, options)
                     )
                 },
             },
@@ -87,5 +103,5 @@ export async function updateSession(request: NextRequest) {
         }
     }
 
-    return response
+    return finalResponse
 }

@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Tag, ShoppingBag } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 export default function OffersSection() {
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const t = useTranslations('Offers');
 
     useEffect(() => {
         const fetchOffers = async () => {
@@ -65,7 +67,7 @@ export default function OffersSection() {
                     <div className="flex items-center justify-between mt-auto">
                         <div className="flex items-baseline gap-2">
                             {/* Price placeholder if we had price data */}
-                            <span className="text-red-600 font-bold text-lg">Special Offer</span>
+                            <span className="text-red-600 font-bold text-lg">{t('special_offer')}</span>
                         </div>
                         <button className="bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition duration-300">
                             <ShoppingBag className="w-5 h-5" />
@@ -86,7 +88,7 @@ export default function OffersSection() {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                     >
-                        Special Offers
+                        {t('title')}
                     </motion.h2>
                     <motion.div
                         className="w-24 h-1 bg-red-600 mx-auto rounded-full"
@@ -102,9 +104,9 @@ export default function OffersSection() {
                     <div>
                         <h3 className="text-2xl font-bold text-black mb-8 flex items-center">
                             <span className="bg-red-100 text-red-800 text-xs font-bold px-3 py-1 rounded-full mr-3 uppercase tracking-wide">
-                                Weekly
+                                {t('weekly')}
                             </span>
-                            Limited Time Deals
+                            {t('weekly_subtitle')}
                         </h3>
                         <div className="space-y-6">
                             {loading ? (
@@ -117,7 +119,7 @@ export default function OffersSection() {
                                 ))
                             ) : (
                                 <div className="p-8 bg-gray-50 rounded-xl text-center text-gray-500">
-                                    No weekly offers available at the moment.
+                                    {t('no_weekly_offers')}
                                 </div>
                             )}
                         </div>
@@ -127,9 +129,9 @@ export default function OffersSection() {
                     <div>
                         <h3 className="text-2xl font-bold text-black mb-8 flex items-center">
                             <span className="bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-full mr-3 uppercase tracking-wide">
-                                Permanent
+                                {t('permanent')}
                             </span>
-                            Always Great Value
+                            {t('permanent_subtitle')}
                         </h3>
                         <div className="space-y-6">
                             {loading ? (
@@ -142,7 +144,7 @@ export default function OffersSection() {
                                 ))
                             ) : (
                                 <div className="p-8 bg-gray-50 rounded-xl text-center text-gray-500">
-                                    No permanent offers available at the moment.
+                                    {t('no_permanent_offers')}
                                 </div>
                             )}
                         </div>

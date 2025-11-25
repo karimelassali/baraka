@@ -1,48 +1,268 @@
 {
-    "Common": {
-        "dashboard": "Dashboard",
-        "admin": "Amministrazione",
-        "home": "Home",
-        "logout": "Esci",
-        "settings": "Impostazioni",
-        "language": "Lingua"
+    "Home": {
+        "rights_reserved": "Tutti i diritti riservati.",
+        "privacy_policy": "Privacy Policy",
+        "terms_of_service": "Termini di Servizio"
     },
-    "Admin": {
-        "welcome": "Benvenuto nel Pannello di Amministrazione",
-        "users": "Utenti",
-        "analytics": "Analisi",
-        "admins": "Amministratori",
-        "dashboard": "Dashboard",
-        "inventory": "Inventario",
+    "Navbar": {
+        "about": "Chi Siamo",
+        "gallery": "Galleria",
         "offers": "Offerte",
         "reviews": "Recensioni",
-        "points": "Punti",
-        "vouchers": "Voucher",
-        "campaigns": "Campagne",
-        "gallery": "Galleria",
-        "logs": "Log"
+        "contact": "Contatti",
+        "login": "Accedi",
+        "register": "Registrati"
+    },
+    "Hero": {
+        "welcome_to": "Benvenuti a",
+        "baraka": "Baraka",
+        "description": "La tua attività locale di fiducia che offre prodotti e servizi di qualità con un'assistenza clienti eccezionale.",
+        "view_products": "Vedi i Nostri Prodotti",
+        "contact_us": "Contattaci",
+        "quote": "Siamo orgogliosi della qualità e della soddisfazione del cliente.",
+        "team": "Team Baraka"
+    },
+    "About": {
+        "title": "Chi Siamo",
+        "description": "Baraka è un'attività locale di primo piano dedicata a fornire servizi e prodotti di alta qualità alla nostra comunità. Con anni di esperienza e una passione per l'eccellenza, ci sforziamo di superare le aspettative dei clienti in tutto ciò che facciamo.",
+        "our_mission": "La Nostra Missione",
+        "mission_desc": "Fornire qualità, valore e soddisfazione a ogni cliente che serviamo.",
+        "our_vision": "La Nostra Visione",
+        "vision_desc": "Essere l'attività locale più fidata e preferita nella nostra regione.",
+        "our_values": "I Nostri Valori",
+        "values_desc": "Integrità, Eccellenza, Attenzione al Cliente e Innovazione."
+    },
+    "Gallery": {
+        "title": "La Nostra Galleria",
+        "subtitle": "Uno sguardo nel nostro mondo",
+        "view_all": "Vedi Tutto",
+        "no_images": "Nessuna immagine nella galleria ancora."
+    },
+    "Offers": {
+        "title": "Offerte Speciali",
+        "subtitle": "Offerte esclusive solo per te",
+        "special_offer": "Offerta Speciale",
+        "weekly": "Settimanale",
+        "weekly_subtitle": "Offerte a Tempo Limitato",
+        "no_weekly_offers": "Nessuna offerta settimanale disponibile al momento.",
+        "permanent": "Permanente",
+        "permanent_subtitle": "Sempre Grande Valore",
+        "no_permanent_offers": "Nessuna offerta permanente disponibile al momento."
+    },
+    "Reviews": {
+        "title": "Recensioni Clienti",
+        "subtitle": "Cosa dicono i nostri clienti di noi",
+        "no_reviews": "Nessuna recensione ancora. Sii il primo a lasciarne una!"
+    },
+    "Contact": {
+        "title": "Visita il Nostro Negozio",
+        "subtitle": "Siamo comodamente situati a Castel San Giovanni. Vieni a trovarci e sperimenta di persona il nostro servizio di qualità.",
+        "info_title": "Informazioni di Contatto",
+        "name": "Nome",
+        "email": "Email",
+        "message": "Messaggio",
+        "send": "Invia Messaggio",
+        "address": "Indirizzo",
+        "phone": "Telefono",
+        "working_hours": "Orari di Apertura",
+        "open_maps": "Apri in Google Maps"
+    },
+    "Hours": {
+        "weekdays": "Lunedì - Venerdì",
+        "saturday": "Sabato",
+        "sunday": "Domenica",
+        "closed": "Chiuso"
+    },
+    "Auth": {
+        "Login": {
+            "title": "Bentornato",
+            "subtitle": "Accedi al tuo account",
+            "email_label": "Indirizzo email",
+            "email_placeholder": "Email",
+            "password_label": "Password",
+            "password_placeholder": "Password",
+            "submit": "Accedi",
+            "submitting": "Accesso in corso...",
+            "magic_link": "Accedi con Magic Link",
+            "no_account": "Non hai un account?",
+            "register_link": "Registrati",
+            "success": "Accesso riuscito! Reindirizzamento...",
+            "magic_link_sent": "Magic link inviato! Controlla la tua email.",
+            "error_generic": "Si è verificato un errore imprevisto. Riprova."
+        },
+        "Register": {
+            "title": "Registrazione Cliente",
+            "subtitle": "Processo di registrazione passo dopo passo",
+            "join_community": "Unisciti alla nostra community",
+            "join_desc": "Registrazione veloce, archiviazione sicura e accesso alla tua area personale. Rispettiamo la tua privacy.",
+            "step": "Passo",
+            "of": "di",
+            "complete": "Completa",
+            "back": "Indietro",
+            "next": "Avanti",
+            "submit": "Completa Registrazione",
+            "processing": "Elaborazione...",
+            "already_registered": "Già registrato?",
+            "login_link": "Accedi qui",
+            "steps": {
+                "1": {
+                    "title": "Informazioni Personali",
+                    "subtitle": "Iniziamo con il tuo nome",
+                    "first_name": "Nome",
+                    "last_name": "Cognome"
+                },
+                "2": {
+                    "title": "Data di Nascita",
+                    "subtitle": "Quando sei nato?",
+                    "label": "Data di Nascita"
+                },
+                "3": {
+                    "title": "Residenza",
+                    "subtitle": "Dove vivi attualmente?",
+                    "label": "Città / Indirizzo",
+                    "placeholder": "Città, Indirizzo..."
+                },
+                "4": {
+                    "title": "Informazioni di Contatto",
+                    "subtitle": "Come possiamo contattarti?",
+                    "phone": "Numero di Telefono",
+                    "email": "Email"
+                },
+                "5": {
+                    "title": "Sicurezza",
+                    "subtitle": "Proteggi il tuo account",
+                    "password": "Password",
+                    "password_placeholder": "Almeno 8 caratteri",
+                    "confirm_password": "Conferma Password",
+                    "confirm_placeholder": "Conferma la tua password"
+                },
+                "6": {
+                    "title": "Paese di Origine",
+                    "subtitle": "Di dove sei?",
+                    "label": "Paese di Origine"
+                },
+                "7": {
+                    "title": "Preferenza Lingua",
+                    "subtitle": "Quale lingua preferisci?",
+                    "label": "Lingua"
+                },
+                "8": {
+                    "title": "Privacy Policy",
+                    "subtitle": "Abbiamo bisogno del tuo consenso per trattare i tuoi dati",
+                    "agree": "Acconsento alla",
+                    "link": "Privacy Policy"
+                },
+                "9": {
+                    "title": "Termini & Condizioni",
+                    "subtitle": "Conferma di accettare i nostri termini",
+                    "accept": "Accetto i",
+                    "link": "Termini & Condizioni"
+                },
+                "10": {
+                    "title": "Rivedi & Invia",
+                    "subtitle": "Rivedi le tue informazioni prima di inviare",
+                    "agreed": "Acconsentito",
+                    "not_agreed": "Non Acconsentito"
+                }
+            },
+            "errors": {
+                "required": "è obbligatorio",
+                "invalid_phone": "Inserisci un numero di telefono valido (cifre, + - parentesi consentite).",
+                "invalid_email": "Inserisci un indirizzo email valido.",
+                "password_length": "La password deve essere lunga almeno 8 caratteri",
+                "password_mismatch": "Le password non corrispondono",
+                "privacy_policy": "Devi accettare la Privacy Policy",
+                "terms": "Devi accettare i Termini & Condizioni"
+            }
+        }
     },
     "Dashboard": {
-        "welcome": "Bentornato",
+        "customer_dashboard": "Dashboard Cliente",
         "overview": "Panoramica",
         "profile": "Profilo",
         "wallet": "Portafoglio Fedeltà",
         "offers": "Offerte Speciali",
         "vouchers": "I Miei Voucher",
         "sign_out": "Esci",
-        "customer_dashboard": "Dashboard Cliente"
-    },
-    "Home": {
-        "welcome": "Benvenuto su Baraka",
-        "description": "Piattaforma di Fidelizzazione Clienti",
-        "privacy_policy": "Privacy Policy",
-        "terms_of_service": "Termini di Servizio",
-        "rights_reserved": "Tutti i diritti riservati.",
-        "login": "Accedi",
-        "register": "Registrati",
-        "about": "Chi Siamo",
-        "gallery": "Galleria",
-        "reviews": "Recensioni",
-        "contact": "Contatti"
+        "overview_desc": "Panoramica dell'attività del tuo account e dei premi.",
+        "profile_desc": "Gestisci le tue informazioni personali e preferenze.",
+        "wallet_desc": "Traccia i tuoi punti fedeltà e la cronologia delle transazioni.",
+        "offers_desc": "Scopri offerte esclusive e promozioni disponibili per te.",
+        "vouchers_desc": "Gestisci e riscatta i voucher guadagnati.",
+        "Wallet": {
+            "title": "Portafoglio Fedeltà",
+            "available_balance": "Saldo Disponibile",
+            "pts": "punti",
+            "pending": "in sospeso",
+            "no_pending": "Nessun punto in sospeso",
+            "recent_activity": "Attività Recente",
+            "no_activity": "Nessuna attività recente",
+            "download_statement": "Scarica Estratto Conto",
+            "total_balance": "Saldo Totale",
+            "gold_member": "Membro Gold",
+            "available_to_redeem": "Disponibile per il Riscatto",
+            "pending_points": "Punti in Sospeso",
+            "earned_this_month": "Guadagnati questo mese",
+            "spent_this_month": "Spesi questo mese",
+            "transaction_history": "Cronologia Transazioni",
+            "all_transactions": "Tutte le Transazioni",
+            "earned": "Guadagnati",
+            "redeemed": "Riscattati",
+            "description": "Descrizione",
+            "date": "Data",
+            "type": "Tipo",
+            "points": "Punti",
+            "no_transactions": "Nessuna transazione trovata",
+            "view_all": "Visualizza Tutte le Transazioni"
+        },
+        "Statistics": {
+            "total_points": "Punti Totali",
+            "available_vouchers": "Voucher Disponibili",
+            "active_offers": "Offerte Attive",
+            "total_vouchers": "Voucher Totali",
+            "from_last_month": "dal mese scorso",
+            "this_month": "questo mese",
+            "new_offers": "nuove offerte",
+            "lifetime_rewards": "Premi a vita"
+        },
+        "Profile": {
+            "title": "Informazioni Profilo",
+            "active": "Attivo",
+            "success_update": "Profilo aggiornato con successo",
+            "error_update": "Impossibile aggiornare il profilo",
+            "error_generic": "Si è verificato un errore durante l'aggiornamento del profilo",
+            "first_name": "Nome",
+            "last_name": "Cognome",
+            "email": "Email",
+            "phone": "Numero di Telefono",
+            "country": "Paese di Origine",
+            "residence": "Residenza",
+            "cancel": "Annulla",
+            "save": "Salva Modifiche",
+            "edit": "Modifica Profilo"
+        },
+        "Offers": {
+            "title": "Offerte Speciali",
+            "active": "attive",
+            "days_left": "giorni rimasti",
+            "valid_until": "Valido fino al",
+            "details": "Dettagli",
+            "no_offers": "Nessuna offerta disponibile",
+            "check_back": "Torna più tardi per nuove offerte esclusive!"
+        },
+        "Vouchers": {
+            "title": "I Miei Voucher",
+            "available": "disponibili",
+            "used": "Usato",
+            "active": "Attivo",
+            "expired": "Scaduto",
+            "value": "Valore",
+            "copy_code": "Copia Codice",
+            "expires": "Scade:",
+            "redeemed": "Riscattato",
+            "redeem_now": "Riscatta Ora",
+            "no_vouchers": "Nessun voucher ancora",
+            "start_earning": "Inizia a guadagnare punti per sbloccare voucher esclusivi!"
+        }
     }
 }

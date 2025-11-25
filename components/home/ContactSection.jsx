@@ -3,8 +3,10 @@
 import { motion } from "framer-motion";
 import ContactOptions from "../ui/ContactOptions";
 import Hours from "../ui/Hours";
+import { useTranslations } from 'next-intl';
 
 export default function ContactSection() {
+    const t = useTranslations('Contact');
     const businessInfo = {
         address: "Via Salvador Allende, 4, 29015 Castel San Giovanni PC, Italy",
         mapLink: "https://maps.app.goo.gl/3C6QCM",
@@ -22,11 +24,13 @@ export default function ContactSection() {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                             >
-                                Visit Our Store
+                                {t('title')}
                             </motion.h2>
-                            <p className="text-gray-600 max-w-2xl mx-auto">
-                                We are conveniently located in Castel San Giovanni. Come visit us and experience our quality service firsthand.
-                            </p>
+                            <motion.p
+                                className="text-gray-600 max-w-2xl mx-auto"
+                            >
+                                {t('subtitle')}
+                            </motion.p>
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
@@ -37,7 +41,7 @@ export default function ContactSection() {
                                 transition={{ duration: 0.6 }}
                             >
                                 <h3 className="text-2xl font-bold text-black mb-6">
-                                    Contact Information
+                                    {t('info_title')}
                                 </h3>
 
                                 <div className="bg-white p-8 rounded-2xl shadow-sm mb-8">
@@ -45,7 +49,7 @@ export default function ContactSection() {
                                 </div>
 
                                 <div className="mb-8">
-                                    <h4 className="font-bold text-lg mb-3">Address</h4>
+                                    <h4 className="font-bold text-lg mb-3">{t('address')}</h4>
                                     <p className="text-gray-700 mb-3">{businessInfo.address}</p>
                                     <a
                                         href={businessInfo.mapLink}
@@ -53,7 +57,7 @@ export default function ContactSection() {
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center text-red-600 hover:text-red-800 font-medium"
                                     >
-                                        Open in Google Maps
+                                        {t('open_maps')}
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             className="h-5 w-5 ml-1"
@@ -70,7 +74,7 @@ export default function ContactSection() {
                                 </div>
 
                                 <div>
-                                    <h4 className="font-bold text-lg mb-4">Opening Hours</h4>
+                                    <h4 className="font-bold text-lg mb-4">{t('working_hours')}</h4>
                                     <div className="bg-white p-6 rounded-2xl shadow-sm">
                                         <Hours />
                                     </div>

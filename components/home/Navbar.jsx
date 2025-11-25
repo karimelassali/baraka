@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import TranslateWidget from "../ui/TranslateWidget";
+import LanguageSwitcher from "../ui/LanguageSwitcher";
+import { useTranslations } from 'next-intl';
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const t = useTranslations('Navbar');
 
     return (
         <motion.header
@@ -41,7 +43,7 @@ export default function Navbar() {
                                 whileHover={{ y: -2 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                {item.charAt(0).toUpperCase() + item.slice(1)}
+                                {t(item)}
                             </motion.a>
                         )
                     )}
@@ -49,7 +51,7 @@ export default function Navbar() {
 
                 <div className="flex items-center space-x-4">
                     <div className="mr-2">
-                        <TranslateWidget />
+                        <LanguageSwitcher />
                     </div>
 
                     <button
@@ -77,7 +79,7 @@ export default function Navbar() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        Login
+                        {t('login')}
                     </motion.a>
 
                     <motion.a
@@ -88,7 +90,7 @@ export default function Navbar() {
                         }}
                         whileTap={{ scale: 0.95 }}
                     >
-                        Register
+                        {t('register')}
                     </motion.a>
                 </div>
             </div>
@@ -112,7 +114,7 @@ export default function Navbar() {
                                         className="text-gray-600 hover:text-red-600 transition font-medium block"
                                         onClick={() => setIsMenuOpen(false)}
                                     >
-                                        {item.charAt(0).toUpperCase() + item.slice(1)}
+                                        {t(item)}
                                     </motion.a>
                                 )
                             )}
@@ -121,13 +123,13 @@ export default function Navbar() {
                                     href="/auth/login"
                                     className="text-gray-600 hover:text-red-600 transition font-medium block"
                                 >
-                                    Login
+                                    {t('login')}
                                 </a>
                                 <a
                                     href="/auth/register"
                                     className="bg-red-600 text-white font-medium py-2 px-4 rounded-lg text-center shadow-sm"
                                 >
-                                    Register
+                                    {t('register')}
                                 </a>
                             </div>
                         </div>

@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Image as ImageIcon } from "lucide-react";
+import { useTranslations } from 'next-intl';
 
 export default function GallerySection() {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
+    const t = useTranslations('Gallery');
 
     useEffect(() => {
         const fetchImages = async () => {
@@ -37,7 +39,7 @@ export default function GallerySection() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                         >
-                            Our Gallery
+                            {t('title')}
                         </motion.h2>
                         <motion.p
                             className="text-gray-600 max-w-xl"
@@ -46,7 +48,7 @@ export default function GallerySection() {
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
                         >
-                            Explore our latest products and store atmosphere.
+                            {t('subtitle')}
                         </motion.p>
                     </div>
                     <motion.a
@@ -54,7 +56,7 @@ export default function GallerySection() {
                         className="text-red-600 hover:text-red-800 font-medium flex items-center group"
                         whileHover={{ x: 5 }}
                     >
-                        View All
+                        {t('view_all')}
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1 group-hover:ml-2 transition-all" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
@@ -95,7 +97,7 @@ export default function GallerySection() {
                 ) : (
                     <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
                         <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">No images in gallery yet.</p>
+                        <p className="text-gray-500">{t('no_images')}</p>
                     </div>
                 )}
             </div>

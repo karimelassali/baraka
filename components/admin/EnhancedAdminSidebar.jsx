@@ -28,8 +28,10 @@ import { cn } from '@/lib/utils';
 import NotificationCenter from './NotificationCenter';
 import AdminProfileModal from './AdminProfileModal';
 import { createClient } from '@/lib/supabase/client';
+import { useTranslations } from 'next-intl';
 
 export default function EnhancedAdminSidebar() {
+  const t = useTranslations('Admin.Sidebar');
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -57,18 +59,18 @@ export default function EnhancedAdminSidebar() {
   }, []);
 
   const navItems = [
-    { name: 'Admins', path: '/admin/admins', icon: Shield, permission: 'manage_admins' },
-    { name: 'Dashboard', path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard' },
-    { name: 'Analytics', path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard' },
-    { name: 'Customers', path: '/admin/customers', icon: Users, permission: 'manage_users' },
-    { name: 'Inventory', path: '/admin/inventory', icon: Package, permission: 'manage_offers' },
-    { name: 'Offers', path: '/admin/offers', icon: Gift, permission: 'manage_offers' },
-    { name: 'Reviews', path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews' },
-    { name: 'Points', path: '/admin/points', icon: CheckCircle, permission: 'manage_users' },
-    { name: 'Vouchers', path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers' },
-    { name: 'Campaigns', path: '/admin/campaigns', icon: Megaphone, permission: 'manage_offers' },
-    { name: 'Gallery', path: '/admin/gallery', icon: ImageIcon, permission: 'manage_offers' },
-    { name: 'Logs', path: '/admin/logs', icon: FileText, permission: 'view_reports' },
+    { name: t('admins'), path: '/admin/admins', icon: Shield, permission: 'manage_admins' },
+    { name: t('dashboard'), path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard' },
+    { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard' },
+    { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_users' },
+    { name: t('inventory'), path: '/admin/inventory', icon: Package, permission: 'manage_offers' },
+    { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers' },
+    { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews' },
+    { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_users' },
+    { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers' },
+    { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_offers' },
+    { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_offers' },
+    { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_reports' },
   ];
 
   const filteredNavItems = navItems.filter(item => {
@@ -150,7 +152,7 @@ export default function EnhancedAdminSidebar() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
-                {currentUser?.full_name || 'Admin User'}
+                {currentUser?.full_name || t('default_user')}
               </p>
               <p className="text-xs text-muted-foreground truncate">
                 {currentUser?.email || 'admin@example.com'}
@@ -175,7 +177,7 @@ export default function EnhancedAdminSidebar() {
           >
             <Menu className="w-6 h-6 text-foreground" />
           </motion.button>
-          <span className="font-bold text-lg">Baraka Admin</span>
+          <span className="font-bold text-lg">{t('mobile_title')}</span>
         </div>
         <div className="w-8 h-8 rounded-full overflow-hidden border border-border">
           <img src="/logo.jpeg" alt="Logo" className="w-full h-full object-cover" />

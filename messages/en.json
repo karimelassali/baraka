@@ -178,6 +178,7 @@
     },
     "Dashboard": {
         "customer_dashboard": "Customer Dashboard",
+        "welcome_back": "Welcome back",
         "overview": "Overview",
         "profile": "Profile",
         "wallet": "Loyalty Wallet",
@@ -200,6 +201,8 @@
             "download_statement": "Download Statement",
             "total_balance": "Total Balance",
             "gold_member": "Gold Member",
+            "silver_member": "Silver Member",
+            "bronze_member": "Bronze Member",
             "available_to_redeem": "Available to Redeem",
             "pending_points": "Pending Points",
             "earned_this_month": "Earned this month",
@@ -223,11 +226,15 @@
             "from_last_month": "from last month",
             "this_month": "this month",
             "new_offers": "new offers",
-            "lifetime_rewards": "Lifetime rewards"
+            "lifetime_rewards": "Lifetime rewards",
+            "no_change": "No change"
         },
         "Profile": {
             "title": "Profile Information",
             "active": "Active",
+            "active_member": "Active Member",
+            "no_phone": "No phone number",
+            "no_address": "No address provided",
             "success_update": "Profile updated successfully",
             "error_update": "Failed to update profile",
             "error_generic": "An error occurred while updating the profile",
@@ -265,6 +272,102 @@
             "download": "Download",
             "no_vouchers": "No vouchers yet",
             "start_earning": "Start earning points to unlock exclusive vouchers!"
+        }
+    },
+    "Admin": {
+        "Sidebar": {
+            "admins": "Admins",
+            "dashboard": "Dashboard",
+            "analytics": "Analytics",
+            "customers": "Customers",
+            "inventory": "Inventory",
+            "offers": "Offers",
+            "reviews": "Reviews",
+            "points": "Points",
+            "vouchers": "Vouchers",
+            "campaigns": "Campaigns",
+            "gallery": "Gallery",
+            "logs": "Logs",
+            "profile": "Profile",
+            "logout": "Logout",
+            "default_user": "Admin User",
+            "mobile_title": "Baraka Admin"
+        },
+        "Dashboard": {
+            "title": "Dashboard",
+            "welcome": "Welcome back, here's what's happening today.",
+            "total_customers": "Total Customers",
+            "active_offers": "Active Offers",
+            "pending_reviews": "Pending Reviews",
+            "issued_vouchers": "Issued Vouchers",
+            "recent_activity": "Recent Activity",
+            "recent_activity_desc": "Latest messages and notifications",
+            "view_all": "View All",
+            "no_activity": "No recent activity to display.",
+            "performance": "Performance",
+            "engagement_rate": "Engagement Rate",
+            "pro_tip": "Pro Tip",
+            "pro_tip_desc": "Customize your dashboard layout to focus on what matters most to you.",
+            "customize_layout": "Customize Layout",
+            "checking_auth": "Checking authorization..."
+        },
+        "Vouchers": {
+            "title": "Voucher Center",
+            "subtitle": "Issue and track vouchers for your customers.",
+            "search_placeholder": "Search customers...",
+            "tabs": {
+                "customers": "Customer Vouchers",
+                "verify": "Verify & Redeem"
+            },
+            "filters": {
+                "nationality": "Nationality",
+                "all_countries": "All Countries",
+                "sort_by": "Sort By",
+                "newest": "Newest First",
+                "oldest": "Oldest First",
+                "name_asc": "Name (A-Z)",
+                "name_desc": "Name (Z-A)",
+                "nationality_asc": "Nationality (A-Z)",
+                "nationality_desc": "Nationality (Z-A)"
+            },
+            "load_more": "Load More Customers",
+            "loading": "Loading...",
+            "no_customers": "No customers found",
+            "try_adjusting": "Try adjusting your search terms",
+            "wallet": {
+                "title": "Voucher Wallet",
+                "manage_for": "Manage vouchers for {name}",
+                "available_points": "Available Points",
+                "issue_new": "Issue New Voucher",
+                "points_to_redeem": "Points to Redeem",
+                "description": "Description",
+                "issue_btn": "Issue Voucher",
+                "issuing": "Issuing...",
+                "success": "Voucher issued successfully!",
+                "failed": "Failed to issue voucher",
+                "active_past": "Active & Past Vouchers",
+                "no_vouchers": "No vouchers issued yet",
+                "code": "Code",
+                "value": "Value",
+                "cost": "Cost",
+                "redeemed": "Redeemed",
+                "active": "Active",
+                "expired": "Expired",
+                "exp": "Exp:"
+            },
+            "verify": {
+                "title": "Verify & Redeem Voucher",
+                "subtitle": "Enter the voucher code to check its validity and redeem it.",
+                "placeholder": "Enter voucher code (e.g. VOUCH-123)",
+                "btn_verify": "Verify",
+                "btn_redeem": "Redeem Voucher Now",
+                "valid": "VALID",
+                "inactive": "INACTIVE",
+                "redeemed_status": "REDEEMED",
+                "issued_to": "Issued To",
+                "expires_on": "Expires On",
+                "redeemed_at": "Redeemed At"
+            }
         }
     }
 }

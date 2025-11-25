@@ -21,8 +21,10 @@ import EnhancedStatsCard from '../../../components/admin/EnhancedStatsCard';
 import GlassCard from '../../../components/ui/GlassCard';
 import ExpirationAlerts from '../../../components/admin/ExpirationAlerts';
 import NotificationCenter from '../../../components/admin/NotificationCenter';
+import { useTranslations } from 'next-intl';
 
 export default function EnhancedAdminDashboardPage() {
+  const t = useTranslations('Admin.Dashboard');
   const [stats, setStats] = useState({
     customers: 0,
     offers: 0,
@@ -113,7 +115,7 @@ export default function EnhancedAdminDashboardPage() {
 
   const statCards = [
     {
-      title: "Total Customers",
+      title: t('total_customers'),
       value: stats.customers,
       change: "+12.5%",
       icon: Users,
@@ -121,7 +123,7 @@ export default function EnhancedAdminDashboardPage() {
       changeColor: "text-green-500"
     },
     {
-      title: "Active Offers",
+      title: t('active_offers'),
       value: stats.offers,
       change: "+8.2%",
       icon: Gift,
@@ -129,7 +131,7 @@ export default function EnhancedAdminDashboardPage() {
       changeColor: "text-green-500"
     },
     {
-      title: "Pending Reviews",
+      title: t('pending_reviews'),
       value: stats.reviews,
       change: "-3.2%",
       icon: MessageCircle,
@@ -137,7 +139,7 @@ export default function EnhancedAdminDashboardPage() {
       changeColor: "text-red-500"
     },
     {
-      title: "Issued Vouchers",
+      title: t('issued_vouchers'),
       value: stats.vouchers,
       change: "+24.7%",
       icon: Ticket,
@@ -178,24 +180,13 @@ export default function EnhancedAdminDashboardPage() {
       >
         <div>
           <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-            Dashboard
+            {t('title')}
           </h1>
-          <p className="text-muted-foreground mt-1">Welcome back, here's what's happening today.</p>
+          <p className="text-muted-foreground mt-1">{t('welcome')}</p>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* <div className="relative hidden sm:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent w-64 transition-all"
-            />
-          </div> */}
           <NotificationCenter />
-          {/* <button className="p-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25">
-            <Filter className="h-5 w-5" />
-          </button> */}
         </div>
       </motion.header>
 
@@ -228,10 +219,10 @@ export default function EnhancedAdminDashboardPage() {
           <GlassCard className="h-full">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold">Recent Activity</h2>
-                <p className="text-sm text-muted-foreground">Latest messages and notifications</p>
+                <h2 className="text-xl font-semibold">{t('recent_activity')}</h2>
+                <p className="text-sm text-muted-foreground">{t('recent_activity_desc')}</p>
               </div>
-              <button className="text-sm text-primary hover:underline">View All</button>
+              <button className="text-sm text-primary hover:underline">{t('view_all')}</button>
             </div>
 
             {loading ? (
@@ -267,7 +258,7 @@ export default function EnhancedAdminDashboardPage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                 <Activity className="h-12 w-12 mb-4 opacity-20" />
-                <p>No recent activity to display.</p>
+                <p>{t('no_activity')}</p>
               </div>
             )}
           </GlassCard>
@@ -277,7 +268,7 @@ export default function EnhancedAdminDashboardPage() {
         <motion.div className="space-y-8" variants={itemVariants}>
           <GlassCard>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Performance</h2>
+              <h2 className="text-xl font-semibold">{t('performance')}</h2>
               <TrendingUp className="h-5 w-5 text-muted-foreground" />
             </div>
             <div className="flex items-center justify-center h-48 relative">
@@ -287,19 +278,19 @@ export default function EnhancedAdminDashboardPage() {
               </div>
               <div className="text-center relative z-10">
                 <span className="text-3xl font-bold">85%</span>
-                <p className="text-sm text-muted-foreground">Engagement Rate</p>
+                <p className="text-sm text-muted-foreground">{t('engagement_rate')}</p>
               </div>
             </div>
           </GlassCard>
 
           <GlassCard className="bg-gradient-to-br from-primary to-purple-600 text-white border-none">
             <div className="relative z-10">
-              <h3 className="text-lg font-bold mb-2">Pro Tip</h3>
+              <h3 className="text-lg font-bold mb-2">{t('pro_tip')}</h3>
               <p className="text-white/80 text-sm mb-4">
-                Customize your dashboard layout to focus on what matters most to you.
+                {t('pro_tip_desc')}
               </p>
               <button className="w-full py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors backdrop-blur-sm">
-                Customize Layout
+                {t('customize_layout')}
               </button>
             </div>
           </GlassCard>

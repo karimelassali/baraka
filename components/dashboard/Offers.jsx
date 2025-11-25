@@ -2,8 +2,9 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Tag, Calendar, ArrowRight, Clock } from 'lucide-react';
+import { Tag, Calendar, ArrowRight, Clock, Star, Gift } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { motion } from 'framer-motion';
 
 function Skeleton() {
   return (
@@ -20,7 +21,7 @@ function Skeleton() {
   );
 }
 
-export default function Offers({ limit }) {
+export default function Offers({ limit, user }) {
   const t = useTranslations('Dashboard.Offers');
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,57 +60,87 @@ export default function Offers({ limit }) {
       {!limit && (
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
-          <span className="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full font-medium">
+          <span className="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-medium border border-red-200">
             {offers.length} {t('active')}
           </span>
         </div>
       )}
 
       {displayOffers.length > 0 ? (
-        <div className={`grid grid-cols-1 ${limit ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
-          {displayOffers.map((offer) => (
-            <div
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ staggerChildren: 0.1 }}
+          className={`grid grid-cols-1 ${limit ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}
+        >
+          {displayOffers.map((offer, index) => (
+            <motion.div
               key={offer.id}
-              className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col"
             >
-              <div className="h-40 bg-gradient-to-br from-indigo-500 to-purple-600 relative p-6 flex items-center justify-center">
-                <div className="absolute top-0 right-0 p-4 opacity-20">
-                  <Tag className="w-24 h-24 text-white" />
+              <div className="h-48 bg-gradient-to-br from-red-500 to-orange-600 relative p-6 flex items-center justify-center overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                  <Gift className="w-32 h-32 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white text-center relative z-10">{offer.title}</h3>
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-300"></div>
+
+                <div className="relative z-10 text-center">
+                  <div className="bg-white/20 backdrop-blur-md p-3 rounded-full inline-flex mb-3 shadow-lg">
+                    <Tag className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white text-center drop-shadow-md px-2 line-clamp-2">{offer.title}</h3>
+                </div>
+
+                {/* Badges */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  {offer.offer_type === 'WEEKLY' && (
+                    <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded shadow-md flex items-center">
+                      <Clock className="w-3 h-3 mr-1" /> WEEKLY
+                    </span>
+                  )}
+                  {offer.offer_type === 'SPECIAL' && (
+                    <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded shadow-md flex items-center">
+                      <Star className="w-3 h-3 mr-1" /> SPECIAL
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="p-6 flex-1 flex flex-col">
-                <div className="flex items-center space-x-2 mb-4">
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${offer.offer_type === 'WEEKLY'
-                    ? 'bg-blue-100 text-blue-800'
-                    : 'bg-green-100 text-green-800'
+                <div className="flex items-center justify-between mb-4">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${offer.offer_type === 'WEEKLY'
+                    ? 'bg-blue-50 text-blue-700 border-blue-100'
+                    : 'bg-green-50 text-green-700 border-green-100'
                     }`}>
                     {offer.offer_type}
                   </span>
                   {offer.end_date && (
-                    <span className="flex items-center text-xs text-gray-500">
-                      <Clock className="w-3 h-3 mr-1" />
+                    <span className="flex items-center text-xs text-gray-500 font-medium">
+                      <Clock className="w-3 h-3 mr-1 text-red-500" />
                       {Math.ceil((new Date(offer.end_date) - new Date()) / (1000 * 60 * 60 * 24))} {t('days_left')}
                     </span>
                   )}
                 </div>
 
-                <p className="text-gray-600 text-sm mb-6 flex-1 line-clamp-3">{offer.description}</p>
+                <p className="text-gray-600 text-sm mb-6 flex-1 line-clamp-3 leading-relaxed">{offer.description}</p>
 
                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
                   <span className="text-xs text-gray-500 flex items-center">
                     <Calendar className="w-3 h-3 mr-1" />
                     {t('valid_until')} {new Date(offer.end_date).toLocaleDateString()}
                   </span>
-                  <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium flex items-center group-hover:translate-x-1 transition-transform">
+                  <button className="text-red-600 hover:text-red-700 text-sm font-bold flex items-center group-hover:translate-x-1 transition-transform">
                     {t('details')} <ArrowRight className="w-4 h-4 ml-1" />
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       ) : (
         <div className="text-center py-16 bg-white rounded-xl border border-gray-200 border-dashed">
           <div className="mx-auto w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">

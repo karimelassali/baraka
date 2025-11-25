@@ -145,7 +145,7 @@ export default function Vouchers({ limit }) {
       {!limit && (
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
-          <span className="bg-indigo-100 text-indigo-800 text-xs px-3 py-1 rounded-full font-medium">
+          <span className="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-medium border border-red-200">
             {vouchers.filter(v => v.is_active && !v.is_used).length} {t('available')}
           </span>
         </div>
@@ -160,13 +160,13 @@ export default function Vouchers({ limit }) {
               data-voucher-id={voucher.id}
               className={`relative bg-white border rounded-xl p-6 transition-all duration-200 ${voucher.is_used || !voucher.is_active
                 ? 'border-gray-200 opacity-75'
-                : 'border-indigo-100 shadow-sm hover:shadow-md hover:border-indigo-200'
+                : 'border-red-100 shadow-sm hover:shadow-md hover:border-red-200'
                 }`}
             >
               <div className="flex justify-between items-start mb-4">
                 <div className={`p-3 rounded-xl ${voucher.is_used
                   ? 'bg-gray-100 text-gray-500'
-                  : 'bg-indigo-50 text-indigo-600'
+                  : 'bg-red-50 text-red-600'
                   }`}>
                   <Ticket className="w-6 h-6" />
                 </div>
@@ -192,7 +192,7 @@ export default function Vouchers({ limit }) {
                   <div className="grid grid-cols-2 gap-2" data-html2canvas-ignore="true">
                     <button
                       onClick={() => setSelectedVoucher(voucher)}
-                      className="flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                      className="flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors shadow-sm shadow-red-200"
                     >
                       <QrCode className="w-4 h-4 mr-2" />
                       {t('use')}
@@ -297,7 +297,7 @@ export default function Vouchers({ limit }) {
 
                 <div className="bg-gray-50 p-4 rounded-xl mb-6">
                   <p className="text-sm text-gray-500 mb-1">Voucher Code</p>
-                  <p className="text-xl font-mono font-bold tracking-wider text-indigo-600">
+                  <p className="text-xl font-mono font-bold tracking-wider text-red-600">
                     {selectedVoucher.code}
                   </p>
                 </div>

@@ -2,14 +2,15 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { CreditCard, History, ArrowUpRight, ArrowDownLeft, Wallet } from 'lucide-react';
+import { CreditCard, History, ArrowUpRight, ArrowDownLeft, Wallet, Download, Filter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Skeleton({ compact }) {
   if (compact) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-20 bg-gray-100 rounded-xl"></div>
+        <div className="h-24 bg-gray-100 rounded-xl"></div>
         <div className="space-y-2">
           <div className="h-10 bg-gray-100 rounded-lg"></div>
           <div className="h-10 bg-gray-100 rounded-lg"></div>
@@ -20,7 +21,7 @@ function Skeleton({ compact }) {
   return (
     <div className="p-8 rounded-xl bg-white border border-gray-200 animate-pulse">
       <div className="h-8 bg-gray-200 rounded w-1/3 mb-6"></div>
-      <div className="h-40 bg-gray-100 rounded-xl mb-8"></div>
+      <div className="h-48 bg-gray-100 rounded-xl mb-8"></div>
       <div className="space-y-4">
         <div className="h-16 bg-gray-100 rounded-lg"></div>
         <div className="h-16 bg-gray-100 rounded-lg"></div>
@@ -37,6 +38,35 @@ export default function LoyaltyWallet({ compact = false }) {
   const [pendingPoints, setPendingPoints] = useState(0);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterType, setFilterType] = useState('all'); // all, earned, redeemed
+
+  const handleDownloadStatement = () => {
+    // Simple CSV generation
+    const headers = [t('date'), t('description'), t('type'), t('points')];
+    const rows = history.map(item => [
+      new Date(item.created_at).toLocaleDateString(),
+      item.description || item.transaction_type,
+      item.points > 0 ? t('earned') : t('redeemed'),
+      item.points
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `statement_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
 
   useEffect(() => {
     const fetchLoyaltyData = async () => {
@@ -45,9 +75,9 @@ export default function LoyaltyWallet({ compact = false }) {
         const data = await response.json();
 
         if (response.ok) {
-          setPoints(data.total_points || 0);
-          setAvailablePoints(data.available_points || 0);
-          setPendingPoints(data.pending_points || 0);
+          setPoints(Number(data.total_points) || 0);
+          setAvailablePoints(Number(data.available_points) || 0);
+          setPendingPoints(Number(data.pending_points) || 0);
           setHistory(data.points_history || []);
         } else {
           console.error('Failed to fetch loyalty data:', data.error);
@@ -62,34 +92,80 @@ export default function LoyaltyWallet({ compact = false }) {
     fetchLoyaltyData();
   }, []);
 
+  const getCardStyle = (points) => {
+    const numPoints = Number(points);
+    if (numPoints >= 5000) {
+      return {
+        gradient: "from-amber-400 to-yellow-600",
+        shadow: "shadow-amber-200",
+        tier: t('gold_member'),
+        iconColor: "text-amber-100"
+      };
+    } else if (numPoints >= 1000) {
+      return {
+        gradient: "from-slate-400 to-slate-600",
+        shadow: "shadow-slate-200",
+        tier: t('silver_member'),
+        iconColor: "text-slate-100"
+      };
+    } else {
+      return {
+        gradient: "from-orange-400 to-red-500",
+        shadow: "shadow-orange-200",
+        tier: t('bronze_member'),
+        iconColor: "text-orange-100"
+      };
+    }
+  };
+
+  const cardStyle = getCardStyle(points);
+
+  const filteredTransactions = history.filter(item => {
+    if (filterType === 'earned') return item.points > 0;
+    if (filterType === 'redeemed') return item.points < 0;
+    return true;
+  });
+
+  const displayTransactions = compact ? history.slice(0, 3) : filteredTransactions;
+
   if (loading) {
     return <Skeleton compact={compact} />;
   }
 
-  // Get recent transactions (last 5)
-  const recentTransactions = history.slice(0, compact ? 3 : 10);
-
   if (compact) {
     return (
-      <div className="space-y-6">
-        <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl p-5 text-white shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-6"
+      >
+        <div className={`bg-gradient-to-br ${cardStyle.gradient} rounded-xl p-5 text-white shadow-lg relative overflow-hidden group transition-all duration-300 hover:scale-[1.02]`}>
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Wallet className="w-24 h-24" />
           </div>
-          <p className="text-indigo-100 text-sm font-medium">{t('available_balance')}</p>
-          <h3 className="text-3xl font-bold mt-1">{availablePoints.toLocaleString()} <span className="text-lg font-normal opacity-80">{t('pts')}</span></h3>
-          <div className="mt-4 flex items-center text-xs text-indigo-200">
-            <span className="bg-indigo-500/30 px-2 py-1 rounded-full border border-indigo-400/30">
-              {pendingPoints > 0 ? `${pendingPoints} ${t('pending')}` : t('no_pending')}
-            </span>
+          <div className="relative z-10">
+            <p className="text-white/80 text-sm font-medium">{t('available_balance')}</p>
+            <h3 className="text-3xl font-bold mt-1 tracking-tight">{availablePoints.toLocaleString()} <span className="text-lg font-normal opacity-80">{t('pts')}</span></h3>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-medium border border-white/10">
+                {cardStyle.tier}
+              </span>
+              {pendingPoints > 0 && (
+                <span className="text-xs text-white/90 font-medium">
+                  {pendingPoints} {t('pending')}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold text-gray-900 mb-3">{t('recent_activity')}</h4>
+          <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center justify-between">
+            {t('recent_activity')}
+          </h4>
           <div className="space-y-3">
-            {recentTransactions.length > 0 ? (
-              recentTransactions.map((item) => (
+            {displayTransactions.length > 0 ? (
+              displayTransactions.map((item) => (
                 <div key={item.id} className="flex justify-between items-center py-1">
                   <div className="flex items-center space-x-3">
                     <div className={`p-2 rounded-full ${item.points > 0 ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
@@ -114,45 +190,54 @@ export default function LoyaltyWallet({ compact = false }) {
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="w-full space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="w-full space-y-8"
+    >
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
-        <button className="text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+        <button
+          onClick={handleDownloadStatement}
+          className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center transition-colors"
+        >
+          <Download className="w-4 h-4 mr-1.5" />
           {t('download_statement')}
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Main Card */}
-        <div className="md:col-span-2 bg-gradient-to-br from-indigo-900 to-indigo-800 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-5">
+        <div className={`md:col-span-2 bg-gradient-to-br ${cardStyle.gradient} rounded-2xl p-8 text-white shadow-xl relative overflow-hidden transition-all duration-500`}>
+          <div className="absolute top-0 right-0 p-8 opacity-10">
             <CreditCard className="w-64 h-64" />
           </div>
 
           <div className="relative z-10 flex flex-col justify-between h-full min-h-[200px]">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-indigo-200 font-medium">{t('total_balance')}</p>
+                <p className="text-white/80 font-medium text-lg">{t('total_balance')}</p>
                 <h3 className="text-5xl font-bold mt-2 tracking-tight">{points.toLocaleString()}</h3>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/10">
-                <span className="text-sm font-medium text-indigo-100">{t('gold_member')}</span>
+              <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 shadow-lg">
+                <span className="text-sm font-bold text-white tracking-wide uppercase">{cardStyle.tier}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-8 mt-8">
               <div>
-                <p className="text-indigo-300 text-sm">{t('available_to_redeem')}</p>
-                <p className="text-2xl font-semibold mt-1">{availablePoints.toLocaleString()}</p>
+                <p className="text-white/70 text-sm mb-1">{t('available_to_redeem')}</p>
+                <p className="text-2xl font-semibold">{availablePoints.toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-indigo-300 text-sm">{t('pending_points')}</p>
-                <p className="text-2xl font-semibold mt-1">{pendingPoints.toLocaleString()}</p>
+                <p className="text-white/70 text-sm mb-1">{t('pending_points')}</p>
+                <p className="text-2xl font-semibold">{pendingPoints.toLocaleString()}</p>
               </div>
             </div>
           </div>
@@ -160,42 +245,57 @@ export default function LoyaltyWallet({ compact = false }) {
 
         {/* Quick Stats */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm"
+          >
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-green-50 text-green-600 rounded-xl">
                 <ArrowDownLeft className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">{t('earned_this_month')}</p>
-                <p className="text-xl font-bold text-gray-900">+1,250</p>
+                <p className="text-xl font-bold text-gray-900">
+                  +{history.filter(h => h.points > 0 && new Date(h.created_at).getMonth() === new Date().getMonth()).reduce((acc, curr) => acc + curr.points, 0).toLocaleString()}
+                </p>
               </div>
             </div>
-          </div>
-          <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+          </motion.div>
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm"
+          >
             <div className="flex items-center space-x-4">
               <div className="p-3 bg-red-50 text-red-600 rounded-xl">
                 <ArrowUpRight className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-sm text-gray-500">{t('spent_this_month')}</p>
-                <p className="text-xl font-bold text-gray-900">-450</p>
+                <p className="text-xl font-bold text-gray-900">
+                  {history.filter(h => h.points < 0 && new Date(h.created_at).getMonth() === new Date().getMonth()).reduce((acc, curr) => acc + curr.points, 0).toLocaleString()}
+                </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+        <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
           <h3 className="text-lg font-bold text-gray-900 flex items-center">
             <History className="w-5 h-5 mr-2 text-gray-400" />
             {t('transaction_history')}
           </h3>
-          <div className="flex space-x-2">
-            <select className="text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-              <option>{t('all_transactions')}</option>
-              <option>{t('earned')}</option>
-              <option>{t('redeemed')}</option>
+          <div className="flex items-center space-x-2">
+            <Filter className="w-4 h-4 text-gray-400" />
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="text-sm border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-2 pl-3 pr-8"
+            >
+              <option value="all">{t('all_transactions')}</option>
+              <option value="earned">{t('earned')}</option>
+              <option value="redeemed">{t('redeemed')}</option>
             </select>
           </div>
         </div>
@@ -211,8 +311,8 @@ export default function LoyaltyWallet({ compact = false }) {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {recentTransactions.length > 0 ? (
-                recentTransactions.map((item) => (
+              {displayTransactions.length > 0 ? (
+                displayTransactions.map((item) => (
                   <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -247,15 +347,7 @@ export default function LoyaltyWallet({ compact = false }) {
             </tbody>
           </table>
         </div>
-
-        {history.length > 10 && (
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <button className="w-full py-2 text-sm text-indigo-600 font-medium hover:text-indigo-800 transition-colors">
-              {t('view_all')}
-            </button>
-          </div>
-        )}
       </div>
-    </div>
+    </motion.div>
   );
 }

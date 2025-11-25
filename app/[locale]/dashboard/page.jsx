@@ -53,7 +53,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mx-auto"></div>
           <p className="mt-4 text-sm text-gray-500 font-medium">Loading dashboard...</p>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                   <h3 className="font-semibold text-gray-900">{t('offers')}</h3>
                   <button
                     onClick={() => setActiveTab('offers')}
-                    className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center"
+                    className="text-sm text-red-600 hover:text-red-700 font-medium flex items-center transition-colors"
                   >
                     View All <ChevronRight className="h-4 w-4 ml-1" />
                   </button>
@@ -135,37 +135,52 @@ export default function DashboardPage() {
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:flex lg:flex-col
+        fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-gray-100 shadow-2xl lg:shadow-none transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:flex lg:flex-col
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">B</span>
+        {/* Logo Area */}
+        <div className="h-20 flex items-center px-8 border-b border-gray-50">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-200 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+              <span className="text-white font-bold text-2xl">B</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">Baraka</span>
+            <span className="text-2xl font-bold text-gray-900 tracking-tight">Baraka</span>
           </div>
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="ml-auto lg:hidden text-gray-500 hover:text-gray-700"
+            className="ml-auto lg:hidden p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        <div className="p-4 border-b border-gray-200 bg-gray-50/50">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
-              {user.email?.[0].toUpperCase()}
+        {/* User Profile Section - Redesigned */}
+        <div className="p-6 pb-2">
+          <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-2xl p-4 flex items-center space-x-4 shadow-sm">
+            <div className="relative">
+              <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
+                <img
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                  alt="User Avatar"
+                  className="w-full h-full rounded-full bg-white"
+                />
+              </div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
-            <div className="overflow-hidden">
-              <p className="text-sm font-medium text-gray-900 truncate">Welcome back</p>
-              <p className="text-xs text-gray-500 truncate" title={user.email}>{user.email}</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-gray-900 truncate">
+                {user.user_metadata?.full_name || t('welcome_back')}
+              </p>
+              <p className="text-xs text-gray-500 truncate font-medium" title={user.email}>
+                {user.email}
+              </p>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto">
+          <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 mt-2">Menu</p>
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -176,20 +191,24 @@ export default function DashboardPage() {
                   setActiveTab(item.id);
                   setIsSidebarOpen(false);
                 }}
-                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                  ? 'bg-indigo-50 text-indigo-700'
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative overflow-hidden ${isActive
+                  ? 'bg-red-50 text-red-700 shadow-sm'
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
               >
-                <Icon className={`h-5 w-5 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`} />
-                <span>{item.label}</span>
-                {isActive && <ChevronRight className="ml-auto h-4 w-4 text-indigo-400" />}
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-red-600 rounded-r-full"></div>
+                )}
+                <Icon className={`h-5 w-5 transition-colors ${isActive ? 'text-red-600' : 'text-gray-400 group-hover:text-gray-600'}`} />
+                <span className="relative z-10">{item.label}</span>
+                {isActive && <ChevronRight className="ml-auto h-4 w-4 text-red-400" />}
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-gray-200 space-y-4">
+        {/* Footer Actions */}
+        <div className="p-4 border-t border-gray-100 space-y-3 bg-gray-50/30">
           <div className="flex justify-center">
             <LanguageSwitcher />
           </div>
@@ -198,33 +217,37 @@ export default function DashboardPage() {
               await supabase.auth.signOut();
               router.push('/auth/login');
             }}
-            className="w-full flex items-center space-x-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all duration-200 border border-transparent hover:border-red-100 hover:shadow-sm"
           >
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-4 w-4" />
             <span>{t('sign_out')}</span>
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50/50">
         {/* Mobile Header */}
-        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm z-40 relative">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="text-gray-500 hover:text-gray-700 p-1 -ml-1"
+              className="text-gray-500 hover:text-gray-700 p-2 -ml-2 rounded-lg hover:bg-gray-100"
             >
               <Menu className="h-6 w-6" />
             </button>
-            <span className="font-semibold text-gray-900">{t('customer_dashboard')}</span>
+            <span className="font-bold text-gray-900 text-lg">Baraka</span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm">
-            {user.email?.[0].toUpperCase()}
+          <div className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
+            <img
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+              alt="User Avatar"
+              className="w-full h-full rounded-full bg-white"
+            />
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto bg-gray-50">
+        <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8">
               <h1 className="text-2xl font-bold text-gray-900 capitalize tracking-tight">

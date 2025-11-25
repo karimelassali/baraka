@@ -7,8 +7,10 @@ import EnhancedAdminSidebar from '../../../components/admin/EnhancedAdminSidebar
 import AICopilot from '../../../components/admin/ai/AICopilot';
 import { motion } from 'framer-motion';
 import LanguageSwitcher from '../../../components/LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 
 export default function AdminLayout({ children }) {
+  const t = useTranslations('Admin.Dashboard');
   const [isAdmin, setIsAdmin] = useState(null);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function AdminLayout({ children }) {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-lg text-muted-foreground">Checking authorization...</p>
+          <p className="mt-4 text-lg text-muted-foreground">{t('checking_auth')}</p>
         </div>
       </div>
     );

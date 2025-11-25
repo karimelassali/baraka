@@ -1,7 +1,8 @@
 // components/dashboard/Statistics.jsx
 import { useEffect, useState } from 'react';
-import { Star, Ticket, Gift, CreditCard, TrendingUp, ArrowRight } from 'lucide-react';
+import { Star, Ticket, Gift, CreditCard, TrendingUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { motion } from 'framer-motion';
 
 export default function Statistics() {
   const t = useTranslations('Dashboard.Statistics');
@@ -9,7 +10,8 @@ export default function Statistics() {
     totalPoints: 0,
     availableVouchers: 0,
     activeOffers: 0,
-    totalVouchers: 0
+    totalVouchers: 0,
+    pointsTrend: ''
   });
   const [loading, setLoading] = useState(true);
 
@@ -29,6 +31,30 @@ export default function Statistics() {
         const offersData = await offersResponse.json();
 
         if (pointsResponse.ok && vouchersResponse.ok && offersResponse.ok) {
+          // Calculate points trend
+          const currentMonth = new Date().getMonth();
+          const pointsHistory = pointsData.points_history || [];
+
+          const pointsThisMonth = pointsHistory
+            .filter(p => new Date(p.created_at).getMonth() === currentMonth && p.points > 0)
+            .reduce((acc, curr) => acc + curr.points, 0);
+
+          const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+          const pointsLastMonth = pointsHistory
+            .filter(p => new Date(p.created_at).getMonth() === lastMonth && p.points > 0)
+            .reduce((acc, curr) => acc + curr.points, 0);
+
+          let trendLabel = t('from_last_month');
+
+          if (pointsLastMonth > 0) {
+            const pointsTrend = Math.round(((pointsThisMonth - pointsLastMonth) / pointsLastMonth) * 100);
+            trendLabel = pointsTrend >= 0 ? `+${pointsTrend}% ${t('from_last_month')}` : `${pointsTrend}% ${t('from_last_month')}`;
+          } else if (pointsThisMonth > 0) {
+            trendLabel = `+${pointsThisMonth} ${t('this_month')}`;
+          } else {
+            trendLabel = t('no_change');
+          }
+
           setStats({
             totalPoints: pointsData.total_points || 0,
             availableVouchers: vouchersData.filter(v => v.is_active && !v.is_used).length || 0,
@@ -38,7 +64,8 @@ export default function Statistics() {
               const endDate = new Date(offer.end_date);
               return now >= startDate && now <= endDate;
             }).length || 0,
-            totalVouchers: vouchersData.length || 0
+            totalVouchers: vouchersData.length || 0,
+            pointsTrend: trendLabel
           });
         }
       } catch (error) {
@@ -58,14 +85,14 @@ export default function Statistics() {
       icon: Star,
       color: "text-amber-500",
       bgColor: "bg-amber-50",
-      change: `+12% ${t('from_last_month')}`
+      change: stats.pointsTrend || t('no_change')
     },
     {
       title: t('available_vouchers'),
       value: stats.availableVouchers,
       icon: Ticket,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: "text-red-600",
+      bgColor: "bg-red-50",
       change: `+5 ${t('this_month')}`
     },
     {
@@ -74,7 +101,7 @@ export default function Statistics() {
       icon: Gift,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
-      change: `3 ${t('new_offers')}`
+      change: t('active')
     },
     {
       title: t('total_vouchers'),
@@ -101,27 +128,45 @@ export default function Statistics() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, staggerChildren: 0.1 }}
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+    >
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <div key={index} className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="flex items-start justify-between">
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+            className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
+          >
+            <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300`}>
+              <Icon className={`h-24 w-24 ${stat.color}`} />
+            </div>
+
+            <div className="relative z-10 flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">{stat.title}</p>
-                <h3 className="text-2xl font-bold text-gray-900 mt-2">{stat.value}</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mt-2 tracking-tight">{stat.value}</h3>
               </div>
-              <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+              <div className={`p-3 rounded-xl ${stat.bgColor} shadow-inner`}>
                 <Icon className={`h-6 w-6 ${stat.color}`} />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm">
-              <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              <span className="text-green-600 font-medium">{stat.change}</span>
+            <div className="relative z-10 mt-4 flex items-center text-sm">
+              <div className="flex items-center text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                <span className="font-medium text-xs">{stat.change}</span>
+              </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

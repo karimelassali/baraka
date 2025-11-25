@@ -27,79 +27,85 @@ import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 import { countries } from '../../lib/constants/countries';
+import { useTranslations } from 'next-intl';
 
 // --- Sub-components ---
 
-const VoucherTicket = ({ voucher }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="relative group"
-  >
-    <div className={`
-      relative overflow-hidden rounded-xl border-2 
-      ${voucher.is_used
-        ? 'bg-muted border-muted-foreground/20 opacity-75'
-        : voucher.is_active
-          ? 'bg-background border-purple-500/30 hover:border-purple-500/60'
-          : 'bg-background border-red-200 dark:border-red-900/30'}
-      transition-all duration-300 shadow-sm hover:shadow-md
-    `}>
-      {/* Ticket Cutouts */}
-      <div className="absolute top-1/2 -left-3 w-6 h-6 bg-background rounded-full border-2 border-inherit z-10 transform -translate-y-1/2" />
-      <div className="absolute top-1/2 -right-3 w-6 h-6 bg-background rounded-full border-2 border-inherit z-10 transform -translate-y-1/2" />
+const VoucherTicket = ({ voucher }) => {
+  const t = useTranslations('Admin.Vouchers.wallet');
 
-      <div className="p-5 flex flex-col h-full relative z-0">
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex items-center gap-2">
-            <div className={`p-2 rounded-lg ${voucher.is_active && !voucher.is_used ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-muted text-muted-foreground'}`}>
-              <Ticket className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="font-mono font-bold text-lg tracking-wider">{voucher.code}</p>
-              <p className="text-xs text-muted-foreground">Code</p>
-            </div>
-          </div>
-          <Badge variant="outline" className={`
-            ${voucher.is_used
-              ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400'
-              : voucher.is_active
-                ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400'}
-          `}>
-            {voucher.is_used ? 'Redeemed' : voucher.is_active ? 'Active' : 'Expired'}
-          </Badge>
-        </div>
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative group"
+    >
+      <div className={`
+        relative overflow-hidden rounded-xl border-2 
+        ${voucher.is_used
+          ? 'bg-muted border-muted-foreground/20 opacity-75'
+          : voucher.is_active
+            ? 'bg-background border-purple-500/30 hover:border-purple-500/60'
+            : 'bg-background border-red-200 dark:border-red-900/30'}
+        transition-all duration-300 shadow-sm hover:shadow-md
+      `}>
+        {/* Ticket Cutouts */}
+        <div className="absolute top-1/2 -left-3 w-6 h-6 bg-background rounded-full border-2 border-inherit z-10 transform -translate-y-1/2" />
+        <div className="absolute top-1/2 -right-3 w-6 h-6 bg-background rounded-full border-2 border-inherit z-10 transform -translate-y-1/2" />
 
-        <div className="space-y-2 mb-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Value</span>
-            <span className="font-bold text-lg">{voucher.value} {voucher.currency}</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Cost</span>
-            <span className="font-medium text-purple-600 dark:text-purple-400">{voucher.points_redeemed} pts</span>
-          </div>
-        </div>
-
-        <div className="mt-auto pt-4 border-t border-dashed border-border flex justify-between items-center text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            {new Date(voucher.created_at).toLocaleDateString()}
-          </div>
-          {voucher.expires_at && (
-            <div className="flex items-center gap-1 text-orange-500">
-              <Clock className="w-3 h-3" />
-              Exp: {new Date(voucher.expires_at).toLocaleDateString()}
+        <div className="p-5 flex flex-col h-full relative z-0">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-2">
+              <div className={`p-2 rounded-lg ${voucher.is_active && !voucher.is_used ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-muted text-muted-foreground'}`}>
+                <Ticket className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-mono font-bold text-lg tracking-wider">{voucher.code}</p>
+                <p className="text-xs text-muted-foreground">{t('code')}</p>
+              </div>
             </div>
-          )}
+            <Badge variant="outline" className={`
+              ${voucher.is_used
+                ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400'
+                : voucher.is_active
+                  ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400'}
+            `}>
+              {voucher.is_used ? t('redeemed') : voucher.is_active ? t('active') : t('expired')}
+            </Badge>
+          </div>
+
+          <div className="space-y-2 mb-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">{t('value')}</span>
+              <span className="font-bold text-lg">{voucher.value} {voucher.currency}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">{t('cost')}</span>
+              <span className="font-medium text-purple-600 dark:text-purple-400">{voucher.points_redeemed} pts</span>
+            </div>
+          </div>
+
+          <div className="mt-auto pt-4 border-t border-dashed border-border flex justify-between items-center text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Calendar className="w-3 h-3" />
+              {new Date(voucher.created_at).toLocaleDateString()}
+            </div>
+            {voucher.expires_at && (
+              <div className="flex items-center gap-1 text-orange-500">
+                <Clock className="w-3 h-3" />
+                {t('exp')} {new Date(voucher.expires_at).toLocaleDateString()}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
-  </motion.div>
-);
+    </motion.div>
+  );
+};
 
 function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
+  const t = useTranslations('Admin.Vouchers.wallet');
   const [newVoucherData, setNewVoucherData] = useState({
     pointsToRedeem: '',
     description: ''
@@ -132,7 +138,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: 'Voucher issued successfully!' });
+        setStatus({ type: 'success', message: t('success') });
         setNewVoucherData({ pointsToRedeem: '', description: '' });
         onSave && onSave();
         setTimeout(() => {
@@ -140,7 +146,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
           setStatus({ type: '', message: '' });
         }, 1500);
       } else {
-        setStatus({ type: 'error', message: result.error || 'Failed to issue voucher' });
+        setStatus({ type: 'error', message: result.error || t('failed') });
       }
     } catch (error) {
       setStatus({ type: 'error', message: 'An error occurred' });
@@ -166,8 +172,8 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
               <Gift className="w-6 h-6 text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Voucher Wallet</h2>
-              <p className="text-sm text-muted-foreground">Manage vouchers for {customer.first_name}</p>
+              <h2 className="text-xl font-bold">{t('title')}</h2>
+              <p className="text-sm text-muted-foreground">{t('manage_for', { name: customer.first_name })}</p>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
@@ -198,17 +204,17 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
             </div>
 
             <div className="bg-purple-500/5 border border-purple-500/10 rounded-xl p-6 mb-6">
-              <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">Available Points</p>
+              <p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">{t('available_points')}</p>
               <p className="text-3xl font-black">{customer.total_points || 0}</p>
             </div>
 
             <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Issue New Voucher
+              <Plus className="w-4 h-4" /> {t('issue_new')}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-medium uppercase text-muted-foreground">Points to Redeem</label>
+                <label className="text-xs font-medium uppercase text-muted-foreground">{t('points_to_redeem')}</label>
                 <Input
                   name="pointsToRedeem"
                   type="number"
@@ -220,7 +226,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-medium uppercase text-muted-foreground">Description</label>
+                <label className="text-xs font-medium uppercase text-muted-foreground">{t('description')}</label>
                 <Input
                   name="description"
                   value={newVoucherData.description}
@@ -242,7 +248,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
                 disabled={loading || !newVoucherData.pointsToRedeem}
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white"
               >
-                {loading ? 'Issuing...' : 'Issue Voucher'}
+                {loading ? t('issuing') : t('issue_btn')}
               </Button>
             </form>
           </div>
@@ -250,7 +256,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
           {/* Right Panel: Voucher List */}
           <div className="w-full md:w-2/3 p-6 bg-background overflow-y-auto custom-scrollbar">
             <h3 className="font-semibold mb-6 flex items-center gap-2">
-              <Ticket className="w-4 h-4 text-muted-foreground" /> Active & Past Vouchers
+              <Ticket className="w-4 h-4 text-muted-foreground" /> {t('active_past')}
             </h3>
 
             {vouchers && vouchers.length > 0 ? (
@@ -262,7 +268,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-muted-foreground opacity-50">
                 <Ticket className="w-16 h-16 mb-4 stroke-1" />
-                <p>No vouchers issued yet</p>
+                <p>{t('no_vouchers')}</p>
               </div>
             )}
           </div>
@@ -273,6 +279,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
 }
 
 const VoucherVerifier = () => {
+  const t = useTranslations('Admin.Vouchers.verify');
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -335,19 +342,19 @@ const VoucherVerifier = () => {
           <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
             <Sparkles className="w-8 h-8 text-purple-600 dark:text-purple-400" />
           </div>
-          <h2 className="text-2xl font-bold">Verify & Redeem Voucher</h2>
-          <p className="text-muted-foreground mt-2">Enter the voucher code to check its validity and redeem it.</p>
+          <h2 className="text-2xl font-bold">{t('title')}</h2>
+          <p className="text-muted-foreground mt-2">{t('subtitle')}</p>
         </div>
 
         <form onSubmit={handleVerify} className="flex gap-4 mb-8">
           <Input
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Enter voucher code (e.g. VOUCH-123)"
+            placeholder={t('placeholder')}
             className="text-lg py-6"
           />
           <Button type="submit" size="lg" disabled={loading || !code} className="bg-purple-600 hover:bg-purple-700">
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Verify'}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t('btn_verify')}
           </Button>
         </form>
 
@@ -372,39 +379,39 @@ const VoucherVerifier = () => {
               className="space-y-6"
             >
               <div className={`border-l-4 p-6 rounded-r-xl ${result.is_used
-                  ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-400'
-                  : !result.is_active
-                    ? 'bg-red-50 dark:bg-red-900/10 border-red-500'
-                    : 'bg-green-50 dark:bg-green-900/10 border-green-500'
+                ? 'bg-gray-50 dark:bg-gray-900/50 border-gray-400'
+                : !result.is_active
+                  ? 'bg-red-50 dark:bg-red-900/10 border-red-500'
+                  : 'bg-green-50 dark:bg-green-900/10 border-green-500'
                 }`}>
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="font-bold text-xl">{result.value} {result.currency}</h3>
-                    <p className="text-muted-foreground">Voucher Value</p>
+                    <p className="text-muted-foreground">{t('value')}</p>
                   </div>
                   <Badge className={`text-sm px-3 py-1 ${result.is_used
-                      ? 'bg-gray-200 text-gray-700'
-                      : !result.is_active
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-green-100 text-green-700'
+                    ? 'bg-gray-200 text-gray-700'
+                    : !result.is_active
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-green-100 text-green-700'
                     }`}>
-                    {result.is_used ? 'REDEEMED' : !result.is_active ? 'INACTIVE' : 'VALID'}
+                    {result.is_used ? t('redeemed_status') : !result.is_active ? t('inactive') : t('valid')}
                   </Badge>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Issued To</p>
+                    <p className="text-muted-foreground">{t('issued_to')}</p>
                     <p className="font-medium">{result.customers?.first_name} {result.customers?.last_name}</p>
                     <p className="text-xs text-muted-foreground">{result.customers?.email}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Expires On</p>
+                    <p className="text-muted-foreground">{t('expires_on')}</p>
                     <p className="font-medium">{new Date(result.expires_at).toLocaleDateString()}</p>
                   </div>
                   {result.is_used && (
                     <div className="col-span-2 mt-2 pt-2 border-t border-dashed border-gray-300 dark:border-gray-700">
-                      <p className="text-muted-foreground">Redeemed At</p>
+                      <p className="text-muted-foreground">{t('redeemed_at')}</p>
                       <p className="font-medium">{new Date(result.used_at).toLocaleString()}</p>
                     </div>
                   )}
@@ -418,7 +425,7 @@ const VoucherVerifier = () => {
                   className="w-full py-6 text-lg bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-600/20"
                 >
                   {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CheckCircle2 className="w-5 h-5 mr-2" />}
-                  Redeem Voucher Now
+                  {t('btn_redeem')}
                 </Button>
               )}
             </motion.div>
@@ -479,6 +486,7 @@ const CustomerVoucherCard = ({ customer, onClick }) => (
 );
 
 export default function VoucherManagement() {
+  const t = useTranslations('Admin.Vouchers');
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -578,8 +586,8 @@ export default function VoucherManagement() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Voucher Center</h2>
-            <p className="text-muted-foreground mt-2">Issue and track vouchers for your customers.</p>
+            <h2 className="text-3xl font-bold tracking-tight">{t('title')}</h2>
+            <p className="text-muted-foreground mt-2">{t('subtitle')}</p>
           </div>
 
           <div className="relative w-full md:w-96">
@@ -588,7 +596,7 @@ export default function VoucherManagement() {
             </div>
             <input
               type="text"
-              placeholder="Search customers..."
+              placeholder={t('search_placeholder')}
               value={searchTerm}
               onChange={handleSearch}
               className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all shadow-sm"
@@ -601,11 +609,11 @@ export default function VoucherManagement() {
           <button
             onClick={() => setActiveTab('customers')}
             className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'customers'
-                ? 'text-purple-600 dark:text-purple-400'
-                : 'text-muted-foreground hover:text-foreground'
+              ? 'text-purple-600 dark:text-purple-400'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            Customer Vouchers
+            {t('tabs.customers')}
             {activeTab === 'customers' && (
               <motion.div
                 layoutId="activeTab"
@@ -616,11 +624,11 @@ export default function VoucherManagement() {
           <button
             onClick={() => setActiveTab('verify')}
             className={`pb-4 px-2 text-sm font-medium transition-colors relative ${activeTab === 'verify'
-                ? 'text-purple-600 dark:text-purple-400'
-                : 'text-muted-foreground hover:text-foreground'
+              ? 'text-purple-600 dark:text-purple-400'
+              : 'text-muted-foreground hover:text-foreground'
               }`}
           >
-            Verify & Redeem
+            {t('tabs.verify')}
             {activeTab === 'verify' && (
               <motion.div
                 layoutId="activeTab"
@@ -635,7 +643,7 @@ export default function VoucherManagement() {
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filters.nationality')}</label>
                 <div className="relative">
                   <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <select
@@ -643,7 +651,7 @@ export default function VoucherManagement() {
                     onChange={(e) => setLocationFilter(e.target.value)}
                     className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
                   >
-                    <option value="">All Countries</option>
+                    <option value="">{t('filters.all_countries')}</option>
                     {countries.map((c) => (
                       <option key={c.code} value={c.name}>
                         {c.flag} {c.name}
@@ -655,7 +663,7 @@ export default function VoucherManagement() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Sort By</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filters.sort_by')}</label>
                 <div className="relative">
                   <select
                     value={`${sortField}-${sortDirection}`}
@@ -666,12 +674,12 @@ export default function VoucherManagement() {
                     }}
                     className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 appearance-none transition-all"
                   >
-                    <option value="created_at-desc">Newest First</option>
-                    <option value="created_at-asc">Oldest First</option>
-                    <option value="first_name-asc">Name (A-Z)</option>
-                    <option value="first_name-desc">Name (Z-A)</option>
-                    <option value="country_of_origin-asc">Nationality (A-Z)</option>
-                    <option value="country_of_origin-desc">Nationality (Z-A)</option>
+                    <option value="created_at-desc">{t('filters.newest')}</option>
+                    <option value="created_at-asc">{t('filters.oldest')}</option>
+                    <option value="first_name-asc">{t('filters.name_asc')}</option>
+                    <option value="first_name-desc">{t('filters.name_desc')}</option>
+                    <option value="country_of_origin-asc">{t('filters.nationality_asc')}</option>
+                    <option value="country_of_origin-desc">{t('filters.nationality_desc')}</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
                 </div>
@@ -709,10 +717,10 @@ export default function VoucherManagement() {
                       {loadingMore ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Loading...
+                          {t('loading')}
                         </>
                       ) : (
-                        'Load More Customers'
+                        t('load_more')
                       )}
                     </Button>
                   </div>
@@ -723,8 +731,8 @@ export default function VoucherManagement() {
                 <div className="bg-muted/30 p-6 rounded-full mb-4">
                   <User className="h-10 w-10 opacity-50" />
                 </div>
-                <p className="text-lg font-medium">No customers found</p>
-                <p className="text-sm">Try adjusting your search terms</p>
+                <p className="text-lg font-medium">{t('no_customers')}</p>
+                <p className="text-sm">{t('try_adjusting')}</p>
               </div>
             )}
           </>

@@ -155,7 +155,7 @@
                 "9": {
                     "title": "الشروط والأحكام",
                     "subtitle": "يرجى تأكيد موافقتك على شروطنا",
-                    "accept": "أقبل",
+                    "agree": "أقبل",
                     "link": "الشروط والأحكام"
                 },
                 "10": {
@@ -265,6 +265,102 @@
             "download": "تحميل",
             "no_vouchers": "لا توجد قسائم بعد",
             "start_earning": "ابدأ في كسب النقاط لفتح قسائم حصرية!"
+        }
+    },
+    "Admin": {
+        "Sidebar": {
+            "admins": "المسؤولين",
+            "dashboard": "لوحة التحكم",
+            "analytics": "التحليلات",
+            "customers": "العملاء",
+            "inventory": "المخزون",
+            "offers": "العروض",
+            "reviews": "الآراء",
+            "points": "النقاط",
+            "vouchers": "القسائم",
+            "campaigns": "الحملات",
+            "gallery": "المعرض",
+            "logs": "السجلات",
+            "profile": "الملف الشخصي",
+            "logout": "تسجيل الخروج",
+            "default_user": "مستخدم مسؤول",
+            "mobile_title": "مسؤول بركة"
+        },
+        "Dashboard": {
+            "title": "لوحة التحكم",
+            "welcome": "مرحبًا بعودتك، إليك ما يحدث اليوم.",
+            "total_customers": "إجمالي العملاء",
+            "active_offers": "العروض النشطة",
+            "pending_reviews": "الآراء المعلقة",
+            "issued_vouchers": "القسائم الصادرة",
+            "recent_activity": "النشاط الأخير",
+            "recent_activity_desc": "أحدث الرسائل والإشعارات",
+            "view_all": "عرض الكل",
+            "no_activity": "لا يوجد نشاط حديث للعرض.",
+            "performance": "الأداء",
+            "engagement_rate": "معدل التفاعل",
+            "pro_tip": "نصيحة احترافية",
+            "pro_tip_desc": "قم بتخصيص تخطيط لوحة التحكم الخاصة بك للتركيز على ما يهمك أكثر.",
+            "customize_layout": "تخصيص التخطيط",
+            "checking_auth": "جاري التحقق من الصلاحيات..."
+        },
+        "Vouchers": {
+            "title": "مركز القسائم",
+            "subtitle": "إصدار وتتبع القسائم لعملائك.",
+            "search_placeholder": "البحث عن العملاء...",
+            "tabs": {
+                "customers": "قسائم العملاء",
+                "verify": "التحقق والاسترداد"
+            },
+            "filters": {
+                "nationality": "الجنسية",
+                "all_countries": "جميع البلدان",
+                "sort_by": "ترتيب حسب",
+                "newest": "الأحدث أولاً",
+                "oldest": "الأقدم أولاً",
+                "name_asc": "الاسم (أ-ي)",
+                "name_desc": "الاسم (ي-أ)",
+                "nationality_asc": "الجنسية (أ-ي)",
+                "nationality_desc": "الجنسية (ي-أ)"
+            },
+            "load_more": "تحميل المزيد من العملاء",
+            "loading": "جاري التحميل...",
+            "no_customers": "لم يتم العثور على عملاء",
+            "try_adjusting": "حاول تعديل مصطلحات البحث",
+            "wallet": {
+                "title": "محفظة القسائم",
+                "manage_for": "إدارة القسائم لـ {name}",
+                "available_points": "النقاط المتاحة",
+                "issue_new": "إصدار قسيمة جديدة",
+                "points_to_redeem": "نقاط للاسترداد",
+                "description": "الوصف",
+                "issue_btn": "إصدار القسيمة",
+                "issuing": "جاري الإصدار...",
+                "success": "تم إصدار القسيمة بنجاح!",
+                "failed": "فشل إصدار القسيمة",
+                "active_past": "القسائم النشطة والسابقة",
+                "no_vouchers": "لم يتم إصدار أي قسائم بعد",
+                "code": "الرمز",
+                "value": "القيمة",
+                "cost": "التكلفة",
+                "redeemed": "تم الاسترداد",
+                "active": "نشط",
+                "expired": "منتهية الصلاحية",
+                "exp": "تنتهي:"
+            },
+            "verify": {
+                "title": "التحقق واسترداد القسيمة",
+                "subtitle": "أدخل رمز القسيمة للتحقق من صلاحيتها واستردادها.",
+                "placeholder": "أدخل رمز القسيمة (مثال: VOUCH-123)",
+                "btn_verify": "تحقق",
+                "btn_redeem": "استرداد القسيمة الآن",
+                "valid": "صالح",
+                "inactive": "غير نشط",
+                "redeemed_status": "تم الاسترداد",
+                "issued_to": "صدرت لـ",
+                "expires_on": "تنتهي في",
+                "redeemed_at": "تم الاسترداد في"
+            }
         }
     }
 }

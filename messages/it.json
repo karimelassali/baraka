@@ -266,5 +266,101 @@
             "no_vouchers": "Nessun voucher ancora",
             "start_earning": "Inizia a guadagnare punti per sbloccare voucher esclusivi!"
         }
+    },
+    "Admin": {
+        "Sidebar": {
+            "admins": "Amministratori",
+            "dashboard": "Dashboard",
+            "analytics": "Analisi",
+            "customers": "Clienti",
+            "inventory": "Inventario",
+            "offers": "Offerte",
+            "reviews": "Recensioni",
+            "points": "Punti",
+            "vouchers": "Voucher",
+            "campaigns": "Campagne",
+            "gallery": "Galleria",
+            "logs": "Log",
+            "profile": "Profilo",
+            "logout": "Esci",
+            "default_user": "Utente Admin",
+            "mobile_title": "Baraka Admin"
+        },
+        "Dashboard": {
+            "title": "Dashboard",
+            "welcome": "Bentornato, ecco cosa succede oggi.",
+            "total_customers": "Clienti Totali",
+            "active_offers": "Offerte Attive",
+            "pending_reviews": "Recensioni in Sospeso",
+            "issued_vouchers": "Voucher Emessi",
+            "recent_activity": "Attività Recente",
+            "recent_activity_desc": "Ultimi messaggi e notifiche",
+            "view_all": "Vedi Tutto",
+            "no_activity": "Nessuna attività recente da visualizzare.",
+            "performance": "Prestazioni",
+            "engagement_rate": "Tasso di Coinvolgimento",
+            "pro_tip": "Suggerimento Pro",
+            "pro_tip_desc": "Personalizza il layout della tua dashboard per concentrarti su ciò che conta di più per te.",
+            "customize_layout": "Personalizza Layout",
+            "checking_auth": "Verifica autorizzazione in corso..."
+        },
+        "Vouchers": {
+            "title": "Centro Voucher",
+            "subtitle": "Emetti e traccia i voucher per i tuoi clienti.",
+            "search_placeholder": "Cerca clienti...",
+            "tabs": {
+                "customers": "Voucher Clienti",
+                "verify": "Verifica & Riscatta"
+            },
+            "filters": {
+                "nationality": "Nazionalità",
+                "all_countries": "Tutti i Paesi",
+                "sort_by": "Ordina Per",
+                "newest": "Più Recenti",
+                "oldest": "Più Vecchi",
+                "name_asc": "Nome (A-Z)",
+                "name_desc": "Nome (Z-A)",
+                "nationality_asc": "Nazionalità (A-Z)",
+                "nationality_desc": "Nazionalità (Z-A)"
+            },
+            "load_more": "Carica Altri Clienti",
+            "loading": "Caricamento...",
+            "no_customers": "Nessun cliente trovato",
+            "try_adjusting": "Prova a modificare i termini di ricerca",
+            "wallet": {
+                "title": "Portafoglio Voucher",
+                "manage_for": "Gestisci voucher per {name}",
+                "available_points": "Punti Disponibili",
+                "issue_new": "Emetti Nuovo Voucher",
+                "points_to_redeem": "Punti da Riscattare",
+                "description": "Descrizione",
+                "issue_btn": "Emetti Voucher",
+                "issuing": "Emissione in corso...",
+                "success": "Voucher emesso con successo!",
+                "failed": "Impossibile emettere il voucher",
+                "active_past": "Voucher Attivi & Passati",
+                "no_vouchers": "Nessun voucher emesso ancora",
+                "code": "Codice",
+                "value": "Valore",
+                "cost": "Costo",
+                "redeemed": "Riscattato",
+                "active": "Attivo",
+                "expired": "Scaduto",
+                "exp": "Scad:"
+            },
+            "verify": {
+                "title": "Verifica & Riscatta Voucher",
+                "subtitle": "Inserisci il codice del voucher per verificarne la validità e riscattarlo.",
+                "placeholder": "Inserisci codice voucher (es. VOUCH-123)",
+                "btn_verify": "Verifica",
+                "btn_redeem": "Riscatta Voucher Ora",
+                "valid": "VALIDO",
+                "inactive": "INATTIVO",
+                "redeemed_status": "RISCATTATO",
+                "issued_to": "Emesso A",
+                "expires_on": "Scade Il",
+                "redeemed_at": "Riscattato Il"
+            }
+        }
     }
 }

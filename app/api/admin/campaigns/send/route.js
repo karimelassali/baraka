@@ -15,7 +15,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { message, targetGroup, nationality, pointsThreshold } = await request.json();
+  const { message, targetGroup, nationality, pointsThreshold, selectedCustomerIds } = await request.json();
 
   // Validate message
   if (!message || message.trim().length === 0) {
@@ -32,6 +32,8 @@ export async function POST(request) {
     customersQuery = customersQuery.ilike('country_of_origin', `%${nationality}%`);
   } else if (targetGroup === 'points' && pointsThreshold) {
     customersQuery = customersQuery.gte('total_points', parseInt(pointsThreshold));
+  } else if (targetGroup === 'specific' && selectedCustomerIds && selectedCustomerIds.length > 0) {
+    customersQuery = customersQuery.in('id', selectedCustomerIds);
   }
 
   const { data: customers, error: customersError } = await customersQuery;

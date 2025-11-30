@@ -19,11 +19,16 @@ export async function GET(request) {
     // To make it look like "campaigns", we can select distinct message_content and created_at (truncated to minute) or just show the last 50 messages.
 
     // Let's just fetch the last 50 messages for now.
-    const { data: messages, error } = await supabase
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
+
+    let query = supabase
         .from('whatsapp_messages')
         .select(`
       id,
-      created_at,
+      sent_at,
       message_content,
       status,
       customers (
@@ -32,8 +37,22 @@ export async function GET(request) {
         phone_number
       )
     `)
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .order('sent_at', { ascending: false })
+        .limit(100);
+
+    if (status && status !== 'all') {
+        query = query.eq('status', status);
+    }
+
+    if (startDate) {
+        query = query.gte('sent_at', `${startDate}T00:00:00`);
+    }
+
+    if (endDate) {
+        query = query.lte('sent_at', `${endDate}T23:59:59`);
+    }
+
+    const { data: messages, error } = await query;
 
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

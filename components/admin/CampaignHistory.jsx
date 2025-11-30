@@ -8,24 +8,38 @@ import {
     Clock,
     Search,
     MessageSquare,
-    User
+    User,
+    Filter,
+    Calendar,
+    BarChart3
 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import GlassCard from '../ui/GlassCard';
+import { Button } from '../ui/button';
 
 export default function CampaignHistory() {
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Filters
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [dateRange, setDateRange] = useState({ start: '', end: '' });
+
     useEffect(() => {
         fetchHistory();
-    }, []);
+    }, [statusFilter, dateRange]);
 
     const fetchHistory = async () => {
+        setLoading(true);
         try {
-            const response = await fetch('/api/admin/campaigns/history');
+            let url = '/api/admin/campaigns/history?';
+            if (statusFilter !== 'all') url += `&status=${statusFilter}`;
+            if (dateRange.start) url += `&startDate=${dateRange.start}`;
+            if (dateRange.end) url += `&endDate=${dateRange.end}`;
+
+            const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
                 setMessages(data.messages || []);
@@ -43,33 +57,113 @@ export default function CampaignHistory() {
         msg.customers?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-            </div>
-        );
-    }
+    // Calculate stats
+    const totalSent = messages.length;
+    const successCount = messages.filter(m => m.status === 'sent').length;
+    const failedCount = messages.filter(m => m.status === 'failed').length;
+    const successRate = totalSent > 0 ? Math.round((successCount / totalSent) * 100) : 0;
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Recent Messages</h3>
-                <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search messages..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-9"
-                    />
-                </div>
+        <div className="space-y-6">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <GlassCard className="p-4 flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-blue-500/10 text-blue-500">
+                        <MessageSquare className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Total Messages</p>
+                        <p className="text-2xl font-bold">{totalSent}</p>
+                    </div>
+                </GlassCard>
+
+                <GlassCard className="p-4 flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-green-500/10 text-green-500">
+                        <CheckCircle2 className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Success Rate</p>
+                        <p className="text-2xl font-bold">{successRate}%</p>
+                    </div>
+                </GlassCard>
+
+                <GlassCard className="p-4 flex items-center gap-4">
+                    <div className="p-3 rounded-full bg-red-500/10 text-red-500">
+                        <XCircle className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-muted-foreground">Failed</p>
+                        <p className="text-2xl font-bold">{failedCount}</p>
+                    </div>
+                </GlassCard>
             </div>
 
+            {/* Filters & Search */}
+            <div className="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between bg-muted/20 p-4 rounded-xl border border-white/5">
+                <div className="flex flex-wrap gap-3 items-center flex-1">
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search messages..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 bg-background/50"
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Filter className="h-4 w-4 text-muted-foreground" />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="bg-background/50 border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                            <option value="all">All Status</option>
+                            <option value="sent">Sent</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <input
+                            type="date"
+                            value={dateRange.start}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+                            className="bg-background/50 border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                        <span className="text-muted-foreground">-</span>
+                        <input
+                            type="date"
+                            value={dateRange.end}
+                            onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+                            className="bg-background/50 border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        />
+                    </div>
+                </div>
+
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                        setStatusFilter('all');
+                        setDateRange({ start: '', end: '' });
+                        setSearchTerm('');
+                    }}
+                >
+                    Reset Filters
+                </Button>
+            </div>
+
+            {/* Messages List */}
             <div className="space-y-3">
-                {filteredMessages.length === 0 ? (
+                {loading ? (
+                    <div className="flex justify-center items-center h-64">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                    </div>
+                ) : filteredMessages.length === 0 ? (
                     <div className="text-center py-10 text-muted-foreground">
-                        No messages found
+                        No messages found matching your criteria
                     </div>
                 ) : (
                     filteredMessages.map((msg) => (
@@ -91,7 +185,7 @@ export default function CampaignHistory() {
                                         </Badge>
                                         <span className="text-xs text-muted-foreground flex items-center gap-1">
                                             <Clock className="h-3 w-3" />
-                                            {format(new Date(msg.created_at), 'MMM d, yyyy HH:mm')}
+                                            {format(new Date(msg.sent_at || new Date()), 'MMM d, yyyy HH:mm')}
                                         </span>
                                     </div>
 

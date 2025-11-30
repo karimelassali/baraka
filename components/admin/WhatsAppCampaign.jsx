@@ -17,7 +17,8 @@ import {
   History,
   Plus,
   Smartphone,
-  Sparkles
+  Sparkles,
+  UserCheck
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -26,6 +27,7 @@ import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 import { countries } from '../../lib/constants/countries';
 import CampaignHistory from './CampaignHistory';
+import ClientSelector from './ClientSelector';
 
 export default function WhatsAppCampaign() {
   const searchParams = useSearchParams();
@@ -36,7 +38,8 @@ export default function WhatsAppCampaign() {
     message: '',
     targetGroup: 'all',
     nationality: '',
-    pointsThreshold: 0
+    pointsThreshold: 0,
+    selectedCustomerIds: []
   });
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ type: '', message: '' });
@@ -96,6 +99,9 @@ export default function WhatsAppCampaign() {
     if (formData.targetGroup === 'points' && (!formData.pointsThreshold || formData.pointsThreshold <= 0)) {
       newErrors.pointsThreshold = 'Points threshold must be greater than 0';
     }
+    if (formData.targetGroup === 'specific' && formData.selectedCustomerIds.length === 0) {
+      newErrors.selectedCustomerIds = 'Please select at least one customer';
+    }
     return newErrors;
   };
 
@@ -107,7 +113,20 @@ export default function WhatsAppCampaign() {
     }
   };
 
+  const handleClientSelection = (ids) => {
+    setFormData(prev => ({ ...prev, selectedCustomerIds: ids }));
+    setRecipientCount(ids.length);
+    if (errors.selectedCustomerIds && ids.length > 0) {
+      setErrors(prev => ({ ...prev, selectedCustomerIds: '' }));
+    }
+  };
+
   const loadRecipientPreview = async () => {
+    if (formData.targetGroup === 'specific') {
+      setRecipientCount(formData.selectedCustomerIds.length);
+      return;
+    }
+
     setLoadingPreview(true);
     try {
       const response = await fetch('/api/admin/campaigns/preview', {
@@ -163,7 +182,13 @@ export default function WhatsAppCampaign() {
 
       if (response.ok) {
         setStatus({ type: 'success', message: result.message || 'Campaign sent successfully' });
-        setFormData({ message: '', targetGroup: 'all', nationality: '', pointsThreshold: 0 });
+        setFormData({
+          message: '',
+          targetGroup: 'all',
+          nationality: '',
+          pointsThreshold: 0,
+          selectedCustomerIds: []
+        });
         setRecipientCount(null);
         // Switch to history tab after success after a delay
         setTimeout(() => setActiveTab('history'), 2000);
@@ -184,8 +209,8 @@ export default function WhatsAppCampaign() {
         <button
           onClick={() => setActiveTab('new')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'new'
-              ? 'bg-white shadow-sm text-gray-900'
-              : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
+            ? 'bg-white shadow-sm text-gray-900'
+            : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
             }`}
         >
           <Plus className="h-4 w-4" />
@@ -194,8 +219,8 @@ export default function WhatsAppCampaign() {
         <button
           onClick={() => setActiveTab('history')}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'history'
-              ? 'bg-white shadow-sm text-gray-900'
-              : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
+            ? 'bg-white shadow-sm text-gray-900'
+            : 'text-gray-500 hover:text-gray-900 hover:bg-white/50'
             }`}
         >
           <History className="h-4 w-4" />
@@ -224,8 +249,8 @@ export default function WhatsAppCampaign() {
                 <CardContent className="pt-6">
                   {status.message && (
                     <div className={`mb-6 p-4 rounded-lg flex items-start gap-3 ${status.type === 'success'
-                        ? 'bg-green-50 text-green-800 border border-green-200'
-                        : 'bg-red-50 text-red-800 border border-red-200'
+                      ? 'bg-green-50 text-green-800 border border-green-200'
+                      : 'bg-red-50 text-red-800 border border-red-200'
                       }`}>
                       {status.type === 'success' ? <CheckCircle2 className="h-5 w-5" /> : <AlertCircle className="h-5 w-5" />}
                       <p>{status.message}</p>
@@ -234,21 +259,26 @@ export default function WhatsAppCampaign() {
 
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Target Group Selection */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {[
                         { id: 'all', icon: Users, label: 'All Customers' },
                         { id: 'nationality', icon: Globe, label: 'By Nationality' },
-                        { id: 'points', icon: Award, label: 'By Points' }
+                        { id: 'points', icon: Award, label: 'By Points' },
+                        { id: 'specific', icon: UserCheck, label: 'Select Clients' }
                       ].map((type) => (
                         <div
                           key={type.id}
                           onClick={() => {
                             setFormData(prev => ({ ...prev, targetGroup: type.id }));
-                            setRecipientCount(null);
+                            if (type.id !== 'specific') {
+                              setRecipientCount(null);
+                            } else {
+                              setRecipientCount(formData.selectedCustomerIds.length);
+                            }
                           }}
                           className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${formData.targetGroup === type.id
-                              ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20'
-                              : 'border-transparent bg-muted/30 hover:bg-muted/50'
+                            ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20'
+                            : 'border-transparent bg-muted/30 hover:bg-muted/50'
                             }`}
                         >
                           <type.icon className={`h-6 w-6 mb-2 ${formData.targetGroup === type.id ? 'text-indigo-600' : 'text-muted-foreground'
@@ -284,6 +314,7 @@ export default function WhatsAppCampaign() {
                             </select>
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                           </div>
+                          {errors.nationality && <p className="text-sm text-red-500">{errors.nationality}</p>}
                         </div>
                       )}
 
@@ -298,32 +329,46 @@ export default function WhatsAppCampaign() {
                             className="bg-background"
                             placeholder="e.g. 100"
                           />
+                          {errors.pointsThreshold && <p className="text-sm text-red-500">{errors.pointsThreshold}</p>}
+                        </div>
+                      )}
+
+                      {formData.targetGroup === 'specific' && (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Select Recipients</label>
+                          <ClientSelector
+                            onSelectionChange={handleClientSelection}
+                            selectedIds={formData.selectedCustomerIds}
+                          />
+                          {errors.selectedCustomerIds && <p className="text-sm text-red-500">{errors.selectedCustomerIds}</p>}
                         </div>
                       )}
 
                       {/* Recipient Count */}
-                      <div className="mt-4 flex items-center justify-between pt-4 border-t border-border/50">
-                        <div className="text-sm">
-                          {recipientCount !== null ? (
-                            <span className="text-green-600 font-medium flex items-center gap-2">
-                              <CheckCircle2 className="h-4 w-4" />
-                              {recipientCount} recipients found
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">Estimate recipients before sending</span>
-                          )}
+                      {formData.targetGroup !== 'specific' && (
+                        <div className="mt-4 flex items-center justify-between pt-4 border-t border-border/50">
+                          <div className="text-sm">
+                            {recipientCount !== null ? (
+                              <span className="text-green-600 font-medium flex items-center gap-2">
+                                <CheckCircle2 className="h-4 w-4" />
+                                {recipientCount} recipients found
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">Estimate recipients before sending</span>
+                            )}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={loadRecipientPreview}
+                            disabled={loadingPreview}
+                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                          >
+                            {loadingPreview ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Calculate Audience'}
+                          </Button>
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={loadRecipientPreview}
-                          disabled={loadingPreview}
-                          className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                        >
-                          {loadingPreview ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Calculate Audience'}
-                        </Button>
-                      </div>
+                      )}
                     </div>
 
                     {/* Message Input */}
@@ -436,4 +481,3 @@ export default function WhatsAppCampaign() {
     </div>
   );
 }
-

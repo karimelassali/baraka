@@ -9,8 +9,13 @@ export async function updateSession(request: NextRequest, response?: NextRespons
 
     if (isMaintenanceMode) {
         // Allowed paths during maintenance
+        // We need to handle locale prefixes (e.g. /en/under-construction)
+        const cleanPath = pathname.replace(/^\/(en|it|ar)/, '');
+
         const isAllowedPath =
-            pathname === '/add-client' ||
+            cleanPath === '/add-client' ||
+            cleanPath === '/under-construction' ||
+            pathname === '/add-client' || // Handle root paths just in case
             pathname === '/under-construction' ||
             pathname.startsWith('/api') ||
             pathname.startsWith('/_next') ||
@@ -18,6 +23,9 @@ export async function updateSession(request: NextRequest, response?: NextRespons
             pathname === '/logo.jpeg'; // Allow logo
 
         if (!isAllowedPath) {
+            // Preserve locale if present, otherwise default to /under-construction
+            // But actually, we should just let next-intl handle the locale.
+            // If we redirect to /under-construction, next-intl will add the locale.
             url.pathname = '/under-construction';
             return NextResponse.redirect(url);
         }

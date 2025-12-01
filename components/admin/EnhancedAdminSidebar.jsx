@@ -70,6 +70,7 @@ export default function EnhancedAdminSidebar() {
     { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers' },
     { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_offers' },
     { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_offers' },
+    { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_dashboard' },
     { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_reports' },
   ];
 

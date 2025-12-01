@@ -293,7 +293,8 @@
             "profile": "Profile",
             "logout": "Logout",
             "default_user": "Admin User",
-            "mobile_title": "Baraka Admin"
+            "mobile_title": "Baraka Admin",
+            "revenue": "Revenue"
         },
         "Dashboard": {
             "title": "Dashboard",
@@ -369,6 +370,44 @@
                 "issued_to": "Issued To",
                 "expires_on": "Expires On",
                 "redeemed_at": "Redeemed At"
+            }
+        },
+        "Revenue": {
+            "title": "Daily Revenue",
+            "subtitle": "Manage and track daily revenue entries.",
+            "add_entry": "Add Entry",
+            "edit_entry": "Edit Entry",
+            "export_pdf": "Export PDF",
+            "date": "Date",
+            "total_revenue": "Total Revenue",
+            "cash": "Cash",
+            "card": "Card",
+            "ticket": "Ticket",
+            "total": "Total",
+            "actions": "Actions",
+            "save": "Save",
+            "saving": "Saving...",
+            "cancel": "Cancel",
+            "warning_total_mismatch": "Warning: Total revenue (€{total}) does not match the sum of payment methods (€{sum}).",
+            "monthly_archive": "Monthly Archive",
+            "loading": "Loading...",
+            "no_entries": "No entries found for this month.",
+            "confirm_delete": "Are you sure you want to delete this entry?",
+            "revenue_trend": "Revenue Trend",
+            "payment_split": "Payment Method Split",
+            "months": {
+                "january": "January",
+                "february": "February",
+                "march": "March",
+                "april": "April",
+                "may": "May",
+                "june": "June",
+                "july": "July",
+                "august": "August",
+                "september": "September",
+                "october": "October",
+                "november": "November",
+                "december": "December"
             }
         }
     }

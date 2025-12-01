@@ -284,7 +284,8 @@
             "profile": "Profilo",
             "logout": "Esci",
             "default_user": "Utente Admin",
-            "mobile_title": "Baraka Admin"
+            "mobile_title": "Baraka Admin",
+            "revenue": "Entrate"
         },
         "Dashboard": {
             "title": "Dashboard",
@@ -360,6 +361,44 @@
                 "issued_to": "Emesso A",
                 "expires_on": "Scade Il",
                 "redeemed_at": "Riscattato Il"
+            }
+        },
+        "Revenue": {
+            "title": "Entrate Giornaliere",
+            "subtitle": "Gestisci e traccia le entrate giornaliere.",
+            "add_entry": "Aggiungi Entrata",
+            "edit_entry": "Modifica Entrata",
+            "export_pdf": "Esporta PDF",
+            "date": "Data",
+            "total_revenue": "Entrate Totali",
+            "cash": "Contanti",
+            "card": "Carta",
+            "ticket": "Ticket",
+            "total": "Totale",
+            "actions": "Azioni",
+            "save": "Salva",
+            "saving": "Salvataggio...",
+            "cancel": "Annulla",
+            "warning_total_mismatch": "Attenzione: Le entrate totali (€{total}) non corrispondono alla somma dei metodi di pagamento (€{sum}).",
+            "monthly_archive": "Archivio Mensile",
+            "loading": "Caricamento...",
+            "no_entries": "Nessuna entrata trovata per questo mese.",
+            "confirm_delete": "Sei sicuro di voler eliminare questa entrata?",
+            "revenue_trend": "Andamento Entrate",
+            "payment_split": "Ripartizione Metodi di Pagamento",
+            "months": {
+                "january": "Gennaio",
+                "february": "Febbraio",
+                "march": "Marzo",
+                "april": "Aprile",
+                "may": "Maggio",
+                "june": "Giugno",
+                "july": "Luglio",
+                "august": "Agosto",
+                "september": "Settembre",
+                "october": "Ottobre",
+                "november": "Novembre",
+                "december": "Dicembre"
             }
         }
     }

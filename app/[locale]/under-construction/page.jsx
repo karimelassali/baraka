@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import CountdownTimer from '@/components/CountdownTimer';
 
 export default function UnderConstruction() {
     return (
@@ -10,7 +11,7 @@ export default function UnderConstruction() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
-                className="text-center"
+                className="text-center max-w-4xl w-full"
             >
                 <div className="relative w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden shadow-xl border-4 border-red-600">
                     <Image
@@ -30,8 +31,14 @@ export default function UnderConstruction() {
                     We are currently working hard to bring you an amazing experience. Please check back later.
                 </p>
 
+                {/* Countdown Timer */}
+                <div className="mb-8">
+                    <CountdownTimer targetDate="2026-01-01T00:00:00" />
+                </div>
+
                 <div className="w-16 h-1 bg-red-600 mx-auto rounded-full" />
             </motion.div>
         </div>
     );
 }
+

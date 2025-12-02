@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
+import CountdownTimer from '@/components/CountdownTimer';
 
 export default function AddClientPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -554,22 +555,28 @@ export default function AddClientPage() {
             </AnimatePresence>
 
             {/* Header */}
-            <header className="p-6 flex justify-between items-center border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-md z-50">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 relative rounded-full overflow-hidden border border-red-200">
-                        <Image src="/logo.jpeg" alt="Logo" fill className="object-cover" />
+            <header className="border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-md z-50">
+                <div className="p-6 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 relative rounded-full overflow-hidden border border-red-200">
+                            <Image src="/logo.jpeg" alt="Logo" fill className="object-cover" />
+                        </div>
+                        <span className="font-bold text-xl text-gray-800">Amministratore <span className="text-red-600">Baraka</span></span>
                     </div>
-                    <span className="font-bold text-xl text-gray-800">Amministratore <span className="text-red-600">Baraka</span></span>
+                    <button
+                        onClick={() => {
+                            localStorage.removeItem('add_client_session');
+                            setIsAuthenticated(false);
+                        }}
+                        className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+                    >
+                        Esci
+                    </button>
                 </div>
-                <button
-                    onClick={() => {
-                        localStorage.removeItem('add_client_session');
-                        setIsAuthenticated(false);
-                    }}
-                    className="text-sm text-gray-500 hover:text-red-600 transition-colors"
-                >
-                    Esci
-                </button>
+                {/* Countdown Timer */}
+                <div className="px-4 pb-2 flex justify-center">
+                    <CountdownTimer variant="compact" targetDate="2026-01-01T00:00:00" />
+                </div>
             </header>
 
             <main className="flex-grow flex flex-col items-center p-4 md:p-8 gap-8">

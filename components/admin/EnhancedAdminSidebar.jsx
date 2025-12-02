@@ -22,7 +22,8 @@ import {
   BarChart2,
   ChevronRight,
   ShoppingCart,
-  StickyNote
+  StickyNote,
+  CreditCard
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -71,6 +72,7 @@ export default function EnhancedAdminSidebar() {
     { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_reports', color: 'gray' },
     { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers', color: 'yellow' },
     { name: t('orders'), path: '/admin/order-management', icon: ShoppingCart, permission: 'manage_offers', color: 'emerald' },
+    { name: t('payments'), path: '/admin/payments', icon: CreditCard, permission: 'view_dashboard', color: 'red' },
     { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_users', color: 'teal' },
     { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_dashboard', color: 'lime' },
     { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
@@ -93,6 +95,7 @@ export default function EnhancedAdminSidebar() {
     lime: { bg: 'bg-lime-500', hover: 'hover:bg-lime-50', light: 'bg-lime-50', text: 'text-lime-700', shadow: 'shadow-lime-100' },
     rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-50', light: 'bg-rose-50', text: 'text-rose-700', shadow: 'shadow-rose-100' },
     amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-50', light: 'bg-amber-50', text: 'text-amber-700', shadow: 'shadow-amber-100' },
+    red: { bg: 'bg-red-500', hover: 'hover:bg-red-50', light: 'bg-red-50', text: 'text-red-700', shadow: 'shadow-red-100' },
   };
 
   const filteredNavItems = navItems.filter(item => {

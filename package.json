@@ -46,6 +46,8 @@
     "react-markdown": "^10.1.0",
     "react-ripples": "^2.2.1",
     "recharts": "^3.4.1",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "resend": "^6.4.2",
     "sonner": "^2.0.7",
     "supabase": "^2.58.5",

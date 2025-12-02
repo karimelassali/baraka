@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X, Send, Sparkles, ChevronDown, Loader2, AlertTriangle, Check, Trash2, Edit } from 'lucide-react';
 import { sendMessageToAI } from '@/lib/ai/pollinations';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import { useRouter } from 'next/navigation';
 
 export default function AICopilot() {
@@ -50,7 +52,10 @@ export default function AICopilot() {
 
         try {
             // Prepare context for the API call (excluding the initial greeting)
-            const apiMessages = messages.slice(1).concat(userMessage);
+            // We now send the full history (minus the initial greeting if it was just UI)
+            // Actually, let's send the last 10 messages to keep context small but relevant
+            const history = messages.slice(-10); // Get last 10 messages
+            const apiMessages = [...history, userMessage];
 
             const responseText = await sendMessageToAI(apiMessages);
 
@@ -318,11 +323,30 @@ export default function AICopilot() {
                                                 }`}
                                         >
                                             {msg.role === 'assistant' || msg.role === 'system' ? (
-                                                <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 font-sans">
-                                                    <ReactMarkdown>{msg.content.replace(/\[TOOL:.*?\]/g, '')}</ReactMarkdown>
+                                                <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2 font-sans prose-strong:text-slate-900 prose-ul:list-disc prose-ul:pl-4 prose-ol:list-decimal prose-ol:pl-4">
+                                                    <ReactMarkdown
+                                                        remarkPlugins={[remarkGfm, remarkBreaks]}
+                                                        components={{
+                                                            table: ({ node, ...props }) => <div className="overflow-x-auto my-2"><table className="min-w-full divide-y divide-slate-200 border border-slate-200 text-xs" {...props} /></div>,
+                                                            thead: ({ node, ...props }) => <thead className="bg-slate-50" {...props} />,
+                                                            th: ({ node, ...props }) => <th className="px-2 py-1 text-left text-xs font-medium text-slate-500 uppercase tracking-wider border-b border-slate-200" {...props} />,
+                                                            td: ({ node, ...props }) => <td className="px-2 py-1 whitespace-nowrap text-xs text-slate-700 border-b border-slate-100" {...props} />,
+                                                            code: ({ node, inline, className, children, ...props }) => {
+                                                                return inline ? (
+                                                                    <code className="bg-slate-100 px-1 py-0.5 rounded text-red-600 font-mono text-xs" {...props}>{children}</code>
+                                                                ) : (
+                                                                    <div className="bg-slate-900 text-slate-100 p-2 rounded-lg my-2 overflow-x-auto">
+                                                                        <code className="font-mono text-xs" {...props}>{children}</code>
+                                                                    </div>
+                                                                )
+                                                            }
+                                                        }}
+                                                    >
+                                                        {msg.content.replace(/\[TOOL:.*?\]/g, '')}
+                                                    </ReactMarkdown>
                                                 </div>
                                             ) : (
-                                                <p className="text-sm">{msg.content}</p>
+                                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                                             )}
                                         </div>
                                     </div>

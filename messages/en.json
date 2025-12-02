@@ -296,7 +296,8 @@
             "default_user": "Admin User",
             "mobile_title": "Baraka Admin",
             "revenue": "Revenue",
-            "orders": "Orders"
+            "orders": "Orders",
+            "payments": "Payments"
         },
         "Board": {
             "title": "Admin Board",

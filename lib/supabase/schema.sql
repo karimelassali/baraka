@@ -235,3 +235,43 @@ VALUES
     'Formula used to convert purchase amount to loyalty points'
 )
 ON CONFLICT (setting_key) DO NOTHING;
+
+----------------------------------------------------------
+-- TABLE: Admin Notes (Shared Board)
+----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS admin_notes (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title TEXT,
+    message TEXT NOT NULL,
+    author_id UUID NOT NULL REFERENCES admin_users(id) ON DELETE CASCADE,
+    is_pinned BOOLEAN DEFAULT FALSE,
+    images JSONB DEFAULT '[]'::jsonb,
+    drawing TEXT,
+    links JSONB DEFAULT '[]'::jsonb,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create storage bucket for admin note attachments
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('admin-attachments', 'admin-attachments', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Policy to allow authenticated users to upload to admin-attachments
+CREATE POLICY "Allow authenticated uploads" ON storage.objects
+FOR INSERT TO authenticated
+WITH CHECK (bucket_id = 'admin-attachments');
+
+-- Policy to allow authenticated users to view admin-attachments
+CREATE POLICY "Allow authenticated viewing" ON storage.objects
+FOR SELECT TO authenticated
+USING (bucket_id = 'admin-attachments');
+
+CREATE INDEX IF NOT EXISTS idx_admin_notes_author_id ON admin_notes(author_id);
+CREATE INDEX IF NOT EXISTS idx_admin_notes_is_pinned ON admin_notes(is_pinned);
+CREATE INDEX IF NOT EXISTS idx_admin_notes_created_at ON admin_notes(created_at);
+
+CREATE TRIGGER update_admin_notes_updated_at
+    BEFORE UPDATE ON admin_notes
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();

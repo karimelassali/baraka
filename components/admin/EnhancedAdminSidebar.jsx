@@ -21,7 +21,8 @@ import {
   Shield,
   BarChart2,
   ChevronRight,
-  ShoppingCart
+  ShoppingCart,
+  StickyNote
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -61,6 +62,7 @@ export default function EnhancedAdminSidebar() {
   const navItems = [
     { name: t('admins'), path: '/admin/admins', icon: Shield, permission: 'manage_admins', color: 'purple' },
     { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard', color: 'blue' },
+    { name: t('board'), path: '/admin/board', icon: StickyNote, permission: 'view_dashboard', color: 'yellow' },
     { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_offers', color: 'orange' },
     { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_users', color: 'green' },
     { name: t('dashboard'), path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard', color: 'indigo' },

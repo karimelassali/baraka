@@ -1,8 +1,7 @@
 // components/admin/EnhancedAdminSidebar.jsx
 "use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -21,7 +20,8 @@ import {
   Image as ImageIcon,
   Shield,
   BarChart2,
-  ChevronRight
+  ChevronRight,
+  ShoppingCart
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -64,6 +64,7 @@ export default function EnhancedAdminSidebar() {
     { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard' },
     { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_users' },
     { name: t('inventory'), path: '/admin/inventory', icon: Package, permission: 'manage_offers' },
+    { name: t('orders'), path: '/admin/order-management', icon: ShoppingCart, permission: 'manage_offers' },
     { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers' },
     { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews' },
     { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_users' },

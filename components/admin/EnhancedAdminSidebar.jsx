@@ -59,21 +59,39 @@ export default function EnhancedAdminSidebar() {
   }, []);
 
   const navItems = [
-    { name: t('admins'), path: '/admin/admins', icon: Shield, permission: 'manage_admins' },
-    { name: t('dashboard'), path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard' },
-    { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard' },
-    { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_users' },
-    { name: t('inventory'), path: '/admin/inventory', icon: Package, permission: 'manage_offers' },
-    { name: t('orders'), path: '/admin/order-management', icon: ShoppingCart, permission: 'manage_offers' },
-    { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers' },
-    { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews' },
-    { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_users' },
-    { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers' },
-    { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_offers' },
-    { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_offers' },
-    { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_dashboard' },
-    { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_reports' },
+    { name: t('admins'), path: '/admin/admins', icon: Shield, permission: 'manage_admins', color: 'purple' },
+    { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard', color: 'blue' },
+    { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_offers', color: 'orange' },
+    { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_users', color: 'green' },
+    { name: t('dashboard'), path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard', color: 'indigo' },
+    { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_offers', color: 'pink' },
+    { name: t('inventory'), path: '/admin/inventory', icon: Package, permission: 'manage_offers', color: 'cyan' },
+    { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_reports', color: 'gray' },
+    { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers', color: 'yellow' },
+    { name: t('orders'), path: '/admin/order-management', icon: ShoppingCart, permission: 'manage_offers', color: 'emerald' },
+    { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_users', color: 'teal' },
+    { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_dashboard', color: 'lime' },
+    { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
+    { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers', color: 'amber' },
   ];
+
+  // Color palette for each tab
+  const colorThemes = {
+    purple: { bg: 'bg-purple-500', hover: 'hover:bg-purple-50', light: 'bg-purple-50', text: 'text-purple-700', shadow: 'shadow-purple-100' },
+    blue: { bg: 'bg-blue-500', hover: 'hover:bg-blue-50', light: 'bg-blue-50', text: 'text-blue-700', shadow: 'shadow-blue-100' },
+    orange: { bg: 'bg-orange-500', hover: 'hover:bg-orange-50', light: 'bg-orange-50', text: 'text-orange-700', shadow: 'shadow-orange-100' },
+    green: { bg: 'bg-green-500', hover: 'hover:bg-green-50', light: 'bg-green-50', text: 'text-green-700', shadow: 'shadow-green-100' },
+    indigo: { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-50', light: 'bg-indigo-50', text: 'text-indigo-700', shadow: 'shadow-indigo-100' },
+    pink: { bg: 'bg-pink-500', hover: 'hover:bg-pink-50', light: 'bg-pink-50', text: 'text-pink-700', shadow: 'shadow-pink-100' },
+    cyan: { bg: 'bg-cyan-500', hover: 'hover:bg-cyan-50', light: 'bg-cyan-50', text: 'text-cyan-700', shadow: 'shadow-cyan-100' },
+    gray: { bg: 'bg-gray-500', hover: 'hover:bg-gray-50', light: 'bg-gray-50', text: 'text-gray-700', shadow: 'shadow-gray-100' },
+    yellow: { bg: 'bg-yellow-500', hover: 'hover:bg-yellow-50', light: 'bg-yellow-50', text: 'text-yellow-700', shadow: 'shadow-yellow-100' },
+    emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-50', light: 'bg-emerald-50', text: 'text-emerald-700', shadow: 'shadow-emerald-100' },
+    teal: { bg: 'bg-teal-500', hover: 'hover:bg-teal-50', light: 'bg-teal-50', text: 'text-teal-700', shadow: 'shadow-teal-100' },
+    lime: { bg: 'bg-lime-500', hover: 'hover:bg-lime-50', light: 'bg-lime-50', text: 'text-lime-700', shadow: 'shadow-lime-100' },
+    rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-50', light: 'bg-rose-50', text: 'text-rose-700', shadow: 'shadow-rose-100' },
+    amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-50', light: 'bg-amber-50', text: 'text-amber-700', shadow: 'shadow-amber-100' },
+  };
 
   const filteredNavItems = navItems.filter(item => {
     if (!currentUser) return true;
@@ -107,6 +125,7 @@ export default function EnhancedAdminSidebar() {
           {filteredNavItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = pathname === item.path;
+            const theme = colorThemes[item.color] || colorThemes.gray;
 
             return (
               <motion.li
@@ -121,12 +140,12 @@ export default function EnhancedAdminSidebar() {
                   className={cn(
                     "relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 overflow-hidden group",
                     isActive
-                      ? "text-primary-foreground bg-primary shadow-lg shadow-primary/20"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      ? `${theme.light} ${theme.text} shadow-md ${theme.shadow}`
+                      : `text-muted-foreground ${theme.hover}`
                   )}
                 >
                   <div className="relative z-10 flex items-center w-full">
-                    <Icon className={cn("h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+                    <Icon className={cn("h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110", isActive ? theme.text : "text-muted-foreground")} />
                     <span>{item.name}</span>
                     {isActive && (
                       <ChevronRight className="ml-auto h-4 w-4 opacity-50" />

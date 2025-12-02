@@ -219,7 +219,7 @@ export default function OrderEditor({ orderId }) {
                                 variant="ghost"
                                 size="sm"
                                 onClick={handleAddItem}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                className="text-blue-600 bg-blue-50 hover:text-blue-700 hover:bg-blue-50"
                             >
                                 <Plus size={16} className="mr-1" />
                                 {t('add_item')}

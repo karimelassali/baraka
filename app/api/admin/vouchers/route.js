@@ -38,16 +38,13 @@ export async function POST(request) {
     }
 
     // First, check if the customer has enough points
-    const { data: points, error: pointsError } = await supabase
-      .from('loyalty_points')
-      .select('points')
-      .eq('customer_id', customer_id);
+    const { data: totalPoints, error: pointsError } = await supabase
+      .rpc('get_customer_points_balance', { p_customer_id: customer_id });
 
     if (pointsError) {
       return NextResponse.json({ error: 'Error fetching customer points' }, { status: 500 });
     }
 
-    const totalPoints = points.reduce((sum, point) => sum + (point.points || 0), 0);
     if (totalPoints < points_to_convert) {
       return NextResponse.json({ error: 'Insufficient points for this voucher' }, { status: 400 });
     }

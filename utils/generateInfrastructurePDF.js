@@ -36,59 +36,62 @@ export const generateInfrastructurePDF = async () => {
     doc.setFontSize(10);
     doc.setTextColor(...secondaryColor);
     doc.setFont('helvetica', 'normal');
-    doc.text('Infrastructure & Service Charges', 45, 32);
+    doc.setFontSize(10);
+    doc.setTextColor(...secondaryColor);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Infrastruttura e Costi di Servizio', 45, 32);
 
     // Date
-    const date = new Date().toLocaleDateString('en-US', {
+    const date = new Date().toLocaleDateString('it-IT', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
     });
-    doc.text(`Date: ${date}`, 195, 25, { align: 'right' });
+    doc.text(`Data: ${date}`, 195, 25, { align: 'right' });
 
     // Title
     doc.setFontSize(18);
     doc.setTextColor(0, 0, 0);
     doc.setFont('helvetica', 'bold');
-    doc.text('Infrastructure Cost Breakdown', 15, 55);
+    doc.text('Ripartizione Costi Infrastruttura', 15, 55);
 
     doc.setFontSize(10);
     doc.setTextColor(...secondaryColor);
     doc.setFont('helvetica', 'normal');
-    doc.text('Detailed breakdown of third-party services and maintenance costs.', 15, 62);
+    doc.text('Ripartizione dettagliata dei servizi di terze parti e dei costi di manutenzione.', 15, 62);
 
     // Table Data
     const tableData = [
         [
             'Supabase',
-            'Database & Backend Infrastructure',
-            'High-performance PostgreSQL database, real-time subscriptions, authentication services, and automated backups.',
-            '$25.00 / mo'
+            'Database e Infrastruttura Backend',
+            'Database PostgreSQL ad alte prestazioni, sottoscrizioni in tempo reale, servizi di autenticazione e backup automatici.',
+            '$25.00 / mese'
         ],
         [
             'Vercel',
-            'Global Hosting & CDN',
-            'Premium frontend hosting with global Edge Network, serverless functions, and instant deployments for maximum speed.',
-            '$20.00 / mo'
+            'Hosting Globale e CDN',
+            'Hosting frontend premium con Edge Network globale, funzioni serverless e deploy istantanei per la massima velocità.',
+            '$20.00 / mese'
         ],
         [
             'Twilio',
-            'Multi-channel Messaging (SMS & WhatsApp)',
-            'SMS (Italy): ~$0.0927 per standard SMS (approx. 160 chars). WhatsApp: ~$0.005 Twilio fee + Meta fees per template. Costs depend on volume.',
+            'Messaggistica Multicanale (SMS e WhatsApp)',
+            'SMS (Italia): ~$0.0927 per SMS standard (circa 160 car.). WhatsApp: ~$0.005 tariffa Twilio + tariffe Meta per template. I costi dipendono dal volume.',
             '~$92.70 / 1,000 SMS'
         ],
         [
             'Domain Services (.it)',
-            'DNS & SSL Management',
-            'Annual registration for .it domain. Recommended providers: Dynadot or Cloudflare for best rates.',
-            '~$8.00 / yr'
+            'Gestione DNS e SSL',
+            'Registrazione annuale per dominio .it. Provider consigliati: Dynadot o Cloudflare per le migliori tariffe.',
+            '~$8.00 / anno'
         ]
     ];
 
     // Generate Table
     autoTable(doc, {
         startY: 70,
-        head: [['Service', 'Category', 'Description', 'Estimated Cost']],
+        head: [['Servizio', 'Categoria', 'Descrizione', 'Costo Stimato']],
         body: tableData,
         theme: 'grid',
         headStyles: {
@@ -119,8 +122,8 @@ export const generateInfrastructurePDF = async () => {
     const pageHeight = doc.internal.pageSize.height;
     doc.setFontSize(8);
     doc.setTextColor(...secondaryColor);
-    doc.text('This document outlines the direct infrastructure costs required to operate the platform.', 105, pageHeight - 15, { align: 'center' });
-    doc.text('Prices for third-party services (Supabase, Vercel, Twilio) are subject to their respective pricing policies.', 105, pageHeight - 10, { align: 'center' });
+    doc.text('Questo documento delinea i costi diretti dell\'infrastruttura necessari per operare la piattaforma.', 105, pageHeight - 15, { align: 'center' });
+    doc.text('I prezzi per i servizi di terze parti (Supabase, Vercel, Twilio) sono soggetti alle rispettive politiche di prezzo.', 105, pageHeight - 10, { align: 'center' });
 
     // Save
     doc.save('Baraka_Infrastructure_Costs.pdf');

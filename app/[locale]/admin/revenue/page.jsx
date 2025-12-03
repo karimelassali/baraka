@@ -17,11 +17,13 @@ import { format } from 'date-fns';
 import RevenueEntryForm from '@/components/admin/revenue/RevenueEntryForm';
 import RevenueArchive from '@/components/admin/revenue/RevenueArchive';
 import RevenueStats from '@/components/admin/revenue/RevenueStats';
+import AnulaModal from '@/components/admin/revenue/AnulaModal';
 import { generateRevenuePDF } from '@/lib/reports/generateRevenuePDF';
 
 export default function DailyRevenuePage() {
     const t = useTranslations('Admin.Revenue');
     const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
+    const [isAnulaModalOpen, setIsAnulaModalOpen] = useState(false);
     const [revenueData, setRevenueData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
@@ -66,6 +68,13 @@ export default function DailyRevenuePage() {
                         {t('export_pdf')}
                     </button>
                     <button
+                        onClick={() => setIsAnulaModalOpen(true)}
+                        className="inline-flex items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-indigo-600 text-white hover:bg-indigo-700 h-10 px-4 py-2 gap-2 shadow-lg shadow-indigo-600/20"
+                    >
+                        <TrendingUp className="w-4 h-4" />
+                        Anula
+                    </button>
+                    <button
                         onClick={() => setIsEntryModalOpen(true)}
                         className="inline-flex items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 gap-2 shadow-lg shadow-primary/20"
                     >
@@ -94,6 +103,11 @@ export default function DailyRevenuePage() {
                     setIsEntryModalOpen(false);
                     fetchRevenue();
                 }}
+            />
+
+            <AnulaModal
+                isOpen={isAnulaModalOpen}
+                onClose={() => setIsAnulaModalOpen(false)}
             />
         </div>
     );

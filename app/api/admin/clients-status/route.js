@@ -21,42 +21,26 @@ export async function GET(request) {
             }
         );
 
-        // 1. Fetch paginated customers
+        // 1. Fetch paginated customers from the optimized view
         const { data: customers, count, error: customersError } = await supabaseAdmin
-            .from('customers')
+            .from('admin_customers_extended')
             .select('*', { count: 'exact' })
             .order('created_at', { ascending: false })
             .range(from, to);
 
         if (customersError) throw customersError;
 
-        // 2. Fetch auth details for these specific customers
-        const enrichedCustomers = await Promise.all(customers.map(async (customer) => {
-            try {
-                const { data: { user }, error: userError } = await supabaseAdmin.auth.admin.getUserById(customer.auth_id);
+        // Map the view data to match the expected frontend structure
+        const enrichedCustomers = customers.map(customer => {
+            const isDummyEmail = customer.auth_email?.endsWith('@noemail.baraka');
+            const isVerified = !!customer.email_confirmed_at && !isDummyEmail;
 
-                // If user not found (deleted?), handle gracefully
-                if (userError || !user) {
-                    return {
-                        ...customer,
-                        is_verified: false,
-                        email_confirmed_at: null
-                    };
-                }
-
-                const isDummyEmail = user.email?.endsWith('@noemail.baraka');
-                const isVerified = !!user.email_confirmed_at && !isDummyEmail;
-
-                return {
-                    ...customer,
-                    is_verified: isVerified,
-                    email_confirmed_at: user.email_confirmed_at
-                };
-            } catch (e) {
-                console.error(`Error fetching auth user for ${customer.id}:`, e);
-                return { ...customer, is_verified: false };
-            }
-        }));
+            return {
+                ...customer,
+                is_verified: isVerified,
+                email_confirmed_at: customer.email_confirmed_at
+            };
+        });
 
         return NextResponse.json({
             clients: enrichedCustomers,

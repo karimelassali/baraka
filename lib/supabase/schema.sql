@@ -124,6 +124,29 @@ CREATE INDEX IF NOT EXISTS idx_admin_users_email ON admin_users(email);
 CREATE INDEX IF NOT EXISTS idx_admin_users_auth_id ON admin_users(auth_id);
 
 ----------------------------------------------------------
+-- TABLE: Agent Knowledge
+----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS agent_knowledge (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('general', 'route', 'instruction')),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_agent_knowledge_type ON agent_knowledge(type);
+CREATE INDEX IF NOT EXISTS idx_agent_knowledge_is_active ON agent_knowledge(is_active);
+
+ALTER TABLE agent_knowledge ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Enable read access for authenticated users" ON agent_knowledge FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Enable insert for authenticated users" ON agent_knowledge FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Enable update for authenticated users" ON agent_knowledge FOR UPDATE TO authenticated USING (true);
+CREATE POLICY "Enable delete for authenticated users" ON agent_knowledge FOR DELETE TO authenticated USING (true);
+
+----------------------------------------------------------
 -- TABLE: WhatsApp Messages
 ----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS whatsapp_messages (

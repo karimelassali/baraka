@@ -23,6 +23,13 @@ export async function GET(request) {
             query = query
                 .gte('date', startDate)
                 .lte('date', endDate);
+        } else if (year) {
+            const startDate = `${year}-01-01`;
+            const endDate = `${year}-12-31`;
+
+            query = query
+                .gte('date', startDate)
+                .lte('date', endDate);
         }
 
         const { data, error } = await query;

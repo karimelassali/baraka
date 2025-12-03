@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
+import { it } from 'date-fns/locale';
 import {
     Search,
     Filter,
@@ -119,26 +120,27 @@ export default function PaymentsList({ refreshTrigger }) {
 
         doc.setFontSize(12);
         doc.setTextColor(100);
-        doc.text(t('title'), 14, 35);
-        doc.text(`Generated on: ${format(new Date(), 'PPP')}`, 14, 41);
+        doc.text('Report Pagamenti', 14, 35);
+        doc.text(`Generato il: ${format(new Date(), 'PPP', { locale: it })}`, 14, 41);
 
         const tableColumn = [
-            t('table.due_date'),
-            t('table.recipient'),
-            t('table.amount'),
-            t('table.type'),
-            t('table.status'),
-            t('table.notes')
+            "Data Scadenza",
+            "Destinatario",
+            "Importo",
+            "Tipo",
+            "Stato",
+            "Note"
         ];
         const tableRows = [];
 
         payments.forEach(payment => {
+            const status = payment.status === 'Paid' ? 'Pagato' : 'In Attesa';
             const paymentData = [
-                format(parseISO(payment.due_date), 'MMM d, yyyy'),
+                format(parseISO(payment.due_date), 'd MMM yyyy', { locale: it }),
                 payment.recipient,
                 `€${payment.amount}`,
                 payment.payment_type + (payment.check_number ? ` #${payment.check_number}` : ''),
-                payment.status,
+                status,
                 payment.notes || ''
             ];
             tableRows.push(paymentData);
@@ -158,10 +160,10 @@ export default function PaymentsList({ refreshTrigger }) {
             doc.setPage(i);
             doc.setFontSize(8);
             doc.setTextColor(150);
-            doc.text('Baraka - Internal Document', 14, doc.internal.pageSize.height - 10);
+            doc.text('Baraka - Documento Interno', 14, doc.internal.pageSize.height - 10);
         }
 
-        doc.save(`payments_report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+        doc.save(`report_pagamenti_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
     };
 
     const exportToExcel = () => {

@@ -42,6 +42,7 @@ export default function ThemeManager() {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ theme: themeId }),
+                credentials: 'include',
             });
 
             if (res.ok) {

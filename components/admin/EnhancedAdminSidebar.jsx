@@ -23,7 +23,8 @@ import {
   ChevronRight,
   ShoppingCart,
   StickyNote,
-  CreditCard
+  CreditCard,
+  Brain
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -78,6 +79,7 @@ export default function EnhancedAdminSidebar() {
     { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
     { name: t('settings'), path: '/admin/settings', icon: Settings, permission: 'view_dashboard', color: 'gray' },
     { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers', color: 'amber' },
+    { name: 'Agent Training', path: '/admin/agent-training', icon: Brain, permission: 'manage_settings', color: 'red' },
   ];
 
   // Color palette for each tab

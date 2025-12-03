@@ -1,13 +1,14 @@
 // app/api/admin/customers/route.js
 
 import { createClient } from '../../../../lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request) {
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
-  
+
   // Verify admin access
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -25,7 +26,7 @@ export async function GET(request) {
   if (adminError || !adminData) {
     return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
   }
-  
+
   const { searchParams } = new URL(request.url);
 
   const search = searchParams.get('search');
@@ -37,110 +38,47 @@ export async function GET(request) {
   const sortBy = searchParams.get('sort_by') || 'first_name'; // Default sort by first name
   const sortOrder = searchParams.get('sort_order') || 'asc'; // Default sort ascending
 
-  // First, get the customers
-  let customerQuery = supabase
-    .from('customers')
-    .select(`
-      id,
-      auth_id,
-      first_name,
-      last_name,
-      email,
-      date_of_birth,
-      residence,
-      phone_number,
-      country_of_origin,
-      created_at
-    `)
+  // Initialize Service Role Client for fetching data (bypasses RLS for the View)
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+
+  // Use the optimized view with Admin Client
+  let query = supabaseAdmin
+    .from('admin_customers_extended')
+    .select('*', { count: 'exact' })
     .range(offset, offset + limit - 1)
     .order(sortBy, { ascending: sortOrder === 'asc' });
 
   if (search) {
-    customerQuery = customerQuery.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
+    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
   } else if (name) {
-    customerQuery = customerQuery.or(`first_name.ilike.%${name}%,last_name.ilike.%${name}%`);
+    query = query.or(`first_name.ilike.%${name}%,last_name.ilike.%${name}%`);
   }
   if (country) {
-    customerQuery = customerQuery.ilike('country_of_origin', `%${country}%`);
+    query = query.ilike('country_of_origin', `%${country}%`);
   }
   if (residence) {
-    customerQuery = customerQuery.ilike('residence', `%${residence}%`);
+    query = query.ilike('residence', `%${residence}%`);
   }
 
-  const { data: customers, error: customerError } = await customerQuery;
+  const { data: customers, count, error: customerError } = await query;
 
   if (customerError) {
     console.error('Error fetching customers:', customerError);
     return NextResponse.json({ error: customerError.message }, { status: 500 });
   }
 
-  // For each customer, get their total points and voucher count
-  const customersWithDetails = await Promise.all(
-    customers.map(async (customer) => {
-      // Get total points
-      const { data: points, error: pointsError } = await supabase
-        .from('loyalty_points')
-        .select('points')
-        .eq('customer_id', customer.id);
-
-      let totalPoints = 0;
-      if (!pointsError) {
-        totalPoints = points.reduce((sum, point) => sum + (point.points || 0), 0);
-      }
-
-      // Get voucher count
-      const { count: vouchersCount, error: vouchersError } = await supabase
-        .from('vouchers')
-        .select('id', { count: 'exact', head: true })
-        .eq('customer_id', customer.id);
-
-      let vouchersCountValue = 0;
-      if (!vouchersError) {
-        vouchersCountValue = vouchersCount || 0;
-      }
-
-      // Get user details from auth
-      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(customer.auth_id);
-      
-      console.log('Customer:', customer);
-      console.log('Auth User:', authUser);
-
-      return { 
-        ...customer, 
-        total_points: totalPoints,
-        vouchers_count: vouchersCountValue,
-        email_confirmed: authUser.user?.email_confirmed_at ? true : false,
-      };
-    })
-  );
-
-  // Also get the total count for potential pagination info
-  let countQuery = supabase
-    .from('customers')
-    .select('id', { count: 'exact', head: true });
-
-  if (search) {
-    countQuery = countQuery.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
-  } else if (name) {
-    countQuery = countQuery.or(`first_name.ilike.%${name}%,last_name.ilike.%${name}%`);
-  }
-  if (country) {
-    countQuery = countQuery.ilike('country_of_origin', `%${country}%`);
-  }
-  if (residence) {
-    countQuery = countQuery.ilike('residence', `%${residence}%`);
-  }
-
-  const { count, error: countError } = await countQuery;
-
-  if (countError) {
-    console.error('Error fetching customer count:', countError);
-    return NextResponse.json({ error: countError.message }, { status: 500 });
-  }
-
   return NextResponse.json({
-    customers: customersWithDetails,
-    total: count,
+    customers: customers || [],
+    total: count || 0,
     limit,
     offset
   });

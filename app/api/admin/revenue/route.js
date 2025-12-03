@@ -44,7 +44,7 @@ export async function POST(request) {
         const cookieStore = await cookies();
         const supabase = createClient(cookieStore);
         const body = await request.json();
-        const { date, total_revenue, cash, card, ticket } = body;
+        const { date, total_revenue, cash, card, ticket, revenue_annule } = body;
 
         // Basic validation
         if (!date || total_revenue === undefined) {
@@ -57,7 +57,8 @@ export async function POST(request) {
             total_revenue: total_revenue === '' ? 0 : parseFloat(total_revenue) || 0,
             cash: cash === '' ? 0 : parseFloat(cash) || 0,
             card: card === '' ? 0 : parseFloat(card) || 0,
-            ticket: ticket === '' ? 0 : parseFloat(ticket) || 0
+            ticket: ticket === '' ? 0 : parseFloat(ticket) || 0,
+            revenue_annule: revenue_annule === '' ? 0 : parseFloat(revenue_annule) || 0
         };
 
         const { data, error } = await supabase
@@ -86,7 +87,7 @@ export async function PUT(request) {
         const cookieStore = await cookies();
         const supabase = createClient(cookieStore);
         const body = await request.json();
-        const { id, date, total_revenue, cash, card, ticket } = body;
+        const { id, date, total_revenue, cash, card, ticket, revenue_annule } = body;
 
         if (!id) {
             return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
@@ -98,7 +99,8 @@ export async function PUT(request) {
             total_revenue: total_revenue === '' ? 0 : parseFloat(total_revenue) || 0,
             cash: cash === '' ? 0 : parseFloat(cash) || 0,
             card: card === '' ? 0 : parseFloat(card) || 0,
-            ticket: ticket === '' ? 0 : parseFloat(ticket) || 0
+            ticket: ticket === '' ? 0 : parseFloat(ticket) || 0,
+            revenue_annule: revenue_annule === '' ? 0 : parseFloat(revenue_annule) || 0
         };
 
         const { data, error } = await supabase

@@ -80,22 +80,33 @@ export default function RevenueArchive({
                     {t('monthly_archive')}
                 </h2>
 
-                <div className="flex items-center gap-4 bg-background border border-border rounded-lg p-1">
-                    <button
-                        onClick={handlePrevMonth}
-                        className="p-1 hover:bg-accent text-foreground rounded-md transition-colors"
+                <div className="flex items-center gap-2">
+                    <select
+                        value={selectedYear}
+                        onChange={(e) => setSelectedYear(Number(e.target.value))}
+                        className="h-9 px-2 bg-background border border-border rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <span className="text-sm font-medium min-w-[120px] text-center">
-                        {months[selectedMonth - 1]} {selectedYear}
-                    </span>
-                    <button
-                        onClick={handleNextMonth}
-                        className="p-1 hover:bg-accent text-foreground rounded-md transition-colors"
-                    >
-                        <ChevronRight className="w-5 h-5" />
-                    </button>
+                        {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                            <option key={year} value={year}>{year}</option>
+                        ))}
+                    </select>
+                    <div className="flex items-center gap-2 bg-background border border-border rounded-lg p-1">
+                        <button
+                            onClick={handlePrevMonth}
+                            className="p-1 hover:bg-accent text-foreground rounded-md transition-colors"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <span className="text-sm font-medium min-w-[100px] text-center">
+                            {months[selectedMonth - 1]}
+                        </span>
+                        <button
+                            onClick={handleNextMonth}
+                            className="p-1 hover:bg-accent text-foreground rounded-md transition-colors"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -108,13 +119,14 @@ export default function RevenueArchive({
                             <th className="px-6 py-3 font-medium">{t('cash')}</th>
                             <th className="px-6 py-3 font-medium">{t('card')}</th>
                             <th className="px-6 py-3 font-medium">{t('ticket')}</th>
+                            <th className="px-6 py-3 font-medium text-red-500">Annule</th>
                             <th className="px-6 py-3 font-medium text-right">{t('actions')}</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border/50 bg-card">
                         {isLoading ? (
                             <tr>
-                                <td colSpan="6" className="px-6 py-8 text-center text-muted-foreground">
+                                <td colSpan="7" className="px-6 py-8 text-center text-muted-foreground">
                                     <div className="flex items-center justify-center gap-2">
                                         <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                                         {t('loading')}
@@ -123,7 +135,7 @@ export default function RevenueArchive({
                             </tr>
                         ) : data.length === 0 ? (
                             <tr>
-                                <td colSpan="6" className="px-6 py-8 text-center text-muted-foreground">
+                                <td colSpan="7" className="px-6 py-8 text-center text-muted-foreground">
                                     <div className="flex flex-col items-center gap-2">
                                         <AlertCircle className="w-8 h-8 opacity-20" />
                                         {t('no_entries')}
@@ -152,6 +164,9 @@ export default function RevenueArchive({
                                     </td>
                                     <td className="px-6 py-4 text-muted-foreground">
                                         €{Number(entry.ticket).toFixed(2)}
+                                    </td>
+                                    <td className="px-6 py-4 text-red-500 font-medium">
+                                        €{Number(entry.revenue_annule || 0).toFixed(2)}
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2">

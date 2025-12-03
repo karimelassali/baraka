@@ -76,6 +76,7 @@ export default function EnhancedAdminSidebar() {
     { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_users', color: 'teal' },
     { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_dashboard', color: 'lime' },
     { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
+    { name: t('settings'), path: '/admin/settings', icon: Settings, permission: 'view_dashboard', color: 'gray' },
     { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers', color: 'amber' },
   ];
 

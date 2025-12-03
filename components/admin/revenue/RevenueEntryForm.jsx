@@ -14,7 +14,8 @@ export default function RevenueEntryForm({ isOpen, onClose, onSuccess, initialDa
         total_revenue: '',
         cash: '',
         card: '',
-        ticket: ''
+        ticket: '',
+        revenue_annule: ''
     });
     const [error, setError] = useState(null);
     const [warning, setWarning] = useState(null);
@@ -28,7 +29,8 @@ export default function RevenueEntryForm({ isOpen, onClose, onSuccess, initialDa
                 total_revenue: initialData.total_revenue,
                 cash: initialData.cash,
                 card: initialData.card,
-                ticket: initialData.ticket
+                ticket: initialData.ticket,
+                revenue_annule: initialData.revenue_annule
             });
         } else {
             setFormData({
@@ -36,7 +38,8 @@ export default function RevenueEntryForm({ isOpen, onClose, onSuccess, initialDa
                 total_revenue: '',
                 cash: '',
                 card: '',
-                ticket: ''
+                ticket: '',
+                revenue_annule: ''
             });
         }
         setError(null);
@@ -147,7 +150,7 @@ export default function RevenueEntryForm({ isOpen, onClose, onSuccess, initialDa
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-2 gap-3">
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-muted-foreground">{t('cash')}</label>
                                 <input
@@ -179,6 +182,17 @@ export default function RevenueEntryForm({ isOpen, onClose, onSuccess, initialDa
                                     value={formData.ticket}
                                     onChange={handleChange}
                                     className="w-full px-2 py-2 text-sm rounded-lg border border-input bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-medium text-muted-foreground text-red-500">Annule</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    name="revenue_annule"
+                                    value={formData.revenue_annule}
+                                    onChange={handleChange}
+                                    className="w-full px-2 py-2 text-sm rounded-lg border border-input bg-background focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-red-500"
                                 />
                             </div>
                         </div>

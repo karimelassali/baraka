@@ -16,7 +16,7 @@ import {
     Cell,
     Legend
 } from 'recharts';
-import { TrendingUp, CreditCard, Banknote, Ticket } from 'lucide-react';
+import { TrendingUp, CreditCard, Banknote, Ticket, AlertTriangle } from 'lucide-react';
 
 export default function RevenueStats({ data }) {
     const t = useTranslations('Admin.Revenue');
@@ -25,6 +25,7 @@ export default function RevenueStats({ data }) {
     const totalCash = data.reduce((sum, item) => sum + (Number(item.cash) || 0), 0);
     const totalCard = data.reduce((sum, item) => sum + (Number(item.card) || 0), 0);
     const totalTicket = data.reduce((sum, item) => sum + (Number(item.ticket) || 0), 0);
+    const totalRevenueAnnule = data.reduce((sum, item) => sum + (Number(item.revenue_annule) || 0), 0);
 
     const pieData = [
         { name: t('cash'), value: totalCash, color: '#22c55e' }, // Green
@@ -59,7 +60,7 @@ export default function RevenueStats({ data }) {
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <StatCard
                     title={t('total_revenue')}
                     value={totalRevenue}
@@ -83,6 +84,12 @@ export default function RevenueStats({ data }) {
                     value={totalTicket}
                     icon={Ticket}
                     colorClass="bg-amber-500 text-amber-500"
+                />
+                <StatCard
+                    title="Annule"
+                    value={totalRevenueAnnule}
+                    icon={AlertTriangle}
+                    colorClass="bg-red-500 text-red-500"
                 />
             </div>
 

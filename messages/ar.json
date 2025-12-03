@@ -285,6 +285,7 @@
             "logout": "تسجيل الخروج",
             "default_user": "مستخدم مسؤول",
             "mobile_title": "مسؤول بركة",
+            "payments": "المدفوعات",
             "board": "لوحة الإدارة"
         },
         "Board": {
@@ -399,5 +400,38 @@
                 "redeemed_at": "تم الاسترداد في"
             }
         }
+    },
+    "Payments": {
+        "title": "المدفوعات والشيكات",
+        "subtitle": "تتبع المدفوعات القادمة والشيكات والمواعيد النهائية",
+        "calendar_view": "التقويم",
+        "list_view": "القائمة",
+        "add_payment": "إضافة دفع",
+        "search_placeholder": "بحث عن المستلم...",
+        "status_all": "كل الحالات",
+        "status_pending": "قيد الانتظار",
+        "status_paid": "مدفوع",
+        "export_pdf": "تصدير PDF",
+        "export_excel": "تصدير Excel",
+        "table": {
+            "due_date": "تاريخ الاستحقاق",
+            "recipient": "المستلم",
+            "amount": "المبلغ",
+            "type": "النوع",
+            "status": "الحالة",
+            "notes": "ملاحظات",
+            "actions": "إجراءات",
+            "check_number": "شيك #"
+        },
+        "modal": {
+            "add_title": "إضافة دفع جديد",
+            "details_title": "تفاصيل الدفع",
+            "mark_paid": "تحديد كمدفوع",
+            "delete": "حذف",
+            "save": "حفظ الدفع",
+            "cancel": "إلغاء",
+            "confirm_delete": "هل أنت متأكد من حذف هذا الدفع؟"
+        },
+        "weekly_total": "الإجمالي الأسبوعي"
     }
 }

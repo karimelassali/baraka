@@ -518,5 +518,38 @@
         "note_hint": "Visible only to admin, not on PDF.",
         "delete_order": "Delete Order",
         "delete_confirm": "Delete this order permanently?"
+    },
+    "Payments": {
+        "title": "Payments & Checks",
+        "subtitle": "Track upcoming payments, checks, and deadlines",
+        "calendar_view": "Calendar",
+        "list_view": "List",
+        "add_payment": "Add Payment",
+        "search_placeholder": "Search recipient...",
+        "status_all": "All Status",
+        "status_pending": "Pending",
+        "status_paid": "Paid",
+        "export_pdf": "Export PDF",
+        "export_excel": "Export Excel",
+        "table": {
+            "due_date": "Due Date",
+            "recipient": "Recipient",
+            "amount": "Amount",
+            "type": "Type",
+            "status": "Status",
+            "notes": "Notes",
+            "actions": "Actions",
+            "check_number": "Check #"
+        },
+        "modal": {
+            "add_title": "Add New Payment",
+            "details_title": "Payment Details",
+            "mark_paid": "Mark as Paid",
+            "delete": "Delete",
+            "save": "Save Payment",
+            "cancel": "Cancel",
+            "confirm_delete": "Are you sure you want to delete this payment?"
+        },
+        "weekly_total": "Weekly Total"
     }
 }

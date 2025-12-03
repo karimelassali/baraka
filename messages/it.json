@@ -287,6 +287,7 @@
             "mobile_title": "Baraka Admin",
             "revenue": "Entrate",
             "orders": "Ordini",
+            "payments": "Pagamenti",
             "board": "Bacheca Admin"
         },
         "Board": {
@@ -508,5 +509,38 @@
         "note_hint": "Visibile solo all'admin, non nel PDF.",
         "delete_order": "Elimina Ordine",
         "delete_confirm": "Eliminare definitivamente questo ordine?"
+    },
+    "Payments": {
+        "title": "Pagamenti e Assegni",
+        "subtitle": "Monitora pagamenti imminenti, assegni e scadenze",
+        "calendar_view": "Calendario",
+        "list_view": "Elenco",
+        "add_payment": "Aggiungi Pagamento",
+        "search_placeholder": "Cerca destinatario...",
+        "status_all": "Tutti gli stati",
+        "status_pending": "In sospeso",
+        "status_paid": "Pagato",
+        "export_pdf": "Esporta PDF",
+        "export_excel": "Esporta Excel",
+        "table": {
+            "due_date": "Scadenza",
+            "recipient": "Destinatario",
+            "amount": "Importo",
+            "type": "Tipo",
+            "status": "Stato",
+            "notes": "Note",
+            "actions": "Azioni",
+            "check_number": "Assegno #"
+        },
+        "modal": {
+            "add_title": "Nuovo Pagamento",
+            "details_title": "Dettagli Pagamento",
+            "mark_paid": "Segna come Pagato",
+            "delete": "Elimina",
+            "save": "Salva Pagamento",
+            "cancel": "Annulla",
+            "confirm_delete": "Sei sicuro di voler eliminare questo pagamento?"
+        },
+        "weekly_total": "Totale Settimanale"
     }
 }

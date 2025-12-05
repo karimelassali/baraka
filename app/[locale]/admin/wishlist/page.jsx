@@ -1,7 +1,8 @@
 import AdminWishlistManager from '@/components/admin/AdminWishlistManager';
 import { useTranslations } from 'next-intl';
 
-export default function AdminWishlistPage({ params: { locale } }) {
+export default async function AdminWishlistPage({ params }) {
+    const { locale } = await params;
     const t = useTranslations();
 
     return (

@@ -579,6 +579,56 @@ export default function AddClientPage() {
                 </div>
             </header>
 
+            {/* Maintenance Alert */}
+            <div className="w-full max-w-4xl mx-auto px-4 mt-6">
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-amber-50 border border-amber-200 rounded-2xl p-6 shadow-sm relative overflow-hidden"
+                >
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-amber-100 rounded-full blur-2xl opacity-50"></div>
+
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 relative z-10">
+                        <div className="p-3 bg-amber-100 rounded-xl shrink-0">
+                            <AlertTriangle className="w-6 h-6 text-amber-600" />
+                        </div>
+
+                        <div className="flex-grow">
+                            <h3 className="text-lg font-bold text-gray-900 mb-1">Manutenzione in Corso</h3>
+                            <p className="text-gray-600 text-sm leading-relaxed">
+                                Stiamo risolvendo alcuni problemi e lavorando direttamente sul database.
+                                Per favore, cerca di non effettuare operazioni finché questo messaggio non scomparirà.
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={async () => {
+                                try {
+                                    const res = await fetch('/api/admin/clients-status?limit=1000');
+                                    const data = await res.json();
+                                    const jsonString = JSON.stringify(data.clients, null, 2);
+                                    const blob = new Blob([jsonString], { type: 'application/json' });
+                                    const url = URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.download = `baraka_clients_backup_${new Date().toISOString().split('T')[0]}.json`;
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                } catch (err) {
+                                    console.error('Download failed:', err);
+                                    alert('Impossibile scaricare i dati al momento.');
+                                }
+                            }}
+                            className="whitespace-nowrap px-5 py-2.5 bg-white border border-amber-200 text-amber-700 font-medium rounded-xl hover:bg-amber-50 hover:border-amber-300 transition-all shadow-sm flex items-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
+                            Scarica Dati Clienti (JSON)
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+
             <main className="flex-grow flex flex-col items-center p-4 md:p-8 gap-8">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}

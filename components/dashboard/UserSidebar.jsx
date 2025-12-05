@@ -8,7 +8,8 @@ import {
     Gift,
     Ticket,
     LogOut,
-    ChevronRight
+    ChevronRight,
+    Heart
 } from 'lucide-react';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useRouter } from '@/navigation';
@@ -29,6 +30,7 @@ export default function UserSidebar({
         { id: 'wallet', label: t('wallet'), icon: Wallet },
         { id: 'offers', label: t('offers'), icon: Gift },
         { id: 'vouchers', label: t('vouchers'), icon: Ticket },
+        { id: 'wishlist', label: t('wishlist'), icon: Heart },
     ];
 
     const handleSignOut = async () => {

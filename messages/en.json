@@ -186,6 +186,8 @@
         "wallet": "Loyalty Wallet",
         "offers": "Special Offers",
         "vouchers": "My Vouchers",
+        "wishlist": "Wishlist",
+        "wishlist_desc": "Request products you'd like to see in our store.",
         "sign_out": "Sign Out",
         "overview_desc": "Overview of your account activity and rewards.",
         "profile_desc": "Manage your personal information and preferences.",
@@ -248,7 +250,8 @@
             "residence": "Residence",
             "cancel": "Cancel",
             "save": "Save Changes",
-            "edit": "Edit Profile"
+            "edit": "Edit Profile",
+            "select_country": "Select Country"
         },
         "Offers": {
             "title": "Special Offers",
@@ -289,6 +292,7 @@
             "points": "Points",
             "vouchers": "Vouchers",
             "campaigns": "Campaigns",
+            "wishlist": "Wishlist",
             "gallery": "Gallery",
             "edit_note": "Edit Note",
             "search_placeholder": "Search notes...",
@@ -538,5 +542,24 @@
             "confirm_delete": "Are you sure you want to delete this payment?"
         },
         "weekly_total": "Weekly Total"
+    },
+    "Wishlist": {
+        "Title": "Make a Wish",
+        "Subtitle": "Can't find what you're looking for? Let us know and we'll try to bring it to the store just for you.",
+        "NewRequest": "New Request",
+        "ProductName": "Product Name",
+        "ProductNamePlaceholder": "e.g., Organic Matcha Tea",
+        "Description": "Description (Optional)",
+        "DescriptionPlaceholder": "Any specific details, brand, or preferences...",
+        "Submit": "Send Request",
+        "Sent": "Sent!",
+        "MyRequests": "My Requests",
+        "NoRequests": "No requests yet",
+        "NoRequestsDesc": "Your wishlist is empty. Tell us what you'd like to see in our store!",
+        "Status": {
+            "pending": "Pending",
+            "approved": "Approved",
+            "rejected": "Rejected"
+        }
     }
 }

@@ -183,6 +183,8 @@
         "wallet": "محفظة الولاء",
         "offers": "عروض خاصة",
         "vouchers": "قسائمي",
+        "wishlist": "قائمة الرغبات",
+        "wishlist_desc": "اطلب المنتجات التي تود رؤيتها في متجرنا.",
         "sign_out": "تسجيل الخروج",
         "overview_desc": "نظرة عامة على نشاط حسابك والمكافآت.",
         "profile_desc": "إدارة معلوماتك الشخصية وتفضيلاتك.",
@@ -200,6 +202,8 @@
             "download_statement": "تحميل كشف الحساب",
             "total_balance": "إجمالي الرصيد",
             "gold_member": "عضو ذهبي",
+            "silver_member": "عضو فضي",
+            "bronze_member": "عضو برونزي",
             "available_to_redeem": "متاح للاسترداد",
             "pending_points": "نقاط معلقة",
             "earned_this_month": "تم كسبها هذا الشهر",
@@ -239,7 +243,8 @@
             "residence": "الإقامة",
             "cancel": "إلغاء",
             "save": "حفظ التغييرات",
-            "edit": "تعديل الملف الشخصي"
+            "edit": "تعديل الملف الشخصي",
+            "select_country": "اختر الدولة"
         },
         "Offers": {
             "title": "عروض خاصة",
@@ -279,6 +284,7 @@
             "points": "النقاط",
             "vouchers": "القسائم",
             "campaigns": "الحملات",
+            "wishlist": "قائمة الرغبات",
             "gallery": "المعرض",
             "logs": "السجلات",
             "profile": "الملف الشخصي",
@@ -433,5 +439,24 @@
             "confirm_delete": "هل أنت متأكد من حذف هذا الدفع؟"
         },
         "weekly_total": "الإجمالي الأسبوعي"
+    },
+    "Wishlist": {
+        "Title": "تمنى أمنية",
+        "Subtitle": "لا تجد ما تبحث عنه؟ أخبرنا وسنحاول إحضاره إلى المتجر خصيصًا لك.",
+        "NewRequest": "طلب جديد",
+        "ProductName": "اسم المنتج",
+        "ProductNamePlaceholder": "مثال: شاي ماتشا عضوي",
+        "Description": "الوصف (اختياري)",
+        "DescriptionPlaceholder": "أي تفاصيل محددة، علامة تجارية، أو تفضيلات...",
+        "Submit": "إرسال الطلب",
+        "Sent": "تم الإرسال!",
+        "MyRequests": "طلباتي",
+        "NoRequests": "لا توجد طلبات بعد",
+        "NoRequestsDesc": "قائمة رغباتك فارغة. أخبرنا بما تود رؤيته في متجرنا!",
+        "Status": {
+            "pending": "قيد الانتظار",
+            "approved": "موافق عليه",
+            "rejected": "مرفوض"
+        }
     }
 }

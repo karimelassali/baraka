@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { User, Mail, Phone, Globe, MapPin, Edit3, Check, X, Camera } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
+import { countries } from '@/lib/constants/countries';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -259,14 +260,20 @@ export default function Profile({ compact = false, user }) {
                     <Globe className="w-4 h-4 mr-1.5 text-gray-400" />
                     {t('country')}
                   </label>
-                  <input
+                  <select
                     name="country_of_origin"
-                    type="text"
                     value={formData.country_of_origin || ''}
                     onChange={handleChange}
                     disabled={!editing}
                     className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-red-200 focus:border-red-500 outline-none transition-all duration-200 ${editing ? 'bg-white border-gray-300 shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-600'}`}
-                  />
+                  >
+                    <option value="">{t('select_country')}</option>
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.name}>
+                        {country.flag} {country.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="space-y-2">

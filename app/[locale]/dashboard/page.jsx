@@ -9,13 +9,16 @@ import {
   Wallet,
   Gift,
   Ticket,
-  ChevronRight
+
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 import LoyaltyWallet from '@/components/loyalty/Wallet';
 import Profile from '@/components/dashboard/Profile';
 import Offers from '@/components/dashboard/Offers';
 import Vouchers from '@/components/dashboard/Vouchers';
 import Statistics from '@/components/dashboard/Statistics';
+import WishlistRequest from '@/components/dashboard/WishlistRequest';
 import { useTranslations } from 'next-intl';
 import PopupOffer from '@/components/home/PopupOffer';
 import UserSidebar from '@/components/dashboard/UserSidebar';
@@ -64,6 +67,7 @@ export default function DashboardPage() {
     { id: 'wallet', label: t('wallet'), icon: Wallet },
     { id: 'offers', label: t('offers'), icon: Gift },
     { id: 'vouchers', label: t('vouchers'), icon: Ticket },
+    { id: 'wishlist', label: t('wishlist'), icon: Sparkles },
   ];
 
   // Render the active component based on the selected tab
@@ -115,6 +119,8 @@ export default function DashboardPage() {
         return <Offers user={user} />;
       case 'vouchers':
         return <Vouchers user={user} />;
+      case 'wishlist':
+        return <WishlistRequest user={user} />;
       default:
         return <Profile user={user} />;
     }
@@ -162,6 +168,7 @@ export default function DashboardPage() {
                 {activeTab === 'wallet' && t('wallet_desc')}
                 {activeTab === 'offers' && t('offers_desc')}
                 {activeTab === 'vouchers' && t('vouchers_desc')}
+                {activeTab === 'wishlist' && t('wishlist_desc')}
               </p>
             </div>
 

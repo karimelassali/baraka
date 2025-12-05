@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { it } from 'date-fns/locale';

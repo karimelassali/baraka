@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ArrowLeft, Save, Plus, Trash2, FileText, Check, Loader2, Printer, AlertCircle } from 'lucide-react';
+import ProductSearch from './ProductSearch';
 import { useRouter } from '@/navigation';
 import { getOrder, updateOrder, deleteOrder } from '@/lib/actions/orders';
 import { getSuppliers } from '@/lib/actions/suppliers';
@@ -27,6 +28,9 @@ export default function OrderEditor({ orderId }) {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [items, setItems] = useState([]);
+
+    const pendingUpdates = useRef({});
+    const updateTimeouts = useRef({});
 
     // Form state
     const [supplierId, setSupplierId] = useState('');
@@ -82,32 +86,91 @@ export default function OrderEditor({ orderId }) {
     };
 
     const handleAddItem = async () => {
+        const tempId = `temp-${Date.now()}`;
         const newItem = {
+            id: tempId,
             order_id: orderId,
             product_name: '',
             quantity: 1,
             notes: ''
         };
 
+        // Optimistic add
+        setItems(prev => [...prev, newItem]);
+
         try {
-            const savedItem = await upsertOrderItem(newItem);
-            setItems([...items, savedItem]);
+            // Remove temp id before sending to server
+            const { id, ...itemToSave } = newItem;
+            const savedItem = await upsertOrderItem(itemToSave);
+
+            // Update state with real ID
+            setItems(prev => prev.map(item => {
+                if (item.id === tempId) {
+                    // Preserve any local edits that happened during creation
+                    // We merge savedItem (which has real ID) with the current item from state (which might have user edits)
+                    // But wait, 'item' here is the OLD item from the map iteration.
+                    // We need to be careful. The 'item' in the map is the one currently in state.
+                    // It has the temp ID. It might have updated fields if handleUpdateItem ran.
+                    // So we take the savedItem's ID and created_at, but keep the other fields from 'item'
+                    return { ...item, id: savedItem.id, created_at: savedItem.created_at };
+                }
+                return item;
+            }));
+
+            // Check if there were pending updates for this temp item
+            const pending = pendingUpdates.current[tempId];
+            if (pending) {
+                // If user typed while we were creating, we need to sync those changes now
+                // We use the NEW ID
+                delete pendingUpdates.current[tempId];
+
+                // We can just call upsertOrderItem again. 
+                // Since we are not debouncing this specific call, it goes straight to server.
+                await upsertOrderItem({ id: savedItem.id, order_id: orderId, ...pending });
+            }
+
         } catch (error) {
             console.error('Failed to add item', error);
+            // Revert on error
+            setItems(prev => prev.filter(item => item.id !== tempId));
+            alert(t('failed_add_item'));
         }
     };
 
     const handleUpdateItem = async (id, updates) => {
         // Optimistic update
-        setItems(items.map(item => item.id === id ? { ...item, ...updates } : item));
+        setItems(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
 
-        try {
-            // Debounce could be added here
-            await upsertOrderItem({ id, ...updates });
-        } catch (error) {
-            console.error('Failed to update item', error);
-            // Revert on error?
+        // Merge updates
+        pendingUpdates.current[id] = { ...(pendingUpdates.current[id] || {}), ...updates };
+
+        // If it's a temp ID, don't send to server yet. 
+        // The creation process in handleAddItem will handle syncing once the real ID is available.
+        if (typeof id === 'string' && id.startsWith('temp-')) {
+            return;
         }
+
+        // Clear existing timeout
+        if (updateTimeouts.current[id]) {
+            clearTimeout(updateTimeouts.current[id]);
+        }
+
+        // Set new timeout
+        updateTimeouts.current[id] = setTimeout(async () => {
+            const finalUpdates = pendingUpdates.current[id];
+            // Clean up refs before await to avoid race conditions if new updates come in
+            delete pendingUpdates.current[id];
+            delete updateTimeouts.current[id];
+
+            if (!id) return; // Safety check
+
+            try {
+                // Ensure order_id is passed
+                await upsertOrderItem({ id, order_id: orderId, ...finalUpdates });
+            } catch (error) {
+                console.error('Failed to update item', error);
+            }
+        }, 800);
     };
 
     const handleDeleteItem = async (id) => {
@@ -212,7 +275,7 @@ export default function OrderEditor({ orderId }) {
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* Items Table */}
-                    <GlassCard className="p-0 overflow-hidden border-0 shadow-xl bg-white/50 backdrop-blur-xl">
+                    <GlassCard className="p-0 border-0 shadow-xl bg-white/50 backdrop-blur-xl">
                         <div className="p-6 border-b border-gray-100 bg-white/50 flex justify-between items-center">
                             <h3 className="font-semibold text-lg">{t('items_title')}</h3>
                             <Button
@@ -247,12 +310,9 @@ export default function OrderEditor({ orderId }) {
                                         items.map((item) => (
                                             <TableRow key={item.id} className="group hover:bg-gray-50/50">
                                                 <TableCell className="p-2">
-                                                    <input
-                                                        type="text"
+                                                    <ProductSearch
                                                         value={item.product_name}
-                                                        onChange={(e) => handleUpdateItem(item.id, { product_name: e.target.value })}
-                                                        placeholder="Product name..."
-                                                        className="w-full px-3 py-2 bg-transparent border border-transparent hover:border-gray-200 focus:border-black rounded-md transition-all outline-none font-medium"
+                                                        onChange={(value) => handleUpdateItem(item.id, { product_name: value })}
                                                     />
                                                 </TableCell>
                                                 <TableCell className="p-2">

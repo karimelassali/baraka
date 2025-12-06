@@ -5,19 +5,21 @@ This document provides a comprehensive overview of all features implemented in t
 ## 1. Admin Portal (`/admin`)
 The command center for managing the entire business operations, customer relationships, and platform content.
 
-### 1.1 Dashboard Overview (`/admin`)
-*   **Real-time Statistics**:
-    *   **Stats Cards**: Visual cards displaying key metrics:
-        *   Total Customers (with growth percentage)
-        *   Active Offers
-        *   Pending Reviews (with alert colors)
-        *   Issued Vouchers
-    *   **Performance Widget**: Engagement rate visualization with circular progress indicators.
-*   **Activity Monitoring**:
-    *   **Recent Activity Feed**: Real-time list of latest system events (messages sent, notifications).
-    *   **Notification Center**: Dropdown menu for system alerts and updates.
+### 1.1 Analytics & Dashboard (`/admin/analytics`)
+*   **Comprehensive Dashboard**:
+    *   **Key Metrics**: Real-time stats for Total Clients, Revenue (Est.), Active Offers, and Engagement.
+    *   **Interactive Charts**:
+        *   **Client Growth**: Visual trend of new registrations over time.
+        *   **Voucher Status**: Donut chart showing active vs. redeemed vouchers.
+        *   **Message Activity**: Bar chart tracking WhatsApp campaign performance.
+        *   **Category Distribution**: Pie chart of product inventory distribution.
+    *   **Top Lists**:
+        *   **Top Loyal Customers**: Leaderboard of customers by points balance.
+        *   **Top Countries**: (Planned) Geographic distribution of client base.
 *   **Inventory Intelligence**:
-    *   **Expiration Alerts**: Dedicated widget warning about products nearing expiration.
+    *   **Inventory Alerts**: Dedicated widget highlighting "Low Stock" and "Expiring Soon" items for immediate action.
+*   **Activity Monitoring**:
+    *   **Recent System Activity**: Live feed of system events (messages, updates).
 
 ### 1.2 Customer Management (`/admin/customers`)
 *   **Customer Database**:
@@ -39,8 +41,8 @@ The command center for managing the entire business operations, customer relatio
 *   **Category Management**:
     *   Create, edit, and delete product categories for organization.
 *   **Expiration Management**:
-    *   Track batch expiration dates.
-    *   Automated alerts for low stock or expiring items.
+    *   **Batch Tracking**: Monitor expiration dates for specific batches.
+    *   **Automated Alerts**: Visual warnings for items nearing expiration.
 
 ### 1.4 Marketing & Loyalty
 *   **Offer Management (`/admin/offers`)**:
@@ -67,11 +69,40 @@ The command center for managing the entire business operations, customer relatio
     *   **Gallery Grid**: Visual management of displayed images.
     *   **Delete**: Remove outdated images from the public gallery.
 
-### 1.6 System Administration
+### 1.6 Financial Management (`/admin/revenue`, `/admin/payments`)
+*   **Daily Revenue Tracking**:
+    *   **Entry Management**: Add and edit daily revenue records by payment method (Cash, Card, Ticket).
+    *   **Monthly Archive**: View and manage historical revenue data.
+    *   **PDF Export**: Generate professional PDF reports for daily or monthly revenue.
+*   **Payments & Checks**:
+    *   **Payment Calendar**: Visual calendar view of upcoming payments and check due dates.
+    *   **Status Tracking**: Mark payments as Pending, Paid, or Overdue.
+    *   **Check Management**: Track check numbers and recipients.
+
+### 1.7 Supply Chain Management (`/admin/order-management`)
+*   **Order Management**:
+    *   **Supplier Orders**: Create, edit, and track orders to suppliers.
+    *   **Draft System**: Save orders as drafts before finalizing.
+    *   **PDF Generation**: Auto-generate professional order PDFs to send to suppliers.
+*   **Supplier Database**:
+    *   Manage supplier contact details and history.
+
+### 1.8 Collaboration & Tools
+*   **Admin Board (`/admin/board`)**:
+    *   **Shared Workspace**: A collaborative board for admin notes, reminders, and team announcements.
+    *   **Rich Media**: Support for pinning notes, adding images, and drawings.
+*   **Wishlist Manager (`/admin/wishlist`)**:
+    *   **Customer Requests**: View and manage product requests from customers.
+    *   **Status Workflow**: Approve or reject requests and notify customers.
+
+### 1.9 System Administration
 *   **Admin User Management (`/admin/admins`)**:
-    *   **Role-Based Access**: Create and manage admin accounts.
+    *   **Granular Permissions**: Role-Based Access Control (RBAC) with specific permissions for every module.
     *   **Profile Management**: Admins can update their own credentials and display names.
-    *   **Security**: Secure modal interfaces for creating and editing admin access.
+*   **Agent Training (`/admin/agent-training`)**:
+    *   **AI Knowledge Base**: Interface to feed the platform's AI agent with specific business knowledge and instructions.
+*   **System Logs (`/admin/logs`)**:
+    *   View system-wide activity logs for security and auditing.
 
 ---
 
@@ -84,7 +115,7 @@ A personalized space for customers to interact with the brand and manage their r
 
 ### 2.2 Loyalty Wallet (`/dashboard/wallet`)
 *   **Points Tracker**: Visual display of current loyalty points.
-*   **Transaction History**: (Planned) Record of points earned and spent.
+*   **Transaction History**: Record of points earned and spent.
 
 ### 2.3 Rewards & Offers
 *   **My Vouchers**:
@@ -93,7 +124,11 @@ A personalized space for customers to interact with the brand and manage their r
 *   **Exclusive Offers**:
     *   Browse available promotions tailored to the user.
 
-### 2.4 Profile Settings
+### 2.4 Wishlist (`/dashboard/wishlist`)
+*   **Make a Wish**: Form for customers to request specific products.
+*   **Request Status**: Track the status (Pending, Approved) of their requests.
+
+### 2.5 Profile Settings
 *   **Personal Info**: Update name, email, and phone number.
 *   **Account Security**: Password management.
 
@@ -117,9 +152,12 @@ The storefront of the platform, designed for conversion and information.
     *   **Glassmorphism**: Extensive use of translucent, blurred backgrounds (`GlassCard`) for a modern, premium feel.
     *   **Animations**: `Framer Motion` integration for smooth page transitions, hover effects, and list entry animations.
     *   **Responsive Layouts**: Fully optimized for Mobile, Tablet, and Desktop.
+*   **Internationalization (i18n)**:
+    *   **Multi-language Support**: Fully translated into English, Italian, and Arabic.
+    *   **RTL Support**: Native Right-to-Left layout support for Arabic users.
 *   **Authentication**:
     *   Secure Login/Register flows powered by Supabase Auth.
-    *   Protected routes ensuring only authorized access to Admin/Dashboard areas.
+    *   **Route Guards**: Protected routes ensuring only authorized access to Admin/Dashboard areas based on granular permissions.
 *   **Database**:
-    *   Real-time data synchronization using Supabase.
-    *   Robust schema handling Users, Products, Reviews, Offers, and Transactions.
+    *   Real-time data synchronization using Su pabase.
+    *   Robust schema handling Users, Products, Reviews, Offers, Transactions, and Admin Logs.

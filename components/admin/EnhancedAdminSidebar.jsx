@@ -62,26 +62,46 @@ export default function EnhancedAdminSidebar() {
     fetchUser();
   }, []);
 
-  const navItems = [
-    { name: t('admins'), path: '/admin/admins', icon: Shield, permission: 'manage_admins', color: 'purple' },
-    { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_dashboard', color: 'blue' },
-    { name: t('board'), path: '/admin/board', icon: StickyNote, permission: 'view_dashboard', color: 'yellow' },
-    { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_offers', color: 'orange' },
-    { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_users', color: 'green' },
-    { name: t('dashboard'), path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard', color: 'indigo' },
-    { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_offers', color: 'pink' },
-    { name: t('inventory'), path: '/admin/inventory', icon: Package, permission: 'manage_offers', color: 'cyan' },
-    { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_reports', color: 'gray' },
-    { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers', color: 'yellow' },
-    { name: t('orders'), path: '/admin/order-management', icon: ShoppingCart, permission: 'manage_offers', color: 'emerald' },
-    { name: t('payments'), path: '/admin/payments', icon: CreditCard, permission: 'view_dashboard', color: 'red' },
-    { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_users', color: 'teal' },
-    { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_dashboard', color: 'lime' },
-    { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
-    { name: t('settings'), path: '/admin/settings', icon: Settings, permission: 'view_dashboard', color: 'gray' },
-    { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers', color: 'amber' },
-    { name: t('wishlist'), path: '/admin/wishlist', icon: Heart, permission: 'manage_offers', color: 'purple' },
-    { name: 'Agent Training', path: '/admin/agent-training', icon: Brain, permission: 'manage_settings', color: 'red' },
+  const navCategories = [
+    {
+      title: t('cat_overview'),
+      items: [
+        { name: t('dashboard'), path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard', color: 'indigo' },
+        { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_analytics', color: 'blue' },
+        { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_revenue', color: 'lime' },
+        { name: t('board'), path: '/admin/board', icon: StickyNote, permission: 'view_board', color: 'yellow' },
+      ]
+    },
+    {
+      title: t('cat_users_orders'),
+      items: [
+        { name: t('orders'), path: '/admin/order-management', icon: ShoppingCart, permission: 'manage_orders', color: 'emerald' },
+        { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_customers', color: 'green' },
+        { name: t('payments'), path: '/admin/payments', icon: CreditCard, permission: 'manage_payments', color: 'red' },
+        { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_points', color: 'teal' },
+        { name: t('wishlist'), path: '/admin/wishlist', icon: Heart, permission: 'manage_wishlist', color: 'purple' },
+        { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
+      ]
+    },
+    {
+      title: t('cat_marketing_inventory'),
+      items: [
+        { name: t('inventory'), path: '/admin/inventory', icon: Package, permission: 'manage_inventory', color: 'cyan' },
+        { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers', color: 'yellow' },
+        { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_campaigns', color: 'orange' },
+        { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers', color: 'amber' },
+        { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_gallery', color: 'pink' },
+      ]
+    },
+    {
+      title: t('cat_system_settings'),
+      items: [
+        { name: t('admins'), path: '/admin/admins', icon: Shield, permission: 'manage_admins', color: 'purple' },
+        { name: 'Agent Training', path: '/admin/agent-training', icon: Brain, permission: 'manage_agent_training', color: 'red' },
+        { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_logs', color: 'gray' },
+        { name: t('settings'), path: '/admin/settings', icon: Settings, permission: 'manage_settings', color: 'gray' },
+      ]
+    }
   ];
 
   // Color palette for each tab
@@ -103,12 +123,15 @@ export default function EnhancedAdminSidebar() {
     red: { bg: 'bg-red-500', hover: 'hover:bg-red-50', light: 'bg-red-50', text: 'text-red-700', shadow: 'shadow-red-100' },
   };
 
-  const filteredNavItems = navItems.filter(item => {
-    if (!currentUser) return true;
-    if (currentUser.role === 'super_admin') return true;
-    if (!item.permission) return true;
-    return currentUser.permissions && currentUser.permissions.includes(item.permission);
-  });
+  const filteredCategories = navCategories.map(category => ({
+    ...category,
+    items: category.items.filter(item => {
+      if (!currentUser) return true;
+      if (currentUser.role === 'super_admin') return true;
+      if (!item.permission) return true;
+      return currentUser.permissions && currentUser.permissions.includes(item.permission);
+    })
+  })).filter(category => category.items.length > 0);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -131,41 +154,53 @@ export default function EnhancedAdminSidebar() {
       </div>
 
       <nav className="flex-1 p-4 overflow-y-auto custom-scrollbar">
-        <ul className="space-y-1.5">
-          {filteredNavItems.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.path;
-            const theme = colorThemes[item.color] || colorThemes.gray;
+        <div className="space-y-6">
+          {filteredCategories.map((category, catIndex) => (
+            <div key={catIndex}>
+              <h3 className={cn(
+                "mb-3 px-4 text-xs font-extrabold text-primary uppercase tracking-widest",
+                catIndex !== 0 && "mt-6"
+              )}>
+                {category.title}
+              </h3>
+              <ul className="space-y-1.5">
+                {category.items.map((item, index) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.path;
+                  const theme = colorThemes[item.color] || colorThemes.gray;
 
-            return (
-              <motion.li
-                key={item.path}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.03 }}
-              >
-                <Link
-                  href={item.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={cn(
-                    "relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 overflow-hidden group",
-                    isActive
-                      ? `${theme.light} ${theme.text} shadow-md ${theme.shadow}`
-                      : `text-muted-foreground ${theme.hover}`
-                  )}
-                >
-                  <div className="relative z-10 flex items-center w-full">
-                    <Icon className={cn("h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110", isActive ? theme.text : "text-muted-foreground")} />
-                    <span>{item.name}</span>
-                    {isActive && (
-                      <ChevronRight className="ml-auto h-4 w-4 opacity-50" />
-                    )}
-                  </div>
-                </Link>
-              </motion.li>
-            );
-          })}
-        </ul>
+                  return (
+                    <motion.li
+                      key={item.path}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                    >
+                      <Link
+                        href={item.path}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className={cn(
+                          "relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 overflow-hidden group",
+                          isActive
+                            ? `${theme.light} ${theme.text} shadow-md ${theme.shadow}`
+                            : `text-muted-foreground ${theme.hover}`
+                        )}
+                      >
+                        <div className="relative z-10 flex items-center w-full">
+                          <Icon className={cn("h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110", isActive ? theme.text : "text-muted-foreground")} />
+                          <span>{item.name}</span>
+                          {isActive && (
+                            <ChevronRight className="ml-auto h-4 w-4 opacity-50" />
+                          )}
+                        </div>
+                      </Link>
+                    </motion.li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
       </nav>
 
       <div className="p-4 border-t border-border/50 bg-muted/5">

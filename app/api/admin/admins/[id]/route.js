@@ -90,14 +90,17 @@ export async function PATCH(request, { params }) {
 
     const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
-        .select('role, permissions')
+        .select('id, role, permissions')
         .eq('auth_id', session.user.id)
         .single();
 
     if (adminError || !adminUser) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const hasPermission = adminUser.role === 'super_admin' ||
-        (adminUser.permissions && adminUser.permissions.includes('manage_admins'));
+    const isSuperAdmin = adminUser.role === 'super_admin';
+    const hasManageAdmins = adminUser.permissions && adminUser.permissions.includes('manage_admins');
+    const isSelf = adminUser.id === id;
+
+    const hasPermission = isSuperAdmin || hasManageAdmins || isSelf;
 
     if (!hasPermission) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
@@ -105,12 +108,19 @@ export async function PATCH(request, { params }) {
         const body = await request.json();
         const { role, permissions, fullName, phone } = body;
 
+        // Prevent non-admins from changing role/permissions even for themselves
+        if (!isSuperAdmin && !hasManageAdmins && (role !== undefined || permissions !== undefined)) {
+            return NextResponse.json({ error: 'Forbidden: Cannot change own role or permissions' }, { status: 403 });
+        }
+
         // 2. Update admin_users table
         const updates = {};
         if (role !== undefined) updates.role = role;
         if (permissions !== undefined) updates.permissions = permissions;
         if (fullName !== undefined) updates.full_name = fullName;
-        if (phone !== undefined) updates.phone = phone;
+        if (phone !== undefined) {
+            updates.phone = phone === '' ? null : phone;
+        }
 
         const { data: updatedAdmin, error: updateError } = await supabase
             .from('admin_users')

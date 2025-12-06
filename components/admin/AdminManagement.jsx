@@ -4,12 +4,15 @@ import { Plus, Search, Shield, Trash2, Edit2 } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
 import AdminModal from './AdminModal';
 
+import { createClient } from '@/lib/supabase/client';
+
 export default function AdminManagement() {
     const [admins, setAdmins] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAdmin, setSelectedAdmin] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentUser, setCurrentUser] = useState(null);
 
     const fetchAdmins = async () => {
         try {
@@ -26,7 +29,21 @@ export default function AdminManagement() {
     };
 
     useEffect(() => {
+        const fetchCurrentUser = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: adminData } = await supabase
+                    .from('admin_users')
+                    .select('*')
+                    .eq('auth_id', user.id)
+                    .single();
+                setCurrentUser(adminData);
+            }
+        };
+
         fetchAdmins();
+        fetchCurrentUser();
     }, []);
 
     const handleDelete = async (id) => {
@@ -203,6 +220,7 @@ export default function AdminManagement() {
                 isOpen={isModalOpen}
                 onClose={handleModalClose}
                 admin={selectedAdmin}
+                currentUser={currentUser}
                 onSuccess={handleSuccess}
             />
         </div>

@@ -258,6 +258,10 @@
     "Admin": {
         "Sidebar": {
             "admins": "Amministratori",
+            "cat_overview": "Panoramica",
+            "cat_users_orders": "Utenti & Ordini",
+            "cat_marketing_inventory": "Marketing & Inventario",
+            "cat_system_settings": "Sistema & Impostazioni",
             "dashboard": "Dashboard",
             "analytics": "Analisi",
             "customers": "Clienti",

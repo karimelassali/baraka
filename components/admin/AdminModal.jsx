@@ -34,13 +34,24 @@ const ROLES = [
 ];
 
 const PERMISSIONS = [
-    { id: 'manage_admins', label: 'Admins' },
-    { id: 'manage_users', label: 'Users' },
-    { id: 'manage_offers', label: 'Offers' },
-    { id: 'manage_reviews', label: 'Reviews' },
-    { id: 'manage_vouchers', label: 'Vouchers' },
     { id: 'view_dashboard', label: 'Dashboard' },
-    { id: 'view_reports', label: 'Reports' }
+    { id: 'view_analytics', label: 'Analytics' },
+    { id: 'view_revenue', label: 'Revenue' },
+    { id: 'view_board', label: 'Board' },
+    { id: 'manage_orders', label: 'Orders' },
+    { id: 'manage_customers', label: 'Customers' },
+    { id: 'manage_payments', label: 'Payments' },
+    { id: 'manage_points', label: 'Points' },
+    { id: 'manage_wishlist', label: 'Wishlist' },
+    { id: 'manage_reviews', label: 'Reviews' },
+    { id: 'manage_inventory', label: 'Inventory' },
+    { id: 'manage_offers', label: 'Offers' },
+    { id: 'manage_campaigns', label: 'Campaigns' },
+    { id: 'manage_vouchers', label: 'Vouchers' },
+    { id: 'manage_gallery', label: 'Gallery' },
+    { id: 'manage_admins', label: 'Admins' },   
+    { id: 'view_logs', label: 'Logs' },
+    { id: 'manage_settings', label: 'Settings' }
 ];
 
 export default function AdminModal({
@@ -48,6 +59,7 @@ export default function AdminModal({
     onClose,
     onSuccess,
     admin = null, // If null, create mode; if set, edit mode
+    currentUser = null,
     mode = admin ? 'edit' : 'create'
 }) {
     const [formData, setFormData] = useState({
@@ -62,6 +74,8 @@ export default function AdminModal({
     const [error, setError] = useState(null);
 
     const isEditMode = mode === 'edit' || admin !== null;
+    const canManageAdmins = currentUser?.role === 'super_admin' ||
+        (currentUser?.permissions && currentUser.permissions.includes('manage_admins'));
 
     // Populate form data when admin prop changes (edit mode)
     useEffect(() => {
@@ -92,13 +106,21 @@ export default function AdminModal({
     };
 
     const handleRoleChange = (roleId) => {
+        if (!canManageAdmins) return; // Prevent change if not allowed
+
         let newPermissions = [];
         if (roleId === 'super_admin') {
             newPermissions = PERMISSIONS.map(p => p.id);
         } else if (roleId === 'manager') {
-            newPermissions = ['manage_users', 'manage_offers', 'manage_reviews', 'manage_vouchers', 'view_dashboard'];
+            // Manager gets everything except managing admins and settings
+            newPermissions = PERMISSIONS
+                .filter(p => !['manage_admins', 'manage_settings'].includes(p.id))
+                .map(p => p.id);
         } else if (roleId === 'viewer') {
-            newPermissions = ['view_dashboard', 'view_reports'];
+            // Viewer gets all view_* permissions
+            newPermissions = PERMISSIONS
+                .filter(p => p.id.startsWith('view_'))
+                .map(p => p.id);
         }
 
         setFormData(prev => ({
@@ -109,6 +131,7 @@ export default function AdminModal({
     };
 
     const togglePermission = (permissionId) => {
+        if (!canManageAdmins) return; // Prevent change if not allowed
         if (formData.role !== 'custom') return;
 
         setFormData(prev => {
@@ -128,10 +151,22 @@ export default function AdminModal({
             const url = isEditMode ? `/api/admin/admins/${admin.id}` : '/api/admin/admins';
             const method = isEditMode ? 'PATCH' : 'POST';
 
+            // Filter out role and permissions if user cannot manage admins
+            const payload = { ...formData };
+            if (!canManageAdmins) {
+                delete payload.role;
+                delete payload.permissions;
+            }
+
+            // Handle empty phone
+            if (payload.phone === '') {
+                payload.phone = null;
+            }
+
             const response = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             });
 
             const data = await response.json();
@@ -294,11 +329,18 @@ export default function AdminModal({
                             </div>
 
                             {/* Role Selection */}
-                            <div className="space-y-3">
-                                <label className="block text-sm font-medium text-gray-700">
-                                    <Shield className="inline h-4 w-4 mr-1 text-primary" />
-                                    Role
-                                </label>
+                            <div className={`space-y-3 ${!canManageAdmins ? 'opacity-50 pointer-events-none' : ''}`}>
+                                <div className="flex items-center justify-between">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        <Shield className="inline h-4 w-4 mr-1 text-primary" />
+                                        Role
+                                    </label>
+                                    {!canManageAdmins && (
+                                        <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200">
+                                            Only Super Admins can change roles
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     {ROLES.map((role) => (
                                         <button
@@ -326,7 +368,7 @@ export default function AdminModal({
                             </div>
 
                             {/* Permissions */}
-                            <div className="space-y-3">
+                            <div className={`space-y-3 ${!canManageAdmins ? 'opacity-50 pointer-events-none' : ''}`}>
                                 <div className="flex items-center justify-between">
                                     <label className="text-sm font-medium text-gray-700">
                                         Permissions

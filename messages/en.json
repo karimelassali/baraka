@@ -282,6 +282,10 @@
     "Admin": {
         "Sidebar": {
             "admins": "Admins",
+            "cat_overview": "Overview",
+            "cat_users_orders": "Users & Orders",
+            "cat_marketing_inventory": "Marketing & Inventory",
+            "cat_system_settings": "System & Settings",
             "board": "Admin Board",
             "dashboard": "Dashboard",
             "analytics": "Analytics",

@@ -275,6 +275,10 @@
     "Admin": {
         "Sidebar": {
             "admins": "المسؤولين",
+            "cat_overview": "نظرة عامة",
+            "cat_users_orders": "المستخدمين والطلبات",
+            "cat_marketing_inventory": "التسويق والمخزون",
+            "cat_system_settings": "النظام والإعدادات",
             "dashboard": "لوحة التحكم",
             "analytics": "التحليلات",
             "customers": "العملاء",

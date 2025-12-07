@@ -1,0 +1,150 @@
+import { createClient } from '@/lib/supabase/server';
+import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+
+export async function GET(request) {
+    try {
+        const cookieStore = await cookies();
+        const supabase = createClient(cookieStore);
+        const { searchParams } = new URL(request.url);
+        const status = searchParams.get('status');
+        const page = parseInt(searchParams.get('page')) || 1;
+        const limit = parseInt(searchParams.get('limit')) || 10;
+        const offset = (page - 1) * limit;
+
+        let query = supabase
+            .from('eid_reservations')
+            .select(`
+                *,
+                customers (
+                    first_name,
+                    last_name,
+                    phone_number
+                ),
+                eid_deposits (
+                    amount
+                )
+            `, { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range(offset, offset + limit - 1);
+
+        if (status) {
+            query = query.eq('status', status);
+        }
+
+        const search = searchParams.get('search');
+        if (search) {
+            // Optimized Search: 1. Find matching customers
+            const { data: customers } = await supabase
+                .from('customers')
+                .select('id')
+                .or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,phone_number.ilike.%${search}%`)
+                .limit(50);
+
+            const customerIds = customers?.map(c => c.id) || [];
+
+            // 2. Build query
+            if (customerIds.length > 0) {
+                const isNumber = !isNaN(search);
+                let orQuery = `customer_id.in.(${customerIds.join(',')})`;
+                if (isNumber) orQuery += `,order_number.eq.${search}`;
+
+                query = query.or(orQuery);
+            } else if (!isNaN(search)) {
+                query = query.eq('order_number', search);
+            } else {
+                // No matching customers and not a number -> return empty
+                return NextResponse.json({
+                    data: [],
+                    metadata: { total: 0, page, limit, totalPages: 0 }
+                });
+            }
+        }
+
+        const { data, count, error } = await query;
+
+        if (error) {
+            console.error('Error fetching reservations:', error);
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Calculate total deposits for each reservation
+        const enrichedData = data.map(reservation => {
+            // Precise float calculation
+            const totalDeposit = reservation.eid_deposits?.reduce((sum, deposit) => {
+                return sum + (Number(deposit.amount) || 0);
+            }, 0) || 0;
+
+            return {
+                ...reservation,
+                total_deposit: Number(totalDeposit.toFixed(2))
+            };
+        });
+
+        return NextResponse.json({
+            data: enrichedData,
+            metadata: {
+                total: count,
+                page,
+                limit,
+                totalPages: Math.ceil(count / limit)
+            }
+        });
+    } catch (error) {
+        console.error('Server error:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}
+
+export async function POST(request) {
+    try {
+        const cookieStore = await cookies();
+        const supabase = createClient(cookieStore);
+        const body = await request.json();
+        const { customer_id, animal_type, requested_weight, pickup_time, notes, deposit_amount } = body;
+
+        if (!customer_id || !animal_type || !requested_weight) {
+            return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        // 1. Create Reservation
+        const { data: reservation, error: reservationError } = await supabase
+            .from('eid_reservations')
+            .insert([{
+                customer_id,
+                animal_type,
+                requested_weight,
+                pickup_time,
+                notes,
+                status: 'PENDING'
+            }])
+            .select()
+            .single();
+
+        if (reservationError) {
+            console.error('Error creating reservation:', reservationError);
+            return NextResponse.json({ error: reservationError.message }, { status: 500 });
+        }
+
+        // 2. Add Initial Deposit if provided
+        if (deposit_amount && Number(deposit_amount) > 0) {
+            const { error: depositError } = await supabase
+                .from('eid_deposits')
+                .insert([{
+                    reservation_id: reservation.id,
+                    amount: Number(deposit_amount),
+                    notes: 'Initial deposit'
+                }]);
+
+            if (depositError) {
+                console.error('Error adding initial deposit:', depositError);
+                // We don't fail the whole request, but we should log it.
+            }
+        }
+
+        return NextResponse.json(reservation);
+    } catch (error) {
+        console.error('Server error:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}

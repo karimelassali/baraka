@@ -25,7 +25,8 @@ import {
   StickyNote,
   CreditCard,
   Brain,
-  Heart
+  Heart,
+  ClipboardList
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -81,6 +82,7 @@ export default function EnhancedAdminSidebar() {
         { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_points', color: 'teal' },
         { name: t('wishlist'), path: '/admin/wishlist', icon: Heart, permission: 'manage_wishlist', color: 'purple' },
         { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
+        { name: 'Eid al Adha', path: '/admin/eid', icon: ClipboardList, permission: 'manage_eid', color: 'red' },
       ]
     },
     {

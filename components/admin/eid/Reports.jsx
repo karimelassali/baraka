@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, TrendingUp, Users, Scale, Loader2, PieChart, BarChart } from 'lucide-react';
+import { FileText, Download, TrendingUp, Users, Scale, Loader2, PieChart, BarChart, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,18 +10,22 @@ import { toast } from 'sonner';
 
 export default function Reports() {
     const [stats, setStats] = useState({
-        total_reservations: 0,
+        total_revenue: 0,
         total_sheep: 0,
         total_goats: 0,
         total_cattle: 0,
-        total_revenue: 0,
         total_weight_sold: 0,
         avg_weight: 0
     });
+    const [destinations, setDestinations] = useState([]);
+    const [weightAnalysis, setWeightAnalysis] = useState({ purchased: 0, sold: 0 });
+    const [priceAnalysis, setPriceAnalysis] = useState({ total_price: 0, final_price: 0 });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchStats();
+        fetchDestinations();
+        fetchAnalysis();
     }, []);
 
     const fetchStats = async () => {
@@ -39,103 +43,148 @@ export default function Reports() {
         }
     };
 
-    const handleDownloadReservations = async () => {
-        const toastId = toast.loading('Generazione rapporto...');
+    const fetchDestinations = async () => {
         try {
             const res = await fetch('/api/admin/eid/reservations?limit=1000');
-            const { data } = await res.json();
-
-            const columns = ['Ordine', 'Cliente', 'Telefono', 'Tipo', 'Peso', 'Ritiro', 'Acconto', 'Stato'];
-            const rows = data.map(r => [
-                r.order_number,
-                `${r.customers?.first_name} ${r.customers?.last_name}`,
-                r.customers?.phone_number || '-',
-                r.animal_type,
-                r.requested_weight,
-                r.pickup_time ? new Date(r.pickup_time).toLocaleString() : '-',
-                `${r.total_deposit}€`,
-                r.status
-            ]);
-
-            generateEidPdf({
-                title: 'Rapporto Prenotazioni Completo',
-                columns,
-                data: rows,
-                filename: `eid_prenotazioni_tutte_${new Date().toISOString().split('T')[0]}`,
-                details: {
-                    'Totale': data.length,
-                    'Generato Da': 'Admin'
-                }
-            });
-            toast.success('Rapporto generato', { id: toastId });
-        } catch (e) {
-            console.error(e);
-            toast.error('Errore generazione rapporto', { id: toastId });
-        }
-    };
-
-    const handleDownloadCattleGroups = async () => {
-        const toastId = toast.loading('Generazione rapporto...');
-        try {
-            const res = await fetch('/api/admin/eid/cattle?limit=1000');
-            const { data } = await res.json();
-
-            const columns = ['Gruppo', 'Peso', 'Slot', 'Cliente', 'Telefono', 'Stato'];
-            const rows = [];
-
-            data.forEach(group => {
-                const members = group.eid_cattle_members?.sort((a, b) => a.member_number - b.member_number) || [];
-                members.forEach(member => {
-                    rows.push([
-                        group.group_name,
-                        `${group.cattle_weight || '-'} kg`,
-                        member.member_number,
-                        `${member.customers?.first_name} ${member.customers?.last_name}`,
-                        member.customers?.phone_number || '-',
-                        member.is_paid ? 'PAGATO' : 'IN ATTESA'
-                    ]);
+            if (res.ok) {
+                const { data } = await res.json();
+                const destMap = {};
+                data.forEach(r => {
+                    const dest = r.destination || 'Unknown';
+                    if (!destMap[dest]) {
+                        destMap[dest] = { name: dest, count: 0, weight: 0 };
+                    }
+                    destMap[dest].count += 1;
+                    destMap[dest].weight += Number(r.final_weight || r.requested_weight || 0);
                 });
-            });
-
-            generateEidPdf({
-                title: 'Rapporto Master Gruppi Bovini',
-                columns,
-                data: rows,
-                filename: `eid_gruppi_bovini_master_${new Date().toISOString().split('T')[0]}`,
-                details: {
-                    'Totale Gruppi': data.length,
-                    'Totale Membri': rows.length
-                }
-            });
-            toast.success('Rapporto generato', { id: toastId });
+                setDestinations(Object.values(destMap));
+            }
         } catch (e) {
-            console.error(e);
-            toast.error('Errore generazione rapporto', { id: toastId });
+            console.error("Error fetching destinations", e);
         }
     };
 
-    const handleDownloadFinancial = () => {
-        const columns = ['Metric', 'Value', 'Details'];
+    const fetchAnalysis = async () => {
+        try {
+            // Fetch purchases for weight
+            const resPurchases = await fetch('/api/admin/eid/purchases?limit=1000');
+            const { data: purchases } = await resPurchases.json();
+            const totalPurchasedWeight = purchases.reduce((sum, p) => sum + Number(p.weight || 0), 0);
+
+            // Fetch reservations for sold weight and prices
+            const resReservations = await fetch('/api/admin/eid/reservations?limit=1000');
+            const { data: reservations } = await resReservations.json();
+
+            const totalSoldWeight = reservations.reduce((sum, r) => sum + Number(r.final_weight || 0), 0);
+
+            // Price analysis: Total Price (sum of deposits + remaining?) vs Final Price (actual paid)
+            // "Total Price" usually means the agreed price. "Final Price" is what was actually paid.
+            // If final_price is set, use it. If not, maybe use a calculated total?
+            // Let's assume:
+            // Total Price = Sum of (final_price if set, else (deposit + remaining? no remaining is calc))
+            // Actually, user asked "Total Price vs Final Price".
+            // Let's interpret: 
+            // Total Price = Sum of all `final_price` fields (expected revenue)
+            // Final Price = Sum of `final_price` for PAID reservations (realized revenue) OR
+            // Maybe Total Price = Sum of `final_price` for ALL reservations.
+            // And compare with... maybe "Total Deposit"?
+            // User said: "Total Price vs Final Price".
+            // Let's track:
+            // 1. Sum of `final_price` (Total Value of Orders)
+            // 2. Sum of `total_deposit` (Collected Deposits)
+            // 3. Sum of `final_price` where `is_paid` is true (Collected Revenue)
+
+            const totalOrderValue = reservations.reduce((sum, r) => sum + Number(r.final_price || 0), 0);
+            const totalCollected = reservations.reduce((sum, r) => {
+                if (r.is_paid) return sum + Number(r.final_price || 0);
+                return sum + Number(r.total_deposit || 0);
+            }, 0);
+
+            setWeightAnalysis({ purchased: totalPurchasedWeight, sold: totalSoldWeight });
+            setPriceAnalysis({ total_price: totalOrderValue, final_price: totalCollected });
+
+        } catch (e) {
+            console.error("Error fetching analysis", e);
+        }
+    };
+
+    // ... (rest of PDF handlers)
+
+    const handleDownloadReservations = async () => {
+        try {
+            const res = await fetch('/api/admin/eid/reservations?limit=1000');
+            if (res.ok) {
+                const { data } = await res.json();
+                const columns = ['Order #', 'Customer', 'Type', 'Weight', 'Status', 'Paid'];
+                const rows = data.map(r => [
+                    r.order_number,
+                    `${r.customers?.first_name} ${r.customers?.last_name}`,
+                    r.animal_type,
+                    `${r.requested_weight} kg`,
+                    r.status,
+                    r.is_paid ? 'Yes' : 'No'
+                ]);
+
+                generateEidPdf({
+                    title: 'Lista Prenotazioni',
+                    columns,
+                    data: rows,
+                    filename: `prenotazioni_${new Date().toISOString().split('T')[0]}`,
+                    details: {
+                        'Total Reservations': data.length
+                    }
+                });
+            }
+        } catch (e) {
+            toast.error('Error generating report');
+        }
+    };
+
+    const handleDownloadFinancial = async () => {
+        const columns = ['Metric', 'Value'];
         const data = [
-            ['Total Revenue', `${stats.total_revenue}€`, 'Gross revenue from all sources'],
-            ['Total Sheep Sold', stats.total_sheep, 'Count of sheep reservations'],
-            ['Total Goats Sold', stats.total_goats, 'Count of goat reservations'],
-            ['Total Cattle Groups', stats.total_cattle, 'Active cattle groups'],
-            ['Total Weight Sold', `${stats.total_weight_sold} kg`, 'Cumulative weight of all animals'],
-            ['Average Weight', `${stats.avg_weight} kg`, 'Average weight per animal']
+            ['Total Order Value', `${priceAnalysis.total_price.toFixed(2)}€`],
+            ['Realized Revenue', `${priceAnalysis.final_price.toFixed(2)}€`],
+            ['Outstanding', `${(priceAnalysis.total_price - priceAnalysis.final_price).toFixed(2)}€`]
         ];
 
         generateEidPdf({
-            title: 'Eid Financial Summary',
+            title: 'Rapporto Finanziario',
             columns,
             data,
-            filename: `eid_financial_report_${new Date().toISOString().split('T')[0]}`,
+            filename: `finanziario_${new Date().toISOString().split('T')[0]}`,
             details: {
-                'Report Date': new Date().toLocaleDateString(),
-                'Currency': 'EUR'
+                'Generated': new Date().toLocaleDateString()
             }
         });
-        toast.success('Financial report generated');
+    };
+
+    const handleDownloadCattleGroups = async () => {
+        try {
+            const res = await fetch('/api/admin/eid/cattle?limit=1000');
+            if (res.ok) {
+                const { data } = await res.json();
+                const columns = ['Group', 'Weight', 'Status', 'Members'];
+                const rows = data.map(g => [
+                    g.group_name,
+                    `${g.cattle_weight} kg`,
+                    g.status,
+                    g.eid_cattle_members?.length || 0
+                ]);
+
+                generateEidPdf({
+                    title: 'Rapporto Gruppi Bovini',
+                    columns,
+                    data: rows,
+                    filename: `gruppi_bovini_${new Date().toISOString().split('T')[0]}`,
+                    details: {
+                        'Total Groups': data.length
+                    }
+                });
+            }
+        } catch (e) {
+            toast.error('Error generating report');
+        }
     };
 
     if (loading) {
@@ -200,6 +249,105 @@ export default function Reports() {
                     </div>
                 </GlassCard>
             </div>
+
+            {/* Analysis Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Weight Analysis */}
+                <Card className="shadow-md">
+                    <CardHeader>
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                            <Scale className="h-5 w-5 text-amber-600" />
+                            Weight Analysis
+                        </CardTitle>
+                        <CardDescription>Purchased vs Sold Weight</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center p-3 bg-amber-50 rounded-lg">
+                                <span className="text-sm font-medium text-amber-900">Total Purchased</span>
+                                <span className="text-lg font-bold text-amber-700">{weightAnalysis.purchased} kg</span>
+                            </div>
+                            <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span className="text-sm font-medium text-green-900">Total Sold (Final)</span>
+                                <span className="text-lg font-bold text-green-700">{weightAnalysis.sold} kg</span>
+                            </div>
+                            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-900">Difference</span>
+                                <span className={`text-lg font-bold ${weightAnalysis.purchased - weightAnalysis.sold > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                    {(weightAnalysis.purchased - weightAnalysis.sold).toFixed(2)} kg
+                                </span>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Price Analysis */}
+                <Card className="shadow-md">
+                    <CardHeader>
+                        <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5 text-green-600" />
+                            Financial Analysis
+                        </CardTitle>
+                        <CardDescription>Total Order Value vs Realized Revenue</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                                <span className="text-sm font-medium text-blue-900">Total Order Value</span>
+                                <span className="text-lg font-bold text-blue-700">{priceAnalysis.total_price.toFixed(2)}€</span>
+                            </div>
+                            <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span className="text-sm font-medium text-green-900">Realized Revenue</span>
+                                <span className="text-lg font-bold text-green-700">{priceAnalysis.final_price.toFixed(2)}€</span>
+                            </div>
+                            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-900">Outstanding</span>
+                                <span className="text-lg font-bold text-red-600">
+                                    {(priceAnalysis.total_price - priceAnalysis.final_price).toFixed(2)}€
+                                </span>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Destinations Section */}
+            <Card className="shadow-md border-t-4 border-t-purple-500">
+                <CardHeader>
+                    <CardTitle className="text-xl text-purple-900 flex items-center gap-2">
+                        <Truck className="h-5 w-5" />
+                        Destinations Report
+                    </CardTitle>
+                    <CardDescription>Order quantity and total weight per destination (Internal Use Only)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm text-left">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3">Destination</th>
+                                    <th className="px-6 py-3">Orders Count</th>
+                                    <th className="px-6 py-3">Total Weight (kg)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {destinations.map((dest, index) => (
+                                    <tr key={index} className="bg-white border-b hover:bg-gray-50">
+                                        <td className="px-6 py-4 font-medium text-gray-900">{dest.name}</td>
+                                        <td className="px-6 py-4">{dest.count}</td>
+                                        <td className="px-6 py-4">{dest.weight}</td>
+                                    </tr>
+                                ))}
+                                {destinations.length === 0 && (
+                                    <tr>
+                                        <td colSpan="3" className="px-6 py-4 text-center text-muted-foreground">No destination data available</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Reports Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

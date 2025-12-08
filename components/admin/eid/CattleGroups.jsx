@@ -17,9 +17,10 @@ export default function CattleGroups() {
     const [newGroupName, setNewGroupName] = useState('');
     const [newGroupWeight, setNewGroupWeight] = useState('');
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [cleanView, setCleanView] = useState(false);
+    const currentYear = new Date().getFullYear();
 
-    // Pagination State
+    const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(10);
@@ -118,7 +119,6 @@ export default function CattleGroups() {
         }
     };
 
-    // Helper for random pastel colors based on string
     const getGroupColor = (str) => {
         const colors = [
             'bg-gradient-to-r from-red-50 to-red-100 border-red-200 text-red-900',
@@ -141,8 +141,6 @@ export default function CattleGroups() {
 
     const handleDownloadPdf = () => {
         const columns = ['Slot', 'Customer', 'Phone', 'Status'];
-
-        // Prepare data for multi-table PDF (one table per group)
         const multiData = groups.map(group => {
             const members = group.eid_cattle_members?.sort((a, b) => a.member_number - b.member_number) || [];
             const rows = members.map(member => [
@@ -206,30 +204,45 @@ export default function CattleGroups() {
         )
     );
 
-    const currentYear = new Date().getFullYear();
-
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <h2 className="text-xl font-semibold text-red-700">Cattle Groups (Bovino) {currentYear}</h2>
-                <div className="flex gap-2 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search groups or members..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9"
+                <div className="flex gap-2 w-full md:w-auto items-center">
+                    <div className="flex items-center space-x-2 mr-4">
+                        <input
+                            type="checkbox"
+                            id="cleanView"
+                            checked={cleanView}
+                            onChange={(e) => setCleanView(e.target.checked)}
+                            className="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300"
                         />
+                        <label htmlFor="cleanView" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                            Just them - Nothing else
+                        </label>
                     </div>
-                    <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
-                        <Download className="w-4 h-4 mr-2" />
-                        All Groups PDF
-                    </Button>
-                    <Button onClick={() => setIsCreateModalOpen(true)} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
-                        <Plus className="w-4 h-4 mr-2" />
-                        New Group
-                    </Button>
+
+                    {!cleanView && (
+                        <>
+                            <div className="relative flex-1 md:w-64">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search groups or members..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="pl-9"
+                                />
+                            </div>
+                            <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
+                                <Download className="w-4 h-4 mr-2" />
+                                All Groups PDF
+                            </Button>
+                            <Button onClick={() => setIsCreateModalOpen(true)} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
+                                <Plus className="w-4 h-4 mr-2" />
+                                New Group
+                            </Button>
+                        </>
+                    )}
                 </div>
             </div>
 
@@ -239,7 +252,7 @@ export default function CattleGroups() {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className={`grid grid-cols-1 ${cleanView ? 'md:grid-cols-2 lg:grid-cols-3' : 'lg:grid-cols-2'} gap-6`}>
                         {filteredGroups.map((group) => {
                             // Determine slots: at least 7, or more if there are more members
                             const maxMemberNum = group.eid_cattle_members?.reduce((max, m) => Math.max(max, m.member_number), 0) || 0;
@@ -247,9 +260,6 @@ export default function CattleGroups() {
                             const slots = Array.from({ length: totalSlots }, (_, i) => i + 1);
 
                             const headerStyle = getGroupColor(group.group_name);
-                            // Extract border color for the card top border
-                            const borderColorClass = headerStyle.split(' ').find(c => c.startsWith('border-')) || 'border-red-200';
-                            const borderTopClass = borderColorClass.replace('border-', 'border-t-').replace('200', '500');
 
                             return (
                                 <Card key={group.id} className={`shadow-lg hover:shadow-xl transition-all duration-300 border-0 overflow-hidden ring-1 ring-black/5`}>
@@ -257,25 +267,37 @@ export default function CattleGroups() {
                                         <div>
                                             <h3 className="text-lg font-bold flex items-center gap-2">
                                                 {group.group_name}
-                                                <Badge variant={group.status === 'PAID' ? 'success' : 'secondary'} className={`text-xs font-normal ${group.status === 'PAID' ? 'bg-green-500/20 text-green-900' : 'bg-white/30 text-inherit'}`}>
-                                                    {group.status}
-                                                </Badge>
+                                                {!cleanView && (
+                                                    <Badge variant={group.status === 'PAID' ? 'success' : 'secondary'} className={`text-xs font-normal ${group.status === 'PAID' ? 'bg-green-500/20 text-green-900' : 'bg-white/30 text-inherit'}`}>
+                                                        {group.status}
+                                                    </Badge>
+                                                )}
                                             </h3>
-                                            <p className="text-xs opacity-80 font-medium mt-0.5">Weight: {group.cattle_weight || '-'} kg</p>
+                                            {!cleanView && <p className="text-xs opacity-80 font-medium mt-0.5">Weight: {group.cattle_weight || '-'} kg</p>}
                                         </div>
-                                        <div className="flex gap-1">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleDownloadGroupPdf(group)} title="Download Group PDF">
-                                                <Download className="w-4 h-4" />
-                                            </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleDeleteGroup(group.id)}>
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
+                                        {!cleanView && (
+                                            <div className="flex gap-1">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleDownloadGroupPdf(group)} title="Download Group PDF">
+                                                    <Download className="w-4 h-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleDeleteGroup(group.id)}>
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                     <CardContent className="p-0 bg-white">
                                         <div className="divide-y divide-gray-100">
                                             {slots.map((slot) => {
                                                 const member = group.eid_cattle_members?.find(m => m.member_number === slot);
+
+                                                // In clean view, hide empty slots if desired, OR just show minimal info
+                                                // User said "Just them - Nothing else", implying only filled slots or minimal UI
+                                                // Let's hide empty slots in clean view to make it compact? 
+                                                // Or keep structure but remove buttons/search?
+                                                // "Just them" implies showing the people.
+                                                if (cleanView && !member) return null;
+
                                                 return (
                                                     <div key={slot} className={`p-3 flex items-center justify-between transition-colors ${member?.is_paid ? 'bg-green-50/30' : 'hover:bg-gray-50'}`}>
                                                         <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -287,21 +309,25 @@ export default function CattleGroups() {
                                                                     <div className="font-semibold text-sm text-gray-900 truncate">
                                                                         {member.customers?.first_name} {member.customers?.last_name}
                                                                     </div>
-                                                                    <div className="text-xs text-gray-500 truncate">
-                                                                        {member.customers?.phone_number}
-                                                                    </div>
+                                                                    {!cleanView && (
+                                                                        <div className="text-xs text-gray-500 truncate">
+                                                                            {member.customers?.phone_number}
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             ) : (
-                                                                <div className="flex-1 relative z-10">
-                                                                    <CustomerSearch
-                                                                        onSelect={(c) => c && handleAddMember(group.id, c, slot)}
-                                                                        selectedCustomer={null}
-                                                                    />
-                                                                </div>
+                                                                !cleanView && (
+                                                                    <div className="flex-1 relative z-10">
+                                                                        <CustomerSearch
+                                                                            onSelect={(c) => c && handleAddMember(group.id, c, slot)}
+                                                                            selectedCustomer={null}
+                                                                        />
+                                                                    </div>
+                                                                )
                                                             )}
                                                         </div>
 
-                                                        {member && (
+                                                        {member && !cleanView && (
                                                             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                                                                 <Badge variant="outline" className={member.is_paid ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}>
                                                                     {member.is_paid ? 'PAID' : 'PENDING'}
@@ -315,52 +341,54 @@ export default function CattleGroups() {
                                                 );
                                             })}
                                         </div>
-                                        {/* Add Slot Button */}
-                                        <div className="p-2 bg-gray-50/50 text-center border-t border-gray-100">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 w-full font-medium"
-                                                onClick={() => {
-                                                    toast.info("Simply add a member to the last slot and a new one will appear automatically!");
-                                                }}
-                                            >
-                                                <Plus className="w-4 h-4 mr-2" />
-                                                Add Another Slot
-                                            </Button>
-                                        </div>
+                                        {!cleanView && (
+                                            <div className="p-2 bg-gray-50/50 text-center border-t border-gray-100">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 w-full font-medium"
+                                                    onClick={() => {
+                                                        toast.info("Simply add a member to the last slot and a new one will appear automatically!");
+                                                    }}
+                                                >
+                                                    <Plus className="w-4 h-4 mr-2" />
+                                                    Add Another Slot
+                                                </Button>
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                             );
                         })}
                     </div>
 
-                    {/* Pagination Controls */}
-                    <div className="flex items-center justify-between bg-muted/20 p-4 rounded-lg">
-                        <div className="text-sm text-muted-foreground">
-                            Page {page} of {totalPages}
+                    {!cleanView && (
+                        <div className="flex items-center justify-between bg-muted/20 p-4 rounded-lg">
+                            <div className="text-sm text-muted-foreground">
+                                Page {page} of {totalPages}
+                            </div>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                                    disabled={page === 1}
+                                    className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={page === totalPages}
+                                    className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage(p => Math.max(1, p - 1))}
-                                disabled={page === 1}
-                                className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-                            >
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                                disabled={page === totalPages}
-                                className="hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-                            >
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    </div>
+                    )}
                 </>
             )}
 

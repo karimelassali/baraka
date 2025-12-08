@@ -3,12 +3,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardList, Users, ShoppingCart, Truck, BarChart2 } from 'lucide-react';
+import { ClipboardList, Users, ShoppingCart, Truck, BarChart2, Settings } from 'lucide-react';
 import Reservations from '@/components/admin/eid/Reservations';
 import CattleGroups from '@/components/admin/eid/CattleGroups';
 import Purchases from '@/components/admin/eid/Purchases';
 import Delivery from '@/components/admin/eid/Delivery';
 import Reports from '@/components/admin/eid/Reports';
+import EidSettings from '@/components/admin/eid/EidSettings';
 import GlassCard from '@/components/ui/GlassCard';
 
 export default function EidDashboard() {
@@ -20,6 +21,7 @@ export default function EidDashboard() {
         { id: 'purchases', label: 'Purchases', icon: ShoppingCart },
         { id: 'delivery', label: 'Delivery', icon: Truck },
         { id: 'reports', label: 'Reports', icon: BarChart2 },
+        { id: 'settings', label: 'Settings', icon: Settings },
     ];
 
     return (
@@ -36,7 +38,7 @@ export default function EidDashboard() {
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto p-1 bg-muted/50 backdrop-blur-sm rounded-xl">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto p-1 bg-muted/50 backdrop-blur-sm rounded-xl">
                     {tabs.map((tab) => {
                         const Icon = tab.icon;
                         return (
@@ -74,6 +76,9 @@ export default function EidDashboard() {
                         </TabsContent>
                         <TabsContent value="reports" className="m-0">
                             <Reports />
+                        </TabsContent>
+                        <TabsContent value="settings" className="m-0">
+                            <EidSettings />
                         </TabsContent>
                     </motion.div>
                 </AnimatePresence>

@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS eid_reservations (
     -- Delivery / Finalization fields
     final_weight DECIMAL(10, 2), -- Precision for weight
     tag_number TEXT,
+    final_price DECIMAL(10, 2), -- Actual price paid
+    destination TEXT, -- Delivery destination
     is_paid BOOLEAN DEFAULT FALSE,
     status TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'CONFIRMED', 'COLLECTED', 'CANCELLED')),
     collected_at TIMESTAMPTZ,
@@ -33,6 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_eid_reservations_status ON eid_reservations(statu
 CREATE INDEX IF NOT EXISTS idx_eid_reservations_created_at ON eid_reservations(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_eid_reservations_order_number ON eid_reservations(order_number);
 CREATE INDEX IF NOT EXISTS idx_eid_reservations_animal_type ON eid_reservations(animal_type);
+CREATE INDEX IF NOT EXISTS idx_eid_reservations_destination ON eid_reservations(destination);
 
 -- ----------------------------------------------------------
 -- TABLE: Eid Deposits (Section 1)
@@ -92,6 +95,7 @@ CREATE TABLE IF NOT EXISTS eid_purchases (
     weight DECIMAL(10, 2) NOT NULL,
     animal_type TEXT NOT NULL CHECK (animal_type IN ('SHEEP', 'GOAT', 'CATTLE')),
     purchase_price DECIMAL(10, 2),
+    supplier TEXT, -- Supplier name or identifier
     notes TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -126,3 +130,29 @@ CREATE POLICY "Enable all access for authenticated users" ON eid_deposits FOR AL
 CREATE POLICY "Enable all access for authenticated users" ON eid_cattle_groups FOR ALL TO authenticated USING (true);
 CREATE POLICY "Enable all access for authenticated users" ON eid_cattle_members FOR ALL TO authenticated USING (true);
 CREATE POLICY "Enable all access for authenticated users" ON eid_purchases FOR ALL TO authenticated USING (true);
+
+-- ----------------------------------------------------------
+-- TABLE: Eid Suppliers
+-- ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS eid_suppliers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL UNIQUE,
+    contact_info TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ----------------------------------------------------------
+-- TABLE: Eid Destinations
+-- ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS eid_destinations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT NOT NULL UNIQUE,
+    location TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE eid_suppliers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE eid_destinations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Enable all access for authenticated users" ON eid_suppliers FOR ALL TO authenticated USING (true);
+CREATE POLICY "Enable all access for authenticated users" ON eid_destinations FOR ALL TO authenticated USING (true);

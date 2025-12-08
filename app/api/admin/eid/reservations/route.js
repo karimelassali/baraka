@@ -8,6 +8,8 @@ export async function GET(request) {
         const supabase = createClient(cookieStore);
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
+        const statusFilter = searchParams.get('statusFilter'); // PAID, UNPAID, COLLECTED, NOT_COLLECTED
+        const destination = searchParams.get('destination');
         const page = parseInt(searchParams.get('page')) || 1;
         const limit = parseInt(searchParams.get('limit')) || 10;
         const offset = (page - 1) * limit;
@@ -30,6 +32,22 @@ export async function GET(request) {
 
         if (status) {
             query = query.eq('status', status);
+        }
+
+        if (destination && destination !== 'ALL') {
+            query = query.eq('destination', destination);
+        }
+
+        if (statusFilter && statusFilter !== 'ALL') {
+            if (statusFilter === 'PAID') {
+                query = query.eq('is_paid', true);
+            } else if (statusFilter === 'UNPAID') {
+                query = query.eq('is_paid', false);
+            } else if (statusFilter === 'COLLECTED') {
+                query = query.eq('status', 'COLLECTED');
+            } else if (statusFilter === 'NOT_COLLECTED') {
+                query = query.neq('status', 'COLLECTED');
+            }
         }
 
         const search = searchParams.get('search');

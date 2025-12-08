@@ -19,7 +19,9 @@ export async function PUT(request, { params }) {
             final_weight,
             tag_number,
             is_paid,
-            collected_at
+            collected_at,
+            final_price,
+            destination
         } = body;
 
         const updateData = {};
@@ -32,6 +34,8 @@ export async function PUT(request, { params }) {
         if (tag_number) updateData.tag_number = tag_number;
         if (is_paid !== undefined) updateData.is_paid = is_paid;
         if (collected_at) updateData.collected_at = collected_at;
+        if (final_price) updateData.final_price = final_price;
+        if (destination) updateData.destination = destination;
 
         const { data, error } = await supabase
             .from('eid_reservations')

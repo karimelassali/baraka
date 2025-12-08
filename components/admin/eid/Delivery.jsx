@@ -16,6 +16,31 @@ export default function Delivery() {
     const [loading, setLoading] = useState(false);
     const [updating, setUpdating] = useState(false);
 
+    // Filters
+    const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, PAID, UNPAID, COLLECTED, NOT_COLLECTED
+    const [destinationFilter, setDestinationFilter] = useState('ALL');
+    const [destinations, setDestinations] = useState([]);
+    const [configuredDestinations, setConfiguredDestinations] = useState([]);
+
+    useEffect(() => {
+        fetchConfiguredDestinations();
+    }, []);
+
+    const fetchConfiguredDestinations = async () => {
+        try {
+            const res = await fetch('/api/admin/eid/settings?type=destinations');
+            if (res.ok) {
+                setConfiguredDestinations(await res.json());
+            }
+        } catch (e) {
+            console.error("Error fetching destinations", e);
+        }
+    };
+
+    // Available Tags
+    const [availableTags, setAvailableTags] = useState([]);
+    const [tagSearch, setTagSearch] = useState('');
+
     // Pagination
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
@@ -25,7 +50,9 @@ export default function Delivery() {
     const [form, setForm] = useState({
         final_weight: '',
         tag_number: '',
+        tag_color: '', // For display only
         final_price: '',
+        destination: '',
         is_paid: false,
         status: 'CONFIRMED'
     });
@@ -33,6 +60,7 @@ export default function Delivery() {
     useEffect(() => {
         // Initial load
         searchReservations(1, true);
+        fetchTags();
     }, []);
 
     useEffect(() => {
@@ -41,15 +69,28 @@ export default function Delivery() {
             searchReservations(1, true);
         }, 500);
         return () => clearTimeout(timer);
-    }, [searchTerm]);
+    }, [searchTerm, statusFilter, destinationFilter]);
+
+    const fetchTags = async () => {
+        try {
+            const res = await fetch('/api/admin/eid/purchases?limit=1000');
+            if (res.ok) {
+                const { data } = await res.json();
+                setAvailableTags(data || []);
+            }
+        } catch (e) {
+            console.error("Error fetching tags", e);
+        }
+    };
 
     const searchReservations = async (pageNum = 1, reset = false) => {
-        if (loading && !reset) return; // Prevent duplicate fetches unless resetting
+        if (loading && !reset) return;
         setLoading(true);
         try {
-            const url = searchTerm
-                ? `/api/admin/eid/reservations?search=${searchTerm}&page=${pageNum}&limit=${limit}`
-                : `/api/admin/eid/reservations?page=${pageNum}&limit=${limit}`;
+            let url = `/api/admin/eid/reservations?page=${pageNum}&limit=${limit}`;
+            if (searchTerm) url += `&search=${searchTerm}`;
+            if (statusFilter !== 'ALL') url += `&statusFilter=${statusFilter}`;
+            if (destinationFilter !== 'ALL') url += `&destination=${destinationFilter}`;
 
             const response = await fetch(url);
             if (response.ok) {
@@ -58,12 +99,18 @@ export default function Delivery() {
 
                 if (reset) {
                     setReservations(newReservations);
+                    // Extract unique destinations from all data (or at least current batch + existing)
+                    // Ideally API should return this, but for now we can accumulate from client view or fetch separately
                 } else {
                     setReservations(prev => [...prev, ...newReservations]);
                 }
 
                 setHasMore(newReservations.length === limit);
                 setPage(pageNum);
+
+                // Update destinations list from current data
+                const allDests = [...new Set(newReservations.map(r => r.destination).filter(Boolean))];
+                setDestinations(prev => [...new Set([...prev, ...allDests])]);
             }
         } catch (error) {
             console.error('Error searching:', error);
@@ -80,14 +127,18 @@ export default function Delivery() {
 
     const handleSelect = (res) => {
         setSelectedReservation(res);
+        // Find tag color if tag exists
+        const tag = availableTags.find(t => t.tag_number === res.tag_number);
+
         setForm({
             final_weight: res.final_weight || '',
             tag_number: res.tag_number || '',
+            tag_color: tag?.tag_color || '',
             final_price: res.final_price || '',
+            destination: res.destination || '',
             is_paid: res.is_paid || false,
             status: res.status
         });
-        // Do NOT clear reservations here, so user can go back
     };
 
     const handleUpdate = async () => {
@@ -101,6 +152,8 @@ export default function Delivery() {
                 body: JSON.stringify({
                     final_weight: form.final_weight,
                     tag_number: form.tag_number,
+                    final_price: form.final_price,
+                    destination: form.destination,
                     is_paid: form.is_paid,
                     status: form.status,
                     collected_at: form.status === 'COLLECTED' ? new Date().toISOString() : null
@@ -113,7 +166,11 @@ export default function Delivery() {
                 // Update the item in the local list
                 setReservations(prev => prev.map(r =>
                     r.id === selectedReservation.id
-                        ? { ...r, ...form, collected_at: form.status === 'COLLECTED' ? new Date().toISOString() : null }
+                        ? {
+                            ...r,
+                            ...form,
+                            collected_at: form.status === 'COLLECTED' ? new Date().toISOString() : null
+                        }
                         : r
                 ));
 
@@ -130,9 +187,19 @@ export default function Delivery() {
 
     // Calculate financials
     const totalDeposit = selectedReservation?.total_deposit || 0;
+    // If final_price is set, use it. Otherwise, we don't calculate automatically to avoid overwriting user input with a calculation.
+    // But user asked: "always keep final price shown if i already add it , not each time add final price and calcule , if i did it ione time keep it"
+    // So we rely on form.final_price.
+
     const remaining = (Number(form.final_price) || 0) - totalDeposit;
 
     const currentYear = new Date().getFullYear();
+
+    // Filter available tags based on search
+    const filteredTags = availableTags.filter(t =>
+        t.tag_number.toLowerCase().includes(tagSearch.toLowerCase()) &&
+        (t.animal_type === selectedReservation?.animal_type) // Only show tags of same type
+    );
 
     return (
         <div className="space-y-6">
@@ -155,6 +222,45 @@ export default function Delivery() {
                         )}
                     </div>
 
+                    {/* Filters */}
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                        <Badge
+                            variant={statusFilter === 'ALL' ? 'default' : 'outline'}
+                            className="cursor-pointer whitespace-nowrap"
+                            onClick={() => setStatusFilter('ALL')}
+                        >
+                            All
+                        </Badge>
+                        <Badge
+                            variant={statusFilter === 'PAID' ? 'default' : 'outline'}
+                            className="cursor-pointer whitespace-nowrap bg-green-100 text-green-800 hover:bg-green-200 border-green-200"
+                            onClick={() => setStatusFilter(statusFilter === 'PAID' ? 'ALL' : 'PAID')}
+                        >
+                            Paid
+                        </Badge>
+                        <Badge
+                            variant={statusFilter === 'UNPAID' ? 'default' : 'outline'}
+                            className="cursor-pointer whitespace-nowrap bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200"
+                            onClick={() => setStatusFilter(statusFilter === 'UNPAID' ? 'ALL' : 'UNPAID')}
+                        >
+                            Unpaid
+                        </Badge>
+                        <Badge
+                            variant={statusFilter === 'COLLECTED' ? 'default' : 'outline'}
+                            className="cursor-pointer whitespace-nowrap bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200"
+                            onClick={() => setStatusFilter(statusFilter === 'COLLECTED' ? 'ALL' : 'COLLECTED')}
+                        >
+                            Collected
+                        </Badge>
+                        <Badge
+                            variant={statusFilter === 'NOT_COLLECTED' ? 'default' : 'outline'}
+                            className="cursor-pointer whitespace-nowrap bg-red-100 text-red-800 hover:bg-red-200 border-red-200"
+                            onClick={() => setStatusFilter(statusFilter === 'NOT_COLLECTED' ? 'ALL' : 'NOT_COLLECTED')}
+                        >
+                            Not Collected
+                        </Badge>
+                    </div>
+
                     <div className="space-y-2">
                         {reservations.map((res) => (
                             <div
@@ -167,18 +273,28 @@ export default function Delivery() {
                             >
                                 <div className="flex justify-between items-center mb-1">
                                     <span className="font-bold text-red-900">#{res.order_number}</span>
-                                    <Badge variant="outline" className={
-                                        res.status === 'COLLECTED'
-                                            ? 'bg-green-100 text-green-700 border-green-200'
-                                            : 'border-red-200 text-red-700'
-                                    }>
-                                        {res.status}
-                                    </Badge>
+                                    <div className="flex gap-1">
+                                        {res.is_paid && (
+                                            <Badge className="bg-green-500 hover:bg-green-600 text-white p-1 rounded-full">
+                                                <DollarSign className="w-3 h-3" />
+                                            </Badge>
+                                        )}
+                                        {res.status === 'COLLECTED' && (
+                                            <Badge className="bg-blue-500 hover:bg-blue-600 text-white p-1 rounded-full">
+                                                <Truck className="w-3 h-3" />
+                                            </Badge>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <div className="font-medium">{res.customers?.first_name} {res.customers?.last_name}</div>
                                     <Badge variant="secondary">{res.animal_type}</Badge>
                                 </div>
+                                {res.destination && (
+                                    <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                                        <Truck className="w-3 h-3" /> {res.destination}
+                                    </div>
+                                )}
                             </div>
                         ))}
 
@@ -237,14 +353,68 @@ export default function Delivery() {
                                     className="font-bold text-lg focus-visible:ring-red-500"
                                 />
                             </div>
-                            <div className="space-y-2">
+
+                            {/* Tag Selection */}
+                            <div className="space-y-2 col-span-2">
                                 <label className="text-sm font-medium">Tag Number</label>
-                                <Input
-                                    value={form.tag_number}
-                                    onChange={(e) => setForm({ ...form, tag_number: e.target.value })}
-                                    className="focus-visible:ring-red-500"
-                                />
+                                <div className="relative">
+                                    <div className="flex gap-2 mb-2">
+                                        <Input
+                                            placeholder="Search tag..."
+                                            value={tagSearch}
+                                            onChange={(e) => setTagSearch(e.target.value)}
+                                            className="flex-1"
+                                        />
+                                        {form.tag_color && (
+                                            <div
+                                                className="w-10 h-10 rounded border shadow-sm"
+                                                style={{ backgroundColor: form.tag_color }}
+                                                title="Tag Color"
+                                            />
+                                        )}
+                                    </div>
+                                    {tagSearch && (
+                                        <div className="absolute z-10 w-full bg-white border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                                            {filteredTags.map(tag => (
+                                                <div
+                                                    key={tag.id}
+                                                    className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
+                                                    onClick={() => {
+                                                        setForm({
+                                                            ...form,
+                                                            tag_number: tag.tag_number,
+                                                            tag_color: tag.tag_color,
+                                                            final_weight: form.final_weight || tag.weight // Auto-fill weight if empty
+                                                        });
+                                                        setTagSearch('');
+                                                    }}
+                                                >
+                                                    <span>{tag.tag_number} ({tag.weight}kg)</span>
+                                                    {tag.tag_color && (
+                                                        <div
+                                                            className="w-4 h-4 rounded-full border"
+                                                            style={{ backgroundColor: tag.tag_color }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            ))}
+                                            {filteredTags.length === 0 && (
+                                                <div className="p-2 text-muted-foreground text-sm">No tags found</div>
+                                            )}
+                                        </div>
+                                    )}
+                                    {form.tag_number && !tagSearch && (
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="font-bold text-lg">{form.tag_number}</span>
+                                            <Button variant="ghost" size="sm" onClick={() => {
+                                                setForm({ ...form, tag_number: '', tag_color: '' });
+                                                setTagSearch('');
+                                            }}>Change</Button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Final Price (€)</label>
                                 <Input
@@ -252,8 +422,23 @@ export default function Delivery() {
                                     value={form.final_price}
                                     onChange={(e) => setForm({ ...form, final_price: e.target.value })}
                                     placeholder="Total Amount"
-                                    className="focus-visible:ring-red-500"
+                                    className="focus-visible:ring-red-500 font-bold"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Destination</label>
+                                <Input
+                                    value={form.destination}
+                                    onChange={(e) => setForm({ ...form, destination: e.target.value })}
+                                    placeholder="e.g. Slaughterhouse"
+                                    className="focus-visible:ring-red-500"
+                                    list="destinations-list"
+                                />
+                                <datalist id="destinations-list">
+                                    {configuredDestinations.map(d => (
+                                        <option key={d.id} value={d.name} />
+                                    ))}
+                                </datalist>
                             </div>
                         </div>
 

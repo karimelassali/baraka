@@ -32,7 +32,21 @@ export async function PUT(request, { params }) {
         const supabase = createClient(cookieStore);
         const body = await request.json();
 
-        const { tag_number, tag_color, weight, animal_type, purchase_price, notes } = body;
+        const { tag_number, tag_color, weight, animal_type, purchase_price, notes, destination } = body;
+
+        // Check for duplicate tag (excluding current record)
+        if (tag_number) {
+            const { data: existingTag } = await supabase
+                .from('eid_purchases')
+                .select('id')
+                .eq('tag_number', tag_number)
+                .neq('id', id)
+                .single();
+
+            if (existingTag) {
+                return NextResponse.json({ error: `Tag number ${tag_number} already exists.` }, { status: 409 });
+            }
+        }
 
         const { data, error } = await supabase
             .from('eid_purchases')
@@ -42,7 +56,8 @@ export async function PUT(request, { params }) {
                 weight: Number(weight),
                 animal_type,
                 purchase_price: purchase_price ? Number(purchase_price) : null,
-                notes
+                notes,
+                destination
             })
             .eq('id', id)
             .select()

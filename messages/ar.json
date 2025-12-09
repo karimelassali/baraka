@@ -5,10 +5,10 @@
         "terms_of_service": "شروط الخدمة"
     },
     "Navbar": {
-        "about": "عنا",
+        "about": "من نحن",
         "gallery": "المعرض",
         "offers": "العروض",
-        "reviews": "الآراء",
+        "reviews": "التقييمات",
         "contact": "اتصل بنا",
         "login": "تسجيل الدخول",
         "register": "تسجيل"
@@ -16,47 +16,47 @@
     "Hero": {
         "welcome_to": "مرحبًا بكم في",
         "baraka": "بركة",
-        "description": "عملك المحلي الموثوق الذي يقدم منتجات وخدمات عالية الجودة مع رعاية استثنائية للعملاء.",
-        "view_products": "شاهد منتجاتنا",
+        "description": "شركتك المحلية الموثوقة التي تقدم منتجات وخدمات عالية الجودة مع رعاية استثنائية للعملاء.",
+        "view_products": "عرض المنتجات",
         "contact_us": "اتصل بنا",
         "quote": "نحن نفخر بالجودة ورضا العملاء.",
         "team": "فريق بركة"
     },
     "About": {
-        "title": "عنا",
-        "description": "بركة هي شركة محلية رائدة مكرسة لتقديم خدمات ومنتجات من الدرجة الأولى لمجتمعنا. مع سنوات من الخبرة وشغف بالتميز، نسعى جاهدين لتجاوز توقعات العملاء في كل ما نقوم به.",
+        "title": "من نحن",
+        "description": "بركة هي شركة محلية رائدة مكرسة لخدمة مجتمعنا بخدمات ومنتجات من الدرجة الأولى. مع سنوات من الخبرة وشغف بالتميز، نسعى جاهدين لتجاوز توقعات العملاء في كل ما نقوم به.",
         "our_mission": "مهمتنا",
         "mission_desc": "تقديم الجودة والقيمة والرضا لكل عميل نخدمه.",
         "our_vision": "رؤيتنا",
-        "vision_desc": "أن نكون العمل المحلي الأكثر ثقة وتفضيلًا في منطقتنا.",
+        "vision_desc": "أن نكون الشركة المحلية الأكثر ثقة وتفضيلاً في منطقتنا.",
         "our_values": "قيمنا",
-        "values_desc": "النزاهة، التميز، التركيز على العملاء، والابتكار."
+        "values_desc": "النزاهة والتميز والتركيز على العملاء والابتكار."
     },
     "Gallery": {
         "title": "معرضنا",
         "subtitle": "لمحة عن عالمنا",
         "view_all": "عرض الكل",
-        "no_images": "لا توجد صور في المعرض بعد."
+        "no_images": "لا توجد صور في المعرض حتى الآن."
     },
     "Offers": {
         "title": "عروض خاصة",
         "subtitle": "صفقات حصرية لك فقط",
         "special_offer": "عرض خاص",
         "weekly": "أسبوعي",
-        "weekly_subtitle": "صفقات لفترة محدودة",
+        "weekly_subtitle": "عروض لفترة محدودة",
         "no_weekly_offers": "لا توجد عروض أسبوعية متاحة في الوقت الحالي.",
         "permanent": "دائم",
-        "permanent_subtitle": "قيمة كبيرة دائمًا",
+        "permanent_subtitle": "قيمة رائعة دائمًا",
         "no_permanent_offers": "لا توجد عروض دائمة متاحة في الوقت الحالي."
     },
     "Reviews": {
-        "title": "آراء العملاء",
+        "title": "تقييمات العملاء",
         "subtitle": "ماذا يقول عملاؤنا عنا",
-        "no_reviews": "لا توجد آراء بعد. كن أول من يترك رأيًا!"
+        "no_reviews": "لا توجد تقييمات حتى الآن. كن أول من يترك تقييمًا!"
     },
     "Contact": {
         "title": "قم بزيارة متجرنا",
-        "subtitle": "نحن موجودون في موقع مناسب في كاستل سان جيوفاني. تفضل بزيارتنا وجرب خدمتنا عالية الجودة بنفسك.",
+        "subtitle": "نحن في موقع مناسب في كاستل سان جيوفاني. تفضل بزيارتنا وجرب جودتنا بنفسك.",
         "info_title": "معلومات الاتصال",
         "name": "الاسم",
         "email": "البريد الإلكتروني",
@@ -92,12 +92,12 @@
         },
         "Register": {
             "title": "تسجيل العملاء",
-            "subtitle": "عملية تسجيل خطوة بخطوة",
+            "subtitle": "عملية التسجيل خطوة بخطوة",
             "join_community": "انضم إلى مجتمعنا",
             "join_desc": "تسجيل سريع، تخزين آمن، والوصول إلى منطقتك الشخصية. نحن نحترم خصوصيتك.",
             "step": "خطوة",
             "of": "من",
-            "complete": "اكتمل",
+            "complete": "إكمال",
             "back": "رجوع",
             "next": "التالي",
             "submit": "إكمال التسجيل",
@@ -123,8 +123,8 @@
                     "placeholder": "المدينة، العنوان..."
                 },
                 "4": {
-                    "title": "معلومات الاتصال",
-                    "subtitle": "كيف يمكننا التواصل معك؟",
+                    "title": "الاتصال",
+                    "subtitle": "كيف يمكننا الاتصال بك؟",
                     "phone": "رقم الهاتف",
                     "email": "البريد الإلكتروني"
                 },
@@ -134,7 +134,7 @@
                     "password": "كلمة المرور",
                     "password_placeholder": "8 أحرف على الأقل",
                     "confirm_password": "تأكيد كلمة المرور",
-                    "confirm_placeholder": "تأكيد كلمة المرور الخاصة بك"
+                    "confirm_placeholder": "أكد كلمة المرور الخاصة بك"
                 },
                 "6": {
                     "title": "بلد المنشأ",
@@ -154,12 +154,12 @@
                 },
                 "9": {
                     "title": "الشروط والأحكام",
-                    "subtitle": "يرجى تأكيد موافقتك على شروطنا",
-                    "agree": "أقبل",
+                    "subtitle": "يرجى تأكيد قبولك لشروطنا",
+                    "accept": "أقبل",
                     "link": "الشروط والأحكام"
                 },
                 "10": {
-                    "title": "مراجعة وإرسال",
+                    "title": "المراجعة والإرسال",
                     "subtitle": "يرجى مراجعة معلوماتك قبل الإرسال",
                     "agreed": "موافق",
                     "not_agreed": "غير موافق"
@@ -167,12 +167,12 @@
             },
             "errors": {
                 "required": "مطلوب",
-                "invalid_phone": "يرجى إدخال رقم هاتف صالح (الأرقام، + - الأقواس مسموح بها).",
+                "invalid_phone": "يرجى إدخال رقم هاتف صالح (أرقام، + - أقواس مسموح بها).",
                 "invalid_email": "يرجى إدخال عنوان بريد إلكتروني صالح.",
                 "password_length": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
                 "password_mismatch": "كلمات المرور غير متطابقة",
-                "privacy_policy": "يجب عليك الموافقة على سياسة الخصوصية",
-                "terms": "يجب عليك قبول الشروط والأحكام"
+                "privacy_policy": "يجب أن توافق على سياسة الخصوصية",
+                "terms": "يجب أن تقبل الشروط والأحكام"
             }
         }
     },
@@ -194,22 +194,22 @@
         "Wallet": {
             "title": "محفظة الولاء",
             "available_balance": "الرصيد المتاح",
-            "pts": "نقاط",
+            "pts": "نقطة",
             "pending": "قيد الانتظار",
-            "no_pending": "لا توجد نقاط معلقة",
+            "no_pending": "لا توجد نقاط قيد الانتظار",
             "recent_activity": "النشاط الأخير",
             "no_activity": "لا يوجد نشاط حديث",
-            "download_statement": "تحميل كشف الحساب",
-            "total_balance": "إجمالي الرصيد",
+            "download_statement": "تنزيل كشف الحساب",
+            "total_balance": "الرصيد الإجمالي",
             "gold_member": "عضو ذهبي",
             "silver_member": "عضو فضي",
             "bronze_member": "عضو برونزي",
             "available_to_redeem": "متاح للاسترداد",
-            "pending_points": "نقاط معلقة",
+            "pending_points": "نقاط قيد الانتظار",
             "earned_this_month": "تم كسبها هذا الشهر",
             "spent_this_month": "تم إنفاقها هذا الشهر",
             "transaction_history": "سجل المعاملات",
-            "all_transactions": "كل المعاملات",
+            "all_transactions": "جميع المعاملات",
             "earned": "مكتسبة",
             "redeemed": "مستردة",
             "description": "الوصف",
@@ -217,7 +217,7 @@
             "type": "النوع",
             "points": "النقاط",
             "no_transactions": "لم يتم العثور على معاملات",
-            "view_all": "عرض كل المعاملات"
+            "view_all": "عرض جميع المعاملات"
         },
         "Statistics": {
             "total_points": "إجمالي النقاط",
@@ -266,17 +266,408 @@
             "expires": "ينتهي:",
             "redeemed": "تم الاسترداد",
             "redeem_now": "استرد الآن",
-            "use": "استخدام",
-            "download": "تحميل",
-            "no_vouchers": "لا توجد قسائم بعد",
+            "use": "استخدم",
+            "download": "تنزيل",
+            "no_vouchers": "لا توجد قسائم حتى الآن",
             "start_earning": "ابدأ في كسب النقاط لفتح قسائم حصرية!"
         }
     },
     "Admin": {
+        "Eid": {
+            "Reservations": {
+                "title": "حجوزات العملاء",
+                "search_placeholder": "بحث عن عميل أو رقم طلب...",
+                "no_reservations": "لم يتم العثور على حجوزات.",
+                "status": {
+                    "all": "الكل",
+                    "pending": "قيد الانتظار",
+                    "confirmed": "مؤكد",
+                    "collected": "تم الاستلام",
+                    "cancelled": "ملغي"
+                },
+                "new_reservation": "حجز جديد",
+                "table": {
+                    "id": "المعرف",
+                    "customer": "العميل",
+                    "phone": "الهاتف",
+                    "type": "النوع",
+                    "weight": "الوزن",
+                    "pickup": "الاستلام",
+                    "deposit": "العربون",
+                    "status": "الحالة",
+                    "actions": "إجراءات"
+                },
+                "modal": {
+                    "new_title": "حجز جديد",
+                    "edit_title": "تعديل الحجز",
+                    "customer": "العميل",
+                    "type": "النوع",
+                    "weight": "الوزن",
+                    "initial_deposit": "العربون الأولي (€)",
+                    "pickup_time": "وقت الاستلام",
+                    "notes": "ملاحظات",
+                    "cancel": "إلغاء",
+                    "create": "إنشاء حجز",
+                    "update": "تحديث الحجز"
+                },
+                "deposit_modal": {
+                    "title": "إدارة العربون",
+                    "add_new": "إضافة عربون جديد",
+                    "history": "السجل",
+                    "no_deposits": "لا توجد عربونات حتى الآن",
+                    "close": "إغلاق",
+                    "add": "إضافة",
+                    "amount_placeholder": "المبلغ €"
+                },
+                "toast": {
+                    "select_customer": "يرجى اختيار عميل",
+                    "created": "تم إنشاء الحجز",
+                    "updated": "تم تحديث الحجز",
+                    "deleted": "تم حذف الحجز",
+                    "deposit_added": "تمت إضافة العربون بنجاح",
+                    "error_save": "فشل حفظ الحجز",
+                    "error_delete": "فشل حذف الحجز",
+                    "error_deposit": "فشل إضافة العربون",
+                    "error_load": "فشل تحميل الحجوزات"
+                },
+                "confirm_delete": "هل أنت متأكد أنك تريد حذف هذا الحجز؟",
+                "sort": {
+                    "newest": "الأحدث أولاً",
+                    "oldest": "الأقدم أولاً"
+                },
+                "page": "صفحة",
+                "of": "من",
+                "types": {
+                    "sheep": "خروف",
+                    "goat": "ماعز"
+                },
+                "payment_methods": {
+                    "cash": "نقدي",
+                    "card": "بطاقة"
+                }
+            },
+            "Delivery": {
+                "title": "إدارة التسليم",
+                "search_placeholder": "بحث باسم العميل أو رقم الطلب...",
+                "filters": {
+                    "all": "الكل",
+                    "paid": "مدفوع",
+                    "unpaid": "غير مدفوع",
+                    "collected": "تم الاستلام",
+                    "not_collected": "لم يتم الاستلام"
+                },
+                "load_more": "تحميل المزيد",
+                "no_reservations": "لم يتم العثور على حجوزات.",
+                "back_to_list": "العودة للقائمة",
+                "details": {
+                    "requested_weight": "الوزن المطلوب",
+                    "final_weight": "الوزن النهائي (كجم)",
+                    "tag_number": "رقم العلامة",
+                    "add_to_member": "(إضافة لعضو)",
+                    "final_price": "السعر النهائي (€)",
+                    "destination": "الوجهة",
+                    "deposit_paid": "العربون المدفوع:",
+                    "final_total": "الإجمالي النهائي:",
+                    "remaining": "المتبقي:"
+                },
+                "status_updates": {
+                    "title": "تحديثات الحالة",
+                    "payment_status": "حالة الدفع",
+                    "paid_full": "مدفوع بالكامل",
+                    "payment_pending": "الدفع معلق",
+                    "collection_status": "حالة الاستلام",
+                    "collected": "تم الاستلام",
+                    "not_collected": "لم يتم الاستلام",
+                    "save_changes": "حفظ التغييرات"
+                },
+                "members_count": "{count} أعضاء",
+                "group_badge": "مجموعة",
+                "cattle_group_label": "مجموعة ماشية",
+                "order_number": "طلب #{number}",
+                "search_tag_placeholder": "بحث عن علامة...",
+                "tag_used": "مستخدم",
+                "no_tags_found": "لم يتم العثور على علامات",
+                "change_btn": "تغيير",
+                "total_amount_placeholder": "المبلغ الإجمالي",
+                "destination_placeholder": "مثال: المسلخ",
+                "toast": {
+                    "updated": "تم التحديث بنجاح",
+                    "error_update": "فشل التحديث"
+                }
+            },
+            "Reports": {
+                "metrics": {
+                    "total_revenue": "إجمالي الإيرادات",
+                    "total_animals": "إجمالي الحيوانات",
+                    "total_weight": "إجمالي الوزن",
+                    "sheep": "خراف",
+                    "goats": "ماعز",
+                    "avg": "متوسط"
+                },
+                "analysis": {
+                    "weight_title": "تحليل الوزن",
+                    "weight_desc": "الوزن المشترى مقابل المباع",
+                    "total_purchased": "إجمالي المشترى",
+                    "total_sold": "إجمالي المباع (النهائي)",
+                    "difference": "الفرق",
+                    "financial_title": "التحليل المالي",
+                    "financial_desc": "إجمالي قيمة الطلب مقابل الإيرادات المحققة",
+                    "total_order_value": "إجمالي قيمة الطلب",
+                    "realized_revenue": "الإيرادات المحققة",
+                    "outstanding": "المتبقي"
+                },
+                "destinations": {
+                    "title": "تقرير الوجهات",
+                    "desc": "كمية الطلب والوزن الإجمالي لكل وجهة (استخدام داخلي)",
+                    "col_dest": "الوجهة",
+                    "col_count": "عدد الطلبات",
+                    "col_weight": "الوزن الإجمالي (كجم)",
+                    "no_data": "لا توجد بيانات وجهة متاحة"
+                },
+                "detailed_reports": {
+                    "title": "تقارير مفصلة",
+                    "desc": "تنزيل تقارير PDF شاملة لسجلاتك.",
+                    "reservations_list": "قائمة الحجوزات",
+                    "reservations_desc": "قائمة كاملة بجميع حجوزات العملاء",
+                    "financial_report": "التقرير المالي",
+                    "financial_desc": "تفصيل الإيرادات والملخص",
+                    "cattle_groups": "تقرير مجموعات الماشية",
+                    "cattle_desc": "تكوين المجموعة المفصل والحالة"
+                },
+                "export": {
+                    "title": "تصدير البيانات",
+                    "desc": "تصدير البيانات الخام للتحليل الخارجي.",
+                    "info": "يسمح لك تصدير البيانات بإجراء تحليل مخصص في أدوات مثل Excel أو Google Sheets. يدعم حاليًا تنسيق CSV.",
+                    "btn": "تصدير جميع البيانات (CSV)"
+                },
+                "toast": {
+                    "error_report": "خطأ في إنشاء التقرير"
+                },
+                "pdf": {
+                    "order_number": "رقم الطلب",
+                    "customer": "العميل",
+                    "type": "النوع",
+                    "weight": "الوزن",
+                    "status": "الحالة",
+                    "paid": "مدفوع",
+                    "yes": "نعم",
+                    "no": "لا",
+                    "total_reservations": "إجمالي الحجوزات",
+                    "sort_oldest": "الأقدم إلى الأحدث",
+                    "metric": "المقياس",
+                    "value": "القيمة",
+                    "generated": "تم الإنشاء",
+                    "group": "المجموعة",
+                    "members": "الأعضاء",
+                    "total_groups": "إجمالي المجموعات"
+                },
+                "explanations": {
+                    "total_revenue": "إجمالي مجموع جميع العربونات المسجلة في النظام.",
+                    "total_animals": "إجمالي عدد الحيوانات الموجودة حاليًا في المخزون (خراف + ماعز + مجموعات ماشية).",
+                    "total_weight": "الوزن الإجمالي للحيوانات المباعة (بناءً على الوزن النهائي).",
+                    "weight_purchased": "الوزن الإجمالي للحيوانات المشتراة من الموردين.",
+                    "weight_sold": "الوزن النهائي الإجمالي للحيوانات المباعة للعملاء.",
+                    "financial_total": "مجموع السعر النهائي لجميع الحجوزات.",
+                    "financial_realized": "المبلغ الفعلي الذي تم تحصيله (عربونات + طلبات مدفوعة بالكامل).",
+                    "financial_outstanding": "المبلغ المتبقي للتحصيل (إجمالي قيمة الطلبات - الإيرادات المحققة)."
+                }
+            },
+            "Purchases": {
+                "title": "اختر المورد",
+                "no_contact": "لا توجد معلومات اتصال",
+                "no_suppliers": "لا يوجد موردون مكونون. يرجى إضافة موردين في الإعدادات.",
+                "confirm_delete": "هل أنت متأكد؟",
+                "confirm_delete_batch": "هل أنت متأكد أنك تريد حذف هذه الدفعة؟",
+                "of": "من",
+                "no_destinations": "لا توجد وجهات متاحة",
+                "batches": {
+                    "back": "رجوع",
+                    "title": "دفعات لـ {name}",
+                    "new_batch": "دفعة جديدة",
+                    "no_notes": "لا توجد ملاحظات",
+                    "no_batches": "لم يتم العثور على دفعات لهذا المورد.",
+                    "unpin": "إلغاء التثبيت",
+                    "pin": "تثبيت",
+                    "edit": "تعديل",
+                    "delete": "حذف"
+                },
+                "animals": {
+                    "back": "العودة للدفعات",
+                    "subtitle": "إدارة الحيوانات في هذه الدفعة",
+                    "total_animals": "إجمالي الحيوانات",
+                    "page": "صفحة",
+                    "search_placeholder": "بحث برقم العلامة...",
+                    "types": {
+                        "all": "جميع الأنواع",
+                        "sheep": "خروف",
+                        "goat": "ماعز",
+                        "cattle": "ماشية"
+                    },
+                    "form": {
+                        "edit_title": "تعديل الحيوان",
+                        "add_title": "إضافة حيوان جديد",
+                        "type": "النوع",
+                        "tag_number": "رقم العلامة",
+                        "tag_placeholder": "مثال: 12345",
+                        "tag_color": "لون العلامة",
+                        "color_placeholder": "مثال: #FFFF00",
+                        "destination": "الوجهة",
+                        "dest_placeholder": "اختر الوجهة",
+                        "weight": "الوزن (كجم)",
+                        "weight_placeholder": "0.0",
+                        "update_btn": "تحديث الحيوان",
+                        "add_btn": "إضافة حيوان",
+                        "tag_used": "مستخدم بالفعل",
+                        "tag_available": "العلامة متاحة"
+                    },
+                    "table": {
+                        "hash": "#",
+                        "tag": "علامة",
+                        "type": "النوع",
+                        "weight": "الوزن",
+                        "destination": "الوجهة",
+                        "actions": "إجراءات",
+                        "no_animals": "لا توجد حيوانات في هذه الدفعة حتى الآن."
+                    }
+                },
+                "batch_modal": {
+                    "edit_title": "تعديل الدفعة",
+                    "create_title": "إنشاء دفعة جديدة",
+                    "number_name": "رقم / اسم الدفعة",
+                    "name_placeholder": "مثال: شحنة #1",
+                    "notes": "ملاحظات",
+                    "notes_placeholder": "ملاحظات اختيارية",
+                    "update_btn": "تحديث",
+                    "create_btn": "إنشاء"
+                },
+                "toast": {
+                    "batch_created": "تم إنشاء الدفعة",
+                    "batch_updated": "تم تحديث الدفعة",
+                    "batch_deleted": "تم حذف الدفعة",
+                    "pinned": "تم تثبيت الدفعة",
+                    "unpinned": "تم إلغاء تثبيت الدفعة",
+                    "animal_added": "تمت إضافة الحيوان",
+                    "animal_updated": "تم تحديث الحيوان",
+                    "animal_deleted": "تم حذف الحيوان",
+                    "tag_exists": "رقم العلامة موجود بالفعل!",
+                    "fill_required": "يرجى ملء جميع الحقول المطلوبة",
+                    "error_create_batch": "خطأ في إنشاء الدفعة",
+                    "error_update_batch": "خطأ في تحديث الدفعة",
+                    "error_delete_batch": "خطأ في حذف الدفعة",
+                    "error_pin": "خطأ في تحديث حالة التثبيت",
+                    "error_add_animal": "خطأ في إضافة الحيوان",
+                    "error_update_animal": "خطأ في تحديث الحيوان",
+                    "error_delete_animal": "خطأ في حذف الحيوان"
+                },
+                "pdf": {
+                    "title": "تقرير المشتريات",
+                    "tag": "علامة",
+                    "type": "النوع",
+                    "weight": "الوزن",
+                    "destination": "الوجهة",
+                    "supplier": "المورد",
+                    "batch": "الدفعة",
+                    "total_animals": "إجمالي الحيوانات"
+                }
+            },
+            "CattleGroups": {
+                "title": "مجموعات الماشية",
+                "clean_view": "هم فقط - لا شيء آخر",
+                "search_placeholder": "بحث عن مجموعات أو أعضاء...",
+                "new_group": "مجموعة جديدة",
+                "status": {
+                    "all": "الكل",
+                    "pending": "قيد الانتظار",
+                    "paid": "مدفوع",
+                    "completed": "مكتمل",
+                    "delivered": "تم التسليم",
+                    "fully_paid": "مدفوع بالكامل"
+                },
+                "stats": {
+                    "cattle_groups": "مجموعات الماشية",
+                    "active_groups": "المجموعات النشطة"
+                },
+                "card": {
+                    "weight": "الوزن",
+                    "edit": "تعديل المجموعة",
+                    "download": "تنزيل PDF المجموعة",
+                    "price": "السعر",
+                    "paid": "مدفوع",
+                    "add_slot": "إضافة خانة أخرى"
+                },
+                "page": "صفحة",
+                "of": "من",
+                "modal": {
+                    "create_title": "إنشاء مجموعة ماشية جديدة",
+                    "edit_title": "تعديل مجموعة الماشية",
+                    "group_name": "اسم المجموعة",
+                    "group_placeholder": "مثال: المجموعة أ",
+                    "weight": "الوزن (كجم)",
+                    "price": "السعر (€)",
+                    "create_btn": "إنشاء المجموعة",
+                    "update_btn": "تحديث المجموعة"
+                },
+                "toast": {
+                    "created": "تم إنشاء المجموعة",
+                    "updated": "تم تحديث المجموعة",
+                    "deleted": "تم حذف المجموعة",
+                    "member_added": "تمت إضافة العضو",
+                    "member_removed": "تمت إزالة العضو",
+                    "error_create": "خطأ في إنشاء المجموعة",
+                    "error_update": "خطأ في تحديث المجموعة",
+                    "error_delete": "خطأ في حذف المجموعة",
+                    "error_add_member": "خطأ في إضافة العضو",
+                    "error_remove_member": "خطأ في إزالة العضو",
+                    "add_slot_info": "ببساطة أضف عضوًا إلى الخانة الأخيرة وستظهر خانة جديدة تلقائيًا!"
+                },
+                "confirm_delete": "هل أنت متأكد أنك تريد حذف هذه المجموعة؟",
+                "pdf": {
+                    "title": "تقرير مجموعات الماشية",
+                    "group_report": "تقرير المجموعة",
+                    "slot": "الخانة",
+                    "customer": "العميل",
+                    "phone": "الهاتف",
+                    "status": "الحالة",
+                    "weight": "الوزن",
+                    "members": "الأعضاء",
+                    "total_groups": "إجمالي المجموعات",
+                    "group_name": "اسم المجموعة"
+                }
+            },
+            "Settings": {
+                "title": "الإعدادات والتكوين",
+                "suppliers": {
+                    "title": "الموردون",
+                    "name_placeholder": "اسم المورد",
+                    "contact_placeholder": "معلومات الاتصال (اختياري)",
+                    "no_data": "لم يتم إضافة موردين بعد"
+                },
+                "destinations": {
+                    "title": "الوجهات",
+                    "name_placeholder": "اسم الوجهة",
+                    "location_placeholder": "الموقع/التفاصيل (اختياري)",
+                    "no_data": "لم يتم إضافة وجهات بعد"
+                },
+                "toast": {
+                    "supplier_added": "تمت إضافة المورد",
+                    "destination_added": "تمت إضافة الوجهة",
+                    "deleted": "تم حذف العنصر",
+                    "error_load": "فشل تحميل الإعدادات",
+                    "error_add_supplier": "فشل إضافة المورد",
+                    "error_add_destination": "فشل إضافة الوجهة",
+                    "error_delete": "خطأ في حذف العنصر"
+                },
+                "confirm_delete": "هل أنت متأكد؟"
+            },
+            "CustomerSearch": {
+                "placeholder": "بحث عن عميل...",
+                "no_results": "لم يتم العثور على عملاء."
+            }
+        },
         "Sidebar": {
-            "admins": "المسؤولين",
+            "admins": "المسؤولون",
             "cat_overview": "نظرة عامة",
-            "cat_users_orders": "المستخدمين والطلبات",
+            "cat_users_orders": "المستخدمون والطلبات",
             "cat_marketing_inventory": "التسويق والمخزون",
             "cat_system_settings": "النظام والإعدادات",
             "dashboard": "لوحة التحكم",
@@ -284,7 +675,7 @@
             "customers": "العملاء",
             "inventory": "المخزون",
             "offers": "العروض",
-            "reviews": "الآراء",
+            "reviews": "التقييمات",
             "points": "النقاط",
             "vouchers": "القسائم",
             "campaigns": "الحملات",
@@ -295,6 +686,8 @@
             "logout": "تسجيل الخروج",
             "default_user": "مستخدم مسؤول",
             "mobile_title": "مسؤول بركة",
+            "revenue": "الإيرادات",
+            "orders": "الطلبات",
             "payments": "المدفوعات",
             "board": "لوحة الإدارة"
         },
@@ -303,9 +696,9 @@
             "subtitle": "مساحة مشتركة للملاحظات والتذكيرات وتحديثات الفريق.",
             "create_note": "إنشاء ملاحظة",
             "edit_note": "تعديل الملاحظة",
-            "search_placeholder": "البحث في الملاحظات...",
+            "search_placeholder": "بحث في الملاحظات...",
             "no_notes": "لم يتم العثور على ملاحظات",
-            "no_notes_desc": "قم بإنشاء ملاحظة جديدة للبدء.",
+            "no_notes_desc": "أنشئ ملاحظة جديدة للبدء.",
             "note_title": "العنوان",
             "note_message": "الرسالة",
             "title_placeholder": "أدخل عنوان الملاحظة (اختياري)",
@@ -315,16 +708,16 @@
             "success_create": "تم إنشاء الملاحظة بنجاح",
             "success_update": "تم تحديث الملاحظة بنجاح",
             "success_delete": "تم حذف الملاحظة بنجاح",
-            "success_pin": "تم تثبيت الملاحظة",
-            "success_unpin": "تم إلغاء تثبيت الملاحظة",
-            "error_fetching": "فشل في جلب الملاحظات",
-            "error_create": "فشل في إنشاء الملاحظة",
-            "error_update": "فشل في تحديث الملاحظة",
-            "error_delete": "فشل في حذف الملاحظة",
-            "error_pin": "فشل في تحديث حالة التثبيت",
+            "success_pin": "تم تثبيت الملاحظة في الأعلى",
+            "success_unpin": "تم إلغاء تثبيت الملاحظة من الأعلى",
+            "error_fetching": "فشل جلب الملاحظات",
+            "error_create": "فشل إنشاء الملاحظة",
+            "error_update": "فشل تحديث الملاحظة",
+            "error_delete": "فشل حذف الملاحظة",
+            "error_pin": "فشل تحديث حالة التثبيت",
             "load_more": "تحميل المزيد",
             "loading_more": "جاري التحميل...",
-            "reset_layout": "إعادة تعيين التخطيط ",
+            "reset_layout": "إعادة تعيين التخطيط",
             "tab_images": "صور",
             "tab_drawing": "رسم",
             "tab_links": "روابط",
@@ -339,30 +732,30 @@
             "welcome": "مرحبًا بعودتك، إليك ما يحدث اليوم.",
             "total_customers": "إجمالي العملاء",
             "active_offers": "العروض النشطة",
-            "pending_reviews": "الآراء المعلقة",
-            "issued_vouchers": "القسائم الصادرة",
+            "pending_reviews": "التقييمات المعلقة",
+            "issued_vouchers": "القسائم المصدرة",
             "recent_activity": "النشاط الأخير",
             "recent_activity_desc": "أحدث الرسائل والإشعارات",
             "view_all": "عرض الكل",
             "no_activity": "لا يوجد نشاط حديث للعرض.",
             "performance": "الأداء",
-            "engagement_rate": "معدل التفاعل",
+            "engagement_rate": "معدل المشاركة",
             "pro_tip": "نصيحة احترافية",
-            "pro_tip_desc": "قم بتخصيص تخطيط لوحة التحكم الخاصة بك للتركيز على ما يهمك أكثر.",
+            "pro_tip_desc": "قم بتخصيص تخطيط لوحة التحكم للتركيز على ما يهمك أكثر.",
             "customize_layout": "تخصيص التخطيط",
             "checking_auth": "جاري التحقق من الصلاحيات..."
         },
         "Vouchers": {
             "title": "مركز القسائم",
             "subtitle": "إصدار وتتبع القسائم لعملائك.",
-            "search_placeholder": "البحث عن العملاء...",
+            "search_placeholder": "بحث عن عملاء...",
             "tabs": {
                 "customers": "قسائم العملاء",
                 "verify": "التحقق والاسترداد"
             },
             "filters": {
                 "nationality": "الجنسية",
-                "all_countries": "جميع البلدان",
+                "all_countries": "جميع الدول",
                 "sort_by": "ترتيب حسب",
                 "newest": "الأحدث أولاً",
                 "oldest": "الأقدم أولاً",
@@ -380,87 +773,194 @@
                 "manage_for": "إدارة القسائم لـ {name}",
                 "available_points": "النقاط المتاحة",
                 "issue_new": "إصدار قسيمة جديدة",
-                "points_to_redeem": "نقاط للاسترداد",
+                "points_to_redeem": "النقاط للاسترداد",
                 "description": "الوصف",
                 "issue_btn": "إصدار القسيمة",
                 "issuing": "جاري الإصدار...",
                 "success": "تم إصدار القسيمة بنجاح!",
                 "failed": "فشل إصدار القسيمة",
                 "active_past": "القسائم النشطة والسابقة",
-                "no_vouchers": "لم يتم إصدار أي قسائم بعد",
+                "no_vouchers": "لم يتم إصدار قسائم بعد",
                 "code": "الرمز",
                 "value": "القيمة",
                 "cost": "التكلفة",
                 "redeemed": "تم الاسترداد",
                 "active": "نشط",
-                "expired": "منتهية الصلاحية",
-                "exp": "تنتهي:"
+                "expired": "منتهي الصلاحية",
+                "exp": "انتهاء:"
             },
             "verify": {
                 "title": "التحقق واسترداد القسيمة",
-                "subtitle": "أدخل رمز القسيمة للتحقق من صلاحيتها واستردادها.",
+                "subtitle": "أدخل رمز القسيمة للتحقق من الصلاحية والاسترداد.",
                 "placeholder": "أدخل رمز القسيمة (مثال: VOUCH-123)",
                 "btn_verify": "تحقق",
                 "btn_redeem": "استرداد القسيمة الآن",
                 "valid": "صالح",
                 "inactive": "غير نشط",
                 "redeemed_status": "تم الاسترداد",
-                "issued_to": "صدرت لـ",
+                "issued_to": "صدرت إلى",
                 "expires_on": "تنتهي في",
                 "redeemed_at": "تم الاسترداد في"
             }
-        }
-    },
-    "Payments": {
-        "title": "المدفوعات والشيكات",
-        "subtitle": "تتبع المدفوعات القادمة والشيكات والمواعيد النهائية",
-        "calendar_view": "التقويم",
-        "list_view": "القائمة",
-        "add_payment": "إضافة دفع",
-        "search_placeholder": "بحث عن المستلم...",
-        "status_all": "كل الحالات",
-        "status_pending": "قيد الانتظار",
-        "status_paid": "مدفوع",
-        "export_pdf": "تصدير PDF",
-        "export_excel": "تصدير Excel",
-        "table": {
-            "due_date": "تاريخ الاستحقاق",
-            "recipient": "المستلم",
-            "amount": "المبلغ",
-            "type": "النوع",
-            "status": "الحالة",
-            "notes": "ملاحظات",
+        },
+        "Revenue": {
+            "title": "الإيرادات اليومية",
+            "subtitle": "إدارة وتتبع إدخالات الإيرادات اليومية.",
+            "add_entry": "إضافة إدخال",
+            "edit_entry": "تعديل الإدخال",
+            "export_pdf": "تصدير PDF",
+            "date": "التاريخ",
+            "total_revenue": "إجمالي الإيرادات",
+            "cash": "نقدي",
+            "card": "بطاقة",
+            "ticket": "تذكرة",
+            "total": "الإجمالي",
             "actions": "إجراءات",
-            "check_number": "شيك #"
-        },
-        "modal": {
-            "add_title": "إضافة دفع جديد",
-            "details_title": "تفاصيل الدفع",
-            "mark_paid": "تحديد كمدفوع",
-            "delete": "حذف",
-            "save": "حفظ الدفع",
+            "save": "حفظ",
+            "saving": "جاري الحفظ...",
             "cancel": "إلغاء",
-            "confirm_delete": "هل أنت متأكد من حذف هذا الدفع؟"
+            "warning_total_mismatch": "تحذير: إجمالي الإيرادات (€{total}) لا يتطابق مع مجموع طرق الدفع (€{sum}).",
+            "monthly_archive": "الأرشيف الشهري",
+            "loading": "جاري التحميل...",
+            "no_entries": "لا توجد إدخالات لهذا الشهر.",
+            "confirm_delete": "هل أنت متأكد أنك تريد حذف هذا الإدخال؟",
+            "revenue_trend": "اتجاه الإيرادات",
+            "payment_split": "تقسيم طرق الدفع",
+            "months": {
+                "january": "يناير",
+                "february": "فبراير",
+                "march": "مارس",
+                "april": "أبريل",
+                "may": "مايو",
+                "june": "يونيو",
+                "july": "يوليو",
+                "august": "أغسطس",
+                "september": "سبتمبر",
+                "october": "أكتوبر",
+                "november": "نوفمبر",
+                "december": "ديسمبر"
+            }
         },
-        "weekly_total": "الإجمالي الأسبوعي"
-    },
-    "Wishlist": {
-        "Title": "تمنى أمنية",
-        "Subtitle": "لا تجد ما تبحث عنه؟ أخبرنا وسنحاول إحضاره إلى المتجر خصيصًا لك.",
-        "NewRequest": "طلب جديد",
-        "ProductName": "اسم المنتج",
-        "ProductNamePlaceholder": "مثال: شاي ماتشا عضوي",
-        "Description": "الوصف (اختياري)",
-        "DescriptionPlaceholder": "أي تفاصيل محددة، علامة تجارية، أو تفضيلات...",
-        "Submit": "إرسال الطلب",
-        "Sent": "تم الإرسال!",
-        "MyRequests": "طلباتي",
-        "NoRequests": "لا توجد طلبات بعد",
-        "NoRequestsDesc": "قائمة رغباتك فارغة. أخبرنا بما تود رؤيته في متجرنا!",
-        "Status": {
-            "pending": "قيد الانتظار",
-            "approved": "موافق عليه",
-            "rejected": "مرفوض"
+        "Orders": {
+            "title": "إدارة الطلبات",
+            "subtitle": "إدارة طلبات الموردين والمسودات.",
+            "new_order": "طلب جديد",
+            "search_placeholder": "بحث في الطلبات...",
+            "status_all": "الكل",
+            "status_draft": "مسودة",
+            "status_completed": "مكتمل",
+            "loading": "جاري تحميل الطلبات...",
+            "no_orders": "لم يتم العثور على طلبات.",
+            "table_order_number": "رقم الطلب",
+            "table_date": "التاريخ",
+            "table_supplier": "المورد",
+            "table_note": "ملاحظة",
+            "table_status": "الحالة",
+            "table_actions": "إجراءات",
+            "no_supplier": "لا يوجد مورد",
+            "delete_confirm": "هل أنت متأكد أنك تريد حذف هذا الطلب؟",
+            "delete_error": "فشل حذف الطلب",
+            "create_error": "فشل إنشاء طلب جديد",
+            "duplicate_error": "فشل تكرار الطلب",
+            "load_more": "تحميل المزيد"
+        },
+        "Suppliers": {
+            "title": "الموردون",
+            "subtitle": "إدارة قاعدة بيانات الموردين.",
+            "add_supplier": "إضافة مورد",
+            "search_placeholder": "بحث عن موردين...",
+            "loading": "جاري تحميل الموردين...",
+            "no_suppliers": "لم يتم العثور على موردين. أضف واحداً للبدء.",
+            "table_name": "الاسم",
+            "table_contact": "الاتصال",
+            "table_address": "العنوان",
+            "table_actions": "إجراءات",
+            "delete_confirm": "هل أنت متأكد أنك تريد حذف هذا المورد؟",
+            "delete_error": "فشل حذف المورد",
+            "save_error": "فشل حفظ المورد",
+            "modal_add_title": "إضافة مورد جديد",
+            "modal_edit_title": "تعديل المورد",
+            "form_name": "اسم المورد *",
+            "form_email": "البريد الإلكتروني",
+            "form_phone": "الهاتف",
+            "form_address": "العنوان",
+            "form_vat": "رقم ضريبة القيمة المضافة (اختياري)",
+            "cancel": "إلغاء",
+            "save": "حفظ المورد",
+            "load_more": "تحميل المزيد"
+        },
+        "OrderEditor": {
+            "order_not_found": "الطلب غير موجود",
+            "created_on": "تم الإنشاء في",
+            "generate_pdf": "PDF",
+            "mark_completed": "تحديد كمكتمل",
+            "reopen_draft": "إعادة فتح المسودة",
+            "items_title": "عناصر الطلب",
+            "add_item": "إضافة عنصر",
+            "table_product": "اسم المنتج",
+            "table_qty": "الكمية",
+            "table_notes": "ملاحظات",
+            "no_items": "لم يتم إضافة عناصر. انقر فوق 'إضافة عنصر' للبدء.",
+            "add_another": "إضافة عنصر آخر",
+            "supplier_details": "تفاصيل المورد",
+            "select_supplier": "اختر المورد",
+            "choose_supplier": "-- اختر المورد --",
+            "internal_note": "ملاحظة داخلية",
+            "note_hint": "مرئي للمسؤول فقط، ليس في PDF.",
+            "delete_order": "حذف الطلب",
+            "delete_confirm": "حذف هذا الطلب نهائياً؟"
+        },
+        "Payments": {
+            "title": "المدفوعات والشيكات",
+            "subtitle": "تتبع المدفوعات القادمة والشيكات والمواعيد النهائية",
+            "calendar_view": "تقويم",
+            "list_view": "قائمة",
+            "add_payment": "إضافة دفع",
+            "search_placeholder": "بحث عن مستلم...",
+            "status_all": "جميع الحالات",
+            "status_pending": "قيد الانتظار",
+            "status_paid": "مدفوع",
+            "export_pdf": "تصدير PDF",
+            "export_excel": "تصدير Excel",
+            "table": {
+                "due_date": "تاريخ الاستحقاق",
+                "recipient": "المستلم",
+                "amount": "المبلغ",
+                "type": "النوع",
+                "status": "الحالة",
+                "notes": "ملاحظات",
+                "actions": "إجراءات",
+                "check_number": "رقم الشيك"
+            },
+            "modal": {
+                "add_title": "دفع جديد",
+                "details_title": "تفاصيل الدفع",
+                "mark_paid": "تحديد كمدفوع",
+                "delete": "حذف",
+                "save": "حفظ الدفع",
+                "cancel": "إلغاء",
+                "confirm_delete": "هل أنت متأكد أنك تريد حذف هذا الدفع؟"
+            },
+            "weekly_total": "الإجمالي الأسبوعي"
+        },
+        "Wishlist": {
+            "Title": "تمنى أمنية",
+            "Subtitle": "لا تجد ما تبحث عنه؟ أخبرنا وسنحاول توفيره في المتجر خصيصًا لك.",
+            "NewRequest": "طلب جديد",
+            "ProductName": "اسم المنتج",
+            "ProductNamePlaceholder": "مثال: شاي ماتشا عضوي",
+            "Description": "الوصف (اختياري)",
+            "DescriptionPlaceholder": "أي تفاصيل محددة، علامة تجارية، أو تفضيلات...",
+            "Submit": "إرسال الطلب",
+            "Sent": "تم الإرسال!",
+            "MyRequests": "طلباتي",
+            "NoRequests": "لا توجد طلبات حتى الآن",
+            "NoRequestsDesc": "قائمة رغباتك فارغة. أخبرنا بما تود رؤيته في متجرنا!",
+            "Status": {
+                "pending": "قيد الانتظار",
+                "approved": "تمت الموافقة",
+                "rejected": "مرفوض"
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ export async function GET(request) {
         const search = searchParams.get('search');
         const type = searchParams.get('type');
         const supplier = searchParams.get('supplier');
+        const batch_id = searchParams.get('batch_id');
 
         let query = supabase
             .from('eid_purchases')
@@ -26,6 +27,9 @@ export async function GET(request) {
         }
         if (supplier && supplier !== 'ALL') {
             query = query.eq('supplier', supplier);
+        }
+        if (batch_id) {
+            query = query.eq('batch_id', batch_id);
         }
 
         const { data, count, error } = await query
@@ -66,10 +70,21 @@ export async function POST(request) {
         const cookieStore = await cookies();
         const supabase = createClient(cookieStore);
         const body = await request.json();
-        const { tag_number, tag_color, weight, animal_type, purchase_price, notes, supplier } = body;
+        const { tag_number, tag_color, weight, animal_type, purchase_price, notes, supplier, batch_id, destination } = body;
 
         if (!tag_number || !weight || !animal_type) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        // Check for duplicate tag
+        const { data: existingTag } = await supabase
+            .from('eid_purchases')
+            .select('id')
+            .eq('tag_number', tag_number)
+            .single();
+
+        if (existingTag) {
+            return NextResponse.json({ error: `Tag number ${tag_number} already exists.` }, { status: 409 });
         }
 
         const { data, error } = await supabase
@@ -81,7 +96,9 @@ export async function POST(request) {
                 animal_type,
                 purchase_price: purchase_price ? Number(purchase_price) : null,
                 notes,
-                supplier
+                supplier,
+                batch_id: batch_id || null,
+                destination
             }])
             .select()
             .single();

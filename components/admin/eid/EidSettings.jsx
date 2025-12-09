@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import GlassCard from '@/components/ui/GlassCard';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export default function EidSettings() {
+    const t = useTranslations('Admin.Eid.Settings');
     const [suppliers, setSuppliers] = useState([]);
     const [destinations, setDestinations] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -34,7 +36,7 @@ export default function EidSettings() {
             if (destRes.ok) setDestinations(await destRes.json());
         } catch (error) {
             console.error('Error fetching settings:', error);
-            toast.error('Failed to load settings');
+            toast.error(t('toast.error_load'));
         } finally {
             setLoading(false);
         }
@@ -54,15 +56,15 @@ export default function EidSettings() {
             });
 
             if (res.ok) {
-                toast.success('Supplier added');
+                toast.success(t('toast.supplier_added'));
                 setNewSupplier('');
                 setNewSupplierContact('');
                 fetchData();
             } else {
-                toast.error('Failed to add supplier');
+                toast.error(t('toast.error_add_supplier'));
             }
         } catch (error) {
-            toast.error('Error adding supplier');
+            toast.error(t('toast.error_add_supplier'));
         }
     };
 
@@ -80,33 +82,33 @@ export default function EidSettings() {
             });
 
             if (res.ok) {
-                toast.success('Destination added');
+                toast.success(t('toast.destination_added'));
                 setNewDestination('');
                 setNewDestinationLocation('');
                 fetchData();
             } else {
-                toast.error('Failed to add destination');
+                toast.error(t('toast.error_add_destination'));
             }
         } catch (error) {
-            toast.error('Error adding destination');
+            toast.error(t('toast.error_add_destination'));
         }
     };
 
     const handleDelete = async (type, id) => {
-        if (!confirm('Are you sure?')) return;
+        if (!confirm(t('confirm_delete'))) return;
         try {
             const res = await fetch(`/api/admin/eid/settings?type=${type}&id=${id}`, {
                 method: 'DELETE'
             });
 
             if (res.ok) {
-                toast.success('Item deleted');
+                toast.success(t('toast.deleted'));
                 fetchData();
             } else {
-                toast.error('Failed to delete');
+                toast.error(t('toast.error_delete'));
             }
         } catch (error) {
-            toast.error('Error deleting item');
+            toast.error(t('toast.error_delete'));
         }
     };
 
@@ -122,7 +124,7 @@ export default function EidSettings() {
         <div className="space-y-6">
             <div className="flex items-center gap-2 mb-6">
                 <Settings className="h-6 w-6 text-red-700" />
-                <h2 className="text-xl font-semibold text-red-700">Settings & Configuration</h2>
+                <h2 className="text-xl font-semibold text-red-700">{t('title')}</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -130,18 +132,18 @@ export default function EidSettings() {
                 <GlassCard className="p-6 border-t-4 border-t-blue-500">
                     <div className="flex items-center gap-2 mb-4">
                         <Truck className="h-5 w-5 text-blue-600" />
-                        <h3 className="text-lg font-semibold text-blue-900">Suppliers</h3>
+                        <h3 className="text-lg font-semibold text-blue-900">{t('suppliers.title')}</h3>
                     </div>
 
                     <div className="space-y-4 mb-6">
                         <div className="flex gap-2">
                             <Input
-                                placeholder="Supplier Name"
+                                placeholder={t('suppliers.name_placeholder')}
                                 value={newSupplier}
                                 onChange={(e) => setNewSupplier(e.target.value)}
                             />
                             <Input
-                                placeholder="Contact Info (Optional)"
+                                placeholder={t('suppliers.contact_placeholder')}
                                 value={newSupplierContact}
                                 onChange={(e) => setNewSupplierContact(e.target.value)}
                             />
@@ -169,7 +171,7 @@ export default function EidSettings() {
                             </div>
                         ))}
                         {suppliers.length === 0 && (
-                            <div className="text-center text-muted-foreground text-sm py-4">No suppliers added yet</div>
+                            <div className="text-center text-muted-foreground text-sm py-4">{t('suppliers.no_data')}</div>
                         )}
                     </div>
                 </GlassCard>
@@ -178,18 +180,18 @@ export default function EidSettings() {
                 <GlassCard className="p-6 border-t-4 border-t-purple-500">
                     <div className="flex items-center gap-2 mb-4">
                         <MapPin className="h-5 w-5 text-purple-600" />
-                        <h3 className="text-lg font-semibold text-purple-900">Destinations</h3>
+                        <h3 className="text-lg font-semibold text-purple-900">{t('destinations.title')}</h3>
                     </div>
 
                     <div className="space-y-4 mb-6">
                         <div className="flex gap-2">
                             <Input
-                                placeholder="Destination Name"
+                                placeholder={t('destinations.name_placeholder')}
                                 value={newDestination}
                                 onChange={(e) => setNewDestination(e.target.value)}
                             />
                             <Input
-                                placeholder="Location/Details (Optional)"
+                                placeholder={t('destinations.location_placeholder')}
                                 value={newDestinationLocation}
                                 onChange={(e) => setNewDestinationLocation(e.target.value)}
                             />
@@ -217,7 +219,7 @@ export default function EidSettings() {
                             </div>
                         ))}
                         {destinations.length === 0 && (
-                            <div className="text-center text-muted-foreground text-sm py-4">No destinations added yet</div>
+                            <div className="text-center text-muted-foreground text-sm py-4">{t('destinations.no_data')}</div>
                         )}
                     </div>
                 </GlassCard>

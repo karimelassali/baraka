@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS eid_cattle_groups (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     group_name TEXT NOT NULL,
     cattle_weight DECIMAL(10, 2),
+    price DECIMAL(10, 2),
     total_deposit DECIMAL(10, 2) DEFAULT 0,
     status TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'PAID', 'COMPLETED', 'CANCELLED')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -156,3 +157,36 @@ ALTER TABLE eid_destinations ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Enable all access for authenticated users" ON eid_suppliers FOR ALL TO authenticated USING (true);
 CREATE POLICY "Enable all access for authenticated users" ON eid_destinations FOR ALL TO authenticated USING (true);
+
+-- ----------------------------------------------------------
+-- TABLE: Eid Purchase Batches (Lists)
+-- ----------------------------------------------------------
+CREATE TABLE IF NOT EXISTS eid_purchase_batches (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    supplier_id UUID REFERENCES eid_suppliers(id) ON DELETE CASCADE,
+    batch_number TEXT NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Add batch_id to eid_purchases
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'eid_purchases' AND column_name = 'batch_id') THEN
+        ALTER TABLE eid_purchases ADD COLUMN batch_id UUID REFERENCES eid_purchase_batches(id) ON DELETE SET NULL;
+    END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_eid_purchase_batches_supplier_id ON eid_purchase_batches(supplier_id);
+CREATE INDEX IF NOT EXISTS idx_eid_purchases_batch_id ON eid_purchases(batch_id);
+
+ALTER TABLE eid_purchase_batches ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable all access for authenticated users" ON eid_purchase_batches FOR ALL TO authenticated USING (true);
+
+-- Add is_pinned to eid_purchase_batches
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'eid_purchase_batches' AND column_name = 'is_pinned') THEN
+        ALTER TABLE eid_purchase_batches ADD COLUMN is_pinned BOOLEAN DEFAULT FALSE;
+    END IF;
+END $$;

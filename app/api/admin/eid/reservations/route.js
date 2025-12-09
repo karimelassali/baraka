@@ -12,6 +12,7 @@ export async function GET(request) {
         const destination = searchParams.get('destination');
         const page = parseInt(searchParams.get('page')) || 1;
         const limit = parseInt(searchParams.get('limit')) || 10;
+        const sort = searchParams.get('sort') || 'desc';
         const offset = (page - 1) * limit;
 
         let query = supabase
@@ -27,7 +28,7 @@ export async function GET(request) {
                     amount
                 )
             `, { count: 'exact' })
-            .order('created_at', { ascending: false })
+            .order('created_at', { ascending: sort === 'asc' })
             .range(offset, offset + limit - 1);
 
         if (status) {

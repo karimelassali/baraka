@@ -1,18 +1,20 @@
-"use client";
-
 import React, { useState, useEffect } from 'react';
-import { Search, CheckCircle, Truck, DollarSign, ChevronLeft, Loader2 } from 'lucide-react';
+import { Search, CheckCircle, Truck, DollarSign, ChevronLeft, Loader2, Users, AlertCircle, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import GlassCard from '@/components/ui/GlassCard';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export default function Delivery() {
+    const t = useTranslations('Admin.Eid.Delivery');
     const [searchTerm, setSearchTerm] = useState('');
     const [reservations, setReservations] = useState([]);
-    const [selectedReservation, setSelectedReservation] = useState(null);
+    const [groups, setGroups] = useState([]);
+    const [combinedItems, setCombinedItems] = useState([]);
+    const [selectedItem, setSelectedItem] = useState(null);
     const [loading, setLoading] = useState(false);
     const [updating, setUpdating] = useState(false);
 
@@ -39,6 +41,7 @@ export default function Delivery() {
 
     // Available Tags
     const [availableTags, setAvailableTags] = useState([]);
+    const [usedTags, setUsedTags] = useState(new Set());
     const [tagSearch, setTagSearch] = useState('');
 
     // Pagination
@@ -61,6 +64,7 @@ export default function Delivery() {
         // Initial load
         searchReservations(1, true);
         fetchTags();
+        fetchUsedTags();
     }, []);
 
     useEffect(() => {
@@ -83,6 +87,39 @@ export default function Delivery() {
         }
     };
 
+    const fetchUsedTags = async () => {
+        try {
+            const [resReservations, resGroups] = await Promise.all([
+                fetch('/api/admin/eid/reservations?limit=2000'),
+                fetch('/api/admin/eid/cattle?limit=2000')
+            ]);
+
+            const used = new Set();
+
+            if (resReservations.ok) {
+                const { data } = await resReservations.json();
+                data.forEach(r => {
+                    if (r.tag_number) used.add(r.tag_number.trim());
+                });
+            }
+
+            if (resGroups.ok) {
+                const { data } = await resGroups.json();
+                data.forEach(g => {
+                    if (g.eid_cattle_members && Array.isArray(g.eid_cattle_members)) {
+                        g.eid_cattle_members.forEach(m => {
+                            if (m.tag_number) used.add(m.tag_number.trim());
+                        });
+                    }
+                });
+            }
+
+            setUsedTags(used);
+        } catch (e) {
+            console.error("Error fetching used tags", e);
+        }
+    };
+
     const searchReservations = async (pageNum = 1, reset = false) => {
         if (loading && !reset) return;
         setLoading(true);
@@ -97,13 +134,49 @@ export default function Delivery() {
                 const result = await response.json();
                 const newReservations = result.data || [];
 
+                // Fetch Groups as well
+                let newGroups = [];
+                try {
+                    let groupUrl = `/api/admin/eid/cattle?page=${pageNum}&limit=${limit}`;
+                    if (searchTerm) groupUrl += `&search=${searchTerm}`;
+
+                    // Map filters for Groups
+                    if (statusFilter !== 'ALL') {
+                        if (statusFilter === 'PAID') groupUrl += `&status=PAID`;
+                        else if (statusFilter === 'UNPAID') groupUrl += `&status=PENDING`;
+                        else if (statusFilter === 'COLLECTED') groupUrl += `&status=COMPLETED`;
+                    }
+
+                    const groupRes = await fetch(groupUrl);
+                    if (groupRes.ok) {
+                        const groupResult = await groupRes.json();
+                        let fetchedGroups = groupResult.data || [];
+
+                        if (statusFilter === 'NOT_COLLECTED') {
+                            fetchedGroups = fetchedGroups.filter(g => g.status !== 'COMPLETED' && g.status !== 'CANCELLED');
+                        }
+                        newGroups = fetchedGroups;
+                    }
+                } catch (e) {
+                    console.error("Error fetching groups", e);
+                }
+
                 if (reset) {
                     setReservations(newReservations);
-                    // Extract unique destinations from all data (or at least current batch + existing)
-                    // Ideally API should return this, but for now we can accumulate from client view or fetch separately
+                    setGroups(newGroups);
                 } else {
                     setReservations(prev => [...prev, ...newReservations]);
+                    setGroups(prev => [...prev, ...newGroups]);
                 }
+
+                // Combine and sort by date (newest first) - simplistic approach
+                const combined = [
+                    ...newReservations.map(r => ({ ...r, type: 'RESERVATION' })),
+                    ...newGroups.map(g => ({ ...g, type: 'GROUP' }))
+                ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                setCombinedItems(reset ? combined : [...combinedItems, ...combined]);
+
 
                 setHasMore(newReservations.length === limit);
                 setPage(pageNum);
@@ -125,94 +198,122 @@ export default function Delivery() {
         }
     };
 
-    const handleSelect = (res) => {
-        setSelectedReservation(res);
-        // Find tag color if tag exists
-        const tag = availableTags.find(t => t.tag_number === res.tag_number);
+    const handleSelect = (item) => {
+        setSelectedItem(item);
 
-        setForm({
-            final_weight: res.final_weight || '',
-            tag_number: res.tag_number || '',
-            tag_color: tag?.tag_color || '',
-            final_price: res.final_price || '',
-            destination: res.destination || '',
-            is_paid: res.is_paid || false,
-            status: res.status
-        });
+        if (item.type === 'RESERVATION') {
+            // Find tag color if tag exists
+            const tag = availableTags.find(t => t.tag_number === item.tag_number);
+
+            setForm({
+                final_weight: item.final_weight || '',
+                tag_number: item.tag_number || '',
+                tag_color: tag?.tag_color || '',
+                final_price: item.final_price || '',
+                destination: item.destination || '',
+                is_paid: item.is_paid || false,
+                status: item.status
+            });
+        } else {
+            // Group
+            setForm({
+                final_weight: item.cattle_weight || '',
+                tag_number: '', // Groups don't have single tag
+                tag_color: '',
+                final_price: item.price || '',
+                destination: '', // Groups might not have destination field yet, or use generic
+                is_paid: item.status === 'PAID' || item.status === 'COMPLETED',
+                status: item.status
+            });
+        }
     };
 
     const handleUpdate = async () => {
-        if (!selectedReservation) return;
+        if (!selectedItem) return;
         setUpdating(true);
 
         try {
-            const response = await fetch(`/api/admin/eid/reservations/${selectedReservation.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    final_weight: form.final_weight,
-                    tag_number: form.tag_number,
-                    final_price: form.final_price,
-                    destination: form.destination,
-                    is_paid: form.is_paid,
-                    status: form.status,
-                    collected_at: form.status === 'COLLECTED' ? new Date().toISOString() : null
-                })
-            });
+            let response;
+            if (selectedItem.type === 'RESERVATION') {
+                response = await fetch(`/api/admin/eid/reservations/${selectedItem.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        final_weight: form.final_weight,
+                        tag_number: form.tag_number,
+                        final_price: form.final_price,
+                        destination: form.destination,
+                        is_paid: form.is_paid,
+                        status: form.status,
+                        collected_at: form.status === 'COLLECTED' ? new Date().toISOString() : null
+                    })
+                });
+            } else {
+                // Update Group
+                let newStatus = form.status;
+                if (form.is_paid && newStatus === 'PENDING') newStatus = 'PAID';
+                if (!form.is_paid && newStatus === 'PAID') newStatus = 'PENDING';
+
+                response = await fetch(`/api/admin/eid/cattle`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: selectedItem.id,
+                        cattle_weight: form.final_weight,
+                        price: form.final_price,
+                        status: newStatus,
+                        tag_number: form.tag_number // Pass tag number for assignment
+                    })
+                });
+            }
 
             if (response.ok) {
-                toast.success('Delivery updated');
+                toast.success(t('toast.updated'));
 
-                // Update the item in the local list
-                setReservations(prev => prev.map(r =>
-                    r.id === selectedReservation.id
-                        ? {
-                            ...r,
-                            ...form,
-                            collected_at: form.status === 'COLLECTED' ? new Date().toISOString() : null
-                        }
-                        : r
+                // Update local state
+                setCombinedItems(prev => prev.map(item =>
+                    item.id === selectedItem.id
+                        ? { ...item, ...form, status: form.status, is_paid: form.is_paid } // Simplified update
+                        : item
                 ));
 
-                setSelectedReservation(null); // Go back to list
+                // Refresh used tags if tag was changed
+                fetchUsedTags();
+
+                setSelectedItem(null);
             } else {
-                toast.error('Failed to update');
+                toast.error(t('toast.error_update'));
             }
         } catch (error) {
-            toast.error('Error updating delivery');
+            toast.error(t('toast.error_update'));
         } finally {
             setUpdating(false);
         }
     };
 
     // Calculate financials
-    const totalDeposit = selectedReservation?.total_deposit || 0;
-    // If final_price is set, use it. Otherwise, we don't calculate automatically to avoid overwriting user input with a calculation.
-    // But user asked: "always keep final price shown if i already add it , not each time add final price and calcule , if i did it ione time keep it"
-    // So we rely on form.final_price.
-
+    const totalDeposit = selectedItem?.total_deposit || 0;
     const remaining = (Number(form.final_price) || 0) - totalDeposit;
-
     const currentYear = new Date().getFullYear();
 
     // Filter available tags based on search
     const filteredTags = availableTags.filter(t =>
         t.tag_number.toLowerCase().includes(tagSearch.toLowerCase()) &&
-        (t.animal_type === selectedReservation?.animal_type) // Only show tags of same type
+        (selectedItem?.type === 'RESERVATION' ? t.animal_type === selectedItem?.animal_type : true)
     );
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-red-700">Delivery Management {currentYear}</h2>
+                <h2 className="text-xl font-semibold text-red-700">{t('title')} {currentYear}</h2>
             </div>
 
-            {!selectedReservation ? (
+            {!selectedItem ? (
                 <div className="relative max-w-md mx-auto space-y-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search by Customer Name or Order #..."
+                            placeholder={t('search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-9 h-12 text-lg focus-visible:ring-red-500 border-red-200"
@@ -223,84 +324,77 @@ export default function Delivery() {
                     </div>
 
                     {/* Filters */}
-                    <div className="flex gap-2 overflow-x-auto pb-2">
-                        <Badge
-                            variant={statusFilter === 'ALL' ? 'default' : 'outline'}
-                            className="cursor-pointer whitespace-nowrap"
-                            onClick={() => setStatusFilter('ALL')}
-                        >
-                            All
-                        </Badge>
-                        <Badge
-                            variant={statusFilter === 'PAID' ? 'default' : 'outline'}
-                            className="cursor-pointer whitespace-nowrap bg-green-100 text-green-800 hover:bg-green-200 border-green-200"
-                            onClick={() => setStatusFilter(statusFilter === 'PAID' ? 'ALL' : 'PAID')}
-                        >
-                            Paid
-                        </Badge>
-                        <Badge
-                            variant={statusFilter === 'UNPAID' ? 'default' : 'outline'}
-                            className="cursor-pointer whitespace-nowrap bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200"
-                            onClick={() => setStatusFilter(statusFilter === 'UNPAID' ? 'ALL' : 'UNPAID')}
-                        >
-                            Unpaid
-                        </Badge>
-                        <Badge
-                            variant={statusFilter === 'COLLECTED' ? 'default' : 'outline'}
-                            className="cursor-pointer whitespace-nowrap bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200"
-                            onClick={() => setStatusFilter(statusFilter === 'COLLECTED' ? 'ALL' : 'COLLECTED')}
-                        >
-                            Collected
-                        </Badge>
-                        <Badge
-                            variant={statusFilter === 'NOT_COLLECTED' ? 'default' : 'outline'}
-                            className="cursor-pointer whitespace-nowrap bg-red-100 text-red-800 hover:bg-red-200 border-red-200"
-                            onClick={() => setStatusFilter(statusFilter === 'NOT_COLLECTED' ? 'ALL' : 'NOT_COLLECTED')}
-                        >
-                            Not Collected
-                        </Badge>
+                    <div className="flex gap-1 bg-muted/20 p-1 rounded-lg overflow-x-auto">
+                        {['ALL', 'PAID', 'UNPAID', 'COLLECTED', 'NOT_COLLECTED'].map((status) => (
+                            <button
+                                key={status}
+                                onClick={() => setStatusFilter(status)}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${statusFilter === status
+                                    ? 'bg-white text-red-700 shadow-sm'
+                                    : 'text-muted-foreground hover:bg-white/50'
+                                    }`}
+                            >
+                                {t(`filters.${status.toLowerCase()}`)}
+                            </button>
+                        ))}
                     </div>
 
                     <div className="space-y-2">
-                        {reservations.map((res) => (
-                            <div
-                                key={res.id}
-                                className={`p-4 rounded-lg border cursor-pointer transition-all ${res.status === 'COLLECTED'
-                                    ? 'bg-green-50 border-green-200 hover:bg-green-100'
-                                    : 'bg-white border-border hover:bg-red-50 hover:border-red-200'
-                                    }`}
-                                onClick={() => handleSelect(res)}
-                            >
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className="font-bold text-red-900">#{res.order_number}</span>
-                                    <div className="flex gap-1">
-                                        {res.is_paid && (
-                                            <Badge className="bg-green-500 hover:bg-green-600 text-white p-1 rounded-full">
-                                                <DollarSign className="w-3 h-3" />
-                                            </Badge>
-                                        )}
-                                        {res.status === 'COLLECTED' && (
-                                            <Badge className="bg-blue-500 hover:bg-blue-600 text-white p-1 rounded-full">
-                                                <Truck className="w-3 h-3" />
-                                            </Badge>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <div className="font-medium">{res.customers?.first_name} {res.customers?.last_name}</div>
-                                    <Badge variant="secondary">{res.animal_type}</Badge>
-                                </div>
-                                {res.destination && (
-                                    <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
-                                        <Truck className="w-3 h-3" /> {res.destination}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {combinedItems.map((item) => {
+                            // Green only if PAID AND COLLECTED/COMPLETED
+                            const isCompleted = item.status === 'COLLECTED' || item.status === 'COMPLETED';
+                            const isPaid = item.is_paid || item.status === 'PAID';
+                            const isGreen = isCompleted && isPaid;
 
-                        {reservations.length === 0 && !loading && (
+                            return (
+                                <div
+                                    key={item.id}
+                                    className={`p-4 rounded-lg border cursor-pointer transition-all ${isGreen
+                                        ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                                        : 'bg-white border-border hover:bg-red-50 hover:border-red-200'
+                                        }`}
+                                    onClick={() => handleSelect(item)}
+                                >
+                                    <div className="flex justify-between items-center mb-1">
+                                        <div className="flex items-center gap-2">
+                                            {item.type === 'GROUP' && <Users className="w-4 h-4 text-red-700" />}
+                                            <span className="font-bold text-red-900">
+                                                {item.type === 'GROUP' ? item.group_name : `#${item.order_number}`}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-1">
+                                            {isPaid && (
+                                                <Badge className="bg-green-500 hover:bg-green-600 text-white p-1 rounded-full">
+                                                    <DollarSign className="w-3 h-3" />
+                                                </Badge>
+                                            )}
+                                            {isCompleted && (
+                                                <Badge className="bg-blue-500 hover:bg-blue-600 text-white p-1 rounded-full">
+                                                    <Truck className="w-3 h-3" />
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <div className="font-medium">
+                                            {item.type === 'GROUP'
+                                                ? t('members_count', { count: item.eid_cattle_members?.length || 0 })
+                                                : `${item.customers?.first_name} ${item.customers?.last_name}`}
+                                        </div>
+                                        <Badge variant="secondary">{item.type === 'GROUP' ? t('group_badge') : item.animal_type}</Badge>
+                                    </div>
+                                    {item.destination && (
+                                        <div className="mt-2 text-xs text-muted-foreground flex items-center gap-1">
+                                            <Truck className="w-3 h-3" /> {item.destination}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+
+                        {combinedItems.length === 0 && !loading && (
                             <div className="text-center text-muted-foreground py-8">
-                                No reservations found.
+                                {t('no_reservations')}
                             </div>
                         )}
 
@@ -312,7 +406,7 @@ export default function Delivery() {
                                 disabled={loading}
                             >
                                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                                Load More
+                                {t('load_more')}
                             </Button>
                         )}
                     </div>
@@ -322,30 +416,36 @@ export default function Delivery() {
                     <Button
                         variant="ghost"
                         className="md:col-span-2 w-fit"
-                        onClick={() => setSelectedReservation(null)}
+                        onClick={() => setSelectedItem(null)}
                     >
                         <ChevronLeft className="w-4 h-4 mr-2" />
-                        Back to List
+                        {t('back_to_list')}
                     </Button>
 
-                    <GlassCard className={`p-6 space-y-6 border-t-4 ${form.status === 'COLLECTED' ? 'border-t-green-500 bg-green-50/30' : 'border-t-red-500'}`}>
+                    <GlassCard className={`p-6 space-y-6 border-t-4 ${(form.status === 'COLLECTED' || form.status === 'COMPLETED') && form.is_paid ? 'border-t-green-500 bg-green-50/30' : 'border-t-red-500'}`}>
                         <div className="flex justify-between items-start">
                             <div>
                                 <h3 className="text-xl font-bold text-red-900">
-                                    {selectedReservation.customers?.first_name} {selectedReservation.customers?.last_name}
+                                    {selectedItem.type === 'GROUP'
+                                        ? selectedItem.group_name
+                                        : `${selectedItem.customers?.first_name} ${selectedItem.customers?.last_name}`}
                                 </h3>
-                                <p className="text-muted-foreground">Order #{selectedReservation.order_number}</p>
+                                <p className="text-muted-foreground">
+                                    {selectedItem.type === 'GROUP' ? t('cattle_group_label') : t('order_number', { number: selectedItem.order_number })}
+                                </p>
                             </div>
-                            <Badge className="text-lg px-3 py-1 bg-red-100 text-red-800 hover:bg-red-200">{selectedReservation.animal_type}</Badge>
+                            <Badge className="text-lg px-3 py-1 bg-red-100 text-red-800 hover:bg-red-200">
+                                {selectedItem.type === 'GROUP' ? t('group_badge') : selectedItem.animal_type}
+                            </Badge>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Requested Weight</label>
-                                <Input value={selectedReservation.requested_weight} disabled />
+                                <label className="text-sm font-medium">{t('details.requested_weight')}</label>
+                                <Input value={selectedItem.type === 'GROUP' ? (selectedItem.cattle_weight || '-') : selectedItem.requested_weight} disabled />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Final Weight (kg)</label>
+                                <label className="text-sm font-medium">{t('details.final_weight')}</label>
                                 <Input
                                     type="number"
                                     value={form.final_weight}
@@ -354,52 +454,60 @@ export default function Delivery() {
                                 />
                             </div>
 
-                            {/* Tag Selection */}
+                            {/* Tag Selection - For Reservations AND Groups */}
                             <div className="space-y-2 col-span-2">
-                                <label className="text-sm font-medium">Tag Number</label>
+                                <label className="text-sm font-medium">{t('details.tag_number')} {selectedItem.type === 'GROUP' && t('details.add_to_member')}</label>
                                 <div className="relative">
                                     <div className="flex gap-2 mb-2">
                                         <Input
-                                            placeholder="Search tag..."
+                                            placeholder={t('search_tag_placeholder')}
                                             value={tagSearch}
                                             onChange={(e) => setTagSearch(e.target.value)}
                                             className="flex-1"
                                         />
                                         {form.tag_color && (
                                             <div
-                                                className="w-10 h-10 rounded border shadow-sm"
-                                                style={{ backgroundColor: form.tag_color }}
+                                                className="w-10 h-10 rounded border shadow-sm flex items-center justify-center"
+                                                style={{ backgroundColor: form.tag_color + '20', borderColor: form.tag_color }}
                                                 title="Tag Color"
-                                            />
+                                            >
+                                                <Tag className="w-6 h-6" style={{ color: form.tag_color }} />
+                                            </div>
                                         )}
                                     </div>
                                     {tagSearch && (
                                         <div className="absolute z-10 w-full bg-white border rounded-md shadow-lg max-h-40 overflow-y-auto">
-                                            {filteredTags.map(tag => (
-                                                <div
-                                                    key={tag.id}
-                                                    className="p-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
-                                                    onClick={() => {
-                                                        setForm({
-                                                            ...form,
-                                                            tag_number: tag.tag_number,
-                                                            tag_color: tag.tag_color,
-                                                            final_weight: form.final_weight || tag.weight // Auto-fill weight if empty
-                                                        });
-                                                        setTagSearch('');
-                                                    }}
-                                                >
-                                                    <span>{tag.tag_number} ({tag.weight}kg)</span>
-                                                    {tag.tag_color && (
-                                                        <div
-                                                            className="w-4 h-4 rounded-full border"
-                                                            style={{ backgroundColor: tag.tag_color }}
-                                                        />
-                                                    )}
-                                                </div>
-                                            ))}
+                                            {filteredTags.map(tag => {
+                                                const tagNum = tag.tag_number.trim();
+                                                const currentTagNum = form.tag_number ? form.tag_number.trim() : '';
+                                                const isUsed = usedTags.has(tagNum) && tagNum !== currentTagNum;
+                                                return (
+                                                    <div
+                                                        key={tag.id}
+                                                        className={`p-2 flex justify-between items-center ${isUsed ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'hover:bg-gray-100 cursor-pointer'}`}
+                                                        onClick={() => {
+                                                            if (isUsed) return;
+                                                            setForm({
+                                                                ...form,
+                                                                tag_number: tag.tag_number,
+                                                                tag_color: tag.tag_color,
+                                                                final_weight: form.final_weight || tag.weight // Auto-fill weight if empty
+                                                            });
+                                                            setTagSearch('');
+                                                        }}
+                                                    >
+                                                        <div className="flex flex-col">
+                                                            <span>{tag.tag_number} ({tag.weight}kg)</span>
+                                                            {isUsed && <span className="text-xs text-red-500 font-bold flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {t('tag_used')}</span>}
+                                                        </div>
+                                                        {tag.tag_color && (
+                                                            <Tag className="w-4 h-4" style={{ color: tag.tag_color }} />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                             {filteredTags.length === 0 && (
-                                                <div className="p-2 text-muted-foreground text-sm">No tags found</div>
+                                                <div className="p-2 text-muted-foreground text-sm">{t('no_tags_found')}</div>
                                             )}
                                         </div>
                                     )}
@@ -409,30 +517,31 @@ export default function Delivery() {
                                             <Button variant="ghost" size="sm" onClick={() => {
                                                 setForm({ ...form, tag_number: '', tag_color: '' });
                                                 setTagSearch('');
-                                            }}>Change</Button>
+                                            }}>{t('change_btn')}</Button>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Final Price (€)</label>
+                                <label className="text-sm font-medium">{t('details.final_price')}</label>
                                 <Input
                                     type="number"
                                     value={form.final_price}
                                     onChange={(e) => setForm({ ...form, final_price: e.target.value })}
-                                    placeholder="Total Amount"
+                                    placeholder={t('total_amount_placeholder')}
                                     className="focus-visible:ring-red-500 font-bold"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Destination</label>
+                                <label className="text-sm font-medium">{t('details.destination')}</label>
                                 <Input
                                     value={form.destination}
                                     onChange={(e) => setForm({ ...form, destination: e.target.value })}
-                                    placeholder="e.g. Slaughterhouse"
+                                    placeholder={t('destination_placeholder')}
                                     className="focus-visible:ring-red-500"
                                     list="destinations-list"
+                                    disabled={selectedItem.type === 'GROUP'} // Disable for groups for now if not supported
                                 />
                                 <datalist id="destinations-list">
                                     {configuredDestinations.map(d => (
@@ -444,15 +553,15 @@ export default function Delivery() {
 
                         <div className="bg-red-50/50 p-4 rounded-xl space-y-3 border border-red-100">
                             <div className="flex justify-between text-sm">
-                                <span>Deposit Paid:</span>
+                                <span>{t('details.deposit_paid')}</span>
                                 <span className="font-bold text-green-600">{totalDeposit}€</span>
                             </div>
                             <div className="flex justify-between text-sm">
-                                <span>Final Total:</span>
+                                <span>{t('details.final_total')}</span>
                                 <span className="font-bold">{form.final_price || 0}€</span>
                             </div>
                             <div className="border-t border-red-200 pt-2 flex justify-between text-lg font-bold">
-                                <span>Remaining:</span>
+                                <span>{t('details.remaining')}</span>
                                 <span className={remaining > 0 ? 'text-red-600' : 'text-green-600'}>
                                     {remaining.toFixed(2)}€
                                 </span>
@@ -460,9 +569,9 @@ export default function Delivery() {
                         </div>
                     </GlassCard>
 
-                    <GlassCard className={`p-6 space-y-6 flex flex-col justify-center border-t-4 ${form.status === 'COLLECTED' ? 'border-t-green-500 bg-green-50/30' : 'border-t-red-500'}`}>
+                    <GlassCard className={`p-6 space-y-6 flex flex-col justify-center border-t-4 ${(form.status === 'COLLECTED' || form.status === 'COMPLETED') && form.is_paid ? 'border-t-green-500 bg-green-50/30' : 'border-t-red-500'}`}>
                         <div className="space-y-4">
-                            <h4 className="font-semibold text-red-900">Status Updates</h4>
+                            <h4 className="font-semibold text-red-900">{t('status_updates.title')}</h4>
 
                             <div
                                 className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${form.is_paid
@@ -477,9 +586,9 @@ export default function Delivery() {
                                         <DollarSign className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div className="font-bold">Payment Status</div>
+                                        <div className="font-bold">{t('status_updates.payment_status')}</div>
                                         <div className="text-sm text-muted-foreground">
-                                            {form.is_paid ? 'Paid in Full' : 'Payment Pending'}
+                                            {form.is_paid ? t('status_updates.paid_full') : t('status_updates.payment_pending')}
                                         </div>
                                     </div>
                                 </div>
@@ -487,36 +596,40 @@ export default function Delivery() {
                             </div>
 
                             <div
-                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${form.status === 'COLLECTED'
+                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all flex items-center justify-between ${form.status === 'COLLECTED' || form.status === 'COMPLETED'
                                     ? 'border-green-500 bg-green-50'
                                     : 'border-muted hover:border-blue-200'
                                     }`}
-                                onClick={() => setForm({ ...form, status: form.status === 'COLLECTED' ? 'CONFIRMED' : 'COLLECTED' })}
+                                onClick={() => {
+                                    const collectedStatus = selectedItem.type === 'GROUP' ? 'COMPLETED' : 'COLLECTED';
+                                    const pendingStatus = selectedItem.type === 'GROUP' ? 'PENDING' : 'CONFIRMED';
+                                    setForm({ ...form, status: (form.status === 'COLLECTED' || form.status === 'COMPLETED') ? pendingStatus : collectedStatus });
+                                }}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${form.status === 'COLLECTED' ? 'bg-green-500 text-white' : 'bg-muted'
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${(form.status === 'COLLECTED' || form.status === 'COMPLETED') ? 'bg-green-500 text-white' : 'bg-muted'
                                         }`}>
                                         <Truck className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div className="font-bold">Collection Status</div>
+                                        <div className="font-bold">{t('status_updates.collection_status')}</div>
                                         <div className="text-sm text-muted-foreground">
-                                            {form.status === 'COLLECTED' ? 'Collected' : 'Not Collected'}
+                                            {(form.status === 'COLLECTED' || form.status === 'COMPLETED') ? t('status_updates.collected') : t('status_updates.not_collected')}
                                         </div>
                                     </div>
                                 </div>
-                                {form.status === 'COLLECTED' && <CheckCircle className="w-6 h-6 text-green-500" />}
+                                {(form.status === 'COLLECTED' || form.status === 'COMPLETED') && <CheckCircle className="w-6 h-6 text-green-500" />}
                             </div>
                         </div>
 
                         <Button
                             size="lg"
-                            className={`w-full ${form.status === 'COLLECTED' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                            className={`w-full ${(form.status === 'COLLECTED' || form.status === 'COMPLETED') ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
                             onClick={handleUpdate}
                             disabled={updating}
                         >
                             {updating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                            Save Changes
+                            {t('status_updates.save_changes')}
                         </Button>
                     </GlassCard>
                 </div>

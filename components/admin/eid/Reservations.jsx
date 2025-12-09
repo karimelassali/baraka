@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Search, Calendar, DollarSign, User, FileText, Trash2, Edit, CheckCircle, ChevronLeft, ChevronRight, Loader2, Download } from 'lucide-react';
+import { Plus, Search, Calendar, DollarSign, User, FileText, Trash2, Edit, CheckCircle, ChevronLeft, ChevronRight, Loader2, Download, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
@@ -14,10 +14,13 @@ import CustomerSearch from './CustomerSearch';
 import GlassCard from '@/components/ui/GlassCard';
 import { toast } from 'sonner';
 import { generateEidPdf } from '@/lib/eidPdfUtils';
+import { useTranslations } from 'next-intl';
 
 export default function Reservations() {
+    const t = useTranslations('Admin.Eid.Reservations');
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [sortOrder, setSortOrder] = useState('desc'); // 'desc' = Newest first, 'asc' = Oldest first
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
     const [selectedReservation, setSelectedReservation] = useState(null);
@@ -50,18 +53,20 @@ export default function Reservations() {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
 
+    // ...
+
     useEffect(() => {
         // Debounce search
         const timer = setTimeout(() => {
             fetchReservations();
         }, 500);
         return () => clearTimeout(timer);
-    }, [page, searchTerm, statusFilter]);
+    }, [page, searchTerm, statusFilter, sortOrder]);
 
     const fetchReservations = async () => {
         setLoading(true);
         try {
-            let url = `/api/admin/eid/reservations?page=${page}&limit=${limit}`;
+            let url = `/api/admin/eid/reservations?page=${page}&limit=${limit}&sort=${sortOrder}`;
             if (searchTerm) url += `&search=${searchTerm}`;
             if (statusFilter !== 'ALL') url += `&status=${statusFilter}`;
 
@@ -73,7 +78,7 @@ export default function Reservations() {
             }
         } catch (error) {
             console.error('Error fetching reservations:', error);
-            toast.error('Failed to load reservations');
+            toast.error(t('toast.error_load'));
         } finally {
             setLoading(false);
         }
@@ -81,7 +86,7 @@ export default function Reservations() {
 
     const handleSaveReservation = async () => {
         if (!formData.customer) {
-            toast.error('Please select a customer');
+            toast.error(t('toast.select_customer'));
             return;
         }
 
@@ -111,16 +116,16 @@ export default function Reservations() {
             });
 
             if (response.ok) {
-                toast.success(editingReservation ? 'Reservation updated' : 'Reservation created');
+                toast.success(editingReservation ? t('toast.updated') : t('toast.created'));
                 setIsAddModalOpen(false);
                 fetchReservations();
                 resetForm();
             } else {
-                toast.error('Failed to save reservation');
+                toast.error(t('toast.error_save'));
             }
         } catch (error) {
             console.error('Error saving reservation:', error);
-            toast.error('Error saving reservation');
+            toast.error(t('toast.error_save'));
         }
     };
 
@@ -145,20 +150,20 @@ export default function Reservations() {
     };
 
     const handleDelete = async (id) => {
-        if (!confirm('Are you sure you want to delete this reservation?')) return;
+        if (!confirm(t('confirm_delete'))) return;
         try {
             const response = await fetch(`/api/admin/eid/reservations/${id}`, {
                 method: 'DELETE'
             });
 
             if (response.ok) {
-                toast.success('Reservation deleted');
+                toast.success(t('toast.deleted'));
                 fetchReservations();
             } else {
-                toast.error('Failed to delete reservation');
+                toast.error(t('toast.error_delete'));
             }
         } catch (error) {
-            toast.error('Error deleting reservation');
+            toast.error(t('toast.error_delete'));
         }
     };
 
@@ -190,12 +195,12 @@ export default function Reservations() {
             });
 
             if (response.ok) {
-                toast.success('Deposit added successfully');
+                toast.success(t('toast.deposit_added'));
                 fetchDeposits(selectedReservation.id);
                 fetchReservations(); // Refresh main table to update total
                 setDepositForm({ amount: '', notes: '', payment_method: 'CASH' });
             } else {
-                toast.error('Failed to add deposit');
+                toast.error(t('toast.error_deposit'));
             }
         } catch (error) {
             console.error('Error adding deposit:', error);
@@ -221,8 +226,11 @@ export default function Reservations() {
     };
 
     const handleDownloadPdf = () => {
+        // Always sort Oldest to Newest for PDF
+        const sortedReservations = [...reservations].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
         const columns = ['Order #', 'Customer', 'Phone', 'Type', 'Weight', 'Pickup', 'Deposit', 'Status', 'Notes'];
-        const data = reservations.map(res => [
+        const data = sortedReservations.map(res => [
             res.order_number,
             `${res.customers?.first_name} ${res.customers?.last_name}`,
             res.customers?.phone_number || '-',
@@ -235,13 +243,14 @@ export default function Reservations() {
         ]);
 
         generateEidPdf({
-            title: 'Reservations Report',
+            title: t('title'),
             columns,
             data,
             filename: `reservations_${new Date().toISOString().split('T')[0]}`,
             details: {
                 'Total Reservations': reservations.length,
-                'Status Filter': statusFilter
+                'Status Filter': statusFilter,
+                'Sort': 'Oldest to Newest'
             }
         });
     };
@@ -251,36 +260,46 @@ export default function Reservations() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <h2 className="text-xl font-semibold text-red-700">Customer Reservations {currentYear}</h2>
+                <h2 className="text-xl font-semibold text-red-700">{t('title')} {currentYear}</h2>
                 <div className="flex gap-2 w-full md:w-auto">
                     <div className="relative flex-1 md:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search customer or order #..."
+                            placeholder={t('search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-9"
                         />
                     </div>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-[150px]">
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">All Status</SelectItem>
-                            <SelectItem value="PENDING">Pending</SelectItem>
-                            <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                            <SelectItem value="COLLECTED">Collected</SelectItem>
-                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="flex gap-1 bg-muted/20 p-1 rounded-lg">
+                        {['ALL', 'PENDING', 'CONFIRMED', 'COLLECTED', 'CANCELLED'].map((status) => (
+                            <button
+                                key={status}
+                                onClick={() => setStatusFilter(status)}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === status
+                                    ? 'bg-white text-red-700 shadow-sm'
+                                    : 'text-muted-foreground hover:bg-white/50'
+                                    }`}
+                            >
+                                {t(`status.${status.toLowerCase()}`)}
+                            </button>
+                        ))}
+                    </div>
+                    <Button
+                        variant="outline"
+                        onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+                        className="border-red-200 text-red-700 hover:bg-red-50 px-3"
+                        title={sortOrder === 'desc' ? t('sort.newest') : t('sort.oldest')}
+                    >
+                        {sortOrder === 'desc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}
+                    </Button>
                     <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
                         <Download className="w-4 h-4 mr-2" />
                         PDF
                     </Button>
                     <Button onClick={() => { resetForm(); setIsAddModalOpen(true); }} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
                         <Plus className="w-4 h-4 mr-2" />
-                        New Reservation
+                        {t('new_reservation')}
                     </Button>
                 </div>
             </div>
@@ -289,15 +308,15 @@ export default function Reservations() {
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-red-50/50">
-                            <TableHead className="text-red-900 font-bold">ID</TableHead>
-                            <TableHead className="text-red-900 font-bold">Customer</TableHead>
-                            <TableHead className="text-red-900 font-bold">Phone</TableHead>
-                            <TableHead className="text-red-900 font-bold">Type</TableHead>
-                            <TableHead className="text-red-900 font-bold">Weight</TableHead>
-                            <TableHead className="text-red-900 font-bold">Pickup</TableHead>
-                            <TableHead className="text-red-900 font-bold">Deposit</TableHead>
-                            <TableHead className="text-red-900 font-bold">Status</TableHead>
-                            <TableHead className="text-red-900 font-bold">Actions</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.id')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.customer')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.phone')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.type')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.weight')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.pickup')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.deposit')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.status')}</TableHead>
+                            <TableHead className="text-red-900 font-bold">{t('table.actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -312,14 +331,14 @@ export default function Reservations() {
                         ) : reservations.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                                    No reservations found.
+                                    {t('no_reservations')}
                                 </TableCell>
                             </TableRow>
                         ) : (
                             reservations.map((res) => (
                                 <TableRow
                                     key={res.id}
-                                    className={`hover:bg-red-50/30 transition-colors ${res.status === 'COLLECTED' ? 'bg-green-50/30' : ''}`}
+                                    className={`hover:bg-red-50/30 transition-colors ${res.status === 'COLLECTED' && res.is_paid ? 'bg-green-50/30' : ''}`}
                                 >
                                     <TableCell className="font-mono">#{res.order_number}</TableCell>
                                     <TableCell className="font-medium">
@@ -379,7 +398,7 @@ export default function Reservations() {
                 {/* Pagination Controls */}
                 <div className="p-4 border-t flex items-center justify-between bg-muted/20">
                     <div className="text-sm text-muted-foreground">
-                        Page {page} of {totalPages}
+                        {t('page')} {page} {t('of')} {totalPages}
                     </div>
                     <div className="flex gap-2">
                         <Button
@@ -411,25 +430,25 @@ export default function Reservations() {
             }}>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="text-red-700">{editingReservation ? 'Edit Reservation' : 'New Reservation'}</DialogTitle>
+                        <DialogTitle className="text-red-700">{editingReservation ? t('modal.edit_title') : t('modal.new_title')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Customer</label>
+                            <label className="text-sm font-medium">{t('modal.customer')}</label>
                             <CustomerSearch
                                 onSelect={(c) => setFormData({ ...formData, customer: c })}
                                 selectedCustomer={formData.customer}
                             />
                             {formData.customer && (
                                 <div className="text-sm text-muted-foreground ml-1">
-                                    Phone: {formData.customer.phone_number}
+                                    {t('table.phone')}: {formData.customer.phone_number}
                                 </div>
                             )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Type</label>
+                                <label className="text-sm font-medium">{t('modal.type')}</label>
                                 <Select
                                     value={formData.animal_type}
                                     onValueChange={(v) => setFormData({ ...formData, animal_type: v })}
@@ -438,13 +457,13 @@ export default function Reservations() {
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="SHEEP">Sheep (Agnello)</SelectItem>
-                                        <SelectItem value="GOAT">Goat (Capra)</SelectItem>
+                                        <SelectItem value="SHEEP">{t('types.sheep')}</SelectItem>
+                                        <SelectItem value="GOAT">{t('types.goat')}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Weight</label>
+                                <label className="text-sm font-medium">{t('modal.weight')}</label>
                                 <Select
                                     value={formData.requested_weight}
                                     onValueChange={(v) => setFormData({ ...formData, requested_weight: v })}
@@ -464,7 +483,7 @@ export default function Reservations() {
                         <div className="grid grid-cols-2 gap-4">
                             {!editingReservation && (
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Initial Deposit (€)</label>
+                                    <label className="text-sm font-medium">{t('modal.initial_deposit')}</label>
                                     <Input
                                         type="number"
                                         value={formData.deposit_amount}
@@ -474,7 +493,7 @@ export default function Reservations() {
                                 </div>
                             )}
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Pickup Time</label>
+                                <label className="text-sm font-medium">{t('modal.pickup_time')}</label>
                                 <Input
                                     type="datetime-local"
                                     value={formData.pickup_time}
@@ -484,7 +503,7 @@ export default function Reservations() {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Notes</label>
+                            <label className="text-sm font-medium">{t('modal.notes')}</label>
                             <Input
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -493,9 +512,9 @@ export default function Reservations() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
+                        <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>{t('modal.cancel')}</Button>
                         <Button onClick={handleSaveReservation} className="bg-red-600 hover:bg-red-700">
-                            {editingReservation ? 'Update Reservation' : 'Create Reservation'}
+                            {editingReservation ? t('modal.update') : t('modal.create')}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -505,16 +524,16 @@ export default function Reservations() {
             <Dialog open={isDepositModalOpen} onOpenChange={setIsDepositModalOpen}>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="text-red-700">Deposit Management</DialogTitle>
+                        <DialogTitle className="text-red-700">{t('deposit_modal.title')}</DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-4">
                         <div className="bg-red-50/50 p-4 rounded-lg space-y-2 border border-red-100">
-                            <h4 className="font-medium text-sm text-red-900">Add New Deposit</h4>
+                            <h4 className="font-medium text-sm text-red-900">{t('deposit_modal.add_new')}</h4>
                             <div className="flex gap-2">
                                 <Input
                                     type="number"
-                                    placeholder="Amount €"
+                                    placeholder={t('deposit_modal.amount_placeholder')}
                                     value={depositForm.amount}
                                     onChange={(e) => setDepositForm({ ...depositForm, amount: e.target.value })}
                                     className="w-32 focus-visible:ring-red-500"
@@ -527,16 +546,16 @@ export default function Reservations() {
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="CASH">Cash</SelectItem>
-                                        <SelectItem value="CARD">Card</SelectItem>
+                                        <SelectItem value="CASH">{t('payment_methods.cash')}</SelectItem>
+                                        <SelectItem value="CARD">{t('payment_methods.card')}</SelectItem>
                                     </SelectContent>
                                 </Select>
-                                <Button onClick={handleAddDeposit} className="bg-red-600 hover:bg-red-700">Add</Button>
+                                <Button onClick={handleAddDeposit} className="bg-red-600 hover:bg-red-700">{t('deposit_modal.add')}</Button>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <h4 className="font-medium text-sm">History</h4>
+                            <h4 className="font-medium text-sm">{t('deposit_modal.history')}</h4>
                             <div className="border rounded-md divide-y max-h-[200px] overflow-y-auto">
                                 {depositHistory.map((deposit) => (
                                     <div key={deposit.id} className="p-3 flex justify-between items-center text-sm hover:bg-muted/50">
@@ -550,14 +569,14 @@ export default function Reservations() {
                                     </div>
                                 ))}
                                 {depositHistory.length === 0 && (
-                                    <div className="p-4 text-center text-muted-foreground text-sm">No deposits yet</div>
+                                    <div className="p-4 text-center text-muted-foreground text-sm">{t('deposit_modal.no_deposits')}</div>
                                 )}
                             </div>
                         </div>
                     </div>
 
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setIsDepositModalOpen(false)}>Close</Button>
+                        <Button variant="outline" onClick={() => setIsDepositModalOpen(false)}>{t('deposit_modal.close')}</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

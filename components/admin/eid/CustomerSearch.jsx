@@ -5,8 +5,10 @@ import { Search, Loader2, User, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { countries } from '@/lib/constants/countries';
+import { useTranslations } from 'next-intl';
 
 export default function CustomerSearch({ onSelect, selectedCustomer }) {
+    const t = useTranslations('Admin.Eid.CustomerSearch');
     const [searchTerm, setSearchTerm] = useState('');
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -60,7 +62,7 @@ export default function CustomerSearch({ onSelect, selectedCustomer }) {
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                    placeholder="Search customer..."
+                    placeholder={t('placeholder')}
                     value={searchTerm}
                     onChange={(e) => {
                         setSearchTerm(e.target.value);
@@ -102,7 +104,7 @@ export default function CustomerSearch({ onSelect, selectedCustomer }) {
 
             {showResults && customers.length === 0 && !loading && (
                 <div className="absolute z-[999] w-full mt-1 bg-white border rounded-md shadow-lg p-4 text-center text-muted-foreground">
-                    No customers found.
+                    {t('no_results')}
                 </div>
             )}
         </div>

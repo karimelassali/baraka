@@ -1,21 +1,28 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Users, Check, Trash2, ChevronLeft, ChevronRight, Loader2, Search, Download } from 'lucide-react';
+import { Plus, Users, Check, Trash2, ChevronLeft, ChevronRight, Loader2, Search, Download, Edit, Eye, CheckCircle, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import GlassCard from '@/components/ui/GlassCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import CustomerSearch from './CustomerSearch';
 import { toast } from 'sonner';
 import { generateEidPdf } from '@/lib/eidPdfUtils';
+import { useTranslations } from 'next-intl';
 
 export default function CattleGroups() {
+    const t = useTranslations('Admin.Eid.CattleGroups');
     const [groups, setGroups] = useState([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [newGroupName, setNewGroupName] = useState('');
     const [newGroupWeight, setNewGroupWeight] = useState('');
+    const [newGroupPrice, setNewGroupPrice] = useState('');
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingGroup, setEditingGroup] = useState(null);
+    const [statusFilter, setStatusFilter] = useState('ALL');
     const [loading, setLoading] = useState(true);
     const [cleanView, setCleanView] = useState(false);
     const currentYear = new Date().getFullYear();
@@ -24,15 +31,22 @@ export default function CattleGroups() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(10);
+    const [stats, setStats] = useState({
+        total_cattle: 0
+    });
 
     useEffect(() => {
         fetchGroups();
-    }, [page]);
+        fetchStats();
+    }, [page, statusFilter]);
 
     const fetchGroups = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`/api/admin/eid/cattle?page=${page}&limit=${limit}`);
+            let url = `/api/admin/eid/cattle?page=${page}&limit=${limit}`;
+            if (statusFilter !== 'ALL') url += `&status=${statusFilter}`;
+
+            const response = await fetch(url);
             if (response.ok) {
                 const result = await response.json();
                 setGroups(result.data || []);
@@ -45,6 +59,18 @@ export default function CattleGroups() {
         }
     };
 
+    const fetchStats = async () => {
+        try {
+            const response = await fetch('/api/admin/eid/stats');
+            if (response.ok) {
+                const data = await response.json();
+                setStats(data);
+            }
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        }
+    };
+
     const handleCreateGroup = async () => {
         if (!newGroupName) return;
         try {
@@ -53,18 +79,21 @@ export default function CattleGroups() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     group_name: newGroupName,
-                    cattle_weight: newGroupWeight
+                    cattle_weight: newGroupWeight,
+                    price: newGroupPrice
                 })
             });
             if (response.ok) {
-                toast.success('Group created');
+                toast.success(t('toast.created'));
+                setIsCreateModalOpen(false);
                 setIsCreateModalOpen(false);
                 setNewGroupName('');
                 setNewGroupWeight('');
+                setNewGroupPrice('');
                 fetchGroups();
             }
         } catch (error) {
-            toast.error('Error creating group');
+            toast.error(t('toast.error_create'));
         }
     };
 
@@ -80,11 +109,11 @@ export default function CattleGroups() {
                 })
             });
             if (response.ok) {
-                toast.success('Member added');
+                toast.success(t('toast.member_added'));
                 fetchGroups();
             }
         } catch (error) {
-            toast.error('Error adding member');
+            toast.error(t('toast.error_add_member'));
         }
     };
 
@@ -94,28 +123,63 @@ export default function CattleGroups() {
                 method: 'DELETE'
             });
             if (response.ok) {
-                toast.success('Member removed');
+                toast.success(t('toast.member_removed'));
                 fetchGroups();
             }
         } catch (error) {
-            toast.error('Error removing member');
+            toast.error(t('toast.error_remove_member'));
+        }
+    };
+
+    const handleEditGroup = (group) => {
+        setEditingGroup(group);
+        setNewGroupName(group.group_name);
+        setNewGroupWeight(group.cattle_weight || '');
+        setNewGroupPrice(group.price || '');
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateGroup = async () => {
+        if (!editingGroup) return;
+        try {
+            const response = await fetch('/api/admin/eid/cattle', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: editingGroup.id,
+                    group_name: newGroupName,
+                    cattle_weight: newGroupWeight,
+                    price: newGroupPrice
+                })
+            });
+            if (response.ok) {
+                toast.success(t('toast.updated'));
+                setIsEditModalOpen(false);
+                setEditingGroup(null);
+                setNewGroupName('');
+                setNewGroupWeight('');
+                setNewGroupPrice('');
+                fetchGroups();
+            }
+        } catch (error) {
+            toast.error(t('toast.error_update'));
         }
     };
 
     const handleDeleteGroup = async (groupId) => {
-        if (!confirm('Are you sure you want to delete this group?')) return;
+        if (!confirm(t('confirm_delete'))) return;
         try {
             const response = await fetch(`/api/admin/eid/cattle/${groupId}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
-                toast.success('Group deleted');
+                toast.success(t('toast.deleted'));
                 fetchGroups();
             } else {
-                toast.error('Failed to delete group');
+                toast.error(t('toast.error_delete'));
             }
         } catch (error) {
-            toast.error('Error deleting group');
+            toast.error(t('toast.error_delete'));
         }
     };
 
@@ -140,7 +204,7 @@ export default function CattleGroups() {
     };
 
     const handleDownloadPdf = () => {
-        const columns = ['Slot', 'Customer', 'Phone', 'Status'];
+        const columns = [t('pdf.slot'), t('pdf.customer'), t('pdf.phone'), t('pdf.status')];
         const multiData = groups.map(group => {
             const members = group.eid_cattle_members?.sort((a, b) => a.member_number - b.member_number) || [];
             const rows = members.map(member => [
@@ -153,28 +217,28 @@ export default function CattleGroups() {
             return {
                 title: group.group_name,
                 details: {
-                    'Weight': `${group.cattle_weight || '-'} kg`,
-                    'Members': members.length,
-                    'Status': group.status
+                    [t('pdf.weight')]: `${group.cattle_weight || '-'} kg`,
+                    [t('pdf.members')]: members.length,
+                    [t('pdf.status')]: group.status
                 },
                 rows
             };
         });
 
         generateEidPdf({
-            title: 'Cattle Groups Report',
+            title: t('pdf.title'),
             columns,
             data: multiData,
             filename: `cattle_groups_all_${new Date().toISOString().split('T')[0]}`,
             multiTable: true,
             details: {
-                'Total Groups': groups.length
+                [t('pdf.total_groups')]: groups.length
             }
         });
     };
 
     const handleDownloadGroupPdf = (group) => {
-        const columns = ['Slot', 'Customer', 'Phone', 'Status'];
+        const columns = [t('pdf.slot'), t('pdf.customer'), t('pdf.phone'), t('pdf.status')];
         const members = group.eid_cattle_members?.sort((a, b) => a.member_number - b.member_number) || [];
         const rows = members.map(member => [
             member.member_number,
@@ -184,17 +248,25 @@ export default function CattleGroups() {
         ]);
 
         generateEidPdf({
-            title: `Group Report: ${group.group_name}`,
+            title: `${t('pdf.group_report')}: ${group.group_name}`,
             columns,
             data: rows,
             filename: `group_${group.group_name}_${new Date().toISOString().split('T')[0]}`,
             details: {
-                'Group Name': group.group_name,
-                'Weight': `${group.cattle_weight || '-'} kg`,
-                'Status': group.status
+                [t('pdf.group_name')]: group.group_name,
+                [t('pdf.weight')]: `${group.cattle_weight || '-'} kg`,
+                [t('pdf.status')]: group.status
             }
         });
     };
+
+
+
+    // Filter by status locally if needed, but we are doing it via API now. 
+    // However, search is local for now based on fetched data? 
+    // The current search implementation filters the *fetched* groups. 
+    // Ideally search should be API based too, but for now let's keep it consistent.
+    // If status filter is applied via API, we just filter by search term here.
 
     const filteredGroups = groups.filter(g =>
         g.group_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -207,7 +279,7 @@ export default function CattleGroups() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <h2 className="text-xl font-semibold text-red-700">Cattle Groups (Bovino) {currentYear}</h2>
+                <h2 className="text-xl font-semibold text-red-700">{t('title')} {currentYear}</h2>
                 <div className="flex gap-2 w-full md:w-auto items-center">
                     <div className="flex items-center space-x-2 mr-4">
                         <input
@@ -218,7 +290,7 @@ export default function CattleGroups() {
                             className="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300"
                         />
                         <label htmlFor="cleanView" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
-                            Just them - Nothing else
+                            {t('clean_view')}
                         </label>
                     </div>
 
@@ -227,23 +299,62 @@ export default function CattleGroups() {
                             <div className="relative flex-1 md:w-64">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Search groups or members..."
+                                    placeholder={t('search_placeholder')}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-9"
                                 />
                             </div>
+
+                            {/* Status Filters */}
+                            <div className="flex gap-1 bg-muted/20 p-1 rounded-lg">
+                                {['ALL', 'PENDING', 'PAID', 'COMPLETED'].map((status) => (
+                                    <button
+                                        key={status}
+                                        onClick={() => setStatusFilter(status)}
+                                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${statusFilter === status
+                                            ? 'bg-white text-red-700 shadow-sm'
+                                            : 'text-muted-foreground hover:bg-white/50'
+                                            }`}
+                                    >
+                                        {t(`status.${status.toLowerCase()}`)}
+                                    </button>
+                                ))}
+                            </div>
+
                             <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
                                 <Download className="w-4 h-4 mr-2" />
-                                All Groups PDF
+                                PDF
                             </Button>
-                            <Button onClick={() => setIsCreateModalOpen(true)} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
+                            <Button onClick={() => {
+                                setEditingGroup(null);
+                                setNewGroupName('');
+                                setNewGroupWeight('');
+                                setNewGroupPrice('');
+                                setIsCreateModalOpen(true);
+                            }} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
                                 <Plus className="w-4 h-4 mr-2" />
-                                New Group
+                                {t('new_group')}
                             </Button>
                         </>
                     )}
                 </div>
+            </div>
+
+            {/* Active Groups Stats Card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <GlassCard className="p-6 border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-sm font-medium text-muted-foreground">{t('stats.cattle_groups')}</p>
+                            <h3 className="text-3xl font-bold text-green-900 mt-2">{stats.total_cattle}</h3>
+                            <p className="text-xs text-muted-foreground mt-1">{t('stats.active_groups')}</p>
+                        </div>
+                        <div className="p-2 bg-green-100 rounded-full">
+                            <Users className="h-6 w-6 text-green-600" />
+                        </div>
+                    </div>
+                </GlassCard>
             </div>
 
             {loading ? (
@@ -273,11 +384,14 @@ export default function CattleGroups() {
                                                     </Badge>
                                                 )}
                                             </h3>
-                                            {!cleanView && <p className="text-xs opacity-80 font-medium mt-0.5">Weight: {group.cattle_weight || '-'} kg</p>}
+                                            {!cleanView && <p className="text-xs opacity-80 font-medium mt-0.5">{t('card.weight')}: {group.cattle_weight || '-'} kg</p>}
                                         </div>
                                         {!cleanView && (
                                             <div className="flex gap-1">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleDownloadGroupPdf(group)} title="Download Group PDF">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleEditGroup(group)} title={t('card.edit')}>
+                                                    <Edit className="w-4 h-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleDownloadGroupPdf(group)} title={t('card.download')}>
                                                     <Download className="w-4 h-4" />
                                                 </Button>
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/10 rounded-full text-inherit" onClick={() => handleDeleteGroup(group.id)}>
@@ -287,6 +401,20 @@ export default function CattleGroups() {
                                         )}
                                     </div>
                                     <CardContent className="p-0 bg-white">
+                                        {!cleanView && (
+                                            <div className="px-4 py-2 bg-gray-50 border-b flex justify-between items-center text-xs text-muted-foreground">
+                                                <div className="flex gap-4">
+                                                    <span>{t('card.price')}: <span className="font-semibold text-gray-900">{group.price ? `${group.price}€` : '-'}</span></span>
+                                                    <span>{t('card.paid')}: <span className="font-semibold text-gray-900">{group.total_deposit}€</span></span>
+                                                </div>
+                                                {(group.status === 'PAID' || group.status === 'COMPLETED') && (
+                                                    <div className="flex items-center gap-1 text-green-600 font-medium">
+                                                        <CheckCircle className="w-3 h-3" />
+                                                        {group.status === 'COMPLETED' ? t('status.delivered') : t('status.fully_paid')}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                         <div className="divide-y divide-gray-100">
                                             {slots.map((slot) => {
                                                 const member = group.eid_cattle_members?.find(m => m.member_number === slot);
@@ -348,11 +476,11 @@ export default function CattleGroups() {
                                                     size="sm"
                                                     className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 w-full font-medium"
                                                     onClick={() => {
-                                                        toast.info("Simply add a member to the last slot and a new one will appear automatically!");
+                                                        toast.info(t('toast.add_slot_info'));
                                                     }}
                                                 >
                                                     <Plus className="w-4 h-4 mr-2" />
-                                                    Add Another Slot
+                                                    {t('card.add_slot')}
                                                 </Button>
                                             </div>
                                         )}
@@ -365,7 +493,7 @@ export default function CattleGroups() {
                     {!cleanView && (
                         <div className="flex items-center justify-between bg-muted/20 p-4 rounded-lg">
                             <div className="text-sm text-muted-foreground">
-                                Page {page} of {totalPages}
+                                {t('page')} {page} {t('of')} {totalPages}
                             </div>
                             <div className="flex gap-2">
                                 <Button
@@ -392,29 +520,69 @@ export default function CattleGroups() {
                 </>
             )}
 
+            {/* Create Modal */}
             <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle className="text-red-700">Create New Cattle Group</DialogTitle>
+                        <DialogTitle className="text-red-700">{t('modal.create_title')}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Group Name</label>
+                            <label className="text-sm font-medium">{t('modal.group_name')}</label>
                             <Input
                                 value={newGroupName}
                                 onChange={(e) => {
                                     const val = e.target.value;
                                     setNewGroupName(val.charAt(0).toUpperCase() + val.slice(1));
                                 }}
-                                placeholder="e.g. Group A"
+                                placeholder={t('modal.group_placeholder')}
                                 className="focus-visible:ring-red-500"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Estimated Weight (kg)</label>
-                            <Input type="number" value={newGroupWeight} onChange={(e) => setNewGroupWeight(e.target.value)} className="focus-visible:ring-red-500" />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t('modal.weight')}</label>
+                                <Input type="number" value={newGroupWeight} onChange={(e) => setNewGroupWeight(e.target.value)} className="focus-visible:ring-red-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t('modal.price')}</label>
+                                <Input type="number" value={newGroupPrice} onChange={(e) => setNewGroupPrice(e.target.value)} className="focus-visible:ring-red-500" />
+                            </div>
                         </div>
-                        <Button onClick={handleCreateGroup} className="w-full bg-red-600 hover:bg-red-700">Create Group</Button>
+                        <Button onClick={handleCreateGroup} className="w-full bg-red-600 hover:bg-red-700">{t('modal.create_btn')}</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Modal */}
+            <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-red-700">{t('modal.edit_title')}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">{t('modal.group_name')}</label>
+                            <Input
+                                value={newGroupName}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    setNewGroupName(val.charAt(0).toUpperCase() + val.slice(1));
+                                }}
+                                className="focus-visible:ring-red-500"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t('modal.weight')}</label>
+                                <Input type="number" value={newGroupWeight} onChange={(e) => setNewGroupWeight(e.target.value)} className="focus-visible:ring-red-500" />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t('modal.price')}</label>
+                                <Input type="number" value={newGroupPrice} onChange={(e) => setNewGroupPrice(e.target.value)} className="focus-visible:ring-red-500" />
+                            </div>
+                        </div>
+                        <Button onClick={handleUpdateGroup} className="w-full bg-red-600 hover:bg-red-700">{t('modal.update_btn')}</Button>
                     </div>
                 </DialogContent>
             </Dialog>

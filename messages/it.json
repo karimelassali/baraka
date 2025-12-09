@@ -14,21 +14,21 @@
         "register": "Registrati"
     },
     "Hero": {
-        "welcome_to": "Benvenuti a",
+        "welcome_to": "Benvenuti da",
         "baraka": "Baraka",
         "description": "La tua attività locale di fiducia che offre prodotti e servizi di qualità con un'assistenza clienti eccezionale.",
-        "view_products": "Vedi i Nostri Prodotti",
+        "view_products": "Vedi Prodotti",
         "contact_us": "Contattaci",
         "quote": "Siamo orgogliosi della qualità e della soddisfazione del cliente.",
         "team": "Team Baraka"
     },
     "About": {
         "title": "Chi Siamo",
-        "description": "Baraka è un'attività locale di primo piano dedicata a fornire servizi e prodotti di alta qualità alla nostra comunità. Con anni di esperienza e una passione per l'eccellenza, ci sforziamo di superare le aspettative dei clienti in tutto ciò che facciamo.",
+        "description": "Baraka è un'attività locale leader dedicata a servire la nostra comunità con servizi e prodotti di alto livello. Con anni di esperienza e passione per l'eccellenza, ci sforziamo di superare le aspettative dei clienti in tutto ciò che facciamo.",
         "our_mission": "La Nostra Missione",
-        "mission_desc": "Fornire qualità, valore e soddisfazione a ogni cliente che serviamo.",
+        "mission_desc": "Offrire qualità, valore e soddisfazione a ogni cliente che serviamo.",
         "our_vision": "La Nostra Visione",
-        "vision_desc": "Essere l'attività locale più fidata e preferita nella nostra regione.",
+        "vision_desc": "Essere l'attività locale più affidabile e preferita nella nostra regione.",
         "our_values": "I Nostri Valori",
         "values_desc": "Integrità, Eccellenza, Attenzione al Cliente e Innovazione."
     },
@@ -36,7 +36,7 @@
         "title": "La Nostra Galleria",
         "subtitle": "Uno sguardo nel nostro mondo",
         "view_all": "Vedi Tutto",
-        "no_images": "Nessuna immagine nella galleria ancora."
+        "no_images": "Nessuna immagine nella galleria."
     },
     "Offers": {
         "title": "Offerte Speciali",
@@ -56,7 +56,7 @@
     },
     "Contact": {
         "title": "Visita il Nostro Negozio",
-        "subtitle": "Siamo comodamente situati a Castel San Giovanni. Vieni a trovarci e sperimenta di persona il nostro servizio di qualità.",
+        "subtitle": "Siamo comodamente situati a Castel San Giovanni. Passa a trovarci e prova la nostra qualità di persona.",
         "info_title": "Informazioni di Contatto",
         "name": "Nome",
         "email": "Email",
@@ -77,7 +77,7 @@
         "Login": {
             "title": "Bentornato",
             "subtitle": "Accedi al tuo account",
-            "email_label": "Indirizzo email",
+            "email_label": "Indirizzo Email",
             "email_placeholder": "Email",
             "password_label": "Password",
             "password_placeholder": "Password",
@@ -85,7 +85,7 @@
             "submitting": "Accesso in corso...",
             "magic_link": "Accedi con Magic Link",
             "no_account": "Non hai un account?",
-            "register_link": "Registrati",
+            "register_link": "Registrati qui",
             "success": "Accesso riuscito! Reindirizzamento...",
             "magic_link_sent": "Magic link inviato! Controlla la tua email.",
             "error_generic": "Si è verificato un errore imprevisto. Riprova."
@@ -123,7 +123,7 @@
                     "placeholder": "Città, Indirizzo..."
                 },
                 "4": {
-                    "title": "Informazioni di Contatto",
+                    "title": "Contatti",
                     "subtitle": "Come possiamo contattarti?",
                     "phone": "Numero di Telefono",
                     "email": "Email"
@@ -138,7 +138,7 @@
                 },
                 "6": {
                     "title": "Paese di Origine",
-                    "subtitle": "Di dove sei?",
+                    "subtitle": "Da dove vieni?",
                     "label": "Paese di Origine"
                 },
                 "7": {
@@ -149,30 +149,30 @@
                 "8": {
                     "title": "Privacy Policy",
                     "subtitle": "Abbiamo bisogno del tuo consenso per trattare i tuoi dati",
-                    "agree": "Acconsento alla",
+                    "agree": "Accetto la",
                     "link": "Privacy Policy"
                 },
                 "9": {
-                    "title": "Termini & Condizioni",
+                    "title": "Termini e Condizioni",
                     "subtitle": "Conferma di accettare i nostri termini",
                     "accept": "Accetto i",
-                    "link": "Termini & Condizioni"
+                    "link": "Termini e Condizioni"
                 },
                 "10": {
-                    "title": "Rivedi & Invia",
+                    "title": "Rivedi e Invia",
                     "subtitle": "Rivedi le tue informazioni prima di inviare",
-                    "agreed": "Acconsentito",
-                    "not_agreed": "Non Acconsentito"
+                    "agreed": "Accettato",
+                    "not_agreed": "Non Accettato"
                 }
             },
             "errors": {
                 "required": "è obbligatorio",
                 "invalid_phone": "Inserisci un numero di telefono valido (cifre, + - parentesi consentite).",
                 "invalid_email": "Inserisci un indirizzo email valido.",
-                "password_length": "La password deve essere lunga almeno 8 caratteri",
+                "password_length": "La password deve essere di almeno 8 caratteri",
                 "password_mismatch": "Le password non corrispondono",
                 "privacy_policy": "Devi accettare la Privacy Policy",
-                "terms": "Devi accettare i Termini & Condizioni"
+                "terms": "Devi accettare i Termini e Condizioni"
             }
         }
     },
@@ -182,26 +182,43 @@
         "profile": "Profilo",
         "wallet": "Portafoglio Fedeltà",
         "offers": "Offerte Speciali",
-        "no_pending": "Nessun punto in sospeso",
-        "recent_activity": "Attività Recente",
-        "no_activity": "Nessuna attività recente",
-        "download_statement": "Scarica Estratto Conto",
-        "total_balance": "Saldo Totale",
-        "gold_member": "Membro Gold",
-        "available_to_redeem": "Disponibile per il Riscatto",
-        "pending_points": "Punti in Sospeso",
-        "earned_this_month": "Guadagnati questo mese",
-        "spent_this_month": "Spesi questo mese",
-        "transaction_history": "Cronologia Transazioni",
-        "all_transactions": "Tutte le Transazioni",
-        "earned": "Guadagnati",
-        "redeemed": "Riscattati",
-        "description": "Descrizione",
-        "date": "Data",
-        "type": "Tipo",
-        "points": "Punti",
-        "no_transactions": "Nessuna transazione trovata",
-        "view_all": "Visualizza Tutte le Transazioni",
+        "vouchers": "I Miei Voucher",
+        "wishlist": "Lista dei Desideri",
+        "wishlist_desc": "Richiedi prodotti che vorresti vedere nel nostro negozio.",
+        "sign_out": "Esci",
+        "overview_desc": "Panoramica dell'attività del tuo account e dei premi.",
+        "profile_desc": "Gestisci le tue informazioni personali e preferenze.",
+        "wallet_desc": "Traccia i tuoi punti fedeltà e la cronologia delle transazioni.",
+        "offers_desc": "Scopri offerte e promozioni esclusive disponibili per te.",
+        "vouchers_desc": "Gestisci e riscatta i voucher guadagnati.",
+        "Wallet": {
+            "title": "Portafoglio Fedeltà",
+            "available_balance": "Saldo Disponibile",
+            "pts": "pti",
+            "pending": "In Sospeso",
+            "no_pending": "Nessun punto in sospeso",
+            "recent_activity": "Attività Recente",
+            "no_activity": "Nessuna attività recente",
+            "download_statement": "Scarica Estratto Conto",
+            "total_balance": "Saldo Totale",
+            "gold_member": "Membro Oro",
+            "silver_member": "Membro Argento",
+            "bronze_member": "Membro Bronzo",
+            "available_to_redeem": "Disponibile per il riscatto",
+            "pending_points": "Punti in sospeso",
+            "earned_this_month": "Guadagnati questo mese",
+            "spent_this_month": "Spesi questo mese",
+            "transaction_history": "Cronologia Transazioni",
+            "all_transactions": "Tutte le Transazioni",
+            "earned": "Guadagnati",
+            "redeemed": "Riscattati",
+            "description": "Descrizione",
+            "date": "Data",
+            "type": "Tipo",
+            "points": "Punti",
+            "no_transactions": "Nessuna transazione trovata",
+            "view_all": "Vedi Tutte le Transazioni"
+        },
         "Statistics": {
             "total_points": "Punti Totali",
             "available_vouchers": "Voucher Disponibili",
@@ -210,7 +227,7 @@
             "from_last_month": "dal mese scorso",
             "this_month": "questo mese",
             "new_offers": "nuove offerte",
-            "lifetime_rewards": "Premi a vita"
+            "lifetime_rewards": "Premi a Vita"
         },
         "Profile": {
             "title": "Informazioni Profilo",
@@ -231,8 +248,8 @@
         },
         "Offers": {
             "title": "Offerte Speciali",
-            "active": "attive",
-            "days_left": "giorni rimasti",
+            "active": "attiva",
+            "days_left": "giorni rimanenti",
             "valid_until": "Valido fino al",
             "details": "Dettagli",
             "no_offers": "Nessuna offerta disponibile",
@@ -240,7 +257,7 @@
         },
         "Vouchers": {
             "title": "I Miei Voucher",
-            "available": "disponibili",
+            "available": "disponibile",
             "used": "Usato",
             "active": "Attivo",
             "expired": "Scaduto",
@@ -256,12 +273,403 @@
         }
     },
     "Admin": {
+        "Eid": {
+            "Reservations": {
+                "title": "Prenotazioni Clienti",
+                "search_placeholder": "Cerca cliente o n. ordine...",
+                "no_reservations": "Nessuna prenotazione trovata.",
+                "status": {
+                    "all": "TUTTI",
+                    "pending": "IN ATTESA",
+                    "confirmed": "CONFERMATO",
+                    "collected": "RITIRATO",
+                    "cancelled": "CANCELLATO"
+                },
+                "new_reservation": "Nuova Prenotazione",
+                "table": {
+                    "id": "ID",
+                    "customer": "Cliente",
+                    "phone": "Telefono",
+                    "type": "Tipo",
+                    "weight": "Peso",
+                    "pickup": "Ritiro",
+                    "deposit": "Acconto",
+                    "status": "Stato",
+                    "actions": "Azioni"
+                },
+                "modal": {
+                    "new_title": "Nuova Prenotazione",
+                    "edit_title": "Modifica Prenotazione",
+                    "customer": "Cliente",
+                    "type": "Tipo",
+                    "weight": "Peso",
+                    "initial_deposit": "Acconto Iniziale (€)",
+                    "pickup_time": "Orario Ritiro",
+                    "notes": "Note",
+                    "cancel": "Annulla",
+                    "create": "Crea Prenotazione",
+                    "update": "Aggiorna Prenotazione"
+                },
+                "deposit_modal": {
+                    "title": "Gestione Acconto",
+                    "add_new": "Aggiungi Nuovo Acconto",
+                    "history": "Cronologia",
+                    "no_deposits": "Nessun acconto ancora",
+                    "close": "Chiudi",
+                    "add": "Aggiungi",
+                    "amount_placeholder": "Importo €"
+                },
+                "toast": {
+                    "select_customer": "Seleziona un cliente",
+                    "created": "Prenotazione creata",
+                    "updated": "Prenotazione aggiornata",
+                    "deleted": "Prenotazione eliminata",
+                    "deposit_added": "Acconto aggiunto con successo",
+                    "error_save": "Impossibile salvare la prenotazione",
+                    "error_delete": "Impossibile eliminare la prenotazione",
+                    "error_deposit": "Impossibile aggiungere l'acconto",
+                    "error_load": "Impossibile caricare le prenotazioni"
+                },
+                "confirm_delete": "Sei sicuro di voler eliminare questa prenotazione?",
+                "sort": {
+                    "newest": "Più Recenti",
+                    "oldest": "Meno Recenti"
+                },
+                "page": "Pagina",
+                "of": "di",
+                "types": {
+                    "sheep": "Agnello",
+                    "goat": "Capra"
+                },
+                "payment_methods": {
+                    "cash": "Contanti",
+                    "card": "Carta"
+                }
+            },
+            "Delivery": {
+                "title": "Gestione Consegne",
+                "search_placeholder": "Cerca per Nome Cliente o N. Ordine...",
+                "filters": {
+                    "all": "Tutti",
+                    "paid": "Pagato",
+                    "unpaid": "Non Pagato",
+                    "collected": "Ritirato",
+                    "not_collected": "Non Ritirato"
+                },
+                "load_more": "Carica Altri",
+                "no_reservations": "Nessuna prenotazione trovata.",
+                "back_to_list": "Torna alla Lista",
+                "details": {
+                    "requested_weight": "Peso Richiesto",
+                    "final_weight": "Peso Finale (kg)",
+                    "tag_number": "Numero Tag",
+                    "add_to_member": "(Assegna a Membro)",
+                    "final_price": "Prezzo Finale (€)",
+                    "destination": "Destinazione",
+                    "deposit_paid": "Acconto Pagato:",
+                    "final_total": "Totale Finale:",
+                    "remaining": "Rimanente:"
+                },
+                "status_updates": {
+                    "title": "Aggiornamenti Stato",
+                    "payment_status": "Stato Pagamento",
+                    "paid_full": "Pagato Interamente",
+                    "payment_pending": "Pagamento in Sospeso",
+                    "collection_status": "Stato Ritiro",
+                    "collected": "Ritirato",
+                    "not_collected": "Non Ritirato",
+                    "save_changes": "Salva Modifiche"
+                },
+                "members_count": "{count} Membri",
+                "group_badge": "GRUPPO",
+                "cattle_group_label": "Gruppo Bovini",
+                "order_number": "Ordine #{number}",
+                "search_tag_placeholder": "Cerca tag...",
+                "tag_used": "Usato",
+                "no_tags_found": "Nessun tag trovato",
+                "change_btn": "Cambia",
+                "total_amount_placeholder": "Importo Totale",
+                "destination_placeholder": "es. Macello",
+                "toast": {
+                    "updated": "Aggiornato con successo",
+                    "error_update": "Impossibile aggiornare"
+                }
+            },
+            "Reports": {
+                "metrics": {
+                    "total_revenue": "Entrate Totali",
+                    "total_animals": "Totale Animali",
+                    "total_weight": "Peso Totale",
+                    "sheep": "Agnelli",
+                    "goats": "Capre",
+                    "avg": "Media"
+                },
+                "analysis": {
+                    "weight_title": "Analisi Peso",
+                    "weight_desc": "Peso Acquistato vs Venduto",
+                    "total_purchased": "Totale Acquistato",
+                    "total_sold": "Totale Venduto (Finale)",
+                    "difference": "Differenza",
+                    "financial_title": "Analisi Finanziaria",
+                    "financial_desc": "Valore Ordini Totale vs Entrate Realizzate",
+                    "total_order_value": "Valore Ordini Totale",
+                    "realized_revenue": "Entrate Realizzate",
+                    "outstanding": "In Sospeso"
+                },
+                "destinations": {
+                    "title": "Report Destinazioni",
+                    "desc": "Quantità ordini e peso totale per destinazione (Uso Interno)",
+                    "col_dest": "Destinazione",
+                    "col_count": "Conteggio Ordini",
+                    "col_weight": "Peso Totale (kg)",
+                    "no_data": "Nessun dato destinazione disponibile"
+                },
+                "detailed_reports": {
+                    "title": "Report Dettagliati",
+                    "desc": "Scarica report PDF completi per i tuoi archivi.",
+                    "reservations_list": "Lista Prenotazioni",
+                    "reservations_desc": "Lista completa di tutte le prenotazioni clienti",
+                    "financial_report": "Report Finanziario",
+                    "financial_desc": "Ripartizione entrate e riepilogo",
+                    "cattle_groups": "Report Gruppi Bovini",
+                    "cattle_desc": "Composizione dettagliata gruppi e stato"
+                },
+                "export": {
+                    "title": "Esportazione Dati",
+                    "desc": "Esporta dati grezzi per analisi esterna.",
+                    "info": "L'esportazione dati ti permette di eseguire analisi personalizzate in strumenti come Excel o Google Sheets. Attualmente supporta il formato CSV.",
+                    "btn": "Esporta Tutti i Dati (CSV)"
+                },
+                "toast": {
+                    "error_report": "Errore durante la generazione del report"
+                },
+                "pdf": {
+                    "order_number": "Ordine #",
+                    "customer": "Cliente",
+                    "type": "Tipo",
+                    "weight": "Peso",
+                    "status": "Stato",
+                    "paid": "Pagato",
+                    "yes": "Sì",
+                    "no": "No",
+                    "total_reservations": "Totale Prenotazioni",
+                    "sort_oldest": "Meno Recenti",
+                    "metric": "Metrica",
+                    "value": "Valore",
+                    "generated": "Generato",
+                    "group": "Gruppo",
+                    "members": "Membri",
+                    "total_groups": "Totale Gruppi"
+                },
+                "explanations": {
+                    "total_revenue": "Somma totale di tutti gli acconti registrati nel sistema.",
+                    "total_animals": "Numero totale di animali attualmente in stock (Pecore + Capre + Gruppi Bovini).",
+                    "total_weight": "Peso totale degli animali venduti (basato sul peso finale).",
+                    "weight_purchased": "Peso totale degli animali acquistati dai fornitori.",
+                    "weight_sold": "Peso finale totale degli animali venduti ai clienti.",
+                    "financial_total": "Somma del prezzo finale di tutte le prenotazioni.",
+                    "financial_realized": "Importo effettivo riscosso (Acconti + Ordini Interamente Pagati).",
+                    "financial_outstanding": "Importo rimanente da riscuotere (Valore Totale Ordini - Entrate Realizzate)."
+                }
+            },
+            "Purchases": {
+                "title": "Seleziona Fornitore",
+                "no_contact": "Nessuna info contatto",
+                "no_suppliers": "Nessun fornitore configurato. Aggiungi fornitori nelle Impostazioni.",
+                "confirm_delete": "Sei sicuro?",
+                "confirm_delete_batch": "Sei sicuro di voler eliminare questo lotto?",
+                "of": "di",
+                "no_destinations": "Nessuna destinazione disponibile",
+                "batches": {
+                    "back": "Indietro",
+                    "title": "Lotti per {name}",
+                    "new_batch": "Nuovo Lotto",
+                    "no_notes": "Nessuna nota",
+                    "no_batches": "Nessun lotto trovato per questo fornitore.",
+                    "unpin": "Rimuovi Pin",
+                    "pin": "Fissa",
+                    "edit": "Modifica",
+                    "delete": "Elimina"
+                },
+                "animals": {
+                    "back": "Torna ai Lotti",
+                    "subtitle": "Gestisci animali in questo lotto",
+                    "total_animals": "Totale Animali",
+                    "page": "Pagina",
+                    "search_placeholder": "Cerca numero tag...",
+                    "types": {
+                        "all": "Tutti i Tipi",
+                        "sheep": "Pecora",
+                        "goat": "Capra",
+                        "cattle": "Bovino"
+                    },
+                    "form": {
+                        "edit_title": "Modifica Animale",
+                        "add_title": "Aggiungi Nuovo Animale",
+                        "type": "Tipo",
+                        "tag_number": "Numero Tag",
+                        "tag_placeholder": "es. 12345",
+                        "tag_color": "Colore Tag",
+                        "color_placeholder": "es. #FFFF00",
+                        "destination": "Destinazione",
+                        "dest_placeholder": "Seleziona destinazione",
+                        "weight": "Peso (kg)",
+                        "weight_placeholder": "0.0",
+                        "update_btn": "Aggiorna Animale",
+                        "add_btn": "Aggiungi Animale",
+                        "tag_used": "Già usato",
+                        "tag_available": "Tag disponibile"
+                    },
+                    "table": {
+                        "hash": "#",
+                        "tag": "Tag",
+                        "type": "Tipo",
+                        "weight": "Peso",
+                        "destination": "Destinazione",
+                        "actions": "Azioni",
+                        "no_animals": "Nessun animale in questo lotto ancora."
+                    }
+                },
+                "batch_modal": {
+                    "edit_title": "Modifica Lotto",
+                    "create_title": "Crea Nuovo Lotto",
+                    "number_name": "Numero / Nome Lotto",
+                    "name_placeholder": "es. Spedizione #1",
+                    "notes": "Note",
+                    "notes_placeholder": "Note opzionali",
+                    "update_btn": "Aggiorna",
+                    "create_btn": "Crea"
+                },
+                "toast": {
+                    "batch_created": "Lotto creato",
+                    "batch_updated": "Lotto aggiornato",
+                    "batch_deleted": "Lotto eliminato",
+                    "pinned": "Lotto fissato",
+                    "unpinned": "Lotto non più fissato",
+                    "animal_added": "Animale aggiunto",
+                    "animal_updated": "Animale aggiornato",
+                    "animal_deleted": "Animale eliminato",
+                    "tag_exists": "Il numero tag esiste già!",
+                    "fill_required": "Compila tutti i campi obbligatori",
+                    "error_create_batch": "Errore creazione lotto",
+                    "error_update_batch": "Errore aggiornamento lotto",
+                    "error_delete_batch": "Errore eliminazione lotto",
+                    "error_pin": "Errore aggiornamento stato pin",
+                    "error_add_animal": "Errore aggiunta animale",
+                    "error_update_animal": "Errore aggiornamento animale",
+                    "error_delete_animal": "Errore eliminazione animale"
+                },
+                "pdf": {
+                    "title": "Report Acquisti",
+                    "tag": "Tag",
+                    "type": "Tipo",
+                    "weight": "Peso",
+                    "destination": "Destinazione",
+                    "supplier": "Fornitore",
+                    "batch": "Lotto",
+                    "total_animals": "Totale Animali"
+                }
+            },
+            "CattleGroups": {
+                "title": "Gruppi Bovini",
+                "clean_view": "Solo loro - Nient'altro",
+                "search_placeholder": "Cerca gruppi o membri...",
+                "new_group": "Nuovo Gruppo",
+                "status": {
+                    "all": "TUTTI",
+                    "pending": "IN ATTESA",
+                    "paid": "PAGATO",
+                    "completed": "COMPLETATO",
+                    "delivered": "CONSEGNATO",
+                    "fully_paid": "Interamente Pagato"
+                },
+                "stats": {
+                    "cattle_groups": "Gruppi Bovini",
+                    "active_groups": "Gruppi Attivi"
+                },
+                "card": {
+                    "weight": "Peso",
+                    "edit": "Modifica Gruppo",
+                    "download": "Scarica PDF Gruppo",
+                    "price": "Prezzo",
+                    "paid": "Pagato",
+                    "add_slot": "Aggiungi Altro Slot"
+                },
+                "page": "Pagina",
+                "of": "di",
+                "modal": {
+                    "create_title": "Crea Nuovo Gruppo Bovini",
+                    "edit_title": "Modifica Gruppo Bovini",
+                    "group_name": "Nome Gruppo",
+                    "group_placeholder": "es. Gruppo A",
+                    "weight": "Peso (kg)",
+                    "price": "Prezzo (€)",
+                    "create_btn": "Crea Gruppo",
+                    "update_btn": "Aggiorna Gruppo"
+                },
+                "toast": {
+                    "created": "Gruppo creato",
+                    "updated": "Gruppo aggiornato",
+                    "deleted": "Gruppo eliminato",
+                    "member_added": "Membro aggiunto",
+                    "member_removed": "Membro rimosso",
+                    "error_create": "Errore creazione gruppo",
+                    "error_update": "Errore aggiornamento gruppo",
+                    "error_delete": "Errore eliminazione gruppo",
+                    "error_add_member": "Errore aggiunta membro",
+                    "error_remove_member": "Errore rimozione membro",
+                    "add_slot_info": "Aggiungi semplicemente un membro all'ultimo slot e ne apparirà uno nuovo automaticamente!"
+                },
+                "confirm_delete": "Sei sicuro di voler eliminare questo gruppo?",
+                "pdf": {
+                    "title": "Report Gruppi Bovini",
+                    "group_report": "Report Gruppo",
+                    "slot": "Slot",
+                    "customer": "Cliente",
+                    "phone": "Telefono",
+                    "status": "Stato",
+                    "weight": "Peso",
+                    "members": "Membri",
+                    "total_groups": "Gruppi Totali",
+                    "group_name": "Nome Gruppo"
+                }
+            },
+            "Settings": {
+                "title": "Impostazioni e Configurazione",
+                "suppliers": {
+                    "title": "Fornitori",
+                    "name_placeholder": "Nome Fornitore",
+                    "contact_placeholder": "Info Contatto (Opzionale)",
+                    "no_data": "Nessun fornitore aggiunto ancora"
+                },
+                "destinations": {
+                    "title": "Destinazioni",
+                    "name_placeholder": "Nome Destinazione",
+                    "location_placeholder": "Posizione/Dettagli (Opzionale)",
+                    "no_data": "Nessuna destinazione aggiunta ancora"
+                },
+                "toast": {
+                    "supplier_added": "Fornitore aggiunto",
+                    "destination_added": "Destinazione aggiunta",
+                    "deleted": "Elemento eliminato",
+                    "error_load": "Impossibile caricare le impostazioni",
+                    "error_add_supplier": "Impossibile aggiungere fornitore",
+                    "error_add_destination": "Impossibile aggiungere destinazione",
+                    "error_delete": "Errore eliminazione elemento"
+                },
+                "confirm_delete": "Sei sicuro?"
+            },
+            "CustomerSearch": {
+                "placeholder": "Cerca cliente...",
+                "no_results": "Nessun cliente trovato."
+            }
+        },
         "Sidebar": {
             "admins": "Amministratori",
             "cat_overview": "Panoramica",
-            "cat_users_orders": "Utenti & Ordini",
-            "cat_marketing_inventory": "Marketing & Inventario",
-            "cat_system_settings": "Sistema & Impostazioni",
+            "cat_users_orders": "Utenti e Ordini",
+            "cat_marketing_inventory": "Marketing e Inventario",
+            "cat_system_settings": "Sistema e Impostazioni",
             "dashboard": "Dashboard",
             "analytics": "Analisi",
             "customers": "Clienti",
@@ -271,7 +679,7 @@
             "points": "Punti",
             "vouchers": "Voucher",
             "campaigns": "Campagne",
-            "wishlist": "Lista Desideri",
+            "wishlist": "Lista dei Desideri",
             "gallery": "Galleria",
             "logs": "Log",
             "profile": "Profilo",
@@ -288,28 +696,28 @@
             "subtitle": "Spazio condiviso per note, promemoria e aggiornamenti del team.",
             "create_note": "Crea Nota",
             "edit_note": "Modifica Nota",
-            "search_placeholder": "Cerca note...",
+            "search_placeholder": "Cerca nelle note...",
             "no_notes": "Nessuna nota trovata",
             "no_notes_desc": "Crea una nuova nota per iniziare.",
             "note_title": "Titolo",
             "note_message": "Messaggio",
             "title_placeholder": "Inserisci titolo nota (opzionale)",
-            "message_placeholder": "Scrivi il tuo messaggio qui...",
+            "message_placeholder": "Scrivi qui il tuo messaggio...",
             "cancel": "Annulla",
             "save_changes": "Salva Modifiche",
             "success_create": "Nota creata con successo",
             "success_update": "Nota aggiornata con successo",
             "success_delete": "Nota eliminata con successo",
             "success_pin": "Nota fissata in alto",
-            "success_unpin": "Nota rimossa dall'alto",
+            "success_unpin": "Nota non più fissata in alto",
             "error_fetching": "Impossibile recuperare le note",
             "error_create": "Impossibile creare la nota",
             "error_update": "Impossibile aggiornare la nota",
             "error_delete": "Impossibile eliminare la nota",
-            "error_pin": "Impossibile aggiornare lo stato",
+            "error_pin": "Impossibile aggiornare lo stato del pin",
             "load_more": "Carica Altro",
             "loading_more": "Caricamento...",
-            "reset_layout": "Ripristina Layout",
+            "reset_layout": "Reimposta Layout",
             "tab_images": "Immagini",
             "tab_drawing": "Disegno",
             "tab_links": "Link",
@@ -329,13 +737,13 @@
             "recent_activity": "Attività Recente",
             "recent_activity_desc": "Ultimi messaggi e notifiche",
             "view_all": "Vedi Tutto",
-            "no_activity": "Nessuna attività recente da visualizzare.",
-            "performance": "Prestazioni",
+            "no_activity": "Nessuna attività recente da mostrare.",
+            "performance": "Performance",
             "engagement_rate": "Tasso di Coinvolgimento",
-            "pro_tip": "Suggerimento Pro",
+            "pro_tip": "Consiglio Pro",
             "pro_tip_desc": "Personalizza il layout della tua dashboard per concentrarti su ciò che conta di più per te.",
             "customize_layout": "Personalizza Layout",
-            "checking_auth": "Verifica autorizzazione in corso..."
+            "checking_auth": "Verifica autorizzazione..."
         },
         "Vouchers": {
             "title": "Centro Voucher",
@@ -343,14 +751,14 @@
             "search_placeholder": "Cerca clienti...",
             "tabs": {
                 "customers": "Voucher Clienti",
-                "verify": "Verifica & Riscatta"
+                "verify": "Verifica e Riscatta"
             },
             "filters": {
                 "nationality": "Nazionalità",
                 "all_countries": "Tutti i Paesi",
                 "sort_by": "Ordina Per",
                 "newest": "Più Recenti",
-                "oldest": "Più Vecchi",
+                "oldest": "Meno Recenti",
                 "name_asc": "Nome (A-Z)",
                 "name_desc": "Nome (Z-A)",
                 "nationality_asc": "Nazionalità (A-Z)",
@@ -368,10 +776,10 @@
                 "points_to_redeem": "Punti da Riscattare",
                 "description": "Descrizione",
                 "issue_btn": "Emetti Voucher",
-                "issuing": "Emissione in corso...",
+                "issuing": "Emissione...",
                 "success": "Voucher emesso con successo!",
-                "failed": "Impossibile emettere il voucher",
-                "active_past": "Voucher Attivi & Passati",
+                "failed": "Impossibile emettere voucher",
+                "active_past": "Voucher Attivi e Passati",
                 "no_vouchers": "Nessun voucher emesso ancora",
                 "code": "Codice",
                 "value": "Valore",
@@ -382,8 +790,8 @@
                 "exp": "Scad:"
             },
             "verify": {
-                "title": "Verifica & Riscatta Voucher",
-                "subtitle": "Inserisci il codice del voucher per verificarne la validità e riscattarlo.",
+                "title": "Verifica e Riscatta Voucher",
+                "subtitle": "Inserisci il codice voucher per verificare la validità e riscattare.",
                 "placeholder": "Inserisci codice voucher (es. VOUCH-123)",
                 "btn_verify": "Verifica",
                 "btn_redeem": "Riscatta Voucher Ora",
@@ -398,8 +806,8 @@
         "Revenue": {
             "title": "Entrate Giornaliere",
             "subtitle": "Gestisci e traccia le entrate giornaliere.",
-            "add_entry": "Aggiungi Entrata",
-            "edit_entry": "Modifica Entrata",
+            "add_entry": "Aggiungi Voce",
+            "edit_entry": "Modifica Voce",
             "export_pdf": "Esporta PDF",
             "date": "Data",
             "total_revenue": "Entrate Totali",
@@ -414,9 +822,9 @@
             "warning_total_mismatch": "Attenzione: Le entrate totali (€{total}) non corrispondono alla somma dei metodi di pagamento (€{sum}).",
             "monthly_archive": "Archivio Mensile",
             "loading": "Caricamento...",
-            "no_entries": "Nessuna entrata trovata per questo mese.",
-            "confirm_delete": "Sei sicuro di voler eliminare questa entrata?",
-            "revenue_trend": "Andamento Entrate",
+            "no_entries": "Nessuna voce trovata per questo mese.",
+            "confirm_delete": "Sei sicuro di voler eliminare questa voce?",
+            "revenue_trend": "Trend Entrate",
             "payment_split": "Ripartizione Metodi di Pagamento",
             "months": {
                 "january": "Gennaio",
@@ -432,127 +840,127 @@
                 "november": "Novembre",
                 "december": "Dicembre"
             }
-        }
-    },
-    "Orders": {
-        "title": "Gestione Ordini",
-        "subtitle": "Gestisci i tuoi ordini ai fornitori e le bozze.",
-        "new_order": "Nuovo Ordine",
-        "search_placeholder": "Cerca ordini...",
-        "status_all": "Tutti",
-        "status_draft": "Bozza",
-        "status_completed": "Completato",
-        "loading": "Caricamento ordini...",
-        "no_orders": "Nessun ordine trovato.",
-        "table_order_number": "Ordine #",
-        "table_date": "Data",
-        "table_supplier": "Fornitore",
-        "table_note": "Nota",
-        "table_status": "Stato",
-        "table_actions": "Azioni",
-        "no_supplier": "Nessun Fornitore",
-        "delete_confirm": "Sei sicuro di voler eliminare questo ordine?",
-        "delete_error": "Impossibile eliminare l'ordine",
-        "create_error": "Impossibile creare nuovo ordine",
-        "duplicate_error": "Impossibile duplicare l'ordine",
-        "load_more": "Carica Altri"
-    },
-    "Suppliers": {
-        "title": "Fornitori",
-        "subtitle": "Gestisci il database dei fornitori.",
-        "add_supplier": "Aggiungi Fornitore",
-        "search_placeholder": "Cerca fornitori...",
-        "loading": "Caricamento fornitori...",
-        "no_suppliers": "Nessun fornitore trovato. Aggiungine uno per iniziare.",
-        "table_name": "Nome",
-        "table_contact": "Contatto",
-        "table_address": "Indirizzo",
-        "table_actions": "Azioni",
-        "delete_confirm": "Sei sicuro di voler eliminare questo fornitore?",
-        "delete_error": "Impossibile eliminare il fornitore",
-        "save_error": "Impossibile salvare il fornitore",
-        "modal_add_title": "Aggiungi Nuovo Fornitore",
-        "modal_edit_title": "Modifica Fornitore",
-        "form_name": "Nome Fornitore *",
-        "form_email": "Email",
-        "form_phone": "Telefono",
-        "form_address": "Indirizzo",
-        "form_vat": "Partita IVA (Opzionale)",
-        "cancel": "Annulla",
-        "save": "Salva Fornitore",
-        "load_more": "Carica Altri"
-    },
-    "OrderEditor": {
-        "order_not_found": "Ordine non trovato",
-        "created_on": "Creato il",
-        "generate_pdf": "PDF",
-        "mark_completed": "Segna come Completato",
-        "reopen_draft": "Riapri Bozza",
-        "items_title": "Articoli Ordine",
-        "add_item": "Aggiungi Articolo",
-        "table_product": "Nome Prodotto",
-        "table_qty": "Quantità",
-        "table_notes": "Note",
-        "no_items": "Nessun articolo aggiunto. Clicca 'Aggiungi Articolo' per iniziare.",
-        "add_another": "Aggiungi un altro articolo",
-        "supplier_details": "Dettagli Fornitore",
-        "select_supplier": "Seleziona Fornitore",
-        "choose_supplier": "-- Scegli Fornitore --",
-        "internal_note": "Nota Interna",
-        "note_hint": "Visibile solo all'admin, non nel PDF.",
-        "delete_order": "Elimina Ordine",
-        "delete_confirm": "Eliminare definitivamente questo ordine?"
-    },
-    "Payments": {
-        "title": "Pagamenti e Assegni",
-        "subtitle": "Monitora pagamenti imminenti, assegni e scadenze",
-        "calendar_view": "Calendario",
-        "list_view": "Elenco",
-        "add_payment": "Aggiungi Pagamento",
-        "search_placeholder": "Cerca destinatario...",
-        "status_all": "Tutti gli stati",
-        "status_pending": "In sospeso",
-        "status_paid": "Pagato",
-        "export_pdf": "Esporta PDF",
-        "export_excel": "Esporta Excel",
-        "table": {
-            "due_date": "Scadenza",
-            "recipient": "Destinatario",
-            "amount": "Importo",
-            "type": "Tipo",
-            "status": "Stato",
-            "notes": "Note",
-            "actions": "Azioni",
-            "check_number": "Assegno #"
         },
-        "modal": {
-            "add_title": "Nuovo Pagamento",
-            "details_title": "Dettagli Pagamento",
-            "mark_paid": "Segna come Pagato",
-            "delete": "Elimina",
-            "save": "Salva Pagamento",
+        "Orders": {
+            "title": "Gestione Ordini",
+            "subtitle": "Gestisci i tuoi ordini fornitori e le bozze.",
+            "new_order": "Nuovo Ordine",
+            "search_placeholder": "Cerca ordini...",
+            "status_all": "Tutti",
+            "status_draft": "Bozza",
+            "status_completed": "Completato",
+            "loading": "Caricamento ordini...",
+            "no_orders": "Nessun ordine trovato.",
+            "table_order_number": "Ordine #",
+            "table_date": "Data",
+            "table_supplier": "Fornitore",
+            "table_note": "Nota",
+            "table_status": "Stato",
+            "table_actions": "Azioni",
+            "no_supplier": "Nessun Fornitore",
+            "delete_confirm": "Sei sicuro di voler eliminare questo ordine?",
+            "delete_error": "Impossibile eliminare l'ordine",
+            "create_error": "Impossibile creare il nuovo ordine",
+            "duplicate_error": "Impossibile duplicare l'ordine",
+            "load_more": "Carica Altri"
+        },
+        "Suppliers": {
+            "title": "Fornitori",
+            "subtitle": "Gestisci il database dei fornitori.",
+            "add_supplier": "Aggiungi Fornitore",
+            "search_placeholder": "Cerca fornitori...",
+            "loading": "Caricamento fornitori...",
+            "no_suppliers": "Nessun fornitore trovato. Aggiungine uno per iniziare.",
+            "table_name": "Nome",
+            "table_contact": "Contatto",
+            "table_address": "Indirizzo",
+            "table_actions": "Azioni",
+            "delete_confirm": "Sei sicuro di voler eliminare questo fornitore?",
+            "delete_error": "Impossibile eliminare il fornitore",
+            "save_error": "Impossibile salvare il fornitore",
+            "modal_add_title": "Aggiungi Nuovo Fornitore",
+            "modal_edit_title": "Modifica Fornitore",
+            "form_name": "Nome Fornitore *",
+            "form_email": "Email",
+            "form_phone": "Telefono",
+            "form_address": "Indirizzo",
+            "form_vat": "Partita IVA (Opzionale)",
             "cancel": "Annulla",
-            "confirm_delete": "Sei sicuro di voler eliminare questo pagamento?"
+            "save": "Salva Fornitore",
+            "load_more": "Carica Altri"
         },
-        "weekly_total": "Totale Settimanale"
-    },
-    "Wishlist": {
-        "Title": "Esprimi un Desiderio",
-        "Subtitle": "Non trovi quello che cerchi? Faccelo sapere e proveremo a portarlo in negozio solo per te.",
-        "NewRequest": "Nuova Richiesta",
-        "ProductName": "Nome Prodotto",
-        "ProductNamePlaceholder": "es. Tè Matcha Biologico",
-        "Description": "Descrizione (Opzionale)",
-        "DescriptionPlaceholder": "Dettagli specifici, marca o preferenze...",
-        "Submit": "Invia Richiesta",
-        "Sent": "Inviato!",
-        "MyRequests": "Le Mie Richieste",
-        "NoRequests": "Nessuna richiesta ancora",
-        "NoRequestsDesc": "La tua lista dei desideri è vuota. Dicci cosa vorresti vedere nel nostro negozio!",
-        "Status": {
-            "pending": "In attesa",
-            "approved": "Approvato",
-            "rejected": "Rifiutato"
+        "OrderEditor": {
+            "order_not_found": "Ordine non trovato",
+            "created_on": "Creato il",
+            "generate_pdf": "PDF",
+            "mark_completed": "Segna come Completato",
+            "reopen_draft": "Riapri Bozza",
+            "items_title": "Articoli Ordine",
+            "add_item": "Aggiungi Articolo",
+            "table_product": "Nome Prodotto",
+            "table_qty": "Quantità",
+            "table_notes": "Note",
+            "no_items": "Nessun articolo aggiunto. Clicca 'Aggiungi Articolo' per iniziare.",
+            "add_another": "Aggiungi un altro articolo",
+            "supplier_details": "Dettagli Fornitore",
+            "select_supplier": "Seleziona Fornitore",
+            "choose_supplier": "-- Scegli Fornitore --",
+            "internal_note": "Nota Interna",
+            "note_hint": "Visibile solo all'admin, non sul PDF.",
+            "delete_order": "Elimina Ordine",
+            "delete_confirm": "Eliminare definitivamente questo ordine?"
+        },
+        "Payments": {
+            "title": "Pagamenti e Assegni",
+            "subtitle": "Traccia pagamenti imminenti, assegni e scadenze",
+            "calendar_view": "Calendar",
+            "list_view": "List",
+            "add_payment": "Aggiungi Pagamento",
+            "search_placeholder": "Cerca destinatario...",
+            "status_all": "Tutti gli Stati",
+            "status_pending": "In Sospeso",
+            "status_paid": "Pagato",
+            "export_pdf": "Esporta PDF",
+            "export_excel": "Esporta Excel",
+            "table": {
+                "due_date": "Data Scadenza",
+                "recipient": "Destinatario",
+                "amount": "Importo",
+                "type": "Tipo",
+                "status": "Stato",
+                "notes": "Note",
+                "actions": "Azioni",
+                "check_number": "Assegno #"
+            },
+            "modal": {
+                "add_title": "Nuovo Pagamento",
+                "details_title": "Dettagli Pagamento",
+                "mark_paid": "Segna come Pagato",
+                "delete": "Elimina",
+                "save": "Salva Pagamento",
+                "cancel": "Annulla",
+                "confirm_delete": "Sei sicuro di voler eliminare questo pagamento?"
+            },
+            "weekly_total": "Totale Settimanale"
+        },
+        "Wishlist": {
+            "Title": "Esprimi un Desiderio",
+            "Subtitle": "Non trovi quello che cerchi? Faccelo sapere e proveremo a portarlo in negozio apposta per te.",
+            "NewRequest": "Nuova Richiesta",
+            "ProductName": "Nome Prodotto",
+            "ProductNamePlaceholder": "es. Tè Matcha Bio",
+            "Description": "Descrizione (Opzionale)",
+            "DescriptionPlaceholder": "Dettagli specifici, marca o preferenze...",
+            "Submit": "Invia Richiesta",
+            "Sent": "Inviato!",
+            "MyRequests": "Le Mie Richieste",
+            "NoRequests": "Nessuna richiesta ancora",
+            "NoRequestsDesc": "La tua lista dei desideri è vuota. Dicci cosa ti piacerebbe vedere nel nostro negozio!",
+            "Status": {
+                "pending": "In Attesa",
+                "approved": "Approvato",
+                "rejected": "Rifiutato"
+            }
         }
     }
 }

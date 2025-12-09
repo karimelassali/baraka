@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Scale, ChevronLeft, ChevronRight, Loader2, Edit, Trash2, X, Tag, Search, Download } from 'lucide-react';
+import { Plus, Scale, ChevronLeft, ChevronRight, Loader2, Edit, Trash2, X, Tag, Search, Download, Folder, ArrowLeft, Calendar, Pin, PinOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
@@ -9,40 +9,63 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import GlassCard from '@/components/ui/GlassCard';
 import { toast } from 'sonner';
 import { generateEidPdf } from '@/lib/eidPdfUtils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useTranslations } from 'next-intl';
 
 export default function Purchases() {
+    const t = useTranslations('Admin.Eid.Purchases');
+    // View State: 'SUPPLIERS' -> 'BATCHES' -> 'ANIMALS'
+    const [viewMode, setViewMode] = useState('SUPPLIERS');
+    const [selectedSupplier, setSelectedSupplier] = useState(null);
+    const [selectedBatch, setSelectedBatch] = useState(null);
+
+    // Data State
+    const [configuredSuppliers, setConfiguredSuppliers] = useState([]);
+    const [destinations, setDestinations] = useState([]);
+    const [batches, setBatches] = useState([]);
     const [purchases, setPurchases] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [allTags, setAllTags] = useState([]); // Array of { number, color }
+    const [recentColors, setRecentColors] = useState([]);
+    const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+
+    // Loading State
+    const [loading, setLoading] = useState(false);
+
+    // Pagination & Filters (for Animals view)
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [limit] = useState(10);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [typeFilter, setTypeFilter] = useState('ALL');
+
+    // Forms
+    const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+    const [batchForm, setBatchForm] = useState({ id: null, batch_number: '', notes: '' });
+
     const [form, setForm] = useState({
         tag_number: '',
         tag_color: '#000000',
         weight: '',
         animal_type: 'SHEEP',
-        supplier: ''
+        supplier: '',
+        destination: ''
     });
     const [editingPurchase, setEditingPurchase] = useState(null);
-    const [stats, setStats] = useState({
-        total_animals: 0,
-        total_weight: 0,
-        avg_weight: 0
-    });
 
-    // Pagination State
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [limit] = useState(10);
-
-    const [searchTerm, setSearchTerm] = useState('');
-    const [typeFilter, setTypeFilter] = useState('ALL');
-    const [supplierFilter, setSupplierFilter] = useState('ALL');
-    const [suppliers, setSuppliers] = useState([]);
-    const [configuredSuppliers, setConfiguredSuppliers] = useState([]);
-
+    // Initial Load
     useEffect(() => {
         fetchConfiguredSuppliers();
+        fetchDestinations();
+        fetchAllTags();
+        const savedColors = localStorage.getItem('eid_recent_colors');
+        if (savedColors) {
+            setRecentColors(JSON.parse(savedColors));
+        }
     }, []);
 
+    // Fetch Suppliers
     const fetchConfiguredSuppliers = async () => {
+        setLoading(true);
         try {
             const res = await fetch('/api/admin/eid/settings?type=suppliers');
             if (res.ok) {
@@ -50,35 +73,95 @@ export default function Purchases() {
             }
         } catch (e) {
             console.error("Error fetching suppliers", e);
+        } finally {
+            setLoading(false);
         }
     };
 
+    const fetchDestinations = async () => {
+        try {
+            const res = await fetch('/api/admin/eid/settings?type=destinations');
+            if (res.ok) {
+                setDestinations(await res.json());
+            }
+        } catch (e) {
+            console.error("Error fetching destinations", e);
+        }
+    };
+
+    // Fetch All Tags for Suggestions
+    const fetchAllTags = async () => {
+        try {
+            const res = await fetch('/api/admin/eid/purchases?limit=1000');
+            if (res.ok) {
+                const { data } = await res.json();
+                const uniqueTags = [];
+                const seen = new Set();
+                data.forEach(p => {
+                    if (p.tag_number && !seen.has(p.tag_number)) {
+                        seen.add(p.tag_number);
+                        uniqueTags.push({ number: p.tag_number, color: p.tag_color || '#000000' });
+                    }
+                });
+                setAllTags(uniqueTags);
+            }
+        } catch (e) {
+            console.error("Error fetching tags", e);
+        }
+    };
+
+    // Fetch Batches when Supplier Selected
     useEffect(() => {
-        // Debounce search
-        const timer = setTimeout(() => {
-            fetchPurchases();
-        }, 500);
-        return () => clearTimeout(timer);
-    }, [page, searchTerm, typeFilter, supplierFilter]);
+        if (selectedSupplier) {
+            fetchBatches();
+        }
+    }, [selectedSupplier]);
+
+    const fetchBatches = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/admin/eid/batches?supplier_id=${selectedSupplier.id}`);
+            if (res.ok) {
+                let data = await res.json();
+                // Sort by pinned (desc) then created_at (desc)
+                data.sort((a, b) => {
+                    if (a.is_pinned === b.is_pinned) {
+                        return new Date(b.created_at) - new Date(a.created_at);
+                    }
+                    return a.is_pinned ? -1 : 1;
+                });
+                setBatches(data);
+            }
+        } catch (e) {
+            console.error("Error fetching batches", e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch Purchases when Batch Selected (or filters change)
+    useEffect(() => {
+        if (selectedBatch) {
+            // Debounce search
+            const timer = setTimeout(() => {
+                fetchPurchases();
+            }, 500);
+            return () => clearTimeout(timer);
+        }
+    }, [selectedBatch, page, searchTerm, typeFilter]);
 
     const fetchPurchases = async () => {
         setLoading(true);
         try {
-            let url = `/api/admin/eid/purchases?page=${page}&limit=${limit}`;
+            let url = `/api/admin/eid/purchases?page=${page}&limit=${limit}&batch_id=${selectedBatch.id}`;
             if (searchTerm) url += `&search=${searchTerm}`;
             if (typeFilter !== 'ALL') url += `&type=${typeFilter}`;
-            if (supplierFilter !== 'ALL') url += `&supplier=${supplierFilter}`;
 
             const response = await fetch(url);
             if (response.ok) {
                 const result = await response.json();
                 setPurchases(result.data || []);
                 setTotalPages(result.metadata?.totalPages || 1);
-
-                // Extract unique suppliers for filter
-                if (result.allSuppliers) {
-                    setSuppliers(result.allSuppliers);
-                }
             }
         } catch (error) {
             console.error('Error fetching purchases:', error);
@@ -87,11 +170,108 @@ export default function Purchases() {
         }
     };
 
-    // ... (fetchStats remains same)
+    // --- Handlers ---
+
+    const handleSupplierClick = (supplier) => {
+        setSelectedSupplier(supplier);
+        setViewMode('BATCHES');
+    };
+
+    const handleBatchClick = (batch) => {
+        setSelectedBatch(batch);
+        setViewMode('ANIMALS');
+        setPage(1); // Reset page
+    };
+
+    const handleBack = () => {
+        if (viewMode === 'ANIMALS') {
+            setViewMode('BATCHES');
+            setSelectedBatch(null);
+            setPurchases([]);
+        } else if (viewMode === 'BATCHES') {
+            setViewMode('SUPPLIERS');
+            setSelectedSupplier(null);
+            setBatches([]);
+        }
+    };
+
+    const handleSaveBatch = async () => {
+        if (!batchForm.batch_number) return;
+        try {
+            const url = batchForm.id
+                ? `/api/admin/eid/batches/${batchForm.id}`
+                : '/api/admin/eid/batches';
+
+            const method = batchForm.id ? 'PUT' : 'POST';
+
+            const body = {
+                batch_number: batchForm.batch_number,
+                notes: batchForm.notes
+            };
+
+            if (!batchForm.id) {
+                body.supplier_id = selectedSupplier.id;
+            }
+
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                toast.success(batchForm.id ? t('toast.batch_updated') : t('toast.batch_created'));
+                setIsBatchModalOpen(false);
+                setBatchForm({ id: null, batch_number: '', notes: '' });
+                fetchBatches();
+            } else {
+                toast.error(t('toast.error_save_batch'));
+            }
+        } catch (e) {
+            toast.error(t('toast.error_save_batch'));
+        }
+    };
+
+    const handlePinBatch = async (e, batch) => {
+        e.stopPropagation();
+        try {
+            const res = await fetch(`/api/admin/eid/batches/${batch.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_pinned: !batch.is_pinned })
+            });
+            if (res.ok) {
+                fetchBatches();
+                toast.success(batch.is_pinned ? t('toast.batch_unpinned') : t('toast.batch_pinned'));
+            }
+        } catch (e) {
+            toast.error(t('toast.error_update_batch'));
+        }
+    };
+
+    const handleDeleteBatch = async (e, batchId) => {
+        e.stopPropagation();
+        if (!confirm(t('confirm_delete_batch'))) return;
+        try {
+            const res = await fetch(`/api/admin/eid/batches/${batchId}`, { method: 'DELETE' });
+            if (res.ok) {
+                toast.success(t('toast.batch_deleted'));
+                fetchBatches();
+            }
+        } catch (e) {
+            toast.error(t('toast.error_delete_batch'));
+        }
+    };
+
+    const openEditBatchModal = (e, batch) => {
+        e.stopPropagation();
+        setBatchForm({ id: batch.id, batch_number: batch.batch_number, notes: batch.notes || '' });
+        setIsBatchModalOpen(true);
+    };
 
     const handleSavePurchase = async () => {
         if (!form.tag_number || !form.weight) {
-            toast.error('Please fill required fields');
+            toast.error(t('toast.fill_required'));
             return;
         }
 
@@ -102,25 +282,59 @@ export default function Purchases() {
 
             const method = editingPurchase ? 'PUT' : 'POST';
 
+            const payload = {
+                ...form,
+                supplier: selectedSupplier.name, // Legacy field
+                batch_id: selectedBatch.id
+            };
+
             const response = await fetch(url, {
                 method: method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form)
+                body: JSON.stringify(payload)
             });
 
+            if (response.status === 409) {
+                toast.error(t('toast.tag_exists', { tag: form.tag_number }));
+                return;
+            }
+
             if (response.ok) {
-                toast.success(editingPurchase ? 'Purchase updated' : 'Purchase added');
+                toast.success(editingPurchase ? t('toast.purchase_updated') : t('toast.purchase_added'));
                 fetchPurchases();
+                // Update tag list if new
+                if (!allTags.some(t => t.number === form.tag_number)) {
+                    setAllTags(prev => [...prev, { number: form.tag_number, color: form.tag_color }]);
+                }
+
+                // Save color to recent
+                if (form.tag_color) {
+                    const newColors = [form.tag_color, ...recentColors.filter(c => c !== form.tag_color)].slice(0, 5);
+                    setRecentColors(newColors);
+                    localStorage.setItem('eid_recent_colors', JSON.stringify(newColors));
+                }
+
                 resetForm();
             } else {
-                toast.error('Failed to save purchase');
+                toast.error(t('toast.error_save_purchase'));
             }
         } catch (error) {
-            toast.error('Error saving purchase');
+            toast.error(t('toast.error_save_purchase'));
         }
     };
 
-    // ... (handleDeletePurchase remains same)
+    const handleDeletePurchase = async (id) => {
+        if (!confirm(t('confirm_delete'))) return;
+        try {
+            const res = await fetch(`/api/admin/eid/purchases/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                toast.success(t('toast.deleted'));
+                fetchPurchases();
+            }
+        } catch (e) {
+            toast.error(t('toast.error_delete'));
+        }
+    };
 
     const handleEdit = (purchase) => {
         setEditingPurchase(purchase);
@@ -129,7 +343,8 @@ export default function Purchases() {
             tag_color: purchase.tag_color || '#000000',
             weight: purchase.weight,
             animal_type: purchase.animal_type,
-            supplier: purchase.supplier || ''
+            supplier: purchase.supplier || '',
+            destination: purchase.destination || ''
         });
     };
 
@@ -140,42 +355,202 @@ export default function Purchases() {
             tag_color: '#000000',
             weight: '',
             animal_type: 'SHEEP',
-            supplier: ''
+            supplier: '',
+            destination: ''
         });
     };
 
     const handleDownloadPdf = () => {
-        const columns = ['Tag', 'Colore', 'Tipo', 'Peso', 'Fornitore'];
+        const columns = [t('pdf.tag'), t('pdf.color'), t('pdf.type'), t('pdf.weight')];
         const data = purchases.map(p => [
             p.tag_number,
             p.tag_color || '-',
             p.animal_type,
-            `${p.weight} kg`,
-            p.supplier || '-'
+            `${p.weight} kg`
         ]);
 
         generateEidPdf({
-            title: 'Rapporto Acquisti',
+            title: `${t('pdf.title')} - ${selectedBatch?.batch_number}`,
             columns,
             data,
-            filename: `acquisti_${new Date().toISOString().split('T')[0]}`,
+            filename: `acquisti_${selectedBatch?.batch_number}_${new Date().toISOString().split('T')[0]}`,
             details: {
-                'Totale Animali': purchases.length,
-                'Filtro Tipo': typeFilter === 'ALL' ? 'Tutti' : typeFilter,
-                'Filtro Fornitore': supplierFilter === 'ALL' ? 'Tutti' : supplierFilter
+                [t('pdf.supplier')]: selectedSupplier?.name,
+                [t('pdf.group')]: selectedBatch?.batch_number,
+                [t('pdf.total_animals')]: purchases.length
             },
-            colorColumnIndex: 1 // The 'Color' column is at index 1
+            colorColumnIndex: 1
         });
     };
 
+    // --- Render Views ---
+
+    if (viewMode === 'SUPPLIERS') {
+        return (
+            <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-red-700">{t('title')}</h2>
+                {loading ? (
+                    <div className="flex justify-center p-8"><Loader2 className="animate-spin text-red-500" /></div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {configuredSuppliers.map(s => (
+                            <GlassCard
+                                key={s.id}
+                                className="p-6 cursor-pointer hover:shadow-lg transition-all border-l-4 border-l-red-500 flex flex-col items-center justify-center gap-4 group"
+                                onClick={() => handleSupplierClick(s)}
+                            >
+                                <div className="relative">
+                                    <img
+                                        src={`https://api.dicebear.com/9.x/initials/svg?seed=${s.name}`}
+                                        alt={s.name}
+                                        className="w-16 h-16 rounded-full border-2 border-red-100 shadow-sm group-hover:scale-105 transition-transform"
+                                    />
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="font-bold text-lg">{s.name}</h3>
+                                    <p className="text-sm text-muted-foreground">{s.contact_info || t('no_contact')}</p>
+                                </div>
+                            </GlassCard>
+                        ))}
+                        {configuredSuppliers.length === 0 && (
+                            <div className="col-span-full text-center text-muted-foreground p-8">
+                                {t('no_suppliers')}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    if (viewMode === 'BATCHES') {
+        return (
+            <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" onClick={handleBack}><ArrowLeft className="mr-2 h-4 w-4" /> {t('batches.back')}</Button>
+                    <div className="flex items-center gap-3">
+                        <img
+                            src={`https://api.dicebear.com/9.x/initials/svg?seed=${selectedSupplier?.name}`}
+                            alt={selectedSupplier?.name}
+                            className="w-10 h-10 rounded-full border border-red-100"
+                        />
+                        <h2 className="text-xl font-semibold text-red-700">{t('batches.title', { name: selectedSupplier?.name })}</h2>
+                    </div>
+                    <Button onClick={() => { setBatchForm({ id: null, batch_number: '', notes: '' }); setIsBatchModalOpen(true); }} className="ml-auto bg-red-600 hover:bg-red-700">
+                        <Plus className="mr-2 h-4 w-4" /> {t('batches.new_batch')}
+                    </Button>
+                </div>
+
+                {loading ? (
+                    <div className="flex justify-center p-8"><Loader2 className="animate-spin text-red-500" /></div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {batches.map(b => (
+                            <GlassCard
+                                key={b.id}
+                                className={`p-6 cursor-pointer hover:shadow-lg transition-all border-t-4 group relative ${b.is_pinned ? 'border-t-yellow-500 bg-yellow-50/30' : 'border-t-red-500'}`}
+                                onClick={() => handleBatchClick(b)}
+                            >
+                                <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 hover:bg-yellow-100 text-yellow-600"
+                                        onClick={(e) => handlePinBatch(e, b)}
+                                        title={b.is_pinned ? t('batches.unpin') : t('batches.pin')}
+                                    >
+                                        {b.is_pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 hover:bg-blue-100 text-blue-600"
+                                        onClick={(e) => openEditBatchModal(e, b)}
+                                        title={t('batches.edit')}
+                                    >
+                                        <Edit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 hover:bg-red-100 text-red-600"
+                                        onClick={(e) => handleDeleteBatch(e, b.id)}
+                                        title={t('batches.delete')}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+
+                                <div className="flex justify-between items-start mb-2 pr-24">
+                                    <h3 className="font-bold text-lg flex items-center gap-2">
+                                        {b.is_pinned && <Pin className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
+                                        {b.batch_number}
+                                    </h3>
+                                </div>
+                                <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{b.notes || t('batches.no_notes')}</p>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto">
+                                    <Calendar className="w-3 h-3" />
+                                    {new Date(b.created_at).toLocaleDateString()}
+                                </div>
+                            </GlassCard>
+                        ))}
+                        {batches.length === 0 && (
+                            <div className="col-span-full text-center text-muted-foreground p-8">
+                                {t('batches.no_batches')}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <Dialog open={isBatchModalOpen} onOpenChange={setIsBatchModalOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>{batchForm.id ? t('batch_modal.edit_title') : t('batch_modal.create_title')}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t('batch_modal.number_name')}</label>
+                                <Input
+                                    value={batchForm.batch_number}
+                                    onChange={(e) => setBatchForm({ ...batchForm, batch_number: e.target.value })}
+                                    placeholder={t('batch_modal.name_placeholder')}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">{t('batch_modal.notes')}</label>
+                                <Input
+                                    value={batchForm.notes}
+                                    onChange={(e) => setBatchForm({ ...batchForm, notes: e.target.value })}
+                                    placeholder={t('batch_modal.notes_placeholder')}
+                                />
+                            </div>
+                            <Button onClick={handleSaveBatch} className="w-full bg-red-600 hover:bg-red-700">
+                                {batchForm.id ? t('batch_modal.update_btn') : t('batch_modal.create_btn')}
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        );
+    }
+
+    // ANIMALS VIEW (Existing Logic)
     return (
         <div className="space-y-6">
+            <div className="flex items-center gap-4">
+                <Button variant="ghost" onClick={handleBack}><ArrowLeft className="mr-2 h-4 w-4" /> {t('animals.back')}</Button>
+                <div>
+                    <h2 className="text-xl font-semibold text-red-700">{selectedSupplier?.name} / {selectedBatch?.batch_number}</h2>
+                    <p className="text-sm text-muted-foreground">{t('animals.subtitle')}</p>
+                </div>
+            </div>
+
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="grid grid-cols-1 gap-4 w-full md:w-auto">
                     <GlassCard className="p-4 flex items-center justify-between border-l-4 border-l-red-500 w-full md:w-64">
                         <div>
-                            <p className="text-sm text-muted-foreground">Total Animals</p>
-                            <p className="text-2xl font-bold text-red-900">{purchases.length} (Page)</p>
+                            <p className="text-sm text-muted-foreground">{t('animals.total_animals')}</p>
+                            <p className="text-2xl font-bold text-red-900">{purchases.length} ({t('animals.page')})</p>
                         </div>
                         <Scale className="h-8 w-8 text-red-500 opacity-50" />
                     </GlassCard>
@@ -185,7 +560,7 @@ export default function Purchases() {
                     <div className="relative flex-1 md:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search tag number..."
+                            placeholder={t('animals.search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-9"
@@ -193,24 +568,13 @@ export default function Purchases() {
                     </div>
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
                         <SelectTrigger className="w-[130px]">
-                            <SelectValue placeholder="Type" />
+                            <SelectValue placeholder={t('animals.form.type')} />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="ALL">All Types</SelectItem>
-                            <SelectItem value="SHEEP">Sheep</SelectItem>
-                            <SelectItem value="GOAT">Goat</SelectItem>
-                            <SelectItem value="CATTLE">Cattle</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select value={supplierFilter} onValueChange={setSupplierFilter}>
-                        <SelectTrigger className="w-[130px]">
-                            <SelectValue placeholder="Supplier" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">All Suppliers</SelectItem>
-                            {suppliers.map(s => (
-                                <SelectItem key={s} value={s}>{s}</SelectItem>
-                            ))}
+                            <SelectItem value="ALL">{t('animals.types.all')}</SelectItem>
+                            <SelectItem value="SHEEP">{t('animals.types.sheep')}</SelectItem>
+                            <SelectItem value="GOAT">{t('animals.types.goat')}</SelectItem>
+                            <SelectItem value="CATTLE">{t('animals.types.cattle')}</SelectItem>
                         </SelectContent>
                     </Select>
                     <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
@@ -224,7 +588,7 @@ export default function Purchases() {
                 <div className="lg:col-span-1">
                     <GlassCard className="p-4 space-y-4 border-t-4 border-t-red-500 sticky top-4">
                         <div className="flex justify-between items-center">
-                            <h3 className="font-semibold text-red-900">{editingPurchase ? 'Edit Animal' : 'Add New Animal'}</h3>
+                            <h3 className="font-semibold text-red-900">{editingPurchase ? t('animals.form.edit_title') : t('animals.form.add_title')}</h3>
                             {editingPurchase && (
                                 <Button variant="ghost" size="sm" onClick={resetForm}>
                                     <X className="h-4 w-4" />
@@ -232,7 +596,7 @@ export default function Purchases() {
                             )}
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Type</label>
+                            <label className="text-sm font-medium">{t('animals.form.type')}</label>
                             <Select
                                 value={form.animal_type}
                                 onValueChange={(v) => setForm({ ...form, animal_type: v })}
@@ -241,65 +605,131 @@ export default function Purchases() {
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="SHEEP">Sheep</SelectItem>
-                                    <SelectItem value="GOAT">Goat</SelectItem>
-                                    <SelectItem value="CATTLE">Cattle</SelectItem>
+                                    <SelectItem value="SHEEP">{t('animals.types.sheep')}</SelectItem>
+                                    <SelectItem value="GOAT">{t('animals.types.goat')}</SelectItem>
+                                    <SelectItem value="CATTLE">{t('animals.types.cattle')}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2 relative">
+                            <label className="text-sm font-medium">{t('animals.form.tag_number')}</label>
+                            <Input
+                                value={form.tag_number}
+                                onChange={(e) => {
+                                    setForm({ ...form, tag_number: e.target.value });
+                                    setShowTagSuggestions(true);
+                                }}
+                                onFocus={() => setShowTagSuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                                placeholder={t('animals.form.tag_placeholder')}
+                                className="focus-visible:ring-red-500"
+                                autoComplete="off"
+                            />
+                            {showTagSuggestions && form.tag_number && (
+                                <div className="absolute z-10 w-full bg-white border rounded-md shadow-lg max-h-48 overflow-y-auto mt-1">
+                                    {allTags
+                                        .filter(t => t.number.toLowerCase().includes(form.tag_number.toLowerCase()))
+                                        .map(tag => {
+                                            const isEditingCurrent = editingPurchase && editingPurchase.tag_number === tag.number;
+                                            const isTaken = true; // allTags contains only used tags
+                                            const isDisabled = isTaken && !isEditingCurrent;
+
+                                            return (
+                                                <div
+                                                    key={tag.number}
+                                                    className={`px-3 py-2 flex items-center justify-between gap-2 border-b last:border-0 ${isDisabled ? 'bg-gray-50 cursor-not-allowed opacity-70' : 'hover:bg-gray-100 cursor-pointer'}`}
+                                                    onClick={() => {
+                                                        if (!isDisabled) {
+                                                            setForm({ ...form, tag_number: tag.number, tag_color: tag.color });
+                                                            setShowTagSuggestions(false);
+                                                        }
+                                                    }}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Tag className="w-4 h-4" style={{ fill: tag.color, color: tag.color }} />
+                                                        <span className={`font-medium ${isDisabled ? 'text-muted-foreground' : ''}`}>{tag.number}</span>
+                                                    </div>
+                                                    {isDisabled && (
+                                                        <span className="text-xs text-red-500 font-medium bg-red-50 px-2 py-0.5 rounded-full">
+                                                            {t('animals.form.tag_used')}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    {allTags.filter(t => t.number.toLowerCase().includes(form.tag_number.toLowerCase())).length === 0 && (
+                                        <div className="px-3 py-2 text-sm text-green-600 flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                            {t('animals.form.tag_available')}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">{t('animals.form.tag_color')}</label>
+                            <div className="flex gap-2 items-center">
+                                <div className="relative">
+                                    <Input
+                                        type="color"
+                                        value={form.tag_color}
+                                        onChange={(e) => setForm({ ...form, tag_color: e.target.value })}
+                                        className="w-12 h-10 p-1 cursor-pointer"
+                                    />
+                                </div>
+                                <Input
+                                    value={form.tag_color}
+                                    onChange={(e) => setForm({ ...form, tag_color: e.target.value })}
+                                    placeholder={t('animals.form.color_placeholder')}
+                                    className="flex-1 focus-visible:ring-red-500"
+                                />
+                            </div>
+                            {recentColors.length > 0 && (
+                                <div className="flex gap-2 mt-2 flex-wrap">
+                                    {recentColors.map(color => (
+                                        <button
+                                            key={color}
+                                            onClick={() => setForm({ ...form, tag_color: color })}
+                                            className="w-6 h-6 rounded-full border border-gray-200 shadow-sm hover:scale-110 transition-transform flex items-center justify-center"
+                                            style={{ backgroundColor: color }}
+                                            title={color}
+                                        >
+                                            {form.tag_color === color && <div className="w-2 h-2 bg-white rounded-full shadow-sm" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">{t('animals.form.destination')}</label>
+                            <Select
+                                value={form.destination}
+                                onValueChange={(v) => setForm({ ...form, destination: v })}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder={t('animals.form.dest_placeholder')} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {destinations.map(d => (
+                                        <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>
+                                    ))}
+                                    {destinations.length === 0 && <SelectItem value="none" disabled>{t('no_destinations')}</SelectItem>}
                                 </SelectContent>
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Supplier</label>
-                            <Input
-                                value={form.supplier}
-                                onChange={(e) => setForm({ ...form, supplier: e.target.value })}
-                                placeholder="e.g. Farm A"
-                                className="focus-visible:ring-red-500"
-                                list="suppliers-list"
-                            />
-                            <datalist id="suppliers-list">
-                                {configuredSuppliers.map(s => (
-                                    <option key={s.id} value={s.name} />
-                                ))}
-                            </datalist>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Tag Number</label>
-                            <Input
-                                value={form.tag_number}
-                                onChange={(e) => setForm({ ...form, tag_number: e.target.value })}
-                                placeholder="e.g. 12345"
-                                className="focus-visible:ring-red-500"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Tag Color</label>
-                            <div className="flex gap-2">
-                                <Input
-                                    type="color"
-                                    value={form.tag_color}
-                                    onChange={(e) => setForm({ ...form, tag_color: e.target.value })}
-                                    className="w-12 h-10 p-1 cursor-pointer"
-                                />
-                                <Input
-                                    value={form.tag_color}
-                                    onChange={(e) => setForm({ ...form, tag_color: e.target.value })}
-                                    placeholder="e.g. #FFFF00"
-                                    className="flex-1 focus-visible:ring-red-500"
-                                />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Weight (kg)</label>
+                            <label className="text-sm font-medium">{t('animals.form.weight')}</label>
                             <Input
                                 type="number"
                                 value={form.weight}
                                 onChange={(e) => setForm({ ...form, weight: e.target.value })}
-                                placeholder="0.0"
+                                placeholder={t('animals.form.weight_placeholder')}
                                 className="focus-visible:ring-red-500"
                             />
                         </div>
                         <Button onClick={handleSavePurchase} className="w-full bg-red-600 hover:bg-red-700">
-                            {editingPurchase ? 'Update Animal' : 'Add Animal'}
+                            {editingPurchase ? t('animals.form.update_btn') : t('animals.form.add_btn')}
                         </Button>
                     </GlassCard>
                 </div>
@@ -310,10 +740,11 @@ export default function Purchases() {
                             <TableHeader>
                                 <TableRow className="hover:bg-red-50/50">
                                     <TableHead className="text-red-900 font-bold">#</TableHead>
-                                    <TableHead className="text-red-900 font-bold">Tag</TableHead>
-                                    <TableHead className="text-red-900 font-bold">Type</TableHead>
-                                    <TableHead className="text-red-900 font-bold">Weight</TableHead>
-                                    <TableHead className="text-red-900 font-bold">Actions</TableHead>
+                                    <TableHead className="text-red-900 font-bold">{t('animals.table.tag')}</TableHead>
+                                    <TableHead className="text-red-900 font-bold">{t('animals.table.type')}</TableHead>
+                                    <TableHead className="text-red-900 font-bold">{t('animals.table.weight')}</TableHead>
+                                    <TableHead className="text-red-900 font-bold">{t('animals.table.destination')}</TableHead>
+                                    <TableHead className="text-red-900 font-bold">{t('animals.table.actions')}</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -340,6 +771,7 @@ export default function Purchases() {
                                         </TableCell>
                                         <TableCell>{p.animal_type}</TableCell>
                                         <TableCell className="font-bold">{p.weight} kg</TableCell>
+                                        <TableCell className="text-muted-foreground">{p.destination || '-'}</TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2">
                                                 <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(p)}>
@@ -352,13 +784,20 @@ export default function Purchases() {
                                         </TableCell>
                                     </TableRow>
                                 ))}
+                                {purchases.length === 0 && !loading && (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                            {t('animals.table.no_animals')}
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
 
                         {/* Pagination Controls */}
                         <div className="p-4 border-t flex items-center justify-between bg-muted/20">
                             <div className="text-sm text-muted-foreground">
-                                Page {page} of {totalPages}
+                                {t('animals.page')} {page} {t('of')} {totalPages}
                             </div>
                             <div className="flex gap-2">
                                 <Button
@@ -383,7 +822,7 @@ export default function Purchases() {
                         </div>
                     </GlassCard>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

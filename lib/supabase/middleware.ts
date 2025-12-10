@@ -13,20 +13,27 @@ export async function updateSession(request: NextRequest, response?: NextRespons
         const cleanPath = pathname.replace(/^\/(en|it|ar)/, '');
 
         const isAllowedPath =
+            cleanPath === '' || // Allow empty path (e.g. /en)
+            cleanPath === '/' || // Allow root (which shows waitlist)
             cleanPath === '/add-client' ||
-            cleanPath === '/under-construction' ||
-            pathname === '/add-client' || // Handle root paths just in case
-            pathname === '/under-construction' ||
+            pathname === '/' ||
+            pathname === '/add-client' ||
             pathname.startsWith('/api') ||
             pathname.startsWith('/_next') ||
             pathname === '/favicon.ico' ||
             pathname === '/logo.jpeg'; // Allow logo
 
         if (!isAllowedPath) {
-            // Preserve locale if present, otherwise default to /under-construction
-            // But actually, we should just let next-intl handle the locale.
-            // If we redirect to /under-construction, next-intl will add the locale.
-            url.pathname = '/under-construction';
+            // Redirect to root (preserving locale if possible, or just /)
+            // If we redirect to just '/', next-intl middleware (which runs before or after depending on config) 
+            // might handle the locale. 
+            // Since this middleware runs AFTER intl middleware in the chain (in middleware.ts), 
+            // we should try to keep the locale if present.
+
+            const localeMatch = pathname.match(/^\/(en|it|ar)/);
+            const locale = localeMatch ? localeMatch[0] : '';
+
+            url.pathname = locale + '/';
             return NextResponse.redirect(url);
         }
     }

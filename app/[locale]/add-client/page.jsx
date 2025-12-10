@@ -28,6 +28,11 @@ export default function AddClientPage() {
     const [sendingBulk, setSendingBulk] = useState(false);
     const [bulkSuccess, setBulkSuccess] = useState(false);
 
+    // Waitlist State
+    const [showWaitlist, setShowWaitlist] = useState(false);
+    const [waitlist, setWaitlist] = useState([]);
+    const [loadingWaitlist, setLoadingWaitlist] = useState(false);
+
     // Delete State
     const [clientToDelete, setClientToDelete] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -267,6 +272,76 @@ export default function AddClientPage() {
             alert('Errore durante l\'invio delle email');
         } finally {
             setSendingBulk(false);
+        }
+    };
+
+    const fetchWaitlist = async () => {
+        setLoadingWaitlist(true);
+        try {
+            const res = await fetch('/api/admin/waitlist');
+            const data = await res.json();
+            if (data.success) {
+                setWaitlist(data.data);
+            }
+        } catch (err) {
+            console.error('Error fetching waitlist:', err);
+        } finally {
+            setLoadingWaitlist(false);
+        }
+    };
+
+    const toggleWaitlist = () => {
+        if (!showWaitlist) {
+            setShowClients(false); // Close clients list if open
+            fetchWaitlist();
+        }
+        setShowWaitlist(!showWaitlist);
+    };
+
+    const handleApproveWaitlist = async (id) => {
+        try {
+            const res = await fetch('/api/admin/waitlist/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to approve');
+            }
+
+            // Remove from list
+            setWaitlist(prev => prev.filter(item => item.id !== id));
+            alert('Utente approvato e aggiunto ai clienti!');
+        } catch (err) {
+            console.error('Error approving:', err);
+            alert('Errore durante l\'approvazione: ' + err.message);
+        }
+    };
+
+    const handleRejectWaitlist = async (id) => {
+        if (!confirm('Sei sicuro di voler rifiutare questa richiesta?')) return;
+
+        try {
+            const res = await fetch('/api/admin/waitlist/reject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to reject');
+            }
+
+            // Update local state to show rejected status
+            setWaitlist(prev => prev.map(item =>
+                item.id === id ? { ...item, status: 'rejected' } : item
+            ));
+        } catch (err) {
+            console.error('Error rejecting:', err);
+            alert('Errore durante il rifiuto: ' + err.message);
         }
     };
 
@@ -629,6 +704,124 @@ export default function AddClientPage() {
                 </motion.div>
             </div>
 
+            {/* Navigation Buttons */}
+            <div className="flex gap-4 justify-center mt-4">
+                <button
+                    onClick={toggleClients}
+                    className={`px-6 py-2 rounded-full font-medium transition-all ${showClients
+                        ? 'bg-gray-800 text-white shadow-lg'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                        }`}
+                >
+                    {showClients ? 'Nascondi Lista Clienti' : 'Mostra Lista Clienti'}
+                </button>
+                <button
+                    onClick={toggleWaitlist}
+                    className={`px-6 py-2 rounded-full font-medium transition-all ${showWaitlist
+                        ? 'bg-red-600 text-white shadow-lg'
+                        : 'bg-white text-red-600 border border-red-200 hover:bg-red-50'
+                        }`}
+                >
+                    {showWaitlist ? 'Nascondi Waitlist' : 'Richieste Waitlist'}
+                </button>
+            </div>
+
+            {/* Waitlist View */}
+            <AnimatePresence>
+                {showWaitlist && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="w-full max-w-4xl mx-auto px-4 overflow-hidden"
+                    >
+                        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mt-6">
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    <Users className="w-5 h-5 text-red-600" />
+                                    Richieste di Accesso ({waitlist.length})
+                                </h3>
+                                <button onClick={() => fetchWaitlist()} className="text-sm text-red-600 font-medium hover:underline">
+                                    Aggiorna
+                                </button>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-gray-50 text-gray-500 text-sm uppercase">
+                                        <tr>
+                                            <th className="p-4 font-medium">Nome</th>
+                                            <th className="p-4 font-medium">Contatti</th>
+                                            <th className="p-4 font-medium">Luogo</th>
+                                            <th className="p-4 font-medium">Stato</th>
+                                            <th className="p-4 font-medium text-right">Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {loadingWaitlist ? (
+                                            <tr>
+                                                <td colSpan="5" className="p-8 text-center text-gray-500">
+                                                    Caricamento...
+                                                </td>
+                                            </tr>
+                                        ) : waitlist.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" className="p-8 text-center text-gray-500">
+                                                    Nessuna richiesta in attesa.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            waitlist.map((item) => (
+                                                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="p-4">
+                                                        <p className="font-bold text-gray-800">{item.first_name} {item.last_name}</p>
+                                                        <p className="text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString()}</p>
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <p className="text-sm text-gray-600 flex items-center gap-1"><Phone className="w-3 h-3" /> {item.phone_number}</p>
+                                                        {item.email && <p className="text-sm text-gray-500 flex items-center gap-1"><Mail className="w-3 h-3" /> {item.email}</p>}
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <p className="text-sm text-gray-600">{item.country}</p>
+                                                        {item.city && <p className="text-xs text-gray-400">{item.city}</p>}
+                                                    </td>
+                                                    <td className="p-4">
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.status === 'approved' ? 'bg-green-100 text-green-700' :
+                                                            item.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                                                'bg-yellow-100 text-yellow-700'
+                                                            }`}>
+                                                            {item.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4 text-right">
+                                                        {item.status === 'pending' && (
+                                                            <div className="flex gap-2 justify-end">
+                                                                <button
+                                                                    onClick={() => handleRejectWaitlist(item.id)}
+                                                                    className="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                                                >
+                                                                    Rifiuta
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleApproveWaitlist(item.id)}
+                                                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                                                >
+                                                                    Approva
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <main className="flex-grow flex flex-col items-center p-4 md:p-8 gap-8">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
@@ -983,6 +1176,6 @@ export default function AddClientPage() {
             <footer className="p-6 text-center text-gray-400 text-sm">
                 &copy; {new Date().getFullYear()} Sistemi di Fedeltà Baraka
             </footer>
-        </div>
+        </div >
     );
 }

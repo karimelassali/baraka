@@ -174,6 +174,7 @@ export default function WaitlistLanding() {
 
             setSuccess(true);
             localStorage.setItem('baraka_waitlist_joined', 'true');
+            localStorage.setItem('baraka_phone', formData.phoneNumber);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -260,7 +261,7 @@ export default function WaitlistLanding() {
                                 </p>
                                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
                                     <p className="text-sm text-gray-400">{currentT.contact}</p>
-                                    <p className="font-medium text-gray-900">{formData.phoneNumber || localStorage.getItem('baraka_phone')}</p>
+                                    <p className="font-medium text-gray-900">{formData.phoneNumber || (typeof window !== 'undefined' ? localStorage.getItem('baraka_phone') : '')}</p>
                                 </div>
                             </motion.div>
                         ) : (
@@ -419,7 +420,7 @@ export default function WaitlistLanding() {
                                         {step < 3 ? (
                                             <button
                                                 onClick={nextStep}
-                                                className="flex-1 bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-black transition-colors flex items-center justify-center gap-2"
+                                                className="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-red-600/20"
                                             >
                                                 {currentT.next} <ArrowRight className={`w-5 h-5 ${isRTL ? 'rotate-180' : ''}`} />
                                             </button>

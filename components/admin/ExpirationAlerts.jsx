@@ -14,9 +14,10 @@ import {
 import GlassCard from '../ui/GlassCard';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { getInventoryTranslation as t } from '../../lib/constants/inventory-translations';
+import { useTranslations } from 'next-intl';
 
 export default function ExpirationAlerts({ data, onRefresh }) {
+    const t = useTranslations('Admin.Inventory');
     const [isExpanded, setIsExpanded] = useState(false);
     const [activeTab, setActiveTab] = useState('all');
 

@@ -19,8 +19,10 @@ import { Badge } from '../ui/badge';
 import GlassCard from '../ui/GlassCard';
 import { CardHeader, CardTitle, CardContent } from '../ui/card';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function NotificationCenter() {
+    const t = useTranslations('Admin.Notifications');
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -93,10 +95,10 @@ export default function NotificationCenter() {
     };
 
     const notificationCategories = [
-        { key: 'new_customers', label: 'Nuovi Clienti', description: 'Clienti registrati nelle ultime 24 ore' },
-        { key: 'expiring_products', label: 'Prodotti in Scadenza', description: 'Prodotti che scadono entro 7 giorni' },
-        { key: 'low_stock', label: 'Scorte Basse', description: 'Prodotti sotto la soglia minima' },
-        { key: 'pending_reviews', label: 'Recensioni da Approvare', description: 'Recensioni in attesa di moderazione' }
+        { key: 'new_customers', label: t('categories.new_customers.label'), description: t('categories.new_customers.description') },
+        { key: 'expiring_products', label: t('categories.expiring_products.label'), description: t('categories.expiring_products.description') },
+        { key: 'low_stock', label: t('categories.low_stock.label'), description: t('categories.low_stock.description') },
+        { key: 'pending_reviews', label: t('categories.pending_reviews.label'), description: t('categories.pending_reviews.description') }
     ];
 
     // Calculate total count excluding dismissed categories
@@ -156,12 +158,10 @@ export default function NotificationCenter() {
                                     <div>
                                         <CardTitle className="flex items-center gap-2 text-base">
                                             <Bell className="h-5 w-5 text-red-600" />
-                                      
-                                            Notifiche
+                                            {t('title')}
                                         </CardTitle>
                                         <p className="text-sm text-muted-foreground mt-1">
-                                        
-                                            {totalCount} {totalCount === 1 ? 'notifica' : 'notifiche'} da leggere
+                                            {totalCount === 1 ? t('unread_single') : t('unread_count', { count: totalCount })}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-1">
@@ -172,7 +172,7 @@ export default function NotificationCenter() {
                                                 className="text-xs h-8"
                                                 onClick={() => setDismissedCategories([])}
                                             >
-                                                Ripristina
+                                                {t('restore')}
                                             </Button>
                                         )}
                                         <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
@@ -189,8 +189,8 @@ export default function NotificationCenter() {
                                     ) : activeNotifications.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
                                             <Bell className="h-16 w-16 mb-4 opacity-20" />
-                                            <p className="text-lg font-medium">Nessuna Notifica</p>
-                                            <p className="text-sm">Sei aggiornato!</p>
+                                            <p className="text-lg font-medium">{t('empty_title')}</p>
+                                            <p className="text-sm">{t('empty_desc')}</p>
                                         </div>
                                     ) : (
                                         <div className="divide-y divide-border">
@@ -239,14 +239,14 @@ export default function NotificationCenter() {
                                                                         ))}
                                                                         {data.items.length > 2 && (
                                                                             <p className="text-xs text-muted-foreground pl-3.5">
-                                                                                + altri {data.items.length - 2}
+                                                                                {t('others', { count: data.items.length - 2 })}
                                                                             </p>
                                                                         )}
                                                                     </div>
                                                                 )}
 
                                                                 <div className="flex items-center gap-1 text-xs text-red-600 mt-2 font-medium group-hover:translate-x-1 transition-transform">
-                                                                    Visualizza dettagli
+                                                                    {t('view_details')}
                                                                     <ChevronRight className="h-3 w-3" />
                                                                 </div>
                                                             </div>
@@ -278,7 +278,7 @@ export default function NotificationCenter() {
                                         disabled={loading}
                                     >
                                         <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                                        {loading ? 'Aggiornamento...' : 'Aggiorna Notifiche'}
+                                        {loading ? t('refreshing') : t('refresh')}
                                     </Button>
                                 </div>
                             </GlassCard>

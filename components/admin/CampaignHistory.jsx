@@ -17,8 +17,10 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import GlassCard from '../ui/GlassCard';
 import { Button } from '../ui/button';
+import { useTranslations } from 'next-intl';
 
 export default function CampaignHistory() {
+    const t = useTranslations('Admin.Campaigns');
     const [messages, setMessages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -72,7 +74,7 @@ export default function CampaignHistory() {
                         <MessageSquare className="h-6 w-6" />
                     </div>
                     <div>
-                        <p className="text-sm text-muted-foreground">Total Messages</p>
+                        <p className="text-sm text-muted-foreground">{t('stats.total')}</p>
                         <p className="text-2xl font-bold">{totalSent}</p>
                     </div>
                 </GlassCard>
@@ -82,7 +84,7 @@ export default function CampaignHistory() {
                         <CheckCircle2 className="h-6 w-6" />
                     </div>
                     <div>
-                        <p className="text-sm text-muted-foreground">Success Rate</p>
+                        <p className="text-sm text-muted-foreground">{t('stats.success_rate')}</p>
                         <p className="text-2xl font-bold">{successRate}%</p>
                     </div>
                 </GlassCard>
@@ -92,19 +94,19 @@ export default function CampaignHistory() {
                         <XCircle className="h-6 w-6" />
                     </div>
                     <div>
-                        <p className="text-sm text-muted-foreground">Failed</p>
+                        <p className="text-sm text-muted-foreground">{t('stats.failed')}</p>
                         <p className="text-2xl font-bold">{failedCount}</p>
                     </div>
                 </GlassCard>
             </div>
 
             {/* Filters & Search */}
-            <div className="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between bg-muted/20 p-4 rounded-xl border border-white/5">
+            < div className="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between bg-muted/20 p-4 rounded-xl border border-white/5" >
                 <div className="flex flex-wrap gap-3 items-center flex-1">
                     <div className="relative w-full md:w-64">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                            placeholder="Search messages..."
+                            placeholder={t('filters.search')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="pl-9 bg-background/50"
@@ -118,9 +120,9 @@ export default function CampaignHistory() {
                             onChange={(e) => setStatusFilter(e.target.value)}
                             className="bg-background/50 border border-input rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                         >
-                            <option value="all">All Status</option>
-                            <option value="sent">Sent</option>
-                            <option value="failed">Failed</option>
+                            <option value="all">{t('filters.status')}</option>
+                            <option value="sent">{t('filters.sent')}</option>
+                            <option value="failed">{t('filters.failed')}</option>
                         </select>
                     </div>
 
@@ -151,61 +153,63 @@ export default function CampaignHistory() {
                         setSearchTerm('');
                     }}
                 >
-                    Reset Filters
+                    {t('filters.reset')}
                 </Button>
-            </div>
+            </div >
 
             {/* Messages List */}
-            <div className="space-y-3">
-                {loading ? (
-                    <div className="flex justify-center items-center h-64">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-                    </div>
-                ) : filteredMessages.length === 0 ? (
-                    <div className="text-center py-10 text-muted-foreground">
-                        No messages found matching your criteria
-                    </div>
-                ) : (
-                    filteredMessages.map((msg) => (
-                        <GlassCard key={msg.id} className="p-4 hover:bg-white/5 transition-colors">
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Badge variant="outline" className={
-                                            msg.status === 'sent'
-                                                ? 'bg-green-500/10 text-green-600 border-green-200'
-                                                : 'bg-red-500/10 text-red-600 border-red-200'
-                                        }>
-                                            {msg.status === 'sent' ? (
-                                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                            ) : (
-                                                <XCircle className="h-3 w-3 mr-1" />
-                                            )}
-                                            {msg.status}
-                                        </Badge>
-                                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                            <Clock className="h-3 w-3" />
-                                            {format(new Date(msg.sent_at || new Date()), 'MMM d, yyyy HH:mm')}
-                                        </span>
-                                    </div>
+            < div className="space-y-3" >
+                {
+                    loading ? (
+                        <div className="flex justify-center items-center h-64" >
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                        </div>
+                    ) : filteredMessages.length === 0 ? (
+                        <div className="text-center py-10 text-muted-foreground">
+                            {t('table.no_messages')}
+                        </div>
+                    ) : (
+                        filteredMessages.map((msg) => (
+                            <GlassCard key={msg.id} className="p-4 hover:bg-white/5 transition-colors">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Badge variant="outline" className={
+                                                msg.status === 'sent'
+                                                    ? 'bg-green-500/10 text-green-600 border-green-200'
+                                                    : 'bg-red-500/10 text-red-600 border-red-200'
+                                            }>
+                                                {msg.status === 'sent' ? (
+                                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                                ) : (
+                                                    <XCircle className="h-3 w-3 mr-1" />
+                                                )}
+                                                {msg.status}
+                                            </Badge>
+                                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                {format(new Date(msg.sent_at || new Date()), 'MMM d, yyyy HH:mm')}
+                                            </span>
+                                        </div>
 
-                                    <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2">
-                                        {msg.message_content}
-                                    </p>
+                                        <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2">
+                                            {msg.message_content}
+                                        </p>
 
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                        <User className="h-3 w-3" />
-                                        <span>
-                                            {msg.customers?.first_name} {msg.customers?.last_name}
-                                            ({msg.customers?.phone_number})
-                                        </span>
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <User className="h-3 w-3" />
+                                            <span>
+                                                {msg.customers?.first_name} {msg.customers?.last_name}
+                                                ({msg.customers?.phone_number})
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </GlassCard>
-                    ))
-                )}
-            </div>
-        </div>
+                            </GlassCard>
+                        ))
+                    )
+                }
+            </div >
+        </div >
     );
 }

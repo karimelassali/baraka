@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 import { getReviews, updateReviewApproval } from '../../lib/supabase/review';
+import { useTranslations } from 'next-intl';
 
 function SkeletonRow() {
   return (
@@ -45,6 +46,7 @@ function SkeletonRow() {
 }
 
 function AddReviewModal({ isOpen, onClose, onSave }) {
+  const t = useTranslations('Admin.Reviews');
   const [formData, setFormData] = useState({
     reviewer_name: '',
     content: '',
@@ -107,7 +109,7 @@ function AddReviewModal({ isOpen, onClose, onSave }) {
       >
         <GlassCard>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle>Add New Review</CardTitle>
+            <CardTitle>{t('form.title')}</CardTitle>
             <button onClick={onClose}>
               <X className="h-5 w-5" />
             </button>
@@ -120,7 +122,7 @@ function AddReviewModal({ isOpen, onClose, onSave }) {
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Customer Name</label>
+                <label className="block text-sm font-medium mb-1">{t('form.name')}</label>
                 <Input
                   value={formData.reviewer_name}
                   onChange={(e) => setFormData({ ...formData, reviewer_name: e.target.value })}
@@ -129,7 +131,7 @@ function AddReviewModal({ isOpen, onClose, onSave }) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Rating</label>
+                <label className="block text-sm font-medium mb-1">{t('form.rating')}</label>
                 <div className="flex gap-2">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -144,7 +146,7 @@ function AddReviewModal({ isOpen, onClose, onSave }) {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Review Content</label>
+                <label className="block text-sm font-medium mb-1">{t('form.content')}</label>
                 <textarea
                   className="w-full p-2 border rounded-md bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                   rows="4"
@@ -162,11 +164,11 @@ function AddReviewModal({ isOpen, onClose, onSave }) {
                   onChange={(e) => setFormData({ ...formData, approved: e.target.checked })}
                   className="rounded border-gray-300 text-primary focus:ring-primary"
                 />
-                <label htmlFor="approved" className="text-sm">Auto-approve this review</label>
+                <label htmlFor="approved" className="text-sm">{t('form.approve')}</label>
               </div>
               <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-                <Button type="submit" disabled={loading}>Add Review</Button>
+                <Button type="button" variant="outline" onClick={onClose}>{t('form.cancel')}</Button>
+                <Button type="submit" disabled={loading}>{t('form.submit')}</Button>
               </div>
             </form>
           </CardContent>
@@ -177,6 +179,7 @@ function AddReviewModal({ isOpen, onClose, onSave }) {
 }
 
 export default function EnhancedReviewManagement() {
+  const t = useTranslations('Admin.Reviews');
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedReviewId, setExpandedReviewId] = useState(null);
@@ -225,10 +228,10 @@ export default function EnhancedReviewManagement() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <MessageCircle className="h-5 w-5" />
-                Review Management
+                {t('title')}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Manage customer reviews and feedback
+                {t('subtitle')}
               </p>
             </div>
 
@@ -236,7 +239,7 @@ export default function EnhancedReviewManagement() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search reviews..."
+                  placeholder={t('search')}
                   className="pl-10 pr-4 py-2 min-w-[240px]"
                 />
               </div>
@@ -245,14 +248,14 @@ export default function EnhancedReviewManagement() {
                 className="bg-primary hover:bg-red-700 text-white shadow-md"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Review
+                {t('add')}
               </Button>
             </div>
           </div>
 
           <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>Total Reviews: <span className="font-medium">{reviews.length}</span></span>
-            <span className="text-xs">Last updated: Today</span>
+            <span>{t('total')}: <span className="font-medium">{reviews.length}</span></span>
+            <span className="text-xs">{t('last_updated')}</span>
           </div>
         </CardHeader>
       </Card>
@@ -264,11 +267,11 @@ export default function EnhancedReviewManagement() {
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Content</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Rating</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.content')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.rating')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.status')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.date')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -307,12 +310,12 @@ export default function EnhancedReviewManagement() {
                             {review.is_approved ? (
                               <>
                                 <CheckCircle className="h-3 w-3 mr-1" />
-                                Approved
+                                {t('table.approved')}
                               </>
                             ) : (
                               <>
                                 <Clock className="h-3 w-3 mr-1" />
-                                Pending
+                                {t('table.pending')}
                               </>
                             )}
                           </Badge>
@@ -343,12 +346,12 @@ export default function EnhancedReviewManagement() {
                               {review.is_approved ? (
                                 <>
                                   <EyeOff className="h-4 w-4 mr-1" />
-                                  Hide
+                                  {t('details.hide')}
                                 </>
                               ) : (
                                 <>
                                   <CheckCircle className="h-4 w-4 mr-1" />
-                                  Approve
+                                  {t('details.approve')}
                                 </>
                               )}
                             </Button>
@@ -369,15 +372,15 @@ export default function EnhancedReviewManagement() {
                               <div className="bg-muted/30 p-4 rounded-lg">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                   <div>
-                                    <h4 className="font-medium mb-2">Review Content</h4>
+                                    <h4 className="font-medium mb-2">{t('details.content')}</h4>
                                     <p className="text-sm text-muted-foreground">{review.content || review.review_text}</p>
                                   </div>
 
                                   <div>
-                                    <h4 className="font-medium mb-2">Review Details</h4>
+                                    <h4 className="font-medium mb-2">{t('details.details')}</h4>
                                     <div className="space-y-1 text-sm">
                                       <div className="flex">
-                                        <span className="w-32 text-muted-foreground">Rating:</span>
+                                        <span className="w-32 text-muted-foreground">{t('details.rating')}</span>
                                         <span>
                                           {[...Array(5)].map((_, i) => (
                                             <Star
@@ -389,11 +392,11 @@ export default function EnhancedReviewManagement() {
                                         </span>
                                       </div>
                                       <div className="flex">
-                                        <span className="w-32 text-muted-foreground">Status:</span>
-                                        <span>{review.is_approved ? 'Approved' : 'Pending'}</span>
+                                        <span className="w-32 text-muted-foreground">{t('details.status')}</span>
+                                        <span>{review.is_approved ? t('table.approved') : t('table.pending')}</span>
                                       </div>
                                       <div className="flex">
-                                        <span className="w-32 text-muted-foreground">Date:</span>
+                                        <span className="w-32 text-muted-foreground">{t('details.date')}</span>
                                         <span>{new Date(review.created_at).toLocaleString()}</span>
                                       </div>
                                     </div>
@@ -409,7 +412,7 @@ export default function EnhancedReviewManagement() {
                 ) : (
                   <tr>
                     <td colSpan="5" className="px-6 py-8 text-center text-sm text-muted-foreground">
-                      No reviews found
+                      {t('table.no_reviews')}
                     </td>
                   </tr>
                 )}

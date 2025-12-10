@@ -19,10 +19,11 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import GlassCard from '../ui/GlassCard';
 import { CardHeader, CardTitle, CardContent } from '../ui/card';
-import { getInventoryTranslation as t } from '../../lib/constants/inventory-translations';
+import { useTranslations } from 'next-intl';
 import MultiStepProductForm from './MultiStepProductForm';
 
 export default function ProductManager({ onProductChange }) {
+    const t = useTranslations('Admin.Inventory');
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);

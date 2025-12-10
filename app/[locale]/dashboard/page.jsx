@@ -22,6 +22,7 @@ import WishlistRequest from '@/components/dashboard/WishlistRequest';
 import { useTranslations } from 'next-intl';
 import PopupOffer from '@/components/home/PopupOffer';
 import UserSidebar from '@/components/dashboard/UserSidebar';
+import PaymentMethodsBox from '@/components/client/PaymentMethodsBox';
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
@@ -173,6 +174,10 @@ export default function DashboardPage() {
             </div>
 
             {renderActiveComponent()}
+
+            <div className="mt-8">
+              <PaymentMethodsBox />
+            </div>
           </div>
         </div>
       </div>

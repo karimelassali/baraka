@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ClientAuthService } from '../../../../lib/auth/client-auth';
+import PaymentMethodsBox from '../../../../components/client/PaymentMethodsBox';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -138,6 +139,11 @@ export default function Dashboard() {
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Payment Methods Section */}
+        <div className="mt-8">
+          <PaymentMethodsBox />
         </div>
 
         {/* Recent Activity Section */}

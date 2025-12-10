@@ -17,9 +17,10 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import GlassCard from '../ui/GlassCard';
 import { CardHeader, CardTitle, CardContent } from '../ui/card';
-import { getInventoryTranslation as t } from '../../lib/constants/inventory-translations';
+import { useTranslations } from 'next-intl';
 
 export default function CategoryManager() {
+    const t = useTranslations('Admin.Inventory');
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');

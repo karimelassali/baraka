@@ -4,9 +4,10 @@
 import { motion } from 'framer-motion';
 import { Package } from 'lucide-react';
 import InventoryManagement from '../../../../components/admin/InventoryManagement';
-import { getInventoryTranslation as t } from '../../../../lib/constants/inventory-translations';
+import { useTranslations } from 'next-intl';
 
 export default function AdminInventoryPage() {
+    const t = useTranslations('Admin.Inventory');
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}

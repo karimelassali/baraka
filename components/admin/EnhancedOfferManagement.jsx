@@ -30,6 +30,7 @@ import { Input } from '../../components/ui/input';
 import { Switch } from '../../components/ui/switch';
 import { Label } from '../../components/ui/label';
 import CategoryManagement from './CategoryManagement';
+import { useTranslations } from 'next-intl';
 
 function SkeletonRow() {
   return (
@@ -55,6 +56,7 @@ function SkeletonRow() {
 }
 
 function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories }) {
+  const t = useTranslations('Admin.Offers');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -214,16 +216,16 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: `Offer ${offer ? 'updated' : 'created'} successfully` });
+        setStatus({ type: 'success', message: offer ? t('messages.success_update') : t('messages.success_create') });
         onSave && onSave();
         setTimeout(() => {
           onClose();
         }, 1500);
       } else {
-        setStatus({ type: 'error', message: result.error || `Failed to ${offer ? 'update' : 'create'} offer` });
+        setStatus({ type: 'error', message: result.error || t('messages.error') });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'An error occurred' });
+      setStatus({ type: 'error', message: t('messages.error') });
     } finally {
       setLoading(false);
     }
@@ -243,7 +245,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="flex items-center gap-2">
               {offer ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-              {offer ? 'Edit Offer' : 'Create New Offer'}
+              {offer ? t('form.edit') : t('form.create')}
             </CardTitle>
             <button
               onClick={onClose}
@@ -265,7 +267,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Title</label>
+                  <label className="block text-sm font-medium mb-1">{t('form.title')}</label>
                   <div className="relative">
                     <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
@@ -280,7 +282,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Type</label>
+                  <label className="block text-sm font-medium mb-1">{t('form.type')}</label>
                   <div className="relative">
                     <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <select
@@ -301,7 +303,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Category</label>
+                  <label className="block text-sm font-medium mb-1">{t('form.category')}</label>
                   <select
                     name="category_id"
                     value={formData.category_id}
@@ -324,12 +326,12 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
                     checked={formData.is_popup}
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_popup: checked }))}
                   />
-                  <Label htmlFor="is_popup">Show as Popup Offer</Label>
+                  <Label htmlFor="is_popup">{t('form.popup')}</Label>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label className="block text-sm font-medium mb-1">{t('form.description')}</label>
                 <div className="relative">
                   <FileText className="absolute left-3 top-3 text-muted-foreground h-4 w-4" />
                   <textarea
@@ -346,7 +348,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Offer Image</label>
+                  <label className="block text-sm font-medium mb-1">{t('form.image')}</label>
                   <div className="space-y-3">
                     <div className="flex items-center gap-4">
                       <div className="relative h-20 w-20 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
@@ -386,7 +388,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Badge Text</label>
+                  <label className="block text-sm font-medium mb-1">{t('form.badge')}</label>
                   <div className="relative">
                     <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
@@ -407,14 +409,14 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
                   onClick={onClose}
                   disabled={loading || uploading}
                 >
-                  Cancel
+                  {t('form.cancel')}
                 </Button>
                 <Button
                   type="submit"
                   disabled={loading || uploading}
                   className="bg-primary hover:bg-red-700 text-white shadow-md hover:shadow-lg transition-all"
                 >
-                  {uploading ? 'Uploading...' : (loading ? 'Saving...' : (offer ? 'Update Offer' : 'Create Offer'))}
+                  {uploading ? t('form.uploading') : (loading ? t('form.saving') : (offer ? t('form.update') : t('form.create_btn')))}
                 </Button>
               </div>
             </form>
@@ -426,6 +428,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
 }
 
 export default function EnhancedOfferManagement() {
+  const t = useTranslations('Admin.Offers');
   const [offers, setOffers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -519,7 +522,8 @@ export default function EnhancedOfferManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this offer?')) return;
+    if (!confirm(t('messages.delete_confirm'))) return;
+
 
     try {
       const response = await fetch(`/api/admin/offers?id=${id}`, {
@@ -573,10 +577,10 @@ export default function EnhancedOfferManagement() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Gift className="h-5 w-5" />
-                Offer Management
+                {t('title')}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                Create and manage weekly and permanent offers
+                {t('subtitle')}
               </p>
             </div>
 
@@ -584,7 +588,7 @@ export default function EnhancedOfferManagement() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
-                  placeholder="Search offers..."
+                  placeholder={t('search')}
                   className="pl-10 pr-4 py-2 min-w-[240px]"
                 />
               </div>
@@ -593,7 +597,7 @@ export default function EnhancedOfferManagement() {
                 className="bg-primary hover:bg-red-700 text-white shadow-md hover:shadow-lg transition-all"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Create Offer
+                {t('create')}
               </Button>
             </div>
           </div>
@@ -605,7 +609,7 @@ export default function EnhancedOfferManagement() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Gift className="h-5 w-5" />
-            Existing Offers
+            {t('existing')}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -613,11 +617,11 @@ export default function EnhancedOfferManagement() {
             <table className="w-full">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Offer</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Active</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.offer')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.type')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.category')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.active')}</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('table.actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -717,7 +721,7 @@ export default function EnhancedOfferManagement() {
                     <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
                       <div className="flex flex-col items-center justify-center gap-2">
                         <Gift className="h-8 w-8 text-muted-foreground/50" />
-                        <p>No offers found</p>
+                        <p>{t('no_offers')}</p>
                       </div>
                     </td>
                   </tr>

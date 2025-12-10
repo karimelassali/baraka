@@ -11,6 +11,7 @@ import ReviewsSection from "../../components/home/ReviewsSection";
 import ContactSection from "../../components/home/ContactSection";
 import CategoriesSection from "../../components/home/CategoriesSection";
 import PopupOffer from "../../components/home/PopupOffer";
+import PaymentMethodsBox from '../../components/client/PaymentMethodsBox';
 import ThemeWrapper from '@/components/themes/ThemeWrapper';
 
 import { useTranslations } from 'next-intl';
@@ -41,12 +42,16 @@ export default function Home() {
 
         <main className="flex-grow">
           <Hero />
-          <CategoriesSection />
+          <div className="container mx-auto px-4 py-8">
+            <PaymentMethodsBox />
+          </div>
+          {/* <CategoriesSection /> */}
           <About />
           <GallerySection />
           <OffersSection />
           <ReviewsSection />
           <ContactSection />
+
         </main>
         <PopupOffer />
 

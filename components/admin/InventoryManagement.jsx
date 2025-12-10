@@ -15,12 +15,13 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import GlassCard from '../ui/GlassCard';
 import { CardHeader, CardTitle, CardContent } from '../ui/card';
-import { getInventoryTranslation as t } from '../../lib/constants/inventory-translations';
+import { useTranslations } from 'next-intl';
 import CategoryManager from './CategoryManager';
 import ProductManager from './ProductManager';
 import ExpirationAlerts from './ExpirationAlerts';
 
 export default function InventoryManagement() {
+    const t = useTranslations('Admin.Inventory');
     const [activeTab, setActiveTab] = useState('products'); // 'products' or 'categories'
     const [expiringData, setExpiringData] = useState(null);
     const [loadingExpiring, setLoadingExpiring] = useState(true);

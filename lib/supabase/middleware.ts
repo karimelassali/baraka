@@ -80,7 +80,11 @@ export async function updateSession(request: NextRequest, response?: NextRespons
 
     // Protected routes logic
     // Reuse existing url object
-    const isAdminRoute = url.pathname.startsWith('/admin')
+    // Strip locale for route checks
+    const cleanPath = pathname.replace(/^\/(en|it|ar)/, '');
+
+    // Protected routes logic
+    const isAdminRoute = cleanPath.startsWith('/admin');
 
     if (isAdminRoute) {
         if (!user) {
@@ -103,7 +107,7 @@ export async function updateSession(request: NextRequest, response?: NextRespons
         }
     }
 
-    if (url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/api/customer')) {
+    if (cleanPath.startsWith('/dashboard') || cleanPath.startsWith('/api/customer')) {
         if (!user) {
             url.pathname = '/auth/login'
             url.search = `?redirect=${encodeURIComponent(request.nextUrl.pathname)}`

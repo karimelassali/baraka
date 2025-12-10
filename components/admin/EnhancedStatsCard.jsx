@@ -5,7 +5,10 @@ import { useEffect, useState } from 'react';
 import GlassCard from '../ui/GlassCard';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
+import { useTranslations } from 'next-intl';
+
 export default function EnhancedStatsCard({ title, value, change, icon: Icon, color, changeColor, loading, index }) {
+  const t = useTranslations('Admin.Dashboard');
   const [displayValue, setDisplayValue] = useState(0);
 
   // Animation for the number
@@ -60,7 +63,7 @@ export default function EnhancedStatsCard({ title, value, change, icon: Icon, co
             {isPositive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
             {change}
           </span>
-          <span className="text-muted-foreground ml-2">from last month</span>
+          <span className="text-muted-foreground ml-2">{t('from_last_month')}</span>
         </div>
       </div>
     </GlassCard>

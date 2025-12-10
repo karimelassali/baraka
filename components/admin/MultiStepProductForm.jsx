@@ -16,13 +16,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import GlassCard from '../ui/GlassCard';
 import { CardHeader, CardTitle, CardContent } from '../ui/card';
-import { getInventoryTranslation as t } from '../../lib/constants/inventory-translations';
-
-const STEPS = [
-    { id: 1, title: 'Base', icon: Package, fields: ['name', 'description', 'category_id', 'expiration_date'] },
-    { id: 2, title: 'Inventario', icon: Package, fields: ['quantity', 'unit', 'minimum_stock_level'] },
-    { id: 3, title: 'Prezzi & Tracking', icon: DollarSign, fields: ['purchase_price', 'selling_price', 'supplier_name', 'sku', 'location_in_shop', 'batch_number'] }
-];
+import { useTranslations } from 'next-intl';
 
 export default function MultiStepProductForm({
     isOpen,
@@ -35,7 +29,14 @@ export default function MultiStepProductForm({
     submitting,
     error
 }) {
+    const t = useTranslations('Admin.Inventory');
     const [currentStep, setCurrentStep] = useState(1);
+
+    const STEPS = [
+        { id: 1, title: t('steps.base'), icon: Package, fields: ['name', 'description', 'category_id', 'expiration_date'] },
+        { id: 2, title: t('steps.inventory'), icon: Package, fields: ['quantity', 'unit', 'minimum_stock_level'] },
+        { id: 3, title: t('steps.pricing'), icon: DollarSign, fields: ['purchase_price', 'selling_price', 'supplier_name', 'sku', 'location_in_shop', 'batch_number'] }
+    ];
 
     const handleNext = () => {
         if (currentStep < STEPS.length) {
@@ -128,10 +129,10 @@ export default function MultiStepProductForm({
                                         <div className="flex flex-col items-center flex-1">
                                             <motion.div
                                                 className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${isActive
-                                                        ? 'bg-red-600 border-red-600 text-white shadow-lg shadow-red-500/50'
-                                                        : isCompleted
-                                                            ? 'bg-red-100 border-red-600 text-red-600 dark:bg-red-900/30'
-                                                            : 'bg-muted border-muted-foreground/30 text-muted-foreground'
+                                                    ? 'bg-red-600 border-red-600 text-white shadow-lg shadow-red-500/50'
+                                                    : isCompleted
+                                                        ? 'bg-red-100 border-red-600 text-red-600 dark:bg-red-900/30'
+                                                        : 'bg-muted border-muted-foreground/30 text-muted-foreground'
                                                     }`}
                                                 whileHover={{ scale: 1.05 }}
                                             >

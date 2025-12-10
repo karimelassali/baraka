@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 
 export default function OrderList() {
-    const t = useTranslations('Orders');
+    const t = useTranslations('Admin.Orders');
     const router = useRouter();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);

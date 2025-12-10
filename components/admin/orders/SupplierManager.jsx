@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 
 export default function SupplierManager() {
-    const t = useTranslations('Suppliers');
+    const t = useTranslations('Admin.Suppliers');
     const [suppliers, setSuppliers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);

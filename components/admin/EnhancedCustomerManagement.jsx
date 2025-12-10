@@ -32,10 +32,12 @@ import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { useSearchParams } from 'next/navigation';
 import { countries } from '../../lib/constants/countries';
+import { useTranslations } from 'next-intl';
 
 // --- Components ---
 
 function AddCustomerModal({ isOpen, onClose, onSave }) {
+  const t = useTranslations('Admin.Customers');
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -94,17 +96,17 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: 'Customer created successfully' });
+        setStatus({ type: 'success', message: t('success_create') });
         onSave && onSave(result.user);
         setTimeout(() => {
           onClose();
           setStatus({ type: '', message: '' });
         }, 1500);
       } else {
-        setStatus({ type: 'error', message: result.error || 'Failed to create customer' });
+        setStatus({ type: 'error', message: result.error || t('error_create') });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'An error occurred' });
+      setStatus({ type: 'error', message: t('error_generic') });
     } finally {
       setLoading(false);
     }
@@ -127,9 +129,9 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 <div className="p-2 bg-primary/10 rounded-lg">
                   <User className="h-6 w-6 text-primary" />
                 </div>
-                Add New Customer
+                {t('modal_add_title')}
               </h2>
-              <p className="text-muted-foreground mt-1 ml-12">Create a new customer account manually.</p>
+              <p className="text-muted-foreground mt-1 ml-12">{t('modal_add_desc')}</p>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
               <X className="h-5 w-5" />
@@ -155,7 +157,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-sm font-medium">First Name</label>
+                <label className="text-sm font-medium">{t('form_first_name')}</label>
                 <input
                   name="first_name"
                   value={formData.first_name}
@@ -165,7 +167,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Last Name</label>
+                <label className="text-sm font-medium">{t('form_last_name')}</label>
                 <input
                   name="last_name"
                   value={formData.last_name}
@@ -175,7 +177,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
+                <label className="text-sm font-medium">{t('form_email')}</label>
                 <input
                   name="email"
                   type="email"
@@ -186,7 +188,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Password</label>
+                <label className="text-sm font-medium">{t('form_password')}</label>
                 <input
                   name="password"
                   type="password"
@@ -197,7 +199,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Phone</label>
+                <label className="text-sm font-medium">{t('form_phone')}</label>
                 <input
                   name="phone_number"
                   value={formData.phone_number}
@@ -206,14 +208,14 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Country</label>
+                <label className="text-sm font-medium">{t('form_country')}</label>
                 <select
                   name="country_of_origin"
                   value={formData.country_of_origin}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 border border-input rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none"
                 >
-                  <option value="">Select Country</option>
+                  <option value="">{t('all_countries')}</option>
                   {countries.map((c) => (
                     <option key={c.code} value={c.name}>
                       {c.flag} {c.name}
@@ -222,7 +224,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Residence</label>
+                <label className="text-sm font-medium">{t('form_residence')}</label>
                 <input
                   name="residence"
                   value={formData.residence}
@@ -231,7 +233,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Date of Birth</label>
+                <label className="text-sm font-medium">{t('form_dob')}</label>
                 <input
                   name="date_of_birth"
                   type="date"
@@ -244,10 +246,10 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
 
             <div className="flex justify-end space-x-3 pt-6 border-t border-border/50">
               <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading} className="bg-primary text-primary-foreground">
-                {loading ? 'Creating...' : 'Create Customer'}
+                {loading ? t('creating') : t('create')}
               </Button>
             </div>
           </form>
@@ -258,6 +260,7 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
 }
 
 function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
+  const t = useTranslations('Admin.Customers');
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -304,14 +307,14 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: 'Customer updated successfully' });
+        setStatus({ type: 'success', message: t('success_update') });
         onSave && onSave({ ...customer, ...formData });
         setTimeout(() => onClose(), 1500);
       } else {
-        setStatus({ type: 'error', message: result.error || 'Failed to update customer' });
+        setStatus({ type: 'error', message: result.error || t('error_update') });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'An error occurred' });
+      setStatus({ type: 'error', message: t('error_generic') });
     } finally {
       setLoading(false);
     }
@@ -334,9 +337,9 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
                 <div className="p-2 bg-blue-500/10 rounded-lg">
                   <Edit className="h-6 w-6 text-blue-500" />
                 </div>
-                Edit Customer
+                {t('modal_edit_title')}
               </h2>
-              <p className="text-muted-foreground mt-1 ml-12">Update details for {customer.first_name}</p>
+              <p className="text-muted-foreground mt-1 ml-12">{t('modal_edit_desc', { name: customer.first_name })}</p>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
               <X className="h-5 w-5" />
@@ -352,7 +355,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="text-sm font-medium">First Name</label>
+                <label className="text-sm font-medium">{t('form_first_name')}</label>
                 <input
                   name="first_name"
                   value={formData.first_name}
@@ -361,7 +364,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Last Name</label>
+                <label className="text-sm font-medium">{t('form_last_name')}</label>
                 <input
                   name="last_name"
                   value={formData.last_name}
@@ -370,7 +373,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Email</label>
+                <label className="text-sm font-medium">{t('form_email')}</label>
                 <input
                   name="email"
                   type="email"
@@ -380,7 +383,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Phone</label>
+                <label className="text-sm font-medium">{t('form_phone')}</label>
                 <input
                   name="phone_number"
                   value={formData.phone_number}
@@ -389,14 +392,14 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Country</label>
+                <label className="text-sm font-medium">{t('form_country')}</label>
                 <select
                   name="country_of_origin"
                   value={formData.country_of_origin}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 border border-input rounded-xl bg-background/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all appearance-none"
                 >
-                  <option value="">Select Country</option>
+                  <option value="">{t('all_countries')}</option>
                   {countries.map((c) => (
                     <option key={c.code} value={c.name}>
                       {c.flag} {c.name}
@@ -405,7 +408,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Residence</label>
+                <label className="text-sm font-medium">{t('form_residence')}</label>
                 <input
                   name="residence"
                   value={formData.residence}
@@ -414,7 +417,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
                 />
               </div>
               <div className="md:col-span-2 space-y-2">
-                <label className="text-sm font-medium">Date of Birth</label>
+                <label className="text-sm font-medium">{t('form_dob')}</label>
                 <input
                   name="date_of_birth"
                   type="date"
@@ -427,10 +430,10 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
 
             <div className="flex justify-end space-x-3 pt-6 border-t border-border/50">
               <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white">
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? t('saving') : t('save')}
               </Button>
             </div>
           </form>
@@ -492,6 +495,7 @@ const CustomerGridCard = ({ customer, onEdit }) => (
 );
 
 export default function EnhancedCustomerManagement() {
+  const t = useTranslations('Admin.Customers');
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -608,10 +612,10 @@ export default function EnhancedCustomerManagement() {
                 <div className="p-2 bg-primary/10 rounded-xl">
                   <User className="h-6 w-6 text-primary" />
                 </div>
-                Customer Management
+                {t('grid_title')}
               </CardTitle>
               <p className="text-muted-foreground mt-2 ml-1">
-                Manage your customer base, track points, and view details.
+                {t('grid_subtitle')}
               </p>
             </div>
 
@@ -620,7 +624,7 @@ export default function EnhancedCustomerManagement() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
-                  placeholder="Search customers..."
+                  placeholder={t('search_placeholder')}
                   value={searchTerm}
                   onChange={handleSearch}
                   className="pl-10 pr-4 py-2.5 bg-background/50 border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary min-w-[260px] transition-all"
@@ -631,7 +635,7 @@ export default function EnhancedCustomerManagement() {
                 onClick={() => setShowAddModal(true)}
               >
                 <Plus className="h-4 w-4" />
-                Add Customer
+                {t('add_customer')}
               </Button>
             </div>
           </div>
@@ -639,7 +643,7 @@ export default function EnhancedCustomerManagement() {
           {/* Advanced filters */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6 pt-6 border-t border-border/50">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filter_nationality')}</label>
               <div className="relative">
                 <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <select
@@ -647,7 +651,7 @@ export default function EnhancedCustomerManagement() {
                   onChange={(e) => setLocationFilter(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
                 >
-                  <option value="">All Countries</option>
+                  <option value="">{t('all_countries')}</option>
                   {countries.map((c) => (
                     <option key={c.code} value={c.name}>
                       {c.flag} {c.name}
@@ -659,7 +663,7 @@ export default function EnhancedCustomerManagement() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Status</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filter_status')}</label>
               <div className="relative">
                 <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <select
@@ -667,16 +671,16 @@ export default function EnhancedCustomerManagement() {
                   onChange={(e) => setVerifiedFilter(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
                 >
-                  <option value="all">All Customers</option>
-                  <option value="verified">Verified Only</option>
-                  <option value="not-verified">Unverified Only</option>
+                  <option value="all">{t('all_customers')}</option>
+                  <option value="verified">{t('verified_only')}</option>
+                  <option value="not-verified">{t('unverified_only')}</option>
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Sort By</label>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filter_sort')}</label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <select
@@ -688,12 +692,12 @@ export default function EnhancedCustomerManagement() {
                     }}
                     className="w-full px-3 py-2 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary appearance-none transition-all"
                   >
-                    <option value="created_at-desc">Newest First</option>
-                    <option value="created_at-asc">Oldest First</option>
-                    <option value="first_name-asc">Name (A-Z)</option>
-                    <option value="first_name-desc">Name (Z-A)</option>
-                    <option value="country_of_origin-asc">Nationality (A-Z)</option>
-                    <option value="country_of_origin-desc">Nationality (Z-A)</option>
+                    <option value="created_at-desc">{t('sort_newest')}</option>
+                    <option value="created_at-asc">{t('sort_oldest')}</option>
+                    <option value="first_name-asc">{t('sort_name_az')}</option>
+                    <option value="first_name-desc">{t('sort_name_za')}</option>
+                    <option value="country_of_origin-asc">{t('sort_nat_az')}</option>
+                    <option value="country_of_origin-desc">{t('sort_nat_za')}</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
                 </div>
@@ -727,8 +731,8 @@ export default function EnhancedCustomerManagement() {
           <div className="bg-muted/30 p-6 rounded-full mb-4">
             <User className="h-10 w-10 opacity-50" />
           </div>
-          <p className="text-lg font-medium">No customers found</p>
-          <p className="text-sm">Try adjusting your filters</p>
+          <p className="text-lg font-medium">{t('no_customers')}</p>
+          <p className="text-sm">{t('try_adjusting')}</p>
         </div>
       )}
 

@@ -25,6 +25,10 @@ export default function Reports() {
     const [priceAnalysis, setPriceAnalysis] = useState({ total_price: 0, final_price: 0 });
     const [loading, setLoading] = useState(true);
     const [explanationModal, setExplanationModal] = useState({ isOpen: false, title: '', content: '' });
+    const [destinationModal, setDestinationModal] = useState({
+        isOpen: false,
+        destination: null
+    });
 
     useEffect(() => {
         fetchStats();
@@ -56,10 +60,29 @@ export default function Reports() {
                 data.forEach(r => {
                     const dest = r.destination || 'Unknown';
                     if (!destMap[dest]) {
-                        destMap[dest] = { name: dest, count: 0, weight: 0 };
+                        destMap[dest] = {
+                            name: dest,
+                            count: 0,
+                            weight: 0,
+                            total_revenue: 0,
+                            orders: []
+                        };
                     }
                     destMap[dest].count += 1;
-                    destMap[dest].weight += Number(r.final_weight || r.requested_weight || 0);
+
+                    // Calculate weight safely
+                    const weight = Number(r.final_weight || r.requested_weight || 0);
+                    if (!isNaN(weight)) {
+                        destMap[dest].weight += weight;
+                    }
+
+                    // Calculate revenue safely
+                    const revenue = r.is_paid ? Number(r.final_price || 0) : Number(r.total_deposit || 0);
+                    if (!isNaN(revenue)) {
+                        destMap[dest].total_revenue += revenue;
+                    }
+
+                    destMap[dest].orders.push(r);
                 });
                 setDestinations(Object.values(destMap));
             }
@@ -93,6 +116,13 @@ export default function Reports() {
         } catch (e) {
             console.error("Error fetching analysis", e);
         }
+    };
+
+    const handleDestinationClick = (dest) => {
+        setDestinationModal({
+            isOpen: true,
+            destination: dest
+        });
     };
 
     const handleDownloadReservations = async () => {
@@ -348,10 +378,21 @@ export default function Reports() {
                             </thead>
                             <tbody>
                                 {destinations.map((dest, index) => (
-                                    <tr key={index} className="bg-white border-b hover:bg-gray-50">
-                                        <td className="px-6 py-4 font-medium text-gray-900">{dest.name}</td>
-                                        <td className="px-6 py-4">{dest.count}</td>
-                                        <td className="px-6 py-4">{dest.weight}</td>
+                                    <tr
+                                        key={index}
+                                        className="bg-white border-b hover:bg-purple-50 cursor-pointer transition-colors"
+                                        onClick={() => handleDestinationClick(dest)}
+                                    >
+                                        <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-2">
+                                            <Truck className="h-4 w-4 text-purple-500" />
+                                            {dest.name}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="bg-purple-100 text-purple-800 py-1 px-2 rounded-full text-xs font-medium">
+                                                {dest.count}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">{dest.weight.toFixed(2)} kg</td>
                                     </tr>
                                 ))}
                                 {destinations.length === 0 && (
@@ -364,6 +405,86 @@ export default function Reports() {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Destination Details Modal */}
+            <Dialog open={destinationModal.isOpen} onOpenChange={(open) => setDestinationModal(prev => ({ ...prev, isOpen: open }))}>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-xl">
+                            <Truck className="h-6 w-6 text-purple-600" />
+                            {destinationModal.destination?.name}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {t('destinations.desc')}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {destinationModal.destination && (
+                        <div className="space-y-6 mt-4">
+                            {/* Summary Stats */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                                    <p className="text-sm text-purple-600 font-medium">{t('metrics.total_revenue')}</p>
+                                    <p className="text-2xl font-bold text-purple-900">{destinationModal.destination.total_revenue.toFixed(2)}€</p>
+                                </div>
+                                <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                                    <p className="text-sm text-blue-600 font-medium">{t('destinations.col_count')}</p>
+                                    <p className="text-2xl font-bold text-blue-900">{destinationModal.destination.count}</p>
+                                </div>
+                                <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
+                                    <p className="text-sm text-amber-600 font-medium">{t('destinations.col_weight')}</p>
+                                    <p className="text-2xl font-bold text-amber-900">{destinationModal.destination.weight.toFixed(2)} kg</p>
+                                </div>
+                            </div>
+
+                            {/* Orders List */}
+                            <div>
+                                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                                    <FileText className="h-4 w-4" />
+                                    {t('detailed_reports.reservations_list')}
+                                </h4>
+                                <div className="border rounded-lg overflow-hidden">
+                                    <table className="w-full text-sm text-left">
+                                        <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                                            <tr>
+                                                <th className="px-4 py-2">{t('pdf.order_number')}</th>
+                                                <th className="px-4 py-2">{t('pdf.customer')}</th>
+                                                <th className="px-4 py-2">{t('pdf.weight')}</th>
+                                                <th className="px-4 py-2">{t('pdf.paid')}</th>
+                                                <th className="px-4 py-2 text-right">{t('pdf.value')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y">
+                                            {destinationModal.destination.orders.map((order, i) => (
+                                                <tr key={i} className="hover:bg-gray-50">
+                                                    <td className="px-4 py-2 font-medium">{order.order_number}</td>
+                                                    <td className="px-4 py-2">
+                                                        {order.customers?.first_name} {order.customers?.last_name}
+                                                    </td>
+                                                    <td className="px-4 py-2">
+                                                        {order.final_weight || order.requested_weight} kg
+                                                    </td>
+                                                    <td className="px-4 py-2">
+                                                        <span className={`px-2 py-0.5 rounded-full text-xs ${order.is_paid
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : 'bg-yellow-100 text-yellow-700'
+                                                            }`}>
+                                                            {order.is_paid ? t('pdf.yes') : t('pdf.no')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-2 text-right font-medium">
+                                                        {(order.is_paid ? (order.final_price || 0) : (order.total_deposit || 0)).toFixed(2)}€
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Reports Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

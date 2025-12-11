@@ -23,7 +23,7 @@ export async function GET(request) {
             query = query.ilike('tag_number', `%${search}%`);
         }
         if (type && type !== 'ALL') {
-            query = query.eq('animal_type', type);
+            query = query.in('animal_type', type.split(','));
         }
         if (supplier && supplier !== 'ALL') {
             query = query.eq('supplier', supplier);

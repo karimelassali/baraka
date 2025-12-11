@@ -11,7 +11,7 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get('limit')) || 10;
         const offset = (page - 1) * limit;
 
-        const { data, count, error } = await supabase
+        let query = supabase
             .from('eid_cattle_groups')
             .select(`
                 *,
@@ -27,7 +27,14 @@ export async function GET(request) {
                         phone_number
                     )
                 )
-            `, { count: 'exact' })
+            `, { count: 'exact' });
+
+        const status = searchParams.get('status');
+        if (status) {
+            query = query.in('status', status.split(','));
+        }
+
+        const { data, count, error } = await query
             .order('created_at', { ascending: false })
             .range(offset, offset + limit - 1);
 

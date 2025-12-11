@@ -36,7 +36,7 @@ export default function Purchases() {
     const [totalPages, setTotalPages] = useState(1);
     const [limit] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
-    const [typeFilter, setTypeFilter] = useState('ALL');
+    const [typeFilters, setTypeFilters] = useState(['ALL']);
 
     // Forms
     const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
@@ -148,14 +148,14 @@ export default function Purchases() {
             }, 500);
             return () => clearTimeout(timer);
         }
-    }, [selectedBatch, page, searchTerm, typeFilter]);
+    }, [selectedBatch, page, searchTerm, typeFilters]);
 
     const fetchPurchases = async () => {
         setLoading(true);
         try {
             let url = `/api/admin/eid/purchases?page=${page}&limit=${limit}&batch_id=${selectedBatch.id}`;
             if (searchTerm) url += `&search=${searchTerm}`;
-            if (typeFilter !== 'ALL') url += `&type=${typeFilter}`;
+            if (!typeFilters.includes('ALL')) url += `&type=${typeFilters.join(',')}`;
 
             const response = await fetch(url);
             if (response.ok) {
@@ -426,17 +426,19 @@ export default function Purchases() {
     if (viewMode === 'BATCHES') {
         return (
             <div className="space-y-6">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={handleBack}><ArrowLeft className="mr-2 h-4 w-4" /> {t('batches.back')}</Button>
-                    <div className="flex items-center gap-3">
-                        <img
-                            src={`https://api.dicebear.com/9.x/initials/svg?seed=${selectedSupplier?.name}`}
-                            alt={selectedSupplier?.name}
-                            className="w-10 h-10 rounded-full border border-red-100"
-                        />
-                        <h2 className="text-xl font-semibold text-red-700">{t('batches.title', { name: selectedSupplier?.name })}</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <Button variant="ghost" onClick={handleBack} className="shrink-0"><ArrowLeft className="mr-2 h-4 w-4" /> {t('batches.back')}</Button>
+                        <div className="flex items-center gap-3 overflow-hidden">
+                            <img
+                                src={`https://api.dicebear.com/9.x/initials/svg?seed=${selectedSupplier?.name}`}
+                                alt={selectedSupplier?.name}
+                                className="w-10 h-10 rounded-full border border-red-100 shrink-0"
+                            />
+                            <h2 className="text-xl font-semibold text-red-700 truncate">{t('batches.title', { name: selectedSupplier?.name })}</h2>
+                        </div>
                     </div>
-                    <Button onClick={() => { setBatchForm({ id: null, batch_number: '', notes: '' }); setIsBatchModalOpen(true); }} className="ml-auto bg-red-600 hover:bg-red-700">
+                    <Button onClick={() => { setBatchForm({ id: null, batch_number: '', notes: '' }); setIsBatchModalOpen(true); }} className="w-full sm:w-auto sm:ml-auto bg-red-600 hover:bg-red-700">
                         <Plus className="mr-2 h-4 w-4" /> {t('batches.new_batch')}
                     </Button>
                 </div>
@@ -545,7 +547,7 @@ export default function Purchases() {
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between gap-4">
                 <div className="grid grid-cols-1 gap-4 w-full md:w-auto">
                     <GlassCard className="p-4 flex items-center justify-between border-l-4 border-l-red-500 w-full md:w-64">
                         <div>
@@ -556,31 +558,48 @@ export default function Purchases() {
                     </GlassCard>
                 </div>
 
-                <div className="flex gap-2 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-64">
+                <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <div className="relative flex-1 sm:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder={t('animals.search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9"
+                            className="pl-9 w-full"
                         />
                     </div>
-                    <Select value={typeFilter} onValueChange={setTypeFilter}>
-                        <SelectTrigger className="w-[130px]">
-                            <SelectValue placeholder={t('animals.form.type')} />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="ALL">{t('animals.types.all')}</SelectItem>
-                            <SelectItem value="SHEEP">{t('animals.types.sheep')}</SelectItem>
-                            <SelectItem value="GOAT">{t('animals.types.goat')}</SelectItem>
-                            <SelectItem value="CATTLE">{t('animals.types.cattle')}</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
-                        <Download className="w-4 h-4 mr-2" />
-                        PDF
-                    </Button>
+                    <div className="flex gap-2">
+                        <div className="flex gap-1 bg-muted/20 p-1 rounded-lg overflow-x-auto no-scrollbar max-w-[200px] sm:max-w-none">
+                            {['ALL', 'SHEEP', 'GOAT', 'CATTLE'].map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => {
+                                        if (type === 'ALL') {
+                                            setTypeFilters(['ALL']);
+                                        } else {
+                                            setTypeFilters(prev => {
+                                                if (prev.includes('ALL')) return [type];
+                                                if (prev.includes(type)) {
+                                                    const newFilters = prev.filter(t => t !== type);
+                                                    return newFilters.length === 0 ? ['ALL'] : newFilters;
+                                                }
+                                                return [...prev, type];
+                                            });
+                                        }
+                                    }}
+                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${typeFilters.includes(type)
+                                        ? 'bg-white text-red-700 shadow-sm ring-1 ring-black/5 font-bold'
+                                        : 'text-muted-foreground hover:bg-white/50'
+                                        }`}
+                                >
+                                    {t(`animals.types.${type.toLowerCase()}`)}
+                                </button>
+                            ))}
+                        </div>
+                        <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50 px-3">
+                            <Download className="w-4 h-4" />
+                        </Button>
+                    </div>
                 </div>
             </div>
 

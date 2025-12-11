@@ -32,7 +32,7 @@ export async function GET(request) {
             .range(offset, offset + limit - 1);
 
         if (status) {
-            query = query.eq('status', status);
+            query = query.in('status', status.split(','));
         }
 
         if (destination && destination !== 'ALL') {
@@ -40,14 +40,16 @@ export async function GET(request) {
         }
 
         if (statusFilter && statusFilter !== 'ALL') {
-            if (statusFilter === 'PAID') {
-                query = query.eq('is_paid', true);
-            } else if (statusFilter === 'UNPAID') {
-                query = query.eq('is_paid', false);
-            } else if (statusFilter === 'COLLECTED') {
-                query = query.eq('status', 'COLLECTED');
-            } else if (statusFilter === 'NOT_COLLECTED') {
-                query = query.neq('status', 'COLLECTED');
+            const filters = statusFilter.split(',');
+            const orConditions = [];
+
+            if (filters.includes('PAID')) orConditions.push('is_paid.eq.true');
+            if (filters.includes('UNPAID')) orConditions.push('is_paid.eq.false');
+            if (filters.includes('COLLECTED')) orConditions.push('status.eq.COLLECTED');
+            if (filters.includes('NOT_COLLECTED')) orConditions.push('status.neq.COLLECTED');
+
+            if (orConditions.length > 0) {
+                query = query.or(orConditions.join(','));
             }
         }
 

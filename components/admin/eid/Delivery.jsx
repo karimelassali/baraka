@@ -19,7 +19,7 @@ export default function Delivery() {
     const [updating, setUpdating] = useState(false);
 
     // Filters
-    const [statusFilter, setStatusFilter] = useState('ALL'); // ALL, PAID, UNPAID, COLLECTED, NOT_COLLECTED
+    const [statusFilters, setStatusFilters] = useState(['ALL']); // ALL, PAID, UNPAID, COLLECTED, NOT_COLLECTED
     const [destinationFilter, setDestinationFilter] = useState('ALL');
     const [destinations, setDestinations] = useState([]);
     const [configuredDestinations, setConfiguredDestinations] = useState([]);
@@ -73,7 +73,7 @@ export default function Delivery() {
             searchReservations(1, true);
         }, 500);
         return () => clearTimeout(timer);
-    }, [searchTerm, statusFilter, destinationFilter]);
+    }, [searchTerm, statusFilters, destinationFilter]);
 
     const fetchTags = async () => {
         try {
@@ -126,7 +126,7 @@ export default function Delivery() {
         try {
             let url = `/api/admin/eid/reservations?page=${pageNum}&limit=${limit}`;
             if (searchTerm) url += `&search=${searchTerm}`;
-            if (statusFilter !== 'ALL') url += `&statusFilter=${statusFilter}`;
+            if (!statusFilters.includes('ALL')) url += `&statusFilter=${statusFilters.join(',')}`;
             if (destinationFilter !== 'ALL') url += `&destination=${destinationFilter}`;
 
             const response = await fetch(url);
@@ -141,10 +141,16 @@ export default function Delivery() {
                     if (searchTerm) groupUrl += `&search=${searchTerm}`;
 
                     // Map filters for Groups
-                    if (statusFilter !== 'ALL') {
-                        if (statusFilter === 'PAID') groupUrl += `&status=PAID`;
-                        else if (statusFilter === 'UNPAID') groupUrl += `&status=PENDING`;
-                        else if (statusFilter === 'COLLECTED') groupUrl += `&status=COMPLETED`;
+                    if (!statusFilters.includes('ALL')) {
+                        const groupStatuses = [];
+                        if (statusFilters.includes('PAID')) groupStatuses.push('PAID');
+                        if (statusFilters.includes('UNPAID')) groupStatuses.push('PENDING');
+                        if (statusFilters.includes('COLLECTED')) groupStatuses.push('COMPLETED');
+                        if (statusFilters.includes('NOT_COLLECTED')) groupStatuses.push('PENDING', 'PAID', 'DELIVERED');
+
+                        if (groupStatuses.length > 0) {
+                            groupUrl += `&status=${[...new Set(groupStatuses)].join(',')}`;
+                        }
                     }
 
                     const groupRes = await fetch(groupUrl);
@@ -152,7 +158,7 @@ export default function Delivery() {
                         const groupResult = await groupRes.json();
                         let fetchedGroups = groupResult.data || [];
 
-                        if (statusFilter === 'NOT_COLLECTED') {
+                        if (statusFilters.includes('NOT_COLLECTED') && !statusFilters.includes('COLLECTED')) {
                             fetchedGroups = fetchedGroups.filter(g => g.status !== 'COMPLETED' && g.status !== 'CANCELLED');
                         }
                         newGroups = fetchedGroups;
@@ -309,14 +315,14 @@ export default function Delivery() {
             </div>
 
             {!selectedItem ? (
-                <div className="relative max-w-md mx-auto space-y-4">
+                <div className="space-y-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder={t('search_placeholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 h-12 text-lg focus-visible:ring-red-500 border-red-200"
+                            className="pl-9 h-12 text-lg focus-visible:ring-red-500 border-red-200 w-full"
                         />
                         {loading && (
                             <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -324,13 +330,26 @@ export default function Delivery() {
                     </div>
 
                     {/* Filters */}
-                    <div className="flex gap-1 bg-muted/20 p-1 rounded-lg overflow-x-auto">
+                    <div className="flex gap-1 bg-muted/20 p-1 rounded-lg overflow-x-auto no-scrollbar">
                         {['ALL', 'PAID', 'UNPAID', 'COLLECTED', 'NOT_COLLECTED'].map((status) => (
                             <button
                                 key={status}
-                                onClick={() => setStatusFilter(status)}
-                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${statusFilter === status
-                                    ? 'bg-white text-red-700 shadow-sm'
+                                onClick={() => {
+                                    if (status === 'ALL') {
+                                        setStatusFilters(['ALL']);
+                                    } else {
+                                        setStatusFilters(prev => {
+                                            if (prev.includes('ALL')) return [status];
+                                            if (prev.includes(status)) {
+                                                const newFilters = prev.filter(s => s !== status);
+                                                return newFilters.length === 0 ? ['ALL'] : newFilters;
+                                            }
+                                            return [...prev, status];
+                                        });
+                                    }
+                                }}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${statusFilters.includes(status)
+                                    ? 'bg-white text-red-700 shadow-sm ring-1 ring-black/5 font-bold'
                                     : 'text-muted-foreground hover:bg-white/50'
                                     }`}
                             >

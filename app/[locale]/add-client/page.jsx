@@ -56,7 +56,14 @@ export default function AddClientPage() {
     const [showExistingModal, setShowExistingModal] = useState(false);
     const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
 
+    const [showDomainAlert, setShowDomainAlert] = useState(false);
+
     useEffect(() => {
+        // Check domain
+        if (typeof window !== 'undefined' && window.location.hostname === 'baraka-tst-2025.vercel.app') {
+            setShowDomainAlert(true);
+        }
+
         const session = localStorage.getItem('add_client_session');
         if (session) {
             const { timestamp } = JSON.parse(session);
@@ -64,13 +71,20 @@ export default function AddClientPage() {
             // 5 hours in milliseconds
             if (now - timestamp < 5 * 60 * 60 * 1000) {
                 setIsAuthenticated(true);
+                // Fetch waitlist immediately if authenticated
+                fetch('/api/admin/waitlist')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) setWaitlist(data.data);
+                    })
+                    .catch(err => console.error('Error fetching waitlist:', err));
             } else {
                 localStorage.removeItem('add_client_session');
             }
         }
 
         // Check for What's New Modal
-        const hasSeenWhatsNew = localStorage.getItem('whats_new_modal_seen_v1');
+        const hasSeenWhatsNew = localStorage.getItem('whats_new_modal_seen_v2');
         if (!hasSeenWhatsNew) {
             setShowWhatsNewModal(true);
         }
@@ -86,7 +100,7 @@ export default function AddClientPage() {
     }, []);
 
     const closeWhatsNew = () => {
-        localStorage.setItem('whats_new_modal_seen_v1', 'true');
+        localStorage.setItem('whats_new_modal_seen_v2', 'true');
         setShowWhatsNewModal(false);
     };
 
@@ -100,6 +114,13 @@ export default function AddClientPage() {
                 timestamp: new Date().getTime()
             }));
             setError('');
+            // Fetch waitlist after login
+            fetch('/api/admin/waitlist')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) setWaitlist(data.data);
+                })
+                .catch(err => console.error('Error fetching waitlist:', err));
         } else {
             setError('Password non corretta');
         }
@@ -293,6 +314,7 @@ export default function AddClientPage() {
     const toggleWaitlist = () => {
         if (!showWaitlist) {
             setShowClients(false); // Close clients list if open
+            // fetchWaitlist(); // Already fetched on load/login, but can refresh
             fetchWaitlist();
         }
         setShowWaitlist(!showWaitlist);
@@ -343,6 +365,46 @@ export default function AddClientPage() {
             console.error('Error rejecting:', err);
             alert('Errore durante il rifiuto: ' + err.message);
         }
+    };
+
+    const handleDeleteWaitlist = async (id) => {
+        if (!confirm('Sei sicuro di voler eliminare questa richiesta definitivamente?')) return;
+        try {
+            const res = await fetch('/api/admin/waitlist', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to delete');
+            }
+
+            setWaitlist(prev => prev.filter(item => item.id !== id));
+            alert('Richiesta eliminata!');
+        } catch (err) {
+            console.error('Error deleting:', err);
+            alert('Errore durante l\'eliminazione: ' + err.message);
+        }
+    };
+
+    const getTimeAgo = (dateString) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+
+        let interval = seconds / 31536000;
+        if (interval > 1) return Math.floor(interval) + " anni fa";
+        interval = seconds / 2592000;
+        if (interval > 1) return Math.floor(interval) + " mesi fa";
+        interval = seconds / 86400;
+        if (interval > 1) return Math.floor(interval) + " giorni fa";
+        interval = seconds / 3600;
+        if (interval > 1) return Math.floor(interval) + " ore fa";
+        interval = seconds / 60;
+        if (interval > 1) return Math.floor(interval) + " min fa";
+        return Math.floor(seconds) + " sec fa";
     };
 
     if (!isAuthenticated) {
@@ -474,6 +536,38 @@ export default function AddClientPage() {
                 )}
             </AnimatePresence>
 
+            {/* Domain Alert Modal */}
+            <AnimatePresence>
+                {showDomainAlert && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, rotate: -5 }}
+                            animate={{ scale: 1, rotate: 0 }}
+                            className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden text-center p-8 border-4 border-yellow-400"
+                        >
+                            <div className="text-6xl mb-4">🚧 🏃‍♂️ 💨</div>
+                            <h2 className="text-3xl font-black text-gray-900 mb-4 uppercase italic">Spostamento in corso!</h2>
+                            <p className="text-lg text-gray-600 mb-8 font-medium">
+                                Ehi! Stiamo correndo verso la nostra nuova casa ufficiale.
+                                <br />
+                                <span className="text-red-600 font-bold">baraka-tst-2025.vercel.app</span> è roba vecchia!
+                            </p>
+                            <a
+                                href="https://www.barakasrl.it/"
+                                className="block w-full bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xl py-4 rounded-xl transition-transform transform hover:scale-105 shadow-lg border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1"
+                            >
+                                VAI SU BARAKASRL.IT 🚀
+                            </a>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* What's New Modal */}
             <AnimatePresence>
                 {showWhatsNewModal && (
@@ -494,30 +588,39 @@ export default function AddClientPage() {
                                     <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
                                         <Info className="w-6 h-6 text-white" />
                                     </div>
-                                    <h3 className="text-xl font-bold">Novità di Oggi!</h3>
+                                    <h3 className="text-xl font-bold">Aggiornamento Importante!</h3>
                                 </div>
                                 <p className="text-red-100 opacity-90 text-sm">
-                                    Abbiamo aggiornato il sistema per renderlo più veloce e semplice.
+                                    Nuove funzionalità per la gestione della Waitlist e Clienti.
                                 </p>
                             </div>
                             <div className="p-6">
                                 <ul className="space-y-4 mb-8">
                                     <li className="flex items-start gap-3">
-                                        <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                                            <CheckCircle className="w-4 h-4 text-green-600" />
+                                        <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                            <Trash2 className="w-4 h-4 text-red-600" />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-gray-800">Email Facoltativa</h4>
-                                            <p className="text-sm text-gray-500">Ora puoi aggiungere clienti anche senza indirizzo email.</p>
+                                            <h4 className="font-bold text-gray-800">Eliminazione Definitiva</h4>
+                                            <p className="text-sm text-gray-500">Ora puoi eliminare definitivamente le richieste rifiutate dalla waitlist.</p>
                                         </div>
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-                                            <Phone className="w-4 h-4 text-blue-600" />
+                                            <Users className="w-4 h-4 text-blue-600" />
                                         </div>
                                         <div>
-                                            <h4 className="font-bold text-gray-800">Verifica Duplicati</h4>
-                                            <p className="text-sm text-gray-500">Il sistema ti avviserà se provi ad aggiungere un numero già esistente.</p>
+                                            <h4 className="font-bold text-gray-800">Nuova Interfaccia</h4>
+                                            <p className="text-sm text-gray-500">Switch rapido tra Aggiungi Cliente e Waitlist, con notifiche in tempo reale.</p>
+                                        </div>
+                                    </li>
+                                    <li className="flex items-start gap-3">
+                                        <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                            <CheckCircle className="w-4 h-4 text-green-600" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-gray-800">Dettagli Temporali</h4>
+                                            <p className="text-sm text-gray-500">Vedi esattamente quando una richiesta è arrivata o un cliente è stato aggiunto.</p>
                                         </div>
                                     </li>
                                 </ul>
@@ -525,7 +628,7 @@ export default function AddClientPage() {
                                     onClick={closeWhatsNew}
                                     className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-colors shadow-lg"
                                 >
-                                    Fantastico, Iniziamo!
+                                    Ho capito, grazie!
                                 </button>
                             </div>
                         </motion.div>
@@ -654,76 +757,38 @@ export default function AddClientPage() {
                 </div>
             </header>
 
-            {/* Maintenance Alert */}
-            <div className="w-full max-w-4xl mx-auto px-4 mt-6">
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-amber-50 border border-amber-200 rounded-2xl p-6 shadow-sm relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-amber-100 rounded-full blur-2xl opacity-50"></div>
-
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-4 relative z-10">
-                        <div className="p-3 bg-amber-100 rounded-xl shrink-0">
-                            <AlertTriangle className="w-6 h-6 text-amber-600" />
-                        </div>
-
-                        <div className="flex-grow">
-                            <h3 className="text-lg font-bold text-gray-900 mb-1">Manutenzione in Corso</h3>
-                            <p className="text-gray-600 text-sm leading-relaxed">
-                                Stiamo risolvendo alcuni problemi e lavorando direttamente sul database.
-                                Per favore, cerca di non effettuare operazioni finché questo messaggio non scomparirà.
-                            </p>
-                        </div>
-
-                        <button
-                            onClick={async () => {
-                                try {
-                                    const res = await fetch('/api/admin/clients-status?limit=1000');
-                                    const data = await res.json();
-                                    const jsonString = JSON.stringify(data.clients, null, 2);
-                                    const blob = new Blob([jsonString], { type: 'application/json' });
-                                    const url = URL.createObjectURL(blob);
-                                    const link = document.createElement('a');
-                                    link.href = url;
-                                    link.download = `baraka_clients_backup_${new Date().toISOString().split('T')[0]}.json`;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                } catch (err) {
-                                    console.error('Download failed:', err);
-                                    alert('Impossibile scaricare i dati al momento.');
-                                }
-                            }}
-                            className="whitespace-nowrap px-5 py-2.5 bg-white border border-amber-200 text-amber-700 font-medium rounded-xl hover:bg-amber-50 hover:border-amber-300 transition-all shadow-sm flex items-center gap-2"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
-                            Scarica Dati Clienti (JSON)
-                        </button>
-                    </div>
-                </motion.div>
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex gap-4 justify-center mt-4">
-                <button
-                    onClick={toggleClients}
-                    className={`px-6 py-2 rounded-full font-medium transition-all ${showClients
-                        ? 'bg-gray-800 text-white shadow-lg'
-                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-                        }`}
-                >
-                    {showClients ? 'Nascondi Lista Clienti' : 'Mostra Lista Clienti'}
-                </button>
-                <button
-                    onClick={toggleWaitlist}
-                    className={`px-6 py-2 rounded-full font-medium transition-all ${showWaitlist
-                        ? 'bg-red-600 text-white shadow-lg'
-                        : 'bg-white text-red-600 border border-red-200 hover:bg-red-50'
-                        }`}
-                >
-                    {showWaitlist ? 'Nascondi Waitlist' : 'Richieste Waitlist'}
-                </button>
+            {/* Toggle Navigation */}
+            <div className="flex justify-center mt-8 mb-6">
+                <div className="bg-gray-100 p-1.5 rounded-full inline-flex relative shadow-inner">
+                    <motion.div
+                        className="absolute top-1.5 bottom-1.5 bg-white rounded-full shadow-sm z-0"
+                        initial={false}
+                        animate={{
+                            x: showWaitlist ? '100%' : '0%',
+                            width: '50%'
+                        }}
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                    <button
+                        onClick={() => { setShowWaitlist(false); setShowClients(true); }}
+                        className={`relative z-10 px-8 py-2.5 rounded-full font-bold text-sm transition-colors flex items-center gap-2 ${!showWaitlist ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        <User className="w-4 h-4" />
+                        Aggiungi Cliente
+                    </button>
+                    <button
+                        onClick={() => { setShowWaitlist(true); setShowClients(false); }}
+                        className={`relative z-10 px-8 py-2.5 rounded-full font-bold text-sm transition-colors flex items-center gap-2 ${showWaitlist ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                    >
+                        <Users className="w-4 h-4" />
+                        Waitlist
+                        {waitlist.filter(w => w.status === 'pending').length > 0 && (
+                            <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                                {waitlist.filter(w => w.status === 'pending').length}
+                            </span>
+                        )}
+                    </button>
+                </div>
             </div>
 
             {/* Waitlist View */}
@@ -775,7 +840,9 @@ export default function AddClientPage() {
                                                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                                                     <td className="p-4">
                                                         <p className="font-bold text-gray-800">{item.first_name} {item.last_name}</p>
-                                                        <p className="text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString()}</p>
+                                                        <p className="text-xs text-gray-400 font-mono mt-1">
+                                                            {new Date(item.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
                                                     </td>
                                                     <td className="p-4">
                                                         <p className="text-sm text-gray-600 flex items-center gap-1"><Phone className="w-3 h-3" /> {item.phone_number}</p>
@@ -810,6 +877,15 @@ export default function AddClientPage() {
                                                                 </button>
                                                             </div>
                                                         )}
+                                                        {item.status === 'rejected' && (
+                                                            <button
+                                                                onClick={() => handleDeleteWaitlist(item.id)}
+                                                                className="text-gray-400 hover:text-red-600 p-2 rounded-lg transition-colors"
+                                                                title="Elimina definitivamente"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))
@@ -823,359 +899,390 @@ export default function AddClientPage() {
             </AnimatePresence>
 
             <main className="flex-grow flex flex-col items-center p-4 md:p-8 gap-8">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="w-full max-w-2xl"
-                >
-                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                        <div className="bg-red-600 p-6 text-white text-center">
-                            <h1 className="text-2xl font-bold">Aggiungi Nuovo Cliente</h1>
-                            <p className="text-red-100 opacity-90">Inserisci i dettagli del cliente qui sotto</p>
-                        </div>
+                {!showWaitlist && (<>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="w-full max-w-2xl"
+                    >
+                        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                            <div className="bg-red-600 p-6 text-white text-center">
+                                <h1 className="text-2xl font-bold">Aggiungi Nuovo Cliente</h1>
+                                <p className="text-red-100 opacity-90">Inserisci i dettagli del cliente qui sotto</p>
+                            </div>
 
-                        <div className="p-8">
-                            <AnimatePresence mode="wait">
-                                {success ? (
-                                    <motion.div
-                                        key="success"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -20 }}
-                                        className="text-center py-12"
-                                    >
-                                        <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                                            <CheckCircle className="w-10 h-10" />
-                                        </div>
-                                        <h3 className="text-2xl font-bold text-gray-800 mb-2">Cliente Aggiunto con Successo!</h3>
-                                        <p className="text-gray-500">Il modulo è stato resettato per il prossimo inserimento.</p>
-                                    </motion.div>
-                                ) : (
-                                    <motion.form
-                                        key="form"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        onSubmit={handleClientSubmit}
-                                        className="space-y-6"
-                                    >
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Nome</label>
-                                                <div className="relative">
-                                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                                    <input
-                                                        type="text"
-                                                        name="firstName"
-                                                        value={formData.firstName}
-                                                        onChange={handleFormChange}
-                                                        required
-                                                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
-                                                        placeholder="Mario"
-                                                    />
-                                                </div>
+                            <div className="p-8">
+                                <AnimatePresence mode="wait">
+                                    {success ? (
+                                        <motion.div
+                                            key="success"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -20 }}
+                                            className="text-center py-12"
+                                        >
+                                            <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                                                <CheckCircle className="w-10 h-10" />
                                             </div>
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Cognome</label>
-                                                <div className="relative">
-                                                    <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                                    <input
-                                                        type="text"
-                                                        name="lastName"
-                                                        value={formData.lastName}
-                                                        onChange={handleFormChange}
-                                                        required
-                                                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
-                                                        placeholder="Rossi"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Indirizzo Email</label>
-                                            <div className="relative">
-                                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                                <input
-                                                    type="email"
-                                                    name="email"
-                                                    value={formData.email}
-                                                    onChange={handleFormChange}
-                                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
-                                                    placeholder="mario@esempio.com (Opzionale)"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">Numero di Telefono</label>
-                                            <div className="relative">
-                                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                                <input
-                                                    type="tel"
-                                                    name="phoneNumber"
-                                                    value={formData.phoneNumber}
-                                                    onChange={handleFormChange}
-                                                    required
-                                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
-                                                    placeholder="+1 234 567 890"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="relative" ref={countryDropdownRef}>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Paese di Origine</label>
-                                                <div
-                                                    className="relative cursor-pointer"
-                                                    onClick={() => setIsCountryOpen(!isCountryOpen)}
-                                                >
-                                                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                                                    <div className={`w-full pl-10 pr-10 py-3 rounded-lg border ${isCountryOpen ? 'border-red-500 ring-2 ring-red-500' : 'border-gray-300'} bg-gray-50 flex items-center justify-between transition-all`}>
-                                                        <span className={formData.countryOfOrigin ? 'text-gray-900' : 'text-gray-400'}>
-                                                            {formData.countryOfOrigin || 'Seleziona Paese'}
-                                                        </span>
-                                                        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isCountryOpen ? 'rotate-180' : ''}`} />
+                                            <h3 className="text-2xl font-bold text-gray-800 mb-2">Cliente Aggiunto con Successo!</h3>
+                                            <p className="text-gray-500">Il modulo è stato resettato per il prossimo inserimento.</p>
+                                        </motion.div>
+                                    ) : (
+                                        <motion.form
+                                            key="form"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            onSubmit={handleClientSubmit}
+                                            className="space-y-6"
+                                        >
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+                                                    <div className="relative">
+                                                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                        <input
+                                                            type="text"
+                                                            name="firstName"
+                                                            value={formData.firstName}
+                                                            onChange={handleFormChange}
+                                                            required
+                                                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
+                                                            placeholder="Mario"
+                                                        />
                                                     </div>
                                                 </div>
-
-                                                <AnimatePresence>
-                                                    {isCountryOpen && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: 10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: 10 }}
-                                                            className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-hidden flex flex-col"
-                                                        >
-                                                            <div className="p-2 border-b border-gray-100 sticky top-0 bg-white">
-                                                                <div className="relative">
-                                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                                                    <input
-                                                                        type="text"
-                                                                        value={countrySearch}
-                                                                        onChange={(e) => setCountrySearch(e.target.value)}
-                                                                        placeholder="Cerca paese..."
-                                                                        className="w-full pl-9 pr-4 py-2 rounded-lg bg-gray-50 border-none text-sm focus:ring-2 focus:ring-red-500 outline-none"
-                                                                        autoFocus
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div className="overflow-y-auto flex-grow">
-                                                                {filteredCountries.length === 0 ? (
-                                                                    <div className="p-4 text-center text-gray-500 text-sm">Nessun paese trovato</div>
-                                                                ) : (
-                                                                    filteredCountries.map((country) => (
-                                                                        <button
-                                                                            key={country.code}
-                                                                            type="button"
-                                                                            onClick={() => handleCountrySelect(country)}
-                                                                            className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center gap-3 transition-colors"
-                                                                        >
-                                                                            <span className="text-xl">{country.flag}</span>
-                                                                            <span className="text-gray-700">{country.name}</span>
-                                                                        </button>
-                                                                    ))
-                                                                )}
-                                                            </div>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Cognome</label>
+                                                    <div className="relative">
+                                                        <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                        <input
+                                                            type="text"
+                                                            name="lastName"
+                                                            value={formData.lastName}
+                                                            onChange={handleFormChange}
+                                                            required
+                                                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
+                                                            placeholder="Rossi"
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">Residenza</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Indirizzo Email</label>
                                                 <div className="relative">
-                                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                                                     <input
-                                                        type="text"
-                                                        name="residence"
-                                                        value={formData.residence}
+                                                        type="email"
+                                                        name="email"
+                                                        value={formData.email}
                                                         onChange={handleFormChange}
                                                         className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
-                                                        placeholder="Città di residenza"
+                                                        placeholder="mario@esempio.com (Opzionale)"
                                                     />
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
-                                        <button
-                                            type="submit"
-                                            disabled={loading}
-                                            className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                        >
-                                            {loading ? (
-                                                <>
-                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                    Aggiunta Cliente...
-                                                </>
-                                            ) : (
-                                                'Aggiungi Cliente'
-                                            )}
-                                        </button>
-                                    </motion.form>
-                                )}
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Show Clients Button */}
-                <motion.div
-                    className="w-full max-w-2xl"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <div className="flex gap-3">
-                        <button
-                            onClick={toggleClients}
-                            className="flex-1 bg-white border border-gray-200 text-gray-700 font-medium py-4 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 group"
-                        >
-                            {showClients ? (
-                                <>Nascondi Clienti <ChevronUp className="w-5 h-5 text-red-500" /></>
-                            ) : (
-                                <>Mostra Tutti i Clienti <ChevronDown className="w-5 h-5 text-red-500 group-hover:translate-y-1 transition-transform" /></>
-                            )}
-                        </button>
-
-                        {showClients && (
-                            <button
-                                onClick={() => setShowUnverifiedModal(true)}
-                                className="bg-red-50 border border-red-100 text-red-600 font-medium px-6 rounded-xl shadow-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2"
-                                title="Gestisci Utenti Non Verificati"
-                            >
-                                <Users className="w-5 h-5" />
-                                <span className="hidden sm:inline">Non Verificati</span>
-                            </button>
-                        )}
-                    </div>
-
-                    <AnimatePresence>
-                        {showClients && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: 'auto', opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden mt-4"
-                            >
-                                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                                    {loadingClients ? (
-                                        <div className="p-8 text-center text-gray-500">
-                                            <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-                                            Caricamento clienti...
-                                        </div>
-                                    ) : clients.length === 0 ? (
-                                        <div className="p-8 text-center text-gray-500">
-                                            Nessun cliente trovato.
-                                        </div>
-                                    ) : (
-                                        <div className="divide-y divide-gray-100">
-                                            <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-sm text-gray-600">
-                                                <span className="font-semibold text-gray-800">Totale Clienti: {totalClients}</span>
-                                                <div className="flex gap-4">
-                                                    {/* Note: Counts here are only for loaded clients now, or we'd need separate API for totals */}
-                                                    <span>Visualizzati: {clients.length}</span>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Numero di Telefono</label>
+                                                <div className="relative">
+                                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                    <input
+                                                        type="tel"
+                                                        name="phoneNumber"
+                                                        value={formData.phoneNumber}
+                                                        onChange={handleFormChange}
+                                                        required
+                                                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
+                                                        placeholder="+1 234 567 890"
+                                                    />
                                                 </div>
                                             </div>
-                                            <AnimatePresence>
-                                                {clients.map((client) => (
-                                                    <motion.div
-                                                        key={client.id}
-                                                        initial={{ opacity: 0, x: -20 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        exit={{ opacity: 0, x: 20, height: 0, padding: 0 }}
-                                                        className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                                                    >
-                                                        <div className="flex items-start gap-4">
-                                                            <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 font-bold shrink-0">
-                                                                {client.first_name?.[0]}{client.last_name?.[0]}
-                                                            </div>
-                                                            <div className="flex-grow">
-                                                                <h4 className="font-semibold text-gray-800">{client.first_name} {client.last_name}</h4>
-                                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-gray-500">
-                                                                    <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {client.email}</span>
-                                                                    <span className="hidden sm:inline text-gray-300">|</span>
-                                                                    <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {client.phone_number}</span>
-                                                                </div>
 
-                                                                {(client.country_of_origin || client.residence) && (
-                                                                    <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-gray-600">
-                                                                        {client.country_of_origin && (
-                                                                            <span className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md">
-                                                                                {countries.find(c => c.name === client.country_of_origin)?.flag || '🌍'}
-                                                                                {client.country_of_origin}
-                                                                            </span>
-                                                                        )}
-                                                                        {client.residence && (
-                                                                            <span className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md">
-                                                                                <MapPin className="w-3 h-3 text-gray-500" />
-                                                                                {client.residence}
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="relative" ref={countryDropdownRef}>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Paese di Origine</label>
+                                                    <div
+                                                        className="relative cursor-pointer"
+                                                        onClick={() => setIsCountryOpen(!isCountryOpen)}
+                                                    >
+                                                        <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                        <div className={`w-full pl-10 pr-10 py-3 rounded-lg border ${isCountryOpen ? 'border-red-500 ring-2 ring-red-500' : 'border-gray-300'} bg-gray-50 flex items-center justify-between transition-all`}>
+                                                            <span className={formData.countryOfOrigin ? 'text-gray-900' : 'text-gray-400'}>
+                                                                {formData.countryOfOrigin || 'Seleziona Paese'}
+                                                            </span>
+                                                            <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isCountryOpen ? 'rotate-180' : ''}`} />
                                                         </div>
-                                                        <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pl-14 sm:pl-0">
-                                                            <div className="flex flex-col items-end gap-1">
-                                                                {client.is_verified ? (
-                                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                        <CheckCircle className="w-3 h-3" /> Verificato
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                                        <XCircle className="w-3 h-3" /> Non Verificato
-                                                                    </span>
-                                                                )}
-                                                                <span className="text-xs text-gray-400">{new Date(client.created_at).toLocaleDateString()}</span>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => confirmDelete(client)}
-                                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                                title="Elimina Cliente"
+                                                    </div>
+
+                                                    <AnimatePresence>
+                                                        {isCountryOpen && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                exit={{ opacity: 0, y: 10 }}
+                                                                className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 max-h-60 overflow-hidden flex flex-col"
                                                             >
-                                                                <Trash2 className="w-5 h-5" />
-                                                            </button>
-                                                        </div>
-                                                    </motion.div>
-                                                ))}
-                                            </AnimatePresence>
-
-                                            {hasMore && (
-                                                <div className="p-4 text-center border-t border-gray-100 bg-gray-50">
-                                                    <button
-                                                        onClick={() => fetchClients(page + 1, true)}
-                                                        disabled={loadingMore}
-                                                        className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm hover:bg-gray-50 hover:text-red-600 transition-colors flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
-                                                    >
-                                                        {loadingMore ? (
-                                                            <>
-                                                                <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                                                                Caricamento...
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <ChevronDown className="w-4 h-4" />
-                                                                Carica Altri
-                                                            </>
+                                                                <div className="p-2 border-b border-gray-100 sticky top-0 bg-white">
+                                                                    <div className="relative">
+                                                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                                                        <input
+                                                                            type="text"
+                                                                            value={countrySearch}
+                                                                            onChange={(e) => setCountrySearch(e.target.value)}
+                                                                            placeholder="Cerca paese..."
+                                                                            className="w-full pl-9 pr-4 py-2 rounded-lg bg-gray-50 border-none text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                                                                            autoFocus
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="overflow-y-auto flex-grow">
+                                                                    {filteredCountries.length === 0 ? (
+                                                                        <div className="p-4 text-center text-gray-500 text-sm">Nessun paese trovato</div>
+                                                                    ) : (
+                                                                        filteredCountries.map((country) => (
+                                                                            <button
+                                                                                key={country.code}
+                                                                                type="button"
+                                                                                onClick={() => handleCountrySelect(country)}
+                                                                                className="w-full px-4 py-3 text-left hover:bg-red-50 flex items-center gap-3 transition-colors"
+                                                                            >
+                                                                                <span className="text-xl">{country.flag}</span>
+                                                                                <span className="text-gray-700">{country.name}</span>
+                                                                            </button>
+                                                                        ))
+                                                                    )}
+                                                                </div>
+                                                            </motion.div>
                                                         )}
-                                                    </button>
+                                                    </AnimatePresence>
                                                 </div>
-                                            )}
-                                        </div>
+
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">Residenza</label>
+                                                    <div className="relative">
+                                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                        <input
+                                                            type="text"
+                                                            name="residence"
+                                                            value={formData.residence}
+                                                            onChange={handleFormChange}
+                                                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all bg-gray-50"
+                                                            placeholder="Città di residenza"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+                                            <button
+                                                type="submit"
+                                                disabled={loading}
+                                                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                {loading ? (
+                                                    <>
+                                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                                        Aggiunta Cliente...
+                                                    </>
+                                                ) : (
+                                                    'Aggiungi Cliente'
+                                                )}
+                                            </button>
+                                        </motion.form>
                                     )}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* Show Clients Button */}
+                    <motion.div
+                        className="w-full max-w-2xl"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <div className="flex gap-3">
+                            <button
+                                onClick={toggleClients}
+                                className="flex-1 bg-white border border-gray-200 text-gray-700 font-medium py-4 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 group"
+                            >
+                                {showClients ? (
+                                    <>Nascondi Clienti <ChevronUp className="w-5 h-5 text-red-500" /></>
+                                ) : (
+                                    <>Mostra Tutti i Clienti <ChevronDown className="w-5 h-5 text-red-500 group-hover:translate-y-1 transition-transform" /></>
+                                )}
+                            </button>
+
+                            {showClients && (
+                                <button
+                                    onClick={() => setShowUnverifiedModal(true)}
+                                    className="bg-red-50 border border-red-100 text-red-600 font-medium px-6 rounded-xl shadow-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                                    title="Gestisci Utenti Non Verificati"
+                                >
+                                    <Users className="w-5 h-5" />
+                                    <span className="hidden sm:inline">Non Verificati</span>
+                                </button>
+                            )}
+                        </div>
+
+                        <AnimatePresence>
+                            {showClients && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden mt-4"
+                                >
+                                    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                                        {loadingClients ? (
+                                            <div className="p-8 text-center text-gray-500">
+                                                <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                                                Caricamento clienti...
+                                            </div>
+                                        ) : clients.length === 0 ? (
+                                            <div className="p-8 text-center text-gray-500">
+                                                Nessun cliente trovato.
+                                            </div>
+                                        ) : (
+                                            <div className="divide-y divide-gray-100">
+                                                <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between text-sm text-gray-600">
+                                                    <span className="font-semibold text-gray-800">Totale Clienti: {totalClients}</span>
+                                                    <div className="flex gap-4">
+                                                        {/* Note: Counts here are only for loaded clients now, or we'd need separate API for totals */}
+                                                        <span>Visualizzati: {clients.length}</span>
+                                                    </div>
+                                                </div>
+                                                <AnimatePresence>
+                                                    {clients.map((client) => (
+                                                        <motion.div
+                                                            key={client.id}
+                                                            initial={{ opacity: 0, x: -20 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            exit={{ opacity: 0, x: 20, height: 0, padding: 0 }}
+                                                            className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                                                        >
+                                                            <div className="flex items-start gap-4">
+                                                                <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 font-bold shrink-0">
+                                                                    {client.first_name?.[0]}{client.last_name?.[0]}
+                                                                </div>
+                                                                <div className="flex-grow">
+                                                                    <h4 className="font-semibold text-gray-800">{client.first_name} {client.last_name}</h4>
+                                                                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-gray-500">
+                                                                        <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {client.email}</span>
+                                                                        <span className="hidden sm:inline text-gray-300">|</span>
+                                                                        <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> {client.phone_number}</span>
+                                                                    </div>
+
+                                                                    {(client.country_of_origin || client.residence) && (
+                                                                        <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-gray-600">
+                                                                            {client.country_of_origin && (
+                                                                                <span className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md">
+                                                                                    {countries.find(c => c.name === client.country_of_origin)?.flag || '🌍'}
+                                                                                    {client.country_of_origin}
+                                                                                </span>
+                                                                            )}
+                                                                            {client.residence && (
+                                                                                <span className="flex items-center gap-1 bg-gray-100 px-2 py-0.5 rounded-md">
+                                                                                    <MapPin className="w-3 h-3 text-gray-500" />
+                                                                                    {client.residence}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pl-14 sm:pl-0">
+                                                                <div className="flex flex-col items-end gap-1">
+                                                                    {client.is_verified ? (
+                                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                            <CheckCircle className="w-3 h-3" /> Verificato
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                                            <XCircle className="w-3 h-3" /> Non Verificato
+                                                                        </span>
+                                                                    )}
+                                                                    <span className="text-xs text-gray-400 font-mono">{getTimeAgo(client.created_at)}</span>
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => confirmDelete(client)}
+                                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                                    title="Elimina Cliente"
+                                                                >
+                                                                    <Trash2 className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
+                                                        </motion.div>
+                                                    ))}
+                                                </AnimatePresence>
+
+                                                {hasMore && (
+                                                    <div className="p-4 text-center border-t border-gray-100 bg-gray-50">
+                                                        <button
+                                                            onClick={() => fetchClients(page + 1, true)}
+                                                            disabled={loadingMore}
+                                                            className="px-6 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg shadow-sm hover:bg-gray-50 hover:text-red-600 transition-colors flex items-center justify-center gap-2 mx-auto disabled:opacity-50"
+                                                        >
+                                                            {loadingMore ? (
+                                                                <>
+                                                                    <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                                                    Caricamento...
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <ChevronDown className="w-4 h-4" />
+                                                                    Carica Altri
+                                                                </>
+                                                            )}
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
+                </>)}
             </main>
 
             <footer className="p-6 text-center text-gray-400 text-sm">
                 &copy; {new Date().getFullYear()} Sistemi di Fedeltà Baraka
             </footer>
+
+            {/* Floating Download Button */}
+            <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={async () => {
+                    try {
+                        const res = await fetch('/api/admin/clients-status?limit=1000');
+                        const data = await res.json();
+                        const jsonString = JSON.stringify(data.clients, null, 2);
+                        const blob = new Blob([jsonString], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `baraka_clients_backup_${new Date().toISOString().split('T')[0]}.json`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } catch (err) {
+                        console.error('Download failed:', err);
+                        alert('Impossibile scaricare i dati al momento.');
+                    }
+                }}
+                className="fixed bottom-6 right-6 bg-gray-900 text-white p-3 rounded-full shadow-xl hover:bg-black transition-all z-50 group flex items-center gap-0 hover:gap-2 hover:pr-5"
+                title="Scarica Backup JSON"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
+                <span className="w-0 overflow-hidden group-hover:w-auto transition-all duration-300 whitespace-nowrap text-sm font-medium">Backup</span>
+            </motion.button>
         </div >
     );
 }

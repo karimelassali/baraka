@@ -244,7 +244,9 @@
       "from_last_month": "من الشهر الماضي",
       "this_month": "هذا الشهر",
       "new_offers": "عروض جديدة",
-      "lifetime_rewards": "مكافآت مدى الحياة"
+      "lifetime_rewards": "مكافآت مدى الحياة",
+      "no_change": "لا تغيير",
+      "active": "نشط"
     },
     "Profile": {
       "title": "معلومات الملف الشخصي",
@@ -261,7 +263,10 @@
       "cancel": "إلغاء",
       "save": "حفظ التغييرات",
       "edit": "تعديل الملف الشخصي",
-      "select_country": "اختر الدولة"
+      "select_country": "اختر الدولة",
+      "no_phone": "لا يوجد هاتف",
+      "no_address": "لا يوجد عنوان",
+      "active_member": "عضو نشط"
     },
     "Offers": {
       "title": "عروض خاصة",
@@ -960,25 +965,6 @@
       },
       "weekly_total": "الإجمالي الأسبوعي"
     },
-    "Wishlist": {
-      "Title": "تمنى أمنية",
-      "Subtitle": "لا تجد ما تبحث عنه؟ أخبرنا وسنحاول توفيره في المتجر خصيصًا لك.",
-      "NewRequest": "طلب جديد",
-      "ProductName": "اسم المنتج",
-      "ProductNamePlaceholder": "مثال: شاي ماتشا عضوي",
-      "Description": "الوصف (اختياري)",
-      "DescriptionPlaceholder": "أي تفاصيل محددة، علامة تجارية، أو تفضيلات...",
-      "Submit": "إرسال الطلب",
-      "Sent": "تم الإرسال!",
-      "MyRequests": "طلباتي",
-      "NoRequests": "لا توجد طلبات حتى الآن",
-      "NoRequestsDesc": "قائمة رغباتك فارغة. أخبرنا بما تود رؤيته في متجرنا!",
-      "Status": {
-        "pending": "قيد الانتظار",
-        "approved": "تمت الموافقة",
-        "rejected": "مرفوض"
-      }
-    },
     "Customers": {
       "title": "إدارة العملاء",
       "subtitle": "إدارة معلومات وتفاصيل عملائك",
@@ -1273,6 +1259,25 @@
       "inventory": "المخزون",
       "history": "السجل (آخر 5 تشغيلات)",
       "test_failed": "فشل الاختبار"
+    }
+  },
+  "Wishlist": {
+    "Title": "تمنى أمنية",
+    "Subtitle": "لا تجد ما تبحث عنه؟ أخبرنا وسنحاول توفيره في المتجر خصيصًا لك.",
+    "NewRequest": "طلب جديد",
+    "ProductName": "اسم المنتج",
+    "ProductNamePlaceholder": "مثال: شاي ماتشا عضوي",
+    "Description": "الوصف (اختياري)",
+    "DescriptionPlaceholder": "تفاصيل محددة، العلامة التجارية أو التفضيلات...",
+    "Submit": "إرسال الطلب",
+    "Sent": "تم الإرسال!",
+    "MyRequests": "طلباتي",
+    "NoRequests": "لا توجد طلبات حتى الآن",
+    "NoRequestsDesc": "قائمة رغباتك فارغة. أخبرنا بما تود رؤيته في متجرنا!",
+    "Status": {
+      "pending": "قيد الانتظار",
+      "approved": "موافق عليه",
+      "rejected": "مرفوض"
     }
   }
 }

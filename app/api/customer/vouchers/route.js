@@ -21,10 +21,14 @@ export async function GET(request) {
     .from('customers')
     .select('id')
     .eq('auth_id', user.id)
-    .single();
+    .maybeSingle();
 
   if (customerError) {
     return NextResponse.json({ error: customerError.message }, { status: 500 });
+  }
+
+  if (!customer) {
+    return NextResponse.json([]);
   }
 
   // Now fetch vouchers for this customer

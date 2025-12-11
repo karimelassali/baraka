@@ -45,6 +45,7 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
   }, [isOpen, customer]);
 
   const loadHistory = async () => {
+    if (!customer?.id) return;
     setLoadingHistory(true);
     try {
       const response = await fetch(`/api/admin/customers/${customer.id}/points`);
@@ -61,6 +62,11 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!customer?.id) {
+      setStatus({ type: 'error', message: 'Customer ID is missing' });
+      return;
+    }
+
     setStatus({ type: '', message: '' });
     setLoading(true);
 

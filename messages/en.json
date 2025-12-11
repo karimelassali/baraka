@@ -244,7 +244,9 @@
       "from_last_month": "from last month",
       "this_month": "this month",
       "new_offers": "new offers",
-      "lifetime_rewards": "Lifetime Rewards"
+      "lifetime_rewards": "Lifetime Rewards",
+      "no_change": "No change",
+      "active": "Active"
     },
     "Profile": {
       "title": "Profile Information",
@@ -261,7 +263,10 @@
       "cancel": "Cancel",
       "save": "Save Changes",
       "edit": "Edit Profile",
-      "select_country": "Select Country"
+      "select_country": "Select Country",
+      "no_phone": "No phone",
+      "no_address": "No address",
+      "active_member": "Active Member"
     },
     "Offers": {
       "title": "Special Offers",
@@ -960,25 +965,6 @@
       },
       "weekly_total": "Weekly Total"
     },
-    "Wishlist": {
-      "Title": "Make a Wish",
-      "Subtitle": "Can't find what you're looking for? Let us know and we'll try to get it in store just for you.",
-      "NewRequest": "New Request",
-      "ProductName": "Product Name",
-      "ProductNamePlaceholder": "e.g. Organic Matcha Tea",
-      "Description": "Description (Optional)",
-      "DescriptionPlaceholder": "Any specific details, brand, or preferences...",
-      "Submit": "Submit Request",
-      "Sent": "Sent!",
-      "MyRequests": "My Requests",
-      "NoRequests": "No requests yet",
-      "NoRequestsDesc": "Your wishlist is empty. Tell us what you'd like to see in our store!",
-      "Status": {
-        "pending": "Pending",
-        "approved": "Approved",
-        "rejected": "Rejected"
-      }
-    },
     "Customers": {
       "title": "Customer Management",
       "subtitle": "Manage your customer information and details",
@@ -1273,6 +1259,25 @@
       "inventory": "Inventory",
       "history": "History (Last 5 Runs)",
       "test_failed": "Test failed"
+    }
+  },
+  "Wishlist": {
+    "Title": "Make a Wish",
+    "Subtitle": "Can't find what you're looking for? Let us know and we'll try to get it in store just for you.",
+    "NewRequest": "New Request",
+    "ProductName": "Product Name",
+    "ProductNamePlaceholder": "e.g. Organic Matcha Tea",
+    "Description": "Description (Optional)",
+    "DescriptionPlaceholder": "Specific details, brand or preferences...",
+    "Submit": "Submit Request",
+    "Sent": "Sent!",
+    "MyRequests": "My Requests",
+    "NoRequests": "No requests yet",
+    "NoRequestsDesc": "Your wishlist is empty. Tell us what you'd like to see in our store!",
+    "Status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
     }
   }
 }

@@ -244,7 +244,9 @@
       "from_last_month": "dal mese scorso",
       "this_month": "questo mese",
       "new_offers": "nuove offerte",
-      "lifetime_rewards": "Premi a Vita"
+      "lifetime_rewards": "Premi a Vita",
+      "no_change": "Nessun cambiamento",
+      "active": "Attivo"
     },
     "Profile": {
       "title": "Informazioni Profilo",
@@ -261,7 +263,10 @@
       "cancel": "Annulla",
       "save": "Salva Modifiche",
       "edit": "Modifica Profilo",
-      "select_country": "Seleziona Paese"
+      "select_country": "Seleziona Paese",
+      "no_phone": "Nessun telefono",
+      "no_address": "Nessun indirizzo",
+      "active_member": "Membro Attivo"
     },
     "Offers": {
       "title": "Offerte Speciali",
@@ -960,25 +965,6 @@
       },
       "weekly_total": "Totale Settimanale"
     },
-    "Wishlist": {
-      "Title": "Esprimi un Desiderio",
-      "Subtitle": "Non trovi quello che cerchi? Faccelo sapere e proveremo a portarlo in negozio apposta per te.",
-      "NewRequest": "Nuova Richiesta",
-      "ProductName": "Nome Prodotto",
-      "ProductNamePlaceholder": "es. Tè Matcha Bio",
-      "Description": "Descrizione (Opzionale)",
-      "DescriptionPlaceholder": "Dettagli specifici, marca o preferenze...",
-      "Submit": "Invia Richiesta",
-      "Sent": "Inviato!",
-      "MyRequests": "Le Mie Richieste",
-      "NoRequests": "Nessuna richiesta ancora",
-      "NoRequestsDesc": "La tua lista dei desideri è vuota. Dicci cosa ti piacerebbe vedere nel nostro negozio!",
-      "Status": {
-        "pending": "In Attesa",
-        "approved": "Approvato",
-        "rejected": "Rifiutato"
-      }
-    },
     "Customers": {
       "title": "Gestione Clienti",
       "subtitle": "Gestisci le informazioni e i dettagli dei tuoi clienti",
@@ -1273,6 +1259,25 @@
       "inventory": "Inventario",
       "history": "Cronologia (Ultimi 5 Test)",
       "test_failed": "Test fallito"
+    }
+  },
+  "Wishlist": {
+    "Title": "Esprimi un Desiderio",
+    "Subtitle": "Non trovi quello che cerchi? Faccelo sapere e proveremo a portarlo in negozio apposta per te.",
+    "NewRequest": "Nuova Richiesta",
+    "ProductName": "Nome Prodotto",
+    "ProductNamePlaceholder": "es. Tè Matcha Bio",
+    "Description": "Descrizione (Opzionale)",
+    "DescriptionPlaceholder": "Dettagli specifici, marca o preferenze...",
+    "Submit": "Invia Richiesta",
+    "Sent": "Inviato!",
+    "MyRequests": "Le Mie Richieste",
+    "NoRequests": "Nessuna richiesta ancora",
+    "NoRequestsDesc": "La tua lista dei desideri è vuota. Dicci cosa ti piacerebbe vedere nel nostro negozio!",
+    "Status": {
+      "pending": "In Attesa",
+      "approved": "Approvato",
+      "rejected": "Rifiutato"
     }
   }
 }

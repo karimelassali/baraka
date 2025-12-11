@@ -20,7 +20,7 @@ export async function GET(request) {
     .from('customers')
     .select('*')
     .eq('auth_id', user.id)
-    .single();
+    .maybeSingle();
 
   if (error && status !== 406) {
     // Don't return error if no rows found (status 406), just return empty profile
@@ -31,18 +31,30 @@ export async function GET(request) {
 }
 
 export async function PUT(request) {
-    const cookieStore = await cookies();
-    const supabase = await createClient(cookieStore);
+  const cookieStore = await cookies();
+  const supabase = await createClient(cookieStore);
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-    const {
+  const {
+    first_name,
+    last_name,
+    date_of_birth,
+    residence,
+    phone_number,
+    country_of_origin,
+    language_preference,
+  } = await request.json();
+
+  const { data, error } = await supabase
+    .from('customers')
+    .update({
       first_name,
       last_name,
       date_of_birth,
@@ -50,24 +62,12 @@ export async function PUT(request) {
       phone_number,
       country_of_origin,
       language_preference,
-    } = await request.json();
+    })
+    .eq('auth_id', user.id);
 
-    const { data, error } = await supabase
-      .from('customers')
-      .update({
-        first_name,
-        last_name,
-        date_of_birth,
-        residence,
-        phone_number,
-        country_of_origin,
-        language_preference,
-      })
-      .eq('auth_id', user.id);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ ...data, message: 'Profile updated successfully' });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  return NextResponse.json({ ...data, message: 'Profile updated successfully' });
+}

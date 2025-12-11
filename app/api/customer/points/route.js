@@ -1,4 +1,5 @@
 import { createClient } from '../../../../lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
@@ -14,30 +15,61 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Initialize Service Role Client to bypass RLS
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceRoleKey) {
+    console.error('CRITICAL: Service Role Key is missing!');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+  }
+
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+
   // First get the customer record to retrieve the correct customer ID
-  const { data: customer, error: customerError } = await supabase
+  // We can use the standard client for this as users should be able to read their own profile
+  // But to be safe and consistent, let's use admin client here too since we verified auth above
+  const { data: customer, error: customerError } = await supabaseAdmin
     .from('customers')
     .select('id')
     .eq('auth_id', user.id)
-    .single();
+    .maybeSingle();
 
   if (customerError) {
     return NextResponse.json({ error: customerError.message }, { status: 500 });
   }
 
-  // Get the customer's points balance from the view
-  const { data: pointsBalance, error: balanceError } = await supabase
+  if (!customer) {
+    // Customer record not found (e.g. not fully registered yet)
+    return NextResponse.json({
+      total_points: 0,
+      available_points: 0,
+      pending_points: 0,
+      points_history: []
+    });
+  }
+
+  // Get the customer's points balance from the view using Admin Client
+  const { data: pointsBalance, error: balanceError } = await supabaseAdmin
     .from('customer_points_balance')
     .select('*')
     .eq('customer_id', customer.id)
-    .single();
+    .maybeSingle();
 
-  // Now fetch the detailed points history
-  const { data: pointsHistory, error: pointsError } = await supabase
+  // Now fetch the detailed points history using Admin Client
+  const { data: pointsHistory, error: pointsError } = await supabaseAdmin
     .from('loyalty_points')
     .select('*')
     .eq('customer_id', customer.id)
-    .order('created_at', { ascending: false }); // Order by most recent first
+    .order('created_at', { ascending: false });
 
   if (pointsError) {
     return NextResponse.json({ error: pointsError.message }, { status: 500 });

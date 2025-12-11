@@ -1,6 +1,5 @@
-// app/api/admin/customers/[id]/points/route.js
-
 import { createClient } from '../../../../../../lib/supabase/server';
+import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
@@ -26,12 +25,38 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
   }
 
-  const { id } = params;
+  const { id } = await params;
+  const cleanId = id?.trim();
 
-  const { data: history, error } = await supabase
+  // Validate UUID
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!cleanId || !uuidRegex.test(cleanId)) {
+    return NextResponse.json({ error: 'Invalid customer ID' }, { status: 400 });
+  }
+
+  // Use Service Role Client for DB operations to bypass RLS
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceRoleKey) {
+    console.error('CRITICAL: Service Role Key is missing!');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+  }
+
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+
+  const { data: history, error } = await supabaseAdmin
     .from('loyalty_points')
     .select('*')
-    .eq('customer_id', id)
+    .eq('customer_id', cleanId)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -63,16 +88,43 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
   }
 
-  const { id } = params;
+  const { id } = await params;
+  const cleanId = id?.trim();
+
+  // Validate UUID
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!cleanId || !uuidRegex.test(cleanId)) {
+    return NextResponse.json({ error: `Invalid customer ID: ${cleanId}` }, { status: 400 });
+  }
+
   const { points, description } = await request.json();
 
   // Determine transaction type based on points value
   const transaction_type = points > 0 ? 'EARNED' : 'ADJUSTED';
 
-  const { data: newPoints, error } = await supabase
+  // Use Service Role Client for DB operations to bypass RLS
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!serviceRoleKey) {
+    console.error('CRITICAL: Service Role Key is missing!');
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+  }
+
+  const supabaseAdmin = createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    serviceRoleKey,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+
+  const { data: newPoints, error } = await supabaseAdmin
     .from('loyalty_points')
     .insert({
-      customer_id: id,
+      customer_id: cleanId,
       points,
       description,
       transaction_type,

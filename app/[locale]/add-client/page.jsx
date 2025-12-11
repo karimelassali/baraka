@@ -558,7 +558,7 @@ export default function AddClientPage() {
                                 <span className="text-red-600 font-bold">baraka-tst-2025.vercel.app</span> è roba vecchia!
                             </p>
                             <a
-                                href="https://www.barakasrl.it/"
+                                href="https://www.barakasrl.it/add-client"
                                 className="block w-full bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xl py-4 rounded-xl transition-transform transform hover:scale-105 shadow-lg border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1"
                             >
                                 VAI SU BARAKASRL.IT 🚀

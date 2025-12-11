@@ -472,6 +472,27 @@ export default function WaitlistLanding() {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Footer */}
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1.5 }}
+                className="absolute bottom-6 z-10"
+            >
+                <a
+                    href="https://elassali.netlify.app/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity duration-500"
+                >
+                    <span className="text-[10px] font-light uppercase tracking-widest text-gray-500">Powered by</span>
+                    <span className="font-serif italic text-sm text-gray-600 relative">
+                        Karim El Assali
+                        <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-red-500 transition-all duration-300 group-hover:w-full"></span>
+                    </span>
+                </a>
+            </motion.div>
         </div>
     );
 }

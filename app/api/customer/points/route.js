@@ -57,33 +57,27 @@ export async function GET(request) {
     });
   }
 
-  // Get the customer's points balance from the view using Admin Client
-  const { data: pointsBalance, error: balanceError } = await supabaseAdmin
-    .from('customer_points_balance')
-    .select('*')
-    .eq('customer_id', customer.id)
-    .maybeSingle();
-
-  // Now fetch the detailed points history using Admin Client
-  const { data: pointsHistory, error: pointsError } = await supabaseAdmin
+  // Fetch points history
+  const { data: history, error: historyError } = await supabaseAdmin
     .from('loyalty_points')
     .select('*')
     .eq('customer_id', customer.id)
     .order('created_at', { ascending: false });
 
-  if (pointsError) {
-    return NextResponse.json({ error: pointsError.message }, { status: 500 });
+  if (historyError) {
+    return NextResponse.json({ error: historyError.message }, { status: 500 });
   }
 
-  // Use the balance data from the view if available, otherwise calculate manually
-  const totalPoints = pointsBalance?.total_points || 0;
-  const availablePoints = pointsBalance?.available_points || 0;
-  const pendingPoints = pointsBalance?.pending_points_redeemed || 0;
+  // Calculate totals manually to ensure accuracy
+  const total_points = history.reduce((sum, record) => sum + record.points, 0);
+  const pending_points = history
+    .filter(record => record.transaction_type === 'PENDING')
+    .reduce((sum, record) => sum + record.points, 0);
 
   return NextResponse.json({
-    total_points: totalPoints,
-    available_points: availablePoints,
-    pending_points: pendingPoints,
-    points_history: pointsHistory
+    total_points,
+    available_points: total_points, // Available is same as total (net balance)
+    pending_points,
+    points_history: history
   });
 }

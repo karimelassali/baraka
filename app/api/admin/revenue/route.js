@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 export async function GET(request) {
     try {
         const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient(cookieStore);
         const { searchParams } = new URL(request.url);
         const month = searchParams.get('month');
         const year = searchParams.get('year');
@@ -49,7 +49,7 @@ export async function GET(request) {
 export async function POST(request) {
     try {
         const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient(cookieStore);
         const body = await request.json();
         const { date, total_revenue, cash, card, ticket, revenue_annule } = body;
 
@@ -92,7 +92,7 @@ export async function POST(request) {
 export async function PUT(request) {
     try {
         const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient(cookieStore);
         const body = await request.json();
         const { id, date, total_revenue, cash, card, ticket, revenue_annule } = body;
 
@@ -132,7 +132,7 @@ export async function PUT(request) {
 export async function DELETE(request) {
     try {
         const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient(cookieStore);
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 

@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 export async function GET() {
     try {
         const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient(cookieStore);
 
         const { data: knowledge, error } = await supabase
             .from('agent_knowledge')
@@ -27,7 +27,7 @@ export async function GET() {
 export async function POST(request) {
     try {
         const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient(cookieStore);
         const body = await request.json();
         const { title, content, type } = body;
 

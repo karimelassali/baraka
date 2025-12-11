@@ -1,14 +1,14 @@
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+export const createClient = async () => {
+  const cookieStore = await cookies();
 
-export const createClient = (cookieStore: any) => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     console.error("❌ Supabase Environment Variables Missing in createClient!");
-    console.error("URL:", supabaseUrl ? "Set" : "Missing");
-    console.error("Key:", supabaseKey ? "Set" : "Missing");
     throw new Error("Supabase URL and Key are required!");
   }
 

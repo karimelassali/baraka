@@ -26,7 +26,8 @@ import {
   CreditCard,
   Brain,
   Heart,
-  ClipboardList
+  ClipboardList,
+  QrCode
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -92,6 +93,7 @@ export default function EnhancedAdminSidebar() {
         { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers', color: 'yellow' },
         { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_campaigns', color: 'orange' },
         { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers', color: 'amber' },
+        { name: 'QR Codes', path: '/admin/qr-codes', icon: QrCode, permission: 'manage_offers', color: 'indigo' },
         { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_gallery', color: 'pink' },
       ]
     },

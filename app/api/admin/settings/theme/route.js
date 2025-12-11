@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request) {
     const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient(cookieStore);
 
     try {
         const { data, error } = await supabase
@@ -28,7 +28,7 @@ export async function GET(request) {
 
 export async function PUT(request) {
     const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient(cookieStore);
 
     // 1. Check authentication (Try getUser, fallback to getSession)
     let { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -58,7 +58,7 @@ export async function PUT(request) {
     try {
         const body = await request.json();
         const { theme } = body;
-       
+
         if (!theme) {
             return NextResponse.json({ error: 'Theme is required' }, { status: 400 });
         }

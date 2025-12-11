@@ -7,7 +7,7 @@ export async function GET(request) {
     const range = searchParams.get('range') || '30d';
 
     const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient(cookieStore);
 
     const days = range === '7d' ? 7 : range === '90d' ? 90 : 30;
     const startDate = new Date();

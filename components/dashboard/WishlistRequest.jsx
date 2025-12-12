@@ -91,7 +91,7 @@ export default function WishlistRequest({ user }) {
     };
 
     return (
-        <div className="space-y-8">
+        <div id="dashboard-wishlist" className="space-y-8">
             {/* Header Section */}
             <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-600 via-orange-600 to-pink-600 p-8 text-white shadow-xl">
                 <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>

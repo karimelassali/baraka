@@ -58,6 +58,18 @@ export default function LoginForm() {
               const { data: { user }, error } = await supabase.auth.getUser();
 
               if (user && !error) {
+                // Check if user is an admin
+                const { data: adminData } = await supabase
+                  .from('admin_users')
+                  .select('role')
+                  .eq('auth_id', user.id)
+                  .single();
+
+                if (adminData) {
+                  window.location.href = "/admin";
+                  return;
+                }
+
                 // Check for redirect URL in query parameters
                 const urlParams = new URLSearchParams(window.location.search);
                 const redirectUrl = urlParams.get('redirect');

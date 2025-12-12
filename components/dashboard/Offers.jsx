@@ -84,7 +84,7 @@ export default function Offers({ limit, user }) {
   const displayOffers = limit ? offers.slice(0, limit) : offers.slice(0, visibleCount);
 
   return (
-    <div className="w-full">
+    <div id="dashboard-offers" className="w-full">
       {!limit && (
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>

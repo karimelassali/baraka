@@ -1,4 +1,25 @@
 {
+  "Tour": {
+    "start_tour": "Start Tour",
+    "next": "Next",
+    "prev": "Previous",
+    "done": "Done",
+    "close": "Close",
+    "sidebar_title": "Navigation",
+    "sidebar_desc": "Use this menu to navigate between different sections of your dashboard.",
+    "stats_title": "Quick Stats",
+    "stats_desc": "See your points, vouchers, and active offers at a glance.",
+    "wallet_title": "Loyalty Wallet",
+    "wallet_desc": "Check your balance, transaction history, and download statements.",
+    "offers_title": "Special Offers",
+    "offers_desc": "Discover exclusive deals and promotions just for you.",
+    "vouchers_title": "Your Vouchers",
+    "vouchers_desc": "View and manage your earned vouchers here.",
+    "vouchers_usage_title": "Using Vouchers",
+    "vouchers_usage_desc": "Click 'Use' to reveal the QR code or 'Download' to save it.",
+    "wishlist_title": "Wishlist",
+    "wishlist_desc": "Request new products you'd like to see in our store."
+  },
   "Home": {
     "rights_reserved": "All rights reserved.",
     "privacy_policy": "Privacy Policy",
@@ -189,11 +210,14 @@
         "password_length": "Password must be at least 8 characters long",
         "password_mismatch": "Passwords do not match",
         "privacy_policy": "You must agree to the Privacy Policy",
-        "terms": "You must accept the Terms & Conditions"
+        "terms": "You must accept the Terms & Conditions",
+        "email_registered": "This email address is already registered. Please log in."
       }
     }
   },
   "Dashboard": {
+    "loading_dashboard": "Loading dashboard...",
+    "welcome_back": "Welcome back",
     "customer_dashboard": "Customer Dashboard",
     "overview": "Overview",
     "profile": "Profile",
@@ -234,7 +258,18 @@
       "type": "Type",
       "points": "Points",
       "no_transactions": "No transactions found",
-      "view_all": "View All Transactions"
+      "view_all": "View All Transactions",
+      "load_more": "Load More",
+      "legend_member": "Legend Member",
+      "tier_info_title": "Membership Tiers",
+      "tier_info_desc": "Earn points to unlock higher tiers and exclusive benefits.",
+      "close": "Close",
+      "tiers": {
+        "bronze_desc": "Start your journey (0+ points)",
+        "silver_desc": "Unlock silver benefits (100+ points)",
+        "gold_desc": "Premium status & rewards (500+ points)",
+        "legend_desc": "Elite status & exclusive access (750+ points)"
+      }
     },
     "Statistics": {
       "total_points": "Total Points",

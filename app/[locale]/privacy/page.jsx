@@ -1,193 +1,139 @@
-import PolicyLayout from '../components/PolicyLayout';
-import PolicySection from '../components/PolicySection';
-import PolicyContent from '../components/PolicyContent';
+import PolicyLayout from '../../components/PolicyLayout';
+import PolicySection from '../../components/PolicySection';
+import PolicyContent from '../../components/PolicyContent';
 
 export default function PrivacyPage() {
   return (
-    <PolicyLayout 
-      title="Privacy Policy" 
-      lastUpdated="November 13, 2025"
+    <PolicyLayout
+      title="Informativa sulla Privacy"
+      lastUpdated="12 Dicembre 2025"
     >
       <PolicyContent>
-        <PolicySection title="Who We Are" id="who-we-are">
+        <PolicySection title="Titolare del Trattamento dei Dati" id="data-controller">
           <p>
-            We are [Legal Company Name] ("we", "us", "our"), registered at [Full Address], 
-            company/tax number [Number if applicable]. You can contact us at [privacy email] 
-            or [phone], or by post to the address above. If appointed, our Data Protection 
-            Officer (DPO) can be reached at [DPO email]. If we are not established in the 
-            EU, our EU Representative is [Name, Address     , Email].
+            <strong>Baraka S.R.L.</strong><br />
+            Sede legale: [Inserire Indirizzo Completo]<br />
+            Partita IVA / Codice Fiscale: [Inserire P.IVA]<br />
+            Indirizzo email del Titolare: [Inserire Email Privacy]<br />
           </p>
         </PolicySection>
 
-        <PolicySection title="What This Policy Covers" id="what-this-policy-covers">
+        <PolicySection title="Tipologie di Dati raccolti" id="types-of-data">
           <p>
-            This policy explains how we collect, use, share, store, secure, and delete 
-            your personal data when you visit, register, or use [Service Name] (the 
-            "Service"), and describes your rights under the GDPR.
+            Fra i Dati Personali raccolti da questa Applicazione, in modo autonomo o tramite terze parti, ci sono:
+            Cookie; Dati di utilizzo; email; nome; cognome; numero di telefono; indirizzo; nazione; provincia; CAP; città.
           </p>
-        </PolicySection>
-
-        <PolicySection title="The Data We Collect" id="data-we-collect">
-          <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Identification and contact data:</strong> first name, last name, email, phone.</li>
-            <li><strong>Account data:</strong> password (stored hashed), language preferences, account settings.</li>
-            <li><strong>Demographic and profile data:</strong> date of birth, residence, country of origin.</li>
-            <li><strong>Technical data:</strong> IP address, device identifiers, browser type, pages viewed, and timestamps.</li>
-            <li><strong>Cookies/SDK data:</strong> necessary and, with consent, analytics/marketing cookies. See "Cookies and similar technologies."</li>
-            <li><strong>Optional data</strong> you provide to support, surveys, or feature requests.</li>
-          </ul>
           <p className="mt-3">
-            Do not provide special categories of data (e.g., health, biometric, political 
-            opinions) unless specifically requested and lawfully justified; otherwise we 
-            will not knowingly process them.
+            Dettagli completi su ciascuna tipologia di dati raccolti sono forniti nelle sezioni dedicate di questa privacy policy
+            o mediante specifici testi informativi visualizzati prima della raccolta dei dati stessi.
+            I Dati Personali possono essere liberamente forniti dall'Utente o, nel caso di Dati di Utilizzo, raccolti automaticamente
+            durante l'uso di questa Applicazione.
           </p>
         </PolicySection>
 
-        <PolicySection title="Why We Process Your Data" id="why-we-process-data">
-          <p>We process personal data only where a valid legal basis applies:</p>
-          <ul className="list-disc pl-6 mt-3 space-y-2">
-            <li><strong>Account creation and administration:</strong> to register you, authenticate you, and provide the Service (contract).</li>
-            <li><strong>Service operation and security:</strong> to operate, maintain, troubleshoot, prevent fraud/abuse (legitimate interests; where needed, legal obligation).</li>
-            <li><strong>Communications:</strong> service emails about changes, security, or account notices (contract/legal obligation); optional marketing with your consent and an opt‑out.</li>
-            <li><strong>Analytics and improvement:</strong> to understand usage, improve performance and features (legitimate interests; analytics cookies only with consent).</li>
-            <li><strong>Compliance:</strong> to meet legal obligations (tax, accounting, regulatory requests), enforce terms, protect rights.</li>
+        <PolicySection title="Modalità e luogo del trattamento dei Dati raccolti" id="methods-and-place">
+          <h3 className="text-lg font-semibold mb-2">Modalità di trattamento</h3>
+          <p>
+            Il Titolare adotta le opportune misure di sicurezza volte ad impedire l’accesso, la divulgazione, la modifica o la
+            distruzione non autorizzate dei Dati Personali.
+            Il trattamento viene effettuato mediante strumenti informatici e/o telematici, con modalità organizzative e con
+            logiche strettamente correlate alle finalità indicate.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4 mb-2">Base giuridica del trattamento</h3>
+          <p>
+            Il Titolare tratta Dati Personali relativi all’Utente in caso sussista una delle seguenti condizioni:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>l’Utente ha prestato il consenso per una o più finalità specifiche;</li>
+            <li>il trattamento è necessario all'esecuzione di un contratto con l’Utente e/o all'esecuzione di misure precontrattuali;</li>
+            <li>il trattamento è necessario per adempiere un obbligo legale al quale è soggetto il Titolare;</li>
+            <li>il trattamento è necessario per il perseguimento del legittimo interesse del Titolare o di terzi.</li>
           </ul>
-          <p className="mt-3">
-            Where we rely on legitimate interests, we balance our interests against your rights 
-            and freedoms and can provide details upon request. You may object to processing 
-            based on legitimate interests.
-          </p>
-        </PolicySection>
 
-        <PolicySection title="If You Must Provide Data" id="when-you-must-provide-data">
+          <h3 className="text-lg font-semibold mt-4 mb-2">Luogo</h3>
           <p>
-            Where data are necessary to create an account or provide the Service, failure to 
-            provide them may prevent registration or access. Mandatory fields are marked at 
-            registration.
+            I Dati sono trattati presso le sedi operative del Titolare ed in ogni altro luogo in cui le parti coinvolte nel
+            trattamento siano localizzate. Per ulteriori informazioni, contatta il Titolare.
+            I Dati Personali dell’Utente potrebbero essere trasferiti in un paese diverso da quello in cui l’Utente si trova.
           </p>
-        </PolicySection>
 
-        <PolicySection title="Who Receives Your Data" id="who-receives-your-data">
-          <p>We share data only as needed:</p>
-          <ul className="list-disc pl-6 mt-3 space-y-2">
-            <li><strong>Service providers (processors):</strong> hosting, analytics, customer support, communications, payments. They act on our instructions and under data protection agreements.</li>
-            <li><strong>Legal and compliance:</strong> authorities or third parties when required by law or to protect rights and safety.</li>
-            <li><strong>Business transfers:</strong> in a merger, acquisition, or asset sale, subject to safeguards and notice.</li>
+          <h3 className="text-lg font-semibold mt-4 mb-2">Periodo di conservazione</h3>
+          <p>
+            I Dati sono trattati e conservati per il tempo richiesto dalle finalità per le quali sono stati raccolti.
+            Pertanto:
+          </p>
+          <ul className="list-disc pl-6 mt-2 space-y-1">
+            <li>I Dati Personali raccolti per scopi collegati all’esecuzione di un contratto tra il Titolare e l’Utente saranno trattenuti sino a quando sia completata l’esecuzione di tale contratto.</li>
+            <li>I Dati Personali raccolti per finalità riconducibili all’interesse legittimo del Titolare saranno trattenuti sino al soddisfacimento di tale interesse.</li>
           </ul>
-          <p className="mt-3">
-            We do not sell your personal data.
+        </PolicySection>
+
+        <PolicySection title="Finalità del Trattamento dei Dati raccolti" id="purpose-of-processing">
+          <p>
+            I Dati dell’Utente sono raccolti per consentire al Titolare di fornire il Servizio, adempiere agli obblighi di legge,
+            rispondere a richieste o azioni esecutive, tutelare i propri diritti ed interessi (o quelli di Utenti o di terze parti),
+            individuare eventuali attività dolose o fraudolente, nonché per le seguenti finalità:
+            Statistica, Contattare l'Utente, Gestione contatti e invio di messaggi, Registrazione ed autenticazione,
+            Gestione dei pagamenti e Visualizzazione di contenuti da piattaforme esterne.
           </p>
         </PolicySection>
 
-        <PolicySection title="International Data Transfers" id="international-data-transfers">
+        <PolicySection title="Diritti dell’Utente" id="user-rights">
           <p>
-            If we transfer your data outside the EEA/UK, we use approved safeguards such as 
-            European Commission adequacy decisions or Standard Contractual Clauses, and, 
-            where needed, supplementary measures. You can request a copy of relevant 
-            safeguards.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="How Long We Keep Your Data" id="data-retention">
-          <p>
-            We keep personal data only as long as necessary for the purposes in this policy:
+            Gli Utenti possono esercitare determinati diritti con riferimento ai Dati trattati dal Titolare.
+            In particolare, l’Utente ha il diritto di:
           </p>
           <ul className="list-disc pl-6 mt-3 space-y-2">
-            <li><strong>Account data:</strong> for the life of your account and a reasonable period thereafter for record‑keeping, security, and legal obligations.</li>
-            <li><strong>Transactional/technical logs:</strong> for shorter periods aligned with security and audit needs.</li>
+            <li><strong>Revocare il consenso in ogni momento.</strong> L’Utente può revocare il consenso al trattamento dei propri Dati Personali precedentemente espresso.</li>
+            <li><strong>Opporsi al trattamento dei propri Dati.</strong> L’Utente può opporsi al trattamento dei propri Dati quando esso avviene su una base giuridica diversa dal consenso.</li>
+            <li><strong>Accedere ai propri Dati.</strong> L’Utente ha diritto ad ottenere informazioni sui Dati trattati dal Titolare, su determinati aspetti del trattamento ed a ricevere una copia dei Dati trattati.</li>
+            <li><strong>Verificare e chiedere la rettificazione.</strong> L’Utente può verificare la correttezza dei propri Dati e richiederne l’aggiornamento o la correzione.</li>
+            <li><strong>Ottenere la limitazione del trattamento.</strong> Quando ricorrono determinate condizioni, l’Utente può richiedere la limitazione del trattamento dei propri Dati.</li>
+            <li><strong>Ottenere la cancellazione o rimozione dei propri Dati Personali.</strong> Quando ricorrono determinate condizioni, l’Utente può richiedere la cancellazione dei propri Dati da parte del Titolare.</li>
+            <li><strong>Ricevere i propri Dati o farli trasferire ad altro titolare.</strong> L’Utente ha diritto di ricevere i propri Dati in formato strutturato, di uso comune e leggibile da dispositivo automatico e, ove tecnicamente fattibile, di ottenerne il trasferimento senza ostacoli ad un altro titolare.</li>
+            <li><strong>Proporre reclamo.</strong> L’Utente può proporre un reclamo all’autorità di controllo della protezione dei dati personali competente o agire in sede giudiziale.</li>
           </ul>
-          <p className="mt-3">
-            We apply criteria such as legal limitation periods, regulatory requirements, 
-            and operational needs. When no longer needed, we delete or irreversibly 
-            anonymize data.
-          </p>
         </PolicySection>
 
-        <PolicySection title="Your Privacy Rights" id="privacy-rights">
-          <p>Under the GDPR, you have:</p>
-          <ul className="list-disc pl-6 mt-3 space-y-2">
-            <li><strong>Right of access:</strong> get a copy of your personal data.</li>
-            <li><strong>Right to rectification:</strong> correct inaccurate or incomplete data.</li>
-            <li><strong>Right to erasure:</strong> request deletion in certain cases (e.g., consent withdrawal, no longer needed).</li>
-            <li><strong>Right to restriction:</strong> limit processing in specific circumstances.</li>
-            <li><strong>Right to portability:</strong> receive your data in a machine‑readable format and have it transmitted to another controller where technically feasible.</li>
-            <li><strong>Right to object:</strong> object to processing based on legitimate interests or direct marketing.</li>
-            <li><strong>Rights related to automated decision‑making:</strong> request human review and contest decisions where applicable.</li>
-          </ul>
-          <p className="mt-3">
-            To exercise these rights, contact us at [privacy email]. We may need to verify 
-            your identity. You also have the right to lodge a complaint with your local 
-            supervisory authority.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Consent and Withdrawal" id="consent-withdrawal">
+        <PolicySection title="Cookie Policy" id="cookie-policy">
           <p>
-            Where processing relies on your consent (e.g., marketing or non‑essential 
-            cookies), you may withdraw consent at any time via account settings, cookie 
-            banner, unsubscribe links, or by contacting us, without affecting processing 
-            before withdrawal.
+            Questa Applicazione fa utilizzo di Strumenti di Tracciamento. Per saperne di più, l’Utente può consultare la
+            <a href="#" className="text-blue-600 hover:underline ml-1">Cookie Policy</a>.
           </p>
         </PolicySection>
 
-        <PolicySection title="Cookies and Similar Technologies" id="cookies">
-          <p>We use:</p>
-          <ul className="list-disc pl-6 mt-3 space-y-2">
-            <li><strong>Strictly necessary cookies:</strong> required for login, security, and core functions (no consent needed).</li>
-            <li><strong>With your consent:</strong> analytics and, if used, marketing cookies. You can manage preferences in the cookie banner or browser settings at any time.</li>
-          </ul>
-          <p className="mt-3">
-            See our Cookie Policy for details on categories, purposes, lifetimes, and providers.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Children's Data" id="children-data">
+        <PolicySection title="Ulteriori informazioni sul trattamento" id="additional-info">
+          <h3 className="text-lg font-semibold mb-2">Difesa in giudizio</h3>
           <p>
-            Our Service is not directed to children under the age required by local law. 
-            If we learn we processed a child's data without appropriate consent, we will 
-            delete it. Additional parental consent obligations apply for children's consent 
-            in some jurisdictions.
+            I Dati Personali dell’Utente possono essere utilizzati da parte del Titolare in giudizio o nelle fasi preparatorie
+            alla sua eventuale instaurazione per la difesa da abusi nell'utilizzo di questa Applicazione o dei Servizi connessi
+            da parte dell’Utente.
+            L’Utente dichiara di essere consapevole che il Titolare potrebbe essere obbligato a rivelare i Dati per ordine
+            delle autorità pubbliche.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4 mb-2">Informative specifiche</h3>
+          <p>
+            Su richiesta dell’Utente, in aggiunta alle informazioni contenute in questa privacy policy, questa Applicazione
+            potrebbe fornire all'Utente delle informative aggiuntive e contestuali riguardanti Servizi specifici, o la raccolta
+            ed il trattamento di Dati Personali.
+          </p>
+
+          <h3 className="text-lg font-semibold mt-4 mb-2">Log di sistema e manutenzione</h3>
+          <p>
+            Per necessità legate al funzionamento ed alla manutenzione, questa Applicazione e gli eventuali servizi terzi
+            da essa utilizzati potrebbero raccogliere log di sistema, ossia file che registrano le interazioni e che possono
+            contenere anche Dati Personali, quali l’indirizzo IP Utente.
           </p>
         </PolicySection>
 
-        <PolicySection title="Security" id="security">
+        <PolicySection title="Modifiche a questa privacy policy" id="changes">
           <p>
-            We implement appropriate technical and organizational measures to protect 
-            personal data, including encryption in transit, access controls, secure 
-            development practices, and vendor due diligence. No system is 100% secure; 
-            we maintain and improve safeguards over time.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Automated Decision-Making" id="automated-decision-making">
-          <p>
-            We do not use automated decision-making that produces legal or similarly 
-            significant effects without appropriate safeguards. If we introduce such 
-            processing, we will provide required notices and enable your rights.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Third-Party Sites" id="third-party-sites">
-          <p>
-            The Service may link to third-party websites or services. Their privacy 
-            practices are governed by their own policies; review them before providing data.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Changes to This Policy" id="changes-to-policy">
-          <p>
-            We may update this policy to reflect changes in law, technology, or our 
-            practices. We will update the "Last updated" date and, where required, 
-            provide prominent notice or request renewed consent.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Contact and Complaints" id="contact-complaints">
-          <p>
-            Questions or requests: [privacy email], [postal address], [phone]. You have 
-            the right to lodge a complaint with a data protection authority, such as 
-            the authority in your habitual residence, place of work, or place of the 
-            alleged infringement.
+            Il Titolare del Trattamento si riserva il diritto di apportare modifiche alla presente privacy policy in qualunque
+            momento notificandolo agli Utenti su questa pagina e, se possibile, su questa Applicazione nonché, qualora tecnicamente
+            e legalmente fattibile, inviando una notifica agli Utenti attraverso uno degli estremi di contatto di cui è in possesso.
+            Si prega dunque di consultare con frequenza questa pagina, facendo riferimento alla data di ultima modifica indicata in fondo.
           </p>
         </PolicySection>
       </PolicyContent>

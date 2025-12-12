@@ -11,6 +11,7 @@ import ContactSection from '@/components/home/ContactSection';
 import GallerySection from '@/components/home/GallerySection';
 import PopupOffer from '@/components/home/PopupOffer';
 import Navbar from '@/components/home/Navbar';
+import Footer from '@/components/home/Footer';
 
 export default function Home() {
   const isMaintenance = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
@@ -34,6 +35,7 @@ export default function Home() {
       <ReviewsSection />
       <ContactSection />
       <PopupOffer />
+      <Footer />
     </ThemeWrapper>
   );
 }

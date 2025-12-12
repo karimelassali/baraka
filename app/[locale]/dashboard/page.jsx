@@ -9,7 +9,6 @@ import {
   Wallet,
   Gift,
   Ticket,
-
   ChevronRight,
   Sparkles
 } from 'lucide-react';
@@ -23,6 +22,7 @@ import { useTranslations } from 'next-intl';
 import PopupOffer from '@/components/home/PopupOffer';
 import UserSidebar from '@/components/dashboard/UserSidebar';
 import PaymentMethodsBox from '@/components/client/PaymentMethodsBox';
+import DashboardTour from '@/components/dashboard/DashboardTour';
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
@@ -55,7 +55,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-red-600 mx-auto"></div>
-          <p className="mt-4 text-sm text-gray-500 font-medium">Loading dashboard...</p>
+          <p className="mt-4 text-sm text-gray-500 font-medium">{t('loading_dashboard')}</p>
         </div>
       </div>
     );
@@ -87,7 +87,7 @@ export default function DashboardPage() {
                   <Profile compact={true} user={user} />
                 </div>
               </div>
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+              <div id="dashboard-wallet-card" className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="p-4 border-b border-gray-100 bg-gray-50/50">
                   <h3 className="font-semibold text-gray-900">{t('wallet')}</h3>
                 </div>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
                   <LoyaltyWallet compact={true} user={user} />
                 </div>
               </div>
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden lg:col-span-2">
+              <div id="dashboard-offers-card" className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden lg:col-span-2">
                 <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
                   <h3 className="font-semibold text-gray-900">{t('offers')}</h3>
                   <button
@@ -130,6 +130,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex font-sans">
       <PopupOffer />
+      <DashboardTour activeTab={activeTab} />
 
       <UserSidebar
         activeTab={activeTab}

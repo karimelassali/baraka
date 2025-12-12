@@ -146,7 +146,7 @@ export default function Vouchers({ limit }) {
   const displayVouchers = limit ? vouchers.slice(0, limit) : vouchers.slice(0, visibleCount);
 
   return (
-    <div className="w-full">
+    <div id="dashboard-vouchers" className="w-full">
       {!limit && (
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
@@ -157,7 +157,7 @@ export default function Vouchers({ limit }) {
       )}
 
       {displayVouchers.length > 0 ? (
-        <div className={`grid grid-cols-1 ${limit ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
+        <div id="vouchers-list" className={`grid grid-cols-1 ${limit ? 'md:grid-cols-3' : 'md:grid-cols-2 lg:grid-cols-3'} gap-6`}>
           {displayVouchers.map((voucher) => (
             <div
               key={voucher.id}

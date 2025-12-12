@@ -1,194 +1,130 @@
-import PolicyLayout from '../components/PolicyLayout';
-import PolicySection from '../components/PolicySection';
-import PolicyContent from '../components/PolicyContent';
+import PolicyLayout from '../../components/PolicyLayout';
+import PolicySection from '../../components/PolicySection';
+import PolicyContent from '../../components/PolicyContent';
 
 export default function TermsPage() {
   return (
-    <PolicyLayout 
-      title="Terms and Conditions" 
-      lastUpdated="November 13, 2025"
+    <PolicyLayout
+      title="Termini e Condizioni"
+      lastUpdated="12 Dicembre 2025"
     >
       <PolicyContent>
-        <PolicySection title="About Us" id="about-us">
+        <PolicySection title="Introduzione" id="introduction">
           <p>
-            These Terms and Conditions govern your use of [Service Name] operated by 
-            [Legal Company Name], registered at [Full Address], company/tax number 
-            [Number if applicable]. Contact: [support email] and [phone number]. 
-            By accessing or registering, you agree to these Terms.
+            I presenti Termini e Condizioni disciplinano l'uso di questa Applicazione e dei Servizi forniti da <strong>Baraka S.R.L.</strong>.
+            L'Utente è pregato di leggere attentamente questo documento prima di utilizzare l'Applicazione.
+          </p>
+          <p className="mt-2">
+            Utilizzando l'Applicazione, l'Utente accetta di essere vincolato da questi Termini. Se l'Utente non accetta i Termini,
+            non deve utilizzare l'Applicazione.
           </p>
         </PolicySection>
 
-        <PolicySection title="Definitions" id="definitions">
+        <PolicySection title="Definizioni" id="definitions">
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>"Service"</strong> means the [website/app name], related features, and content we provide.</li>
-            <li><strong>"User," "you," or "your"</strong> means any person who visits, registers, or uses the Service.</li>
-            <li><strong>"Content"</strong> means text, images, data, or materials displayed on or transmitted via the Service.</li>
+            <li><strong>Applicazione:</strong> il sito web, l'app e i servizi correlati forniti da Baraka S.R.L.</li>
+            <li><strong>Utente:</strong> la persona fisica o giuridica che utilizza l'Applicazione.</li>
+            <li><strong>Servizio:</strong> il servizio offerto tramite l'Applicazione come descritto nei presenti Termini.</li>
+            <li><strong>Titolare:</strong> Baraka S.R.L., con sede legale in [Inserire Indirizzo], P.IVA [Inserire P.IVA].</li>
           </ul>
         </PolicySection>
 
-        <PolicySection title="Eligibility and Account Registration" id="eligibility">
+        <PolicySection title="Requisiti di Età" id="age-requirements">
           <p>
-            You must be the legal age of majority in your country of residence, or have 
-            valid parental consent if permitted by law. You agree to provide accurate, 
-            complete information and to keep your login credentials confidential. You are 
-            responsible for all activity under your account and must promptly notify us 
-            of any suspected unauthorized use or security breach. We may suspend or 
-            terminate accounts that violate these Terms.
+            Per utilizzare questa Applicazione, l'Utente deve avere almeno 18 anni. Utilizzando l'Applicazione, l'Utente dichiara
+            e garantisce di avere almeno 18 anni e di avere la capacità legale di stipulare un contratto vincolante.
           </p>
         </PolicySection>
 
-        <PolicySection title="Service Description and Changes" id="service-description">
+        <PolicySection title="Registrazione Account" id="account-registration">
           <p>
-            We provide fast registration, secure storage, and a personal account area 
-            with features that may change over time. We may add, modify, or discontinue 
-            features or the Service (in whole or part). We aim to avoid disruptions but 
-            cannot guarantee continuous availability.
+            Per utilizzare alcune funzionalità dell'Applicazione, l'Utente potrebbe dover registrarsi creando un account.
+            L'Utente è responsabile di mantenere la riservatezza delle proprie credenziali di accesso e di tutte le attività
+            che si verificano sotto il proprio account.
+          </p>
+          <p className="mt-2">
+            L'Utente si impegna a fornire informazioni veritiere, accurate e complete durante la registrazione e ad aggiornarle
+            tempestivamente in caso di modifiche. Il Titolare si riserva il diritto di sospendere o chiudere l'account in caso
+            di violazione dei presenti Termini.
           </p>
         </PolicySection>
 
-        <PolicySection title="Acceptable Use" id="acceptable-use">
-          <p>You agree not to:</p>
-          <ul className="list-disc pl-6 mt-3 space-y-2">
-            <li>Break any applicable laws or regulations.</li>
-            <li>Attempt unauthorized access, probe or bypass security, or interfere with the Service.</li>
-            <li>Post or transmit unlawful, abusive, infringing, deceptive, or harmful content.</li>
-            <li>Harvest or collect others' data without their explicit consent.</li>
-          </ul>
-          <p className="mt-3">
-            We may remove violating content and suspend or terminate access for breaches.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="User Content and License" id="user-content">
+        <PolicySection title="Prodotti e Servizi" id="products-services">
           <p>
-            You retain ownership of your content. You grant us a non‑exclusive, worldwide 
-            license to host, store, reproduce, and display your content solely to operate 
-            and improve the Service. We do not claim ownership of your content and will 
-            process removal requests in line with applicable law.
+            I prodotti e servizi disponibili sull'Applicazione sono descritti nelle rispettive pagine. Il Titolare si impegna
+            a presentare le caratteristiche dei prodotti col maggior grado di dettaglio possibile. Tuttavia, le immagini ed i colori
+            dei prodotti offerti in vendita potrebbero differire da quelli reali a causa di molti fattori, tra cui le impostazioni
+            del monitor dell'Utente.
           </p>
         </PolicySection>
 
-        <PolicySection title="Intellectual Property" id="intellectual-property">
+        <PolicySection title="Ordini e Pagamenti" id="orders-payments">
           <p>
-            The Service, including software, design, brand, and all associated 
-            intellectual property, is owned by or licensed to us. You may not copy, 
-            modify, distribute, reverse engineer, or create derivative works unless 
-            permitted by law or with our prior written consent.
+            L'invio dell'ordine comporta l'accettazione dei prezzi, delle descrizioni dei prodotti e delle presenti condizioni di vendita.
+            Il Titolare si riserva il diritto di rifiutare o cancellare ordini a propria discrezione (es. indisponibilità prodotti,
+            errori di prezzo, sospetta frode).
+          </p>
+          <p className="mt-2">
+            I metodi di pagamento accettati sono indicati durante la procedura di acquisto. I pagamenti sono gestiti da fornitori
+            terzi sicuri; il Titolare non raccoglie né memorizza i dati completi delle carte di pagamento.
           </p>
         </PolicySection>
 
-        <PolicySection title="Third-Party Links and Services" id="third-party-links">
+        <PolicySection title="Diritto di Recesso" id="withdrawal-right">
           <p>
-            The Service may link to or integrate with third‑party sites or services. 
-            We are not responsible for any third‑party content, policies, or practices; 
-            use of such resources is at your own risk.
+            L'Utente Consumatore ha il diritto di recedere dal contratto entro 14 giorni senza dover fornire alcuna motivazione.
+            Il periodo di recesso scade dopo 14 giorni dal giorno in cui l'Utente o un terzo acquisisce il possesso fisico dei beni.
+          </p>
+          <p className="mt-2">
+            Per esercitare il diritto di recesso, l'Utente deve informare il Titolare della sua decisione tramite una dichiarazione esplicita
+            (es. lettera inviata per posta o email).
+            In caso di recesso, saranno rimborsati tutti i pagamenti effettuati, compresi i costi di consegna (ad eccezione dei costi supplementari),
+            senza indebito ritardo e in ogni caso non oltre 14 giorni dal giorno in cui siamo informati della decisione di recedere.
           </p>
         </PolicySection>
 
-        <PolicySection title="Pricing and Payments (if applicable)" id="pricing">
+        <PolicySection title="Proprietà Intellettuale" id="intellectual-property">
           <p>
-            If any paid features apply, pricing and payment terms will be shown clearly 
-            before purchase. Accepted payment methods, billing cycles, taxes, and any 
-            additional fees will be disclosed. Subscription terms (renewal, cancellation, 
-            proration) will be stated at checkout and in your account.
+            Tutti i contenuti dell'Applicazione, inclusi testi, grafica, loghi, immagini, clip audio, download digitali e software,
+            sono di proprietà del Titolare o dei suoi fornitori di contenuti e sono protetti dalle leggi internazionali sul copyright.
+            È vietata la riproduzione, duplicazione, copia, vendita o sfruttamento per fini commerciali senza espresso consenso scritto.
           </p>
         </PolicySection>
 
-        <PolicySection title="Shipping, Returns, and Refunds (if selling goods)" id="shipping-returns">
-          <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Shipping:</strong> regions served, delivery estimates, and costs.</li>
-            <li><strong>Returns:</strong> return window, condition requirements, and process.</li>
-            <li><strong>Refunds:</strong> eligibility, timeline, and method.</li>
-          </ul>
-          <p className="mt-3">
-            Mandatory consumer rights apply and prevail over conflicting terms.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Consumer Rights and Withdrawal" id="consumer-rights">
+        <PolicySection title="Limitazione di Responsabilità" id="limitation-liability">
           <p>
-            For distance contracts with EU consumers, you may have a 14‑day right of 
-            withdrawal under national laws implementing EU rules, subject to legal 
-            exceptions (e.g., after starting delivery of digital content/services with 
-            your express consent and acknowledgment of losing the withdrawal right). 
-            These Terms do not affect your mandatory consumer rights. Any unfair term 
-            that creates a significant imbalance to the detriment of the consumer is not 
-            binding. We outline how to cancel, what happens on cancellation, and any fair, 
-            pre‑disclosed costs.
+            L'Applicazione viene fornita "così com'è" e "come disponibile". Il Titolare non rilascia alcuna garanzia, esplicita o implicita,
+            in relazione all'operatività dell'Applicazione o alle informazioni, contenuti, materiali o prodotti in essa inclusi.
+          </p>
+          <p className="mt-2">
+            Nella misura massima consentita dalla legge applicabile, il Titolare non sarà responsabile per danni di qualsiasi natura
+            derivanti dall'uso dell'Applicazione, inclusi, a titolo esemplificativo, danni diretti, indiretti, incidentali, punitivi e consequenziali.
           </p>
         </PolicySection>
 
-        <PolicySection title="Disclaimers and Limitation of Liability" id="disclaimers">
+        <PolicySection title="Legge Applicabile e Foro Competente" id="governing-law">
           <p>
-            The Service is provided "as is" and "as available," without warranties of any 
-            kind (express or implied) to the maximum extent permitted by law, including 
-            non‑infringement, merchantability, and fitness for a particular purpose. To 
-            the fullest extent permitted by law, we are not liable for indirect, incidental, 
-            special, consequential, or punitive damages, or loss of profits, data, or 
-            goodwill arising from or related to your use of the Service. Nothing in these 
-            Terms excludes or limits liability where it would be unlawful to do so (for 
-            example, liability for death or personal injury caused by negligence).
+            I presenti Termini e tutte le controversie in merito ad esecuzione, interpretazione e validità del presente contratto
+            sono soggette alla legge italiana.
+            Foro competente esclusivo per qualsiasi controversia è quello del luogo in cui ha sede legale il Titolare, fatta eccezione
+            per il foro obbligatorio del consumatore, ove applicabile.
           </p>
         </PolicySection>
 
-        <PolicySection title="Indemnification" id="indemnification">
+        <PolicySection title="Modifiche ai Termini" id="changes-terms">
           <p>
-            You agree to indemnify and hold us harmless from claims, losses, liabilities, 
-            damages, and costs (including reasonable legal fees) arising from your breach 
-            of these Terms or misuse of the Service, to the extent permitted by law.
+            Il Titolare si riserva il diritto di modificare i presenti Termini in qualsiasi momento. Le modifiche saranno efficaci
+            dal momento della pubblicazione sull'Applicazione. L'uso continuato dell'Applicazione dopo la pubblicazione delle modifiche
+            costituirà accettazione dei nuovi Termini.
           </p>
         </PolicySection>
 
-        <PolicySection title="Site Management and Support" id="site-management">
+        <PolicySection title="Contatti" id="contact">
           <p>
-            We may monitor compliance, remove or disable access to content, manage the 
-            Service to protect its integrity, and perform maintenance. Support is available 
-            via the channels stated on the Service or in these Terms.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Suspension and Termination" id="suspension-termination">
-          <p>
-            We may suspend or terminate your account immediately if you breach these Terms, 
-            misuse the Service, or where legally or technically required. You may close 
-            your account at any time through your settings or by contacting us. 
-            Sections intended to survive termination (e.g., IP, disclaimers, liability 
-            limits) will continue to apply.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Privacy and Data Protection" id="privacy-protection">
-          <p>
-            Your personal data is processed in accordance with our Privacy Policy, which 
-            explains legal bases, purposes, retention periods, transfers, and your rights 
-            under the GDPR. By using the Service, you agree to comply with the Privacy 
-            Policy; where consent is the legal basis, you can withdraw it at any time 
-            without affecting prior processing.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Governing Law and Jurisdiction" id="governing-law">
-          <p>
-            These Terms are governed by the laws of [Member State], without prejudice to 
-            mandatory consumer protection provisions of your country of residence if you 
-            are an EU consumer. Disputes will be subject to the non‑exclusive jurisdiction 
-            of the courts of [City, Country].
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Changes to These Terms" id="changes-terms">
-          <p>
-            We may update these Terms to reflect legal, technical, or business changes. 
-            We will indicate the "Last updated" date and, where required, provide 
-            reasonable notice or request renewed consent. Continued use after changes 
-            constitutes acceptance.
-          </p>
-        </PolicySection>
-
-        <PolicySection title="Contact" id="contact">
-          <p>
-            Questions about these Terms can be sent to: [Company Name], [Address], 
-            [support email], [phone].
+            Per qualsiasi domanda riguardante i presenti Termini, si prega di contattarci a:<br />
+            <strong>Baraka S.R.L.</strong><br />
+            Email: [Inserire Email Supporto]<br />
+            Telefono: [Inserire Telefono]
           </p>
         </PolicySection>
       </PolicyContent>

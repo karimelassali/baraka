@@ -413,8 +413,8 @@ const Step10 = ({ formData, errors, handleSubmit, loading, t }) => (
                 onClick={handleSubmit}
                 disabled={loading}
                 className={`w-full py-6 text-lg rounded-lg ${loading
-                        ? "bg-gray-400 cursor-not-allowed"
-                        : "bg-red-600 hover:bg-red-700 text-white"
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-red-600 hover:bg-red-700 text-white"
                     }`}
             >
                 {loading ? t('processing') : t('submit')}
@@ -586,6 +586,8 @@ export default function RegistrationWizard() {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState({ type: "", message: "" });
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorModalMessage, setErrorModalMessage] = useState("");
     const [registeredEmail, setRegisteredEmail] = useState("");
 
     const router = useRouter();
@@ -652,7 +654,21 @@ export default function RegistrationWizard() {
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.error || result.message || "Registration failed");
+                let errorMessage = result.error || result.message || "Registration failed";
+
+                // Check for duplicate email error in details
+                if (result.details && Array.isArray(result.details)) {
+                    const duplicateError = result.details.find(msg => msg.includes('customers_email_key'));
+                    if (duplicateError) {
+                        errorMessage = t('errors.email_registered') || "This email address is already registered. Please log in.";
+                    } else if (result.details.length > 0) {
+                        errorMessage = result.details[0];
+                    }
+                }
+
+                setErrorModalMessage(errorMessage);
+                setShowErrorModal(true);
+                return;
             }
 
             // Store the registered email to show in the modal
@@ -663,10 +679,8 @@ export default function RegistrationWizard() {
 
         } catch (err) {
             console.error("Registration error:", err);
-            setStatus({
-                type: "error",
-                message: err?.message || "Registration failed. Try again later.",
-            });
+            setErrorModalMessage(err?.message || "Registration failed. Try again later.");
+            setShowErrorModal(true);
         } finally {
             setLoading(false);
         }
@@ -705,7 +719,7 @@ export default function RegistrationWizard() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white p-6">
+        <div className="min-h-screen flex items-center justify-center  p-6">
             <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -738,8 +752,8 @@ export default function RegistrationWizard() {
                                 <div
                                     role="status"
                                     className={`mb-4 px-4 py-3 rounded-md text-sm ${status.type === "success"
-                                            ? "bg-green-50 text-green-800"
-                                            : "bg-red-50 text-red-800"
+                                        ? "bg-green-50 text-green-800"
+                                        : "bg-red-50 text-red-800"
                                         }`}
                                 >
                                     {status.message}
@@ -759,8 +773,8 @@ export default function RegistrationWizard() {
                                     onClick={prevStep}
                                     disabled={currentStep === 1}
                                     className={`px-4 py-2 rounded-lg border ${currentStep === 1
-                                            ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200"
-                                            : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                        ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200"
+                                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                                         }`}
                                 >
                                     {t('back')}
@@ -780,8 +794,8 @@ export default function RegistrationWizard() {
                                         onClick={handleSubmit}
                                         disabled={loading}
                                         className={`px-4 py-2 rounded-lg ${loading
-                                                ? "bg-gray-400 cursor-not-allowed"
-                                                : "bg-red-600 hover:bg-red-700 text-white"
+                                            ? "bg-gray-400 cursor-not-allowed"
+                                            : "bg-red-600 hover:bg-red-700 text-white"
                                             }`}
                                     >
                                         {loading ? t('processing') : t('submit')}
@@ -827,6 +841,37 @@ export default function RegistrationWizard() {
                                 className="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
                             >
                                 Got it, take me to login
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Error Modal */}
+            {showErrorModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden"
+                    >
+                        <div className="bg-red-600 p-6 flex justify-center">
+                            <div className="bg-white rounded-full p-3">
+                                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div className="p-6 text-center">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">Registration Failed</h3>
+                            <p className="text-gray-600 mb-6">
+                                {errorModalMessage}
+                            </p>
+                            <button
+                                onClick={() => setShowErrorModal(false)}
+                                className="w-full py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                            >
+                                Close
                             </button>
                         </div>
                     </motion.div>

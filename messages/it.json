@@ -1,4 +1,25 @@
 {
+  "Tour": {
+    "start_tour": "Inizia Tour",
+    "next": "Avanti",
+    "prev": "Indietro",
+    "done": "Fatto",
+    "close": "Chiudi",
+    "sidebar_title": "Navigazione",
+    "sidebar_desc": "Usa questo menu per navigare tra le diverse sezioni della tua dashboard.",
+    "stats_title": "Statistiche Rapide",
+    "stats_desc": "Visualizza i tuoi punti, voucher e offerte attive a colpo d'occhio.",
+    "wallet_title": "Portafoglio Fedeltà",
+    "wallet_desc": "Controlla il tuo saldo, la cronologia delle transazioni e scarica gli estratti conto.",
+    "offers_title": "Offerte Speciali",
+    "offers_desc": "Scopri offerte e promozioni esclusive solo per te.",
+    "vouchers_title": "I Tuoi Voucher",
+    "vouchers_desc": "Visualizza e gestisci i tuoi voucher guadagnati qui.",
+    "vouchers_usage_title": "Utilizzo Voucher",
+    "vouchers_usage_desc": "Clicca su 'Usa' per mostrare il codice QR o 'Scarica' per salvarlo.",
+    "wishlist_title": "Lista dei Desideri",
+    "wishlist_desc": "Richiedi nuovi prodotti che vorresti vedere nel nostro negozio."
+  },
   "Home": {
     "rights_reserved": "Tutti i diritti riservati.",
     "privacy_policy": "Privacy Policy",
@@ -189,11 +210,14 @@
         "password_length": "La password deve essere di almeno 8 caratteri",
         "password_mismatch": "Le password non corrispondono",
         "privacy_policy": "Devi accettare la Privacy Policy",
-        "terms": "Devi accettare i Termini e Condizioni"
+        "terms": "Devi accettare i Termini e Condizioni",
+        "email_registered": "Questo indirizzo email è già registrato. Per favore accedi."
       }
     }
   },
   "Dashboard": {
+    "loading_dashboard": "Caricamento dashboard...",
+    "welcome_back": "Bentornato",
     "customer_dashboard": "Dashboard Cliente",
     "overview": "Panoramica",
     "profile": "Profilo",
@@ -235,7 +259,17 @@
       "points": "Punti",
       "no_transactions": "Nessuna transazione trovata",
       "view_all": "Vedi Tutte le Transazioni",
-      "load_more": "Carica Altro"
+      "load_more": "Carica Altro",
+      "legend_member": "Membro Leggenda",
+      "tier_info_title": "Livelli di Membership",
+      "tier_info_desc": "Guadagna punti per sbloccare livelli superiori e vantaggi esclusivi.",
+      "close": "Chiudi",
+      "tiers": {
+        "bronze_desc": "Inizia il tuo viaggio (0+ punti)",
+        "silver_desc": "Sblocca vantaggi argento (100+ punti)",
+        "gold_desc": "Status premium e premi (500+ punti)",
+        "legend_desc": "Status d'élite e accesso esclusivo (750+ punti)"
+      }
     },
     "Statistics": {
       "total_points": "Punti Totali",

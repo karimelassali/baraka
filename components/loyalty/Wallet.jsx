@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { CreditCard, History, ArrowUpRight, ArrowDownLeft, Wallet, Download, Filter, Loader2 } from 'lucide-react';
+import { CreditCard, History, ArrowUpRight, ArrowDownLeft, Wallet, Download, Filter, Loader2, HelpCircle, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
@@ -42,6 +42,8 @@ export default function LoyaltyWallet({ compact = false }) {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all'); // all, earned, redeemed
   const [visibleCount, setVisibleCount] = useState(10);
+  const [showTierModal, setShowTierModal] = useState(false);
+  const [debugPoints, setDebugPoints] = useState('');
 
   const handleDownloadStatement = () => {
     const doc = new jsPDF();
@@ -104,28 +106,39 @@ export default function LoyaltyWallet({ compact = false }) {
     fetchLoyaltyData();
   }, []);
 
-  const getCardStyle = (points) => {
-    const numPoints = Number(points);
-    if (numPoints >= 5000) {
+  const getCardStyle = (currentPoints) => {
+    const numPoints = Number(currentPoints);
+    if (numPoints >= 750) {
       return {
-        gradient: "from-amber-400 to-yellow-600",
-        shadow: "shadow-amber-200",
-        tier: t('gold_member'),
-        iconColor: "text-amber-100"
+        gradient: "from-rose-600 via-red-600 to-red-900",
+        shadow: "shadow-red-900/50",
+        tier: t('legend_member'),
+        iconColor: "text-rose-100",
+        textColor: "text-white"
       };
-    } else if (numPoints >= 1000) {
+    } else if (numPoints >= 500) {
       return {
-        gradient: "from-slate-400 to-slate-600",
-        shadow: "shadow-slate-200",
+        gradient: "from-yellow-300 via-yellow-500 to-yellow-600",
+        shadow: "shadow-yellow-500/50",
+        tier: t('gold_member'),
+        iconColor: "text-yellow-50",
+        textColor: "text-white"
+      };
+    } else if (numPoints >= 100) {
+      return {
+        gradient: "from-slate-300 via-slate-400 to-slate-500",
+        shadow: "shadow-slate-400/50",
         tier: t('silver_member'),
-        iconColor: "text-slate-100"
+        iconColor: "text-slate-50",
+        textColor: "text-white"
       };
     } else {
       return {
-        gradient: "from-orange-400 to-red-500",
-        shadow: "shadow-orange-200",
+        gradient: "from-stone-500 to-stone-700",
+        shadow: "shadow-stone-900/50",
         tier: t('bronze_member'),
-        iconColor: "text-orange-100"
+        iconColor: "text-stone-200",
+        textColor: "text-stone-100"
       };
     }
   };
@@ -214,6 +227,7 @@ export default function LoyaltyWallet({ compact = false }) {
 
   return (
     <motion.div
+      id="dashboard-wallet"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -221,13 +235,27 @@ export default function LoyaltyWallet({ compact = false }) {
     >
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">{t('title')}</h2>
-        <button
-          onClick={handleDownloadStatement}
-          className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center transition-colors"
-        >
-          <Download className="w-4 h-4 mr-1.5" />
-          {t('download_statement')}
-        </button>
+        <div className="flex items-center gap-4">
+          {process.env.NODE_ENV === 'development' && (
+            <input
+              type="number"
+              placeholder="Debug Points"
+              value={debugPoints}
+              onChange={(e) => {
+                setDebugPoints(e.target.value);
+                if (e.target.value) setPoints(Number(e.target.value));
+              }}
+              className="w-32 px-2 py-1 text-sm border border-gray-300 rounded-md"
+            />
+          )}
+          <button
+            onClick={handleDownloadStatement}
+            className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center transition-colors"
+          >
+            <Download className="w-4 h-4 mr-1.5" />
+            {t('download_statement')}
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -243,8 +271,16 @@ export default function LoyaltyWallet({ compact = false }) {
                 <p className="text-white/80 font-medium text-lg">{t('total_balance')}</p>
                 <h3 className="text-5xl font-bold mt-2 tracking-tight">{points.toLocaleString()}</h3>
               </div>
-              <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 shadow-lg">
-                <span className="text-sm font-bold text-white tracking-wide uppercase">{cardStyle.tier}</span>
+              <div className="flex flex-col items-end gap-2">
+                <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 shadow-lg">
+                  <span className="text-sm font-bold text-white tracking-wide uppercase">{cardStyle.tier}</span>
+                </div>
+                <button
+                  onClick={() => setShowTierModal(true)}
+                  className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+                >
+                  <HelpCircle className="w-5 h-5 text-white" />
+                </button>
               </div>
             </div>
 
@@ -377,6 +413,87 @@ export default function LoyaltyWallet({ compact = false }) {
           </div>
         )}
       </div>
-    </motion.div>
+
+      {/* Tier Info Modal */}
+      <AnimatePresence>
+        {showTierModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden"
+            >
+              <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 className="text-xl font-bold text-gray-900">{t('tier_info_title')}</h3>
+                <button
+                  onClick={() => setShowTierModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <p className="text-gray-600 mb-4">{t('tier_info_desc')}</p>
+
+                <div className="space-y-3">
+                  {/* Legend */}
+                  <div className="flex items-center p-3 rounded-xl bg-gradient-to-r from-red-50 to-white border border-red-100">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-rose-600 to-red-900 shadow-sm flex items-center justify-center text-white font-bold text-xs">
+                      750+
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-bold text-gray-900">{t('legend_member')}</h4>
+                      <p className="text-sm text-gray-500">{t('tiers.legend_desc')}</p>
+                    </div>
+                  </div>
+
+                  {/* Gold */}
+                  <div className="flex items-center p-3 rounded-xl bg-gradient-to-r from-yellow-50 to-white border border-yellow-100">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-300 to-yellow-600 shadow-sm flex items-center justify-center text-white font-bold text-xs">
+                      500+
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-bold text-gray-900">{t('gold_member')}</h4>
+                      <p className="text-sm text-gray-500">{t('tiers.gold_desc')}</p>
+                    </div>
+                  </div>
+
+                  {/* Silver */}
+                  <div className="flex items-center p-3 rounded-xl bg-gradient-to-r from-slate-50 to-white border border-slate-100">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-300 to-slate-500 shadow-sm flex items-center justify-center text-white font-bold text-xs">
+                      100+
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-bold text-gray-900">{t('silver_member')}</h4>
+                      <p className="text-sm text-gray-500">{t('tiers.silver_desc')}</p>
+                    </div>
+                  </div>
+
+                  {/* Bronze */}
+                  <div className="flex items-center p-3 rounded-xl bg-gradient-to-r from-stone-50 to-white border border-stone-100">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-stone-500 to-stone-700 shadow-sm flex items-center justify-center text-white font-bold text-xs">
+                      0+
+                    </div>
+                    <div className="ml-4">
+                      <h4 className="font-bold text-gray-900">{t('bronze_member')}</h4>
+                      <p className="text-sm text-gray-500">{t('tiers.bronze_desc')}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 bg-gray-50 border-t border-gray-100">
+                <button
+                  onClick={() => setShowTierModal(false)}
+                  className="w-full py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-colors"
+                >
+                  {t('close')}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </motion.div >
   );
 }

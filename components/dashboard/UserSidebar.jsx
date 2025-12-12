@@ -47,16 +47,16 @@ export default function UserSidebar({
     };
 
     const DesktopSidebar = () => (
-        <div className="hidden lg:flex flex-col h-screen sticky top-0 bg-white border-r border-gray-200 shadow-sm relative z-50 w-[280px] transition-all duration-300">
+        <div id="dashboard-sidebar" className="hidden lg:flex flex-col h-screen sticky top-0 bg-white border-r border-gray-200 shadow-sm relative z-50 w-[280px] transition-all duration-300">
             {/* Logo Area */}
             <div className="h-24 flex items-center px-8 border-b border-gray-100 shrink-0">
                 <div className="flex items-center space-x-4">
                     <div className="relative group cursor-pointer">
                         <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                         <img
-                            src="/images/logo.png"
+                            src="/logo.jpeg"
                             alt="Baraka Logo"
-                            className="relative w-10 h-10 object-contain"
+                            className="relative w-10 h-10 object-contain rounded-full"
                         />
                     </div>
                     <div className="flex flex-col">
@@ -136,7 +136,7 @@ export default function UserSidebar({
     );
 
     const MobileBottomNav = () => (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200 pb-safe z-50">
+        <div id="mobile-bottom-nav" className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200 pb-safe z-50">
             <div className="flex justify-around items-center px-2 py-2">
                 {navItems.map((item) => {
                     const Icon = item.icon;

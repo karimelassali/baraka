@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request) {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     const { data: categories, error } = await supabase
         .from('offer_categories')
@@ -19,8 +18,7 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
     const data = await request.json();
 
     if (!data.name || !data.slug) {
@@ -44,8 +42,7 @@ export async function POST(request) {
 }
 
 export async function DELETE(request) {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

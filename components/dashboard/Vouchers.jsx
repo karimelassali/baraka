@@ -30,6 +30,7 @@ export default function Vouchers({ limit }) {
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState(null);
   const [selectedVoucher, setSelectedVoucher] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(10);
   const voucherRefs = useRef({});
 
   useEffect(() => {
@@ -136,9 +137,13 @@ export default function Vouchers({ limit }) {
     }
   };
 
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 10);
+  };
+
   if (loading) return <Skeleton />;
 
-  const displayVouchers = limit ? vouchers.slice(0, limit) : vouchers;
+  const displayVouchers = limit ? vouchers.slice(0, limit) : vouchers.slice(0, visibleCount);
 
   return (
     <div className="w-full">
@@ -258,6 +263,17 @@ export default function Vouchers({ limit }) {
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-1">{t('no_vouchers')}</h3>
           <p className="text-gray-500 text-sm mb-6">{t('start_earning')}</p>
+        </div>
+      )}
+
+      {!limit && vouchers.length > visibleCount && (
+        <div className="mt-8 flex justify-center">
+          <button
+            onClick={handleLoadMore}
+            className="px-6 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors shadow-sm"
+          >
+            {t('load_more') || 'Load More'}
+          </button>
         </div>
       )}
 

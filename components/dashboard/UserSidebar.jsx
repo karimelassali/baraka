@@ -53,9 +53,11 @@ export default function UserSidebar({
                 <div className="flex items-center space-x-4">
                     <div className="relative group cursor-pointer">
                         <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                        <div className="relative w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md border border-gray-100">
-                            <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-br from-red-600 to-orange-600">B</span>
-                        </div>
+                        <img
+                            src="/images/logo.png"
+                            alt="Baraka Logo"
+                            className="relative w-10 h-10 object-contain"
+                        />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xl font-bold tracking-tight text-gray-900">Baraka</span>

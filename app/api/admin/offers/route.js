@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
 
   const { data: offers, error } = await supabase
     .from('offers')
@@ -22,8 +21,7 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const data = await request.json();
 
   // If this offer is set to be a popup, disable all other popups first
@@ -61,8 +59,7 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const data = await request.json();
 
   if (!data.id) {
@@ -105,8 +102,7 @@ export async function PUT(request) {
 }
 
 export async function DELETE(request) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 

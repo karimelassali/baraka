@@ -151,7 +151,7 @@ export default function EnhancedAdminSidebar() {
           transition={{ duration: 0.5 }}
         >
           <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-primary/20 bg-background overflow-hidden">
-            <img src="/logo.jpeg" alt="Baraka Logo" className="w-full h-full object-cover" />
+            <img src="/images/logo.png" alt="Baraka Logo" className="w-full h-full object-contain" />
           </div>
           <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 tracking-tight">Baraka</span>
         </motion.div>
@@ -250,7 +250,7 @@ export default function EnhancedAdminSidebar() {
           <span className="font-bold text-lg">{t('mobile_title')}</span>
         </div>
         <div className="w-8 h-8 rounded-full overflow-hidden border border-border">
-          <img src="/logo.jpeg" alt="Logo" className="w-full h-full object-cover" />
+          <img src="/images/logo.png" alt="Logo" className="w-full h-full object-contain" />
         </div>
       </div>
 

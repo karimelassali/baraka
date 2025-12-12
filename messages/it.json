@@ -234,7 +234,8 @@
       "type": "Tipo",
       "points": "Punti",
       "no_transactions": "Nessuna transazione trovata",
-      "view_all": "Vedi Tutte le Transazioni"
+      "view_all": "Vedi Tutte le Transazioni",
+      "load_more": "Carica Altro"
     },
     "Statistics": {
       "total_points": "Punti Totali",
@@ -275,7 +276,10 @@
       "valid_until": "Valido fino al",
       "details": "Dettagli",
       "no_offers": "Nessuna offerta disponibile",
-      "check_back": "Torna più tardi per nuove offerte esclusive!"
+      "check_back": "Torna più tardi per nuove offerte esclusive!",
+      "read_more": "Leggi tutto",
+      "read_less": "Leggi meno",
+      "load_more": "Carica Altro"
     },
     "Vouchers": {
       "title": "I Miei Voucher",
@@ -291,7 +295,8 @@
       "use": "Usa",
       "download": "Scarica",
       "no_vouchers": "Nessun voucher ancora",
-      "start_earning": "Inizia a guadagnare punti per sbloccare voucher esclusivi!"
+      "start_earning": "Inizia a guadagnare punti per sbloccare voucher esclusivi!",
+      "load_more": "Carica Altro"
     }
   },
   "Admin": {

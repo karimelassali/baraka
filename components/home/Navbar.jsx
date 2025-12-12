@@ -19,9 +19,11 @@ export default function Navbar() {
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div className="flex items-center">
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <div className="bg-red-600 rounded-xl w-12 h-12 flex items-center justify-center text-white font-bold text-xl shadow-md">
-                            B
-                        </div>
+                        <img
+                            src="/images/logo.png"
+                            alt="Baraka Logo"
+                            className="w-12 h-12 object-contain"
+                        />
                     </motion.div>
                     <motion.h1
                         className="ml-3 text-2xl font-bold text-black"

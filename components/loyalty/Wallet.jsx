@@ -2,9 +2,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { CreditCard, History, ArrowUpRight, ArrowDownLeft, Wallet, Download, Filter } from 'lucide-react';
+import { CreditCard, History, ArrowUpRight, ArrowDownLeft, Wallet, Download, Filter, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -39,33 +41,43 @@ export default function LoyaltyWallet({ compact = false }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all'); // all, earned, redeemed
+  const [visibleCount, setVisibleCount] = useState(10);
 
   const handleDownloadStatement = () => {
-    // Simple CSV generation
-    const headers = [t('date'), t('description'), t('type'), t('points')];
-    const rows = history.map(item => [
-      new Date(item.created_at).toLocaleDateString(),
-      item.description || item.transaction_type,
-      item.points > 0 ? t('earned') : t('redeemed'),
-      item.points
-    ]);
+    const doc = new jsPDF();
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
+    // Add Title
+    doc.setFontSize(20);
+    doc.text('Estratto Conto Fedeltà', 14, 22);
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `statement_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    doc.setFontSize(11);
+    doc.text(`Generato il: ${new Date().toLocaleDateString('it-IT')}`, 14, 30);
+    doc.text(`Saldo Punti Totale: ${points}`, 14, 36);
+
+    // Define columns and rows
+    const tableColumn = ["Data", "Descrizione", "Tipo", "Punti"];
+    const tableRows = [];
+
+    history.forEach(item => {
+      const transactionData = [
+        new Date(item.created_at).toLocaleDateString('it-IT'),
+        item.description || item.transaction_type,
+        item.points > 0 ? 'Guadagnati' : 'Riscattati',
+        item.points
+      ];
+      tableRows.push(transactionData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 45,
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [220, 38, 38] }, // Red header to match brand
+    });
+
+    doc.save(`estratto_conto_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   useEffect(() => {
@@ -126,7 +138,13 @@ export default function LoyaltyWallet({ compact = false }) {
     return true;
   });
 
-  const displayTransactions = compact ? history.slice(0, 3) : filteredTransactions;
+  const displayTransactions = compact
+    ? history.slice(0, 3)
+    : filteredTransactions.slice(0, visibleCount);
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + 10);
+  };
 
   if (loading) {
     return <Skeleton compact={compact} />;
@@ -347,6 +365,17 @@ export default function LoyaltyWallet({ compact = false }) {
             </tbody>
           </table>
         </div>
+
+        {!compact && filteredTransactions.length > visibleCount && (
+          <div className="p-4 border-t border-gray-200 flex justify-center">
+            <button
+              onClick={handleLoadMore}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+            >
+              {t('load_more') || 'Load More'}
+            </button>
+          </div>
+        )}
       </div>
     </motion.div>
   );

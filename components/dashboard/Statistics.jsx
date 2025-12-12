@@ -20,54 +20,62 @@ export default function Statistics() {
       try {
         // Fetch loyalty points
         const pointsResponse = await fetch('/api/customer/points');
-        const pointsData = await pointsResponse.json();
 
         // Fetch vouchers
         const vouchersResponse = await fetch('/api/customer/vouchers');
-        const vouchersData = await vouchersResponse.json();
 
         // Fetch offers
         const offersResponse = await fetch('/api/offers');
-        const offersData = await offersResponse.json();
 
-        if (pointsResponse.ok && vouchersResponse.ok && offersResponse.ok) {
-          // Calculate points trend
-          const currentMonth = new Date().getMonth();
-          const pointsHistory = pointsData.points_history || [];
+        const pointsData = pointsResponse.ok ? await pointsResponse.json() : { total_points: 0, points_history: [] };
+        const vouchersData = vouchersResponse.ok ? await vouchersResponse.json() : [];
+        const offersData = offersResponse.ok ? await offersResponse.json() : { offers: [] };
 
-          const pointsThisMonth = pointsHistory
-            .filter(p => new Date(p.created_at).getMonth() === currentMonth && p.points > 0)
-            .reduce((acc, curr) => acc + curr.points, 0);
+        // Calculate points trend
+        const currentMonth = new Date().getMonth();
+        const pointsHistory = pointsData.points_history || [];
 
-          const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-          const pointsLastMonth = pointsHistory
-            .filter(p => new Date(p.created_at).getMonth() === lastMonth && p.points > 0)
-            .reduce((acc, curr) => acc + curr.points, 0);
+        const pointsThisMonth = pointsHistory
+          .filter(p => new Date(p.created_at).getMonth() === currentMonth && p.points > 0)
+          .reduce((acc, curr) => acc + curr.points, 0);
 
-          let trendLabel = t('from_last_month');
+        const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const pointsLastMonth = pointsHistory
+          .filter(p => new Date(p.created_at).getMonth() === lastMonth && p.points > 0)
+          .reduce((acc, curr) => acc + curr.points, 0);
 
-          if (pointsLastMonth > 0) {
-            const pointsTrend = Math.round(((pointsThisMonth - pointsLastMonth) / pointsLastMonth) * 100);
-            trendLabel = pointsTrend >= 0 ? `+${pointsTrend}% ${t('from_last_month')}` : `${pointsTrend}% ${t('from_last_month')}`;
-          } else if (pointsThisMonth > 0) {
-            trendLabel = `+${pointsThisMonth} ${t('this_month')}`;
-          } else {
-            trendLabel = t('no_change');
-          }
+        let trendLabel = t('from_last_month');
 
-          setStats({
-            totalPoints: pointsData.total_points || 0,
-            availableVouchers: vouchersData.filter(v => v.is_active && !v.is_used).length || 0,
-            activeOffers: offersData.offers?.filter(offer => {
-              const now = new Date();
-              const startDate = new Date(offer.start_date);
-              const endDate = new Date(offer.end_date);
-              return now >= startDate && now <= endDate;
-            }).length || 0,
-            totalVouchers: vouchersData.length || 0,
-            pointsTrend: trendLabel
-          });
+        if (pointsLastMonth > 0) {
+          const pointsTrend = Math.round(((pointsThisMonth - pointsLastMonth) / pointsLastMonth) * 100);
+          trendLabel = pointsTrend >= 0 ? `+${pointsTrend}% ${t('from_last_month')}` : `${pointsTrend}% ${t('from_last_month')}`;
+        } else if (pointsThisMonth > 0) {
+          trendLabel = `+${pointsThisMonth} ${t('this_month')}`;
+        } else {
+          trendLabel = t('no_change');
         }
+
+        // Calculate voucher trend
+        const vouchersThisMonth = Array.isArray(vouchersData) ? vouchersData.filter(v => new Date(v.created_at).getMonth() === currentMonth).length : 0;
+        const voucherTrendLabel = vouchersThisMonth > 0 ? `+${vouchersThisMonth} ${t('this_month')}` : t('no_change');
+
+        setStats({
+          totalPoints: pointsData.total_points || 0,
+          availableVouchers: Array.isArray(vouchersData) ? vouchersData.filter(v => v.is_active && !v.is_used).length : 0,
+          activeOffers: offersData.offers?.filter(offer => {
+            const now = new Date();
+            const startDate = offer.start_date ? new Date(offer.start_date) : null;
+            const endDate = offer.end_date ? new Date(offer.end_date) : null;
+
+            const isStarted = !startDate || now >= startDate;
+            const isNotEnded = !endDate || now <= endDate;
+
+            return isStarted && isNotEnded;
+          }).length || 0,
+          totalVouchers: Array.isArray(vouchersData) ? vouchersData.length : 0,
+          pointsTrend: trendLabel,
+          voucherTrend: voucherTrendLabel
+        });
       } catch (error) {
         console.error('Error fetching stats:', error);
       } finally {
@@ -93,7 +101,7 @@ export default function Statistics() {
       icon: Ticket,
       color: "text-red-600",
       bgColor: "bg-red-50",
-      change: `+5 ${t('this_month')}`
+      change: stats.voucherTrend || t('no_change')
     },
     {
       title: t('active_offers'),

@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET(request) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
 
   const { searchParams } = new URL(request.url);
   const locale = searchParams.get('locale') || 'en';
@@ -14,7 +13,8 @@ export async function GET(request) {
   let query = supabase
     .from('offers')
     .select('*')
-    .eq('is_active', true);
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
 
   if (type) {
     query = query.eq('offer_type', type);

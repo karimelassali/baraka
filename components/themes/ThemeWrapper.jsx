@@ -7,9 +7,10 @@ import ChristmasTheme from './ChristmasTheme';
 import HalloweenTheme from './HalloweenTheme';
 import EidAdhaTheme from './EidAdhaTheme';
 import ThemeDebugBar from './ThemeDebugBar';
+import CookieConsent from '../ui/CookieConsent';
 
-export default function ThemeWrapper({ children }) {
-    const [activeTheme, setActiveTheme] = useState('default');
+export default function ThemeWrapper({ children, initialTheme = 'default' }) {
+    const [activeTheme, setActiveTheme] = useState(initialTheme);
     const pathname = usePathname();
 
     // Only show theme effects on home page
@@ -17,8 +18,12 @@ export default function ThemeWrapper({ children }) {
     const isHomePage = pathname === '/' || pathname === '/en' || pathname === '/it' || pathname === '/ar';
 
     useEffect(() => {
-        fetchTheme();
-    }, []);
+        // If we didn't get an initial theme (or want to refresh it client-side), we could fetch here.
+        // But for performance, we rely on the server-passed prop.
+        if (!initialTheme) {
+            fetchTheme();
+        }
+    }, [initialTheme]);
 
     const fetchTheme = async () => {
         try {
@@ -44,6 +49,8 @@ export default function ThemeWrapper({ children }) {
             )}
 
             {children}
+
+            <CookieConsent />
 
             {/* Debug bar only in development */}
             {process.env.NODE_ENV === 'development' && isHomePage && (

@@ -43,51 +43,52 @@ export default function LanguageSwitcher() {
         <div className="relative" ref={dropdownRef}>
             <motion.button
                 onClick={() => setIsOpen(!isOpen)}
-                className="bg-white text-gray-800 border border-gray-300 rounded-full shadow-md p-2.5 flex items-center justify-center hover:bg-gray-50 transition-all duration-300 z-50"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="Language selector"
-                title="Change language"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 group shadow-sm"
+                whileTap={{ scale: 0.98 }}
             >
-                <span className="text-base mr-1">{currentLanguage.flag}</span>
+                <span className="text-lg leading-none">{currentLanguage.flag}</span>
+                <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 hidden sm:inline-block">
+                    {currentLanguage.name}
+                </span>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className={`h-4 w-4 text-gray-700 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                    className={`h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                 >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
             </motion.button>
 
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden"
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 ring-1 ring-black/5 z-50 overflow-hidden py-1"
                     >
-                        <div className="py-1">
-                            {languages.map((language) => (
-                                <button
-                                    key={language.code}
-                                    onClick={() => handleLanguageChange(language.code)}
-                                    className={`w-full text-left px-4 py-2 text-sm flex items-center hover:bg-gray-50 transition-colors ${currentLocale === language.code ? "bg-red-50 text-red-600 font-medium" : "text-gray-700"
-                                        }`}
-                                >
-                                    <span className="mr-3 text-lg">{language.flag}</span>
-                                    {language.name}
-                                </button>
-                            ))}
-                        </div>
+                        {languages.map((language) => (
+                            <button
+                                key={language.code}
+                                onClick={() => handleLanguageChange(language.code)}
+                                className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition-colors ${currentLocale === language.code
+                                        ? "bg-red-50 text-red-700 font-medium"
+                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                    }`}
+                            >
+                                <span className="text-lg leading-none">{language.flag}</span>
+                                <span>{language.name}</span>
+                                {currentLocale === language.code && (
+                                    <motion.div
+                                        layoutId="activeCheck"
+                                        className="ml-auto w-1.5 h-1.5 rounded-full bg-red-600"
+                                    />
+                                )}
+                            </button>
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>

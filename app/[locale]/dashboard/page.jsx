@@ -23,16 +23,26 @@ import PopupOffer from '@/components/home/PopupOffer';
 import UserSidebar from '@/components/dashboard/UserSidebar';
 import PaymentMethodsBox from '@/components/client/PaymentMethodsBox';
 import DashboardTour from '@/components/dashboard/DashboardTour';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
   const [user, setUser] = useState(null);
   const [supabase, setSupabase] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+  const [hasSeenTour, setHasSeenTour] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     setSupabase(createClient());
+
+    // Check if user has seen the tour
+    if (typeof window !== 'undefined') {
+      const tourSeen = localStorage.getItem('hasSeenTour_overview');
+      if (tourSeen === 'true') {
+        setHasSeenTour(true);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -129,7 +139,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-sans">
-      <PopupOffer />
+      {hasSeenTour && <PopupOffer />}
       <DashboardTour activeTab={activeTab} />
 
       <UserSidebar
@@ -149,29 +159,37 @@ export default function DashboardPage() {
             </div>
             <span className="font-bold text-gray-900 text-lg">Baraka</span>
           </div>
-          <div className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
-            <img
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-              alt="User Avatar"
-              className="w-full h-full rounded-full bg-white"
-            />
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <div className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
+              <img
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                alt="User Avatar"
+                className="w-full h-full rounded-full bg-white"
+              />
+            </div>
           </div>
         </div>
 
         <div className="flex-1 overflow-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900 capitalize tracking-tight">
-                {navItems.find(i => i.id === activeTab)?.label || t('customer_dashboard')}
-              </h1>
-              <p className="text-gray-500 mt-1 text-sm">
-                {activeTab === 'overview' && t('overview_desc')}
-                {activeTab === 'profile' && t('profile_desc')}
-                {activeTab === 'wallet' && t('wallet_desc')}
-                {activeTab === 'offers' && t('offers_desc')}
-                {activeTab === 'vouchers' && t('vouchers_desc')}
-                {activeTab === 'wishlist' && t('wishlist_desc')}
-              </p>
+            <div className="mb-8 flex justify-between items-start">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 capitalize tracking-tight">
+                  {navItems.find(i => i.id === activeTab)?.label || t('customer_dashboard')}
+                </h1>
+                <p className="text-gray-500 mt-1 text-sm">
+                  {activeTab === 'overview' && t('overview_desc')}
+                  {activeTab === 'profile' && t('profile_desc')}
+                  {activeTab === 'wallet' && t('wallet_desc')}
+                  {activeTab === 'offers' && t('offers_desc')}
+                  {activeTab === 'vouchers' && t('vouchers_desc')}
+                  {activeTab === 'wishlist' && t('wishlist_desc')}
+                </p>
+              </div>
+              <div className="hidden lg:block">
+                <LanguageSwitcher />
+              </div>
             </div>
 
             {renderActiveComponent()}

@@ -14,7 +14,6 @@ import {
     Sparkles,
     AlertCircle
 } from 'lucide-react';
-import FloatingLanguageSwitcher from '@/components/FloatingLanguageSwitcher';
 import { useRouter } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
 
@@ -216,7 +215,6 @@ export default function UserSidebar({
         <>
             <DesktopSidebar />
             <MobileBottomNav />
-            <FloatingLanguageSwitcher />
             <LogoutModal />
         </>
     );

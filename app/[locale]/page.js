@@ -1,31 +1,34 @@
-"use client";
-
+import dynamic from 'next/dynamic';
 import WaitlistLanding from "../../components/home/WaitlistLanding";
 import ThemeWrapper from '@/components/themes/ThemeWrapper';
-import Hero from '@/components/home/Hero';
-import About from '@/components/home/About';
-import CategoriesSection from '@/components/home/CategoriesSection';
-import OffersSection from '@/components/home/OffersSection';
-import ReviewsSection from '@/components/home/ReviewsSection';
-import ContactSection from '@/components/home/ContactSection';
-import GallerySection from '@/components/home/GallerySection';
-import PopupOffer from '@/components/home/PopupOffer';
-import Navbar from '@/components/home/Navbar';
-import Footer from '@/components/home/Footer';
+import { getTheme } from '@/lib/data/theme';
 
-export default function Home() {
+// Dynamically import components to optimize bundle size
+const Hero = dynamic(() => import('@/components/home/Hero'));
+const About = dynamic(() => import('@/components/home/About'));
+const CategoriesSection = dynamic(() => import('@/components/home/CategoriesSection'));
+const OffersSection = dynamic(() => import('@/components/home/OffersSection'));
+const ReviewsSection = dynamic(() => import('@/components/home/ReviewsSection'));
+const ContactSection = dynamic(() => import('@/components/home/ContactSection'));
+const GallerySection = dynamic(() => import('@/components/home/GallerySection'));
+const PopupOffer = dynamic(() => import('@/components/home/PopupOffer'));
+const Navbar = dynamic(() => import('@/components/home/Navbar'));
+const Footer = dynamic(() => import('@/components/home/Footer'));
+
+export default async function Home() {
   const isMaintenance = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
+  const { theme } = await getTheme();
 
   if (isMaintenance) {
     return (
-      <ThemeWrapper>
+      <ThemeWrapper initialTheme={theme}>
         <WaitlistLanding />
       </ThemeWrapper>
     );
   }
 
   return (
-    <ThemeWrapper>
+    <ThemeWrapper initialTheme={theme}>
       <Navbar />
       <Hero />
       <About />

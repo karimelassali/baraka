@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import TranslateWidget from "../components/ui/TranslateWidget";
+import PageLoadTimer from "../components/ui/PageLoadTimer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,15 +22,13 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  return ( 
+  return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <div className="fixed bottom-4 right-4 z-50">
-          {/* <TranslateWidget /> */}
-        </div>
+        {process.env.NODE_ENV === 'development' && <PageLoadTimer />}
       </body>
     </html>
   );

@@ -12,9 +12,9 @@ export default function PrivacyPage() {
         <PolicySection title="Titolare del Trattamento dei Dati" id="data-controller">
           <p>
             <strong>Baraka S.R.L.</strong><br />
-            Sede legale: [Inserire Indirizzo Completo]<br />
-            Partita IVA / Codice Fiscale: [Inserire P.IVA]<br />
-            Indirizzo email del Titolare: [Inserire Email Privacy]<br />
+            Sede legale: Via Donizetti, 12, 20122 Milano, Italia<br />
+            Partita IVA / Codice Fiscale: 02696700182 <br />
+            Indirizzo email del Titolare: baraka.csg@gmail.com<br />
           </p>
         </PolicySection>
 

@@ -6,6 +6,7 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page')) || 1;
         const limit = parseInt(searchParams.get('limit')) || 10;
+        const search = searchParams.get('search') || '';
         const from = (page - 1) * limit;
         const to = from + limit - 1;
 
@@ -21,12 +22,16 @@ export async function GET(request) {
             }
         );
 
-        // 1. Fetch paginated customers from the optimized view
-        const { data: customers, count, error: customersError } = await supabaseAdmin
+        let query = supabaseAdmin
             .from('admin_customers_extended')
             .select('*', { count: 'exact' })
-            .order('created_at', { ascending: false })
-            .range(from, to);
+            .order('created_at', { ascending: false });
+
+        if (search) {
+            query = query.or(`phone_number.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`);
+        }
+
+        const { data: customers, count, error: customersError } = await query.range(from, to);
 
         if (customersError) throw customersError;
 

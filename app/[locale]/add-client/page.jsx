@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
 import CountdownTimer from '@/components/CountdownTimer';
 
@@ -41,6 +41,24 @@ export default function AddClientPage() {
     const [isCountryOpen, setIsCountryOpen] = useState(false);
     const [countrySearch, setCountrySearch] = useState('');
     const countryDropdownRef = useRef(null);
+
+    // Search & Edit State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [clientToEdit, setClientToEdit] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editFormData, setEditFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        countryOfOrigin: '',
+        residence: ''
+    });
+
+    // Edit Modal Country State
+    const [isEditCountryOpen, setIsEditCountryOpen] = useState(false);
+    const [editCountrySearch, setEditCountrySearch] = useState('');
+    const editCountryDropdownRef = useRef(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -89,10 +107,13 @@ export default function AddClientPage() {
             setShowWhatsNewModal(true);
         }
 
-        // Close country dropdown when clicking outside
+        // Close country dropdowns when clicking outside
         const handleClickOutside = (event) => {
             if (countryDropdownRef.current && !countryDropdownRef.current.contains(event.target)) {
                 setIsCountryOpen(false);
+            }
+            if (editCountryDropdownRef.current && !editCountryDropdownRef.current.contains(event.target)) {
+                setIsEditCountryOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -140,6 +161,21 @@ export default function AddClientPage() {
         country.name.toLowerCase().includes(countrySearch.toLowerCase())
     );
 
+    const filteredEditCountries = countries.filter(country =>
+        country.name.toLowerCase().includes(editCountrySearch.toLowerCase())
+    );
+
+    // Debounce Logic
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (showClients) {
+                fetchClients(1, false);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     const fetchClients = async (pageNum = 1, isLoadMore = false) => {
         if (isLoadMore) {
             setLoadingMore(true);
@@ -148,7 +184,8 @@ export default function AddClientPage() {
         }
 
         try {
-            const res = await fetch(`/api/admin/clients-status?page=${pageNum}&limit=10`);
+            const query = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
+            const res = await fetch(`/api/admin/clients-status?page=${pageNum}&limit=10${query}`);
             if (!res.ok) throw new Error('Impossibile recuperare i clienti');
             const data = await res.json();
             const newClients = Array.isArray(data.clients) ? data.clients : [];
@@ -212,6 +249,51 @@ export default function AddClientPage() {
             alert('Impossibile eliminare il cliente: ' + err.message);
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleEditClick = (client) => {
+        setClientToEdit(client);
+        setEditFormData({
+            firstName: client.first_name || '',
+            lastName: client.last_name || '',
+            email: client.email || '',
+            phoneNumber: client.phone_number || '',
+            countryOfOrigin: client.country_of_origin || '',
+            residence: client.residence || ''
+        });
+    };
+
+    const handleUpdateClient = async (e) => {
+        e.preventDefault();
+        setIsEditing(true);
+        try {
+            const res = await fetch('/api/admin/update-client', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: clientToEdit.id,
+                    ...editFormData
+                })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to update client');
+            }
+
+            // Update local state
+            setClients(prev => prev.map(c =>
+                c.id === clientToEdit.id ? { ...c, ...editFormData, first_name: editFormData.firstName, last_name: editFormData.lastName, phone_number: editFormData.phoneNumber, country_of_origin: editFormData.countryOfOrigin } : c
+            ));
+
+            setClientToEdit(null);
+            alert('Cliente aggiornato con successo!');
+        } catch (err) {
+            console.error('Error updating client:', err);
+            alert('Errore durante l\'aggiornamento: ' + err.message);
+        } finally {
+            setIsEditing(false);
         }
     };
 
@@ -496,6 +578,172 @@ export default function AddClientPage() {
                                     </button>
                                 </div>
                             </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Edit Client Modal */}
+            <AnimatePresence>
+                {clientToEdit && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-[65] flex items-center justify-center p-4 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-2xl shadow-2xl max-w-lg w-full relative flex flex-col max-h-[90vh]"
+                        >
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                    <Edit className="w-5 h-5 text-red-600" />
+                                    Modifica Cliente
+                                </h3>
+                                <button onClick={() => setClientToEdit(null)} className="text-gray-400 hover:text-gray-600">
+                                    <XCircle className="w-6 h-6" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleUpdateClient} className="p-6 space-y-4 overflow-y-auto">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                                        <input
+                                            type="text"
+                                            value={editFormData.firstName}
+                                            onChange={(e) => setEditFormData({ ...editFormData, firstName: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Cognome</label>
+                                        <input
+                                            type="text"
+                                            value={editFormData.lastName}
+                                            onChange={(e) => setEditFormData({ ...editFormData, lastName: e.target.value })}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input
+                                        type="email"
+                                        value={editFormData.email}
+                                        onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                        placeholder="mario@esempio.com"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Telefono</label>
+                                    <input
+                                        type="tel"
+                                        value={editFormData.phoneNumber}
+                                        onChange={(e) => setEditFormData({ ...editFormData, phoneNumber: e.target.value })}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                                        required
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="relative" ref={editCountryDropdownRef}>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Paese Origine</label>
+                                        <div
+                                            className="relative cursor-pointer group"
+                                            onClick={() => setIsEditCountryOpen(!isEditCountryOpen)}
+                                        >
+                                            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 group-hover:text-red-500 transition-colors" />
+                                            <div className={`w-full pl-10 pr-10 py-3 rounded-xl border ${isEditCountryOpen ? 'border-red-500 ring-2 ring-red-500' : 'border-gray-300 hover:border-red-300'} bg-white flex items-center justify-between transition-all`}>
+                                                <span className={`truncate ${editFormData.countryOfOrigin ? 'text-gray-900' : 'text-gray-400'}`}>
+                                                    {editFormData.countryOfOrigin || 'Seleziona'}
+                                                </span>
+                                                <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isEditCountryOpen ? 'rotate-180' : ''}`} />
+                                            </div>
+                                        </div>
+
+                                        <AnimatePresence>
+                                            {isEditCountryOpen && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                    className="absolute z-[100] w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 max-h-64 overflow-hidden flex flex-col"
+                                                >
+                                                    <div className="p-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+                                                        <div className="relative">
+                                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                                            <input
+                                                                type="text"
+                                                                value={editCountrySearch}
+                                                                onChange={(e) => setEditCountrySearch(e.target.value)}
+                                                                placeholder="Cerca paese..."
+                                                                className="w-full pl-9 pr-4 py-2 rounded-lg bg-gray-50 border-none text-sm focus:ring-2 focus:ring-red-500 outline-none"
+                                                                autoFocus
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className="overflow-y-auto flex-grow p-1 custom-scrollbar">
+                                                        {filteredEditCountries.length === 0 ? (
+                                                            <div className="p-4 text-center text-gray-500 text-sm">Nessun paese trovato</div>
+                                                        ) : (
+                                                            filteredEditCountries.map((country) => (
+                                                                <button
+                                                                    key={country.code}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setEditFormData({ ...editFormData, countryOfOrigin: country.name });
+                                                                        setIsEditCountryOpen(false);
+                                                                        setEditCountrySearch('');
+                                                                    }}
+                                                                    className="w-full px-3 py-2.5 text-left hover:bg-red-50 rounded-lg flex items-center gap-3 transition-colors group"
+                                                                >
+                                                                    <span className="text-xl shadow-sm rounded-sm overflow-hidden">{country.flag}</span>
+                                                                    <span className="text-gray-700 font-medium group-hover:text-red-700">{country.name}</span>
+                                                                </button>
+                                                            ))
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Residenza</label>
+                                        <input
+                                            type="text"
+                                            value={editFormData.residence}
+                                            onChange={(e) => setEditFormData({ ...editFormData, residence: e.target.value })}
+                                            className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3 mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => setClientToEdit(null)}
+                                        className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                                    >
+                                        Annulla
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isEditing}
+                                        className="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        {isEditing ? 'Salvataggio...' : 'Salva Modifiche'}
+                                    </button>
+                                </div>
+                            </form>
                         </motion.div>
                     </motion.div>
                 )}
@@ -839,10 +1087,21 @@ export default function AddClientPage() {
                                             waitlist.map((item) => (
                                                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                                                     <td className="p-4">
-                                                        <p className="font-bold text-gray-800">{item.first_name} {item.last_name}</p>
-                                                        <p className="text-xs text-gray-400 font-mono mt-1">
-                                                            {new Date(item.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                        </p>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                                                                <img
+                                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.email || item.first_name}`}
+                                                                    alt="Avatar"
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-bold text-gray-800">{item.first_name} {item.last_name}</p>
+                                                                <p className="text-xs text-gray-400 font-mono mt-1">
+                                                                    {new Date(item.created_at).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                                </p>
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     <td className="p-4">
                                                         <p className="text-sm text-gray-600 flex items-center gap-1"><Phone className="w-3 h-3" /> {item.phone_number}</p>
@@ -1138,6 +1397,32 @@ export default function AddClientPage() {
                                     className="overflow-hidden mt-4"
                                 >
                                     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                                        {/* Search Bar */}
+                                        <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                <input
+                                                    type="text"
+                                                    value={searchQuery}
+                                                    onChange={(e) => {
+                                                        setSearchQuery(e.target.value);
+                                                        // Debounce or just trigger fetch on enter/button could be better, but for now direct update
+                                                        // Ideally we should debounce this call
+                                                    }}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            // fetchClients(1, false); // Removed direct call, handled by effect
+                                                        }
+                                                    }}
+                                                    placeholder="Cerca per nome, telefono o email..."
+                                                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+                                                />
+                                                {/* Removed manual search button as it's now automatic/debounced, or keep as visual indicator */}
+                                                <div className="absolute right-2 top-1/2 -translate-y-1/2 bg-red-50 text-red-600 p-1.5 rounded-lg">
+                                                    <Search className="w-4 h-4" />
+                                                </div>
+                                            </div>
+                                        </div>
                                         {loadingClients ? (
                                             <div className="p-8 text-center text-gray-500">
                                                 <div className="w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
@@ -1166,8 +1451,12 @@ export default function AddClientPage() {
                                                             className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                                                         >
                                                             <div className="flex items-start gap-4">
-                                                                <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 font-bold shrink-0">
-                                                                    {client.first_name?.[0]}{client.last_name?.[0]}
+                                                                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                                                                    <img
+                                                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${client.email || client.first_name}`}
+                                                                        alt="Avatar"
+                                                                        className="w-full h-full object-cover"
+                                                                    />
                                                                 </div>
                                                                 <div className="flex-grow">
                                                                     <h4 className="font-semibold text-gray-800">{client.first_name} {client.last_name}</h4>
@@ -1208,6 +1497,13 @@ export default function AddClientPage() {
                                                                     )}
                                                                     <span className="text-xs text-gray-400 font-mono">{getTimeAgo(client.created_at)}</span>
                                                                 </div>
+                                                                <button
+                                                                    onClick={() => handleEditClick(client)}
+                                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                                    title="Modifica Cliente"
+                                                                >
+                                                                    <Edit className="w-5 h-5" />
+                                                                </button>
                                                                 <button
                                                                     onClick={() => confirmDelete(client)}
                                                                     className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"

@@ -58,7 +58,13 @@
     "view_products": "Vedi Prodotti",
     "contact_us": "Contattaci",
     "quote": "Siamo orgogliosi della qualità e della soddisfazione del cliente.",
-    "team": "Team Baraka"
+    "team": "Team Baraka",
+    "flip_words": [
+      "Baraka",
+      "Qualità Premium",
+      "La Tua Fiducia",
+      "Eccellenza Halal"
+    ]
   },
   "About": {
     "title": "Chi Siamo",
@@ -1047,7 +1053,8 @@
       "success_update": "Cliente aggiornato con successo",
       "error_create": "Impossibile creare il cliente",
       "error_update": "Impossibile aggiornare il cliente",
-      "error_generic": "Si è verificato un errore"
+      "error_generic": "Si è verificato un errore",
+      "load_more": "Carica Altri"
     },
     "Suggestions": {
       "inactive_title": "Clienti Inattivi",

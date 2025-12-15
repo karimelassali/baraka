@@ -14,7 +14,8 @@ import {
   Calendar,
   Filter,
   Search,
-  Bell
+  Bell,
+  ShoppingCart
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
 import EnhancedStatsCard from '../../../components/admin/EnhancedStatsCard';
@@ -243,14 +244,22 @@ export default function EnhancedAdminDashboardPage() {
                     transition={{ delay: i * 0.1 }}
                   >
                     <div className="bg-primary/10 p-2.5 rounded-xl group-hover:bg-primary/20 transition-colors">
-                      <MessageCircle className="h-5 w-5 text-primary" />
+                      {activity.type === 'message' ? (
+                        <MessageCircle className="h-5 w-5 text-primary" />
+                      ) : activity.type === 'customer' ? (
+                        <Users className="h-5 w-5 text-blue-500" />
+                      ) : activity.type === 'order' ? (
+                        <ShoppingCart className="h-5 w-5 text-emerald-500" />
+                      ) : (
+                        <Activity className="h-5 w-5 text-yellow-500" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{activity.message_content}</p>
+                      <p className="font-medium truncate">{activity.content}</p>
                       <div className="flex items-center text-sm text-muted-foreground mt-1">
-                        <span className="font-medium text-foreground/80">{activity.phone_number || 'N/A'}</span>
+                        <span className="font-medium text-foreground/80">{activity.user}</span>
                         <span className="mx-2">•</span>
-                        <span>{new Date(activity.sent_at).toLocaleDateString()}</span>
+                        <span>{new Date(activity.date).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </motion.li>
@@ -282,18 +291,6 @@ export default function EnhancedAdminDashboardPage() {
                 <span className="text-3xl font-bold">85%</span>
                 <p className="text-sm text-muted-foreground">{t('engagement_rate')}</p>
               </div>
-            </div>
-          </GlassCard>
-
-          <GlassCard className="bg-gradient-to-br from-primary to-purple-600 text-white border-none">
-            <div className="relative z-10">
-              <h3 className="text-lg font-bold mb-2">{t('pro_tip')}</h3>
-              <p className="text-white/80 text-sm mb-4">
-                {t('pro_tip_desc')}
-              </p>
-              <button className="w-full py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-medium transition-colors backdrop-blur-sm">
-                {t('customize_layout')}
-              </button>
             </div>
           </GlassCard>
         </motion.div>

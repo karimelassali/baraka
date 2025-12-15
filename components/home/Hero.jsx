@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useTranslations } from 'next-intl';
+import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
 
 export default function Hero() {
     const t = useTranslations('Hero');
@@ -15,9 +16,13 @@ export default function Hero() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.7 }}
                 >
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight">
-                        {t('welcome_to')} <span className="text-red-600">{t('baraka')}</span>
-                    </h1>
+                    <div className="mb-4">
+                        <LayoutTextFlip
+                            text={t('welcome_to') + " "}
+                            words={[t('flip_words.0'), t('flip_words.1'), t('flip_words.2'), t('flip_words.3')]}
+                            className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight justify-start items-baseline"
+                        />
+                    </div>
                     <motion.p
                         className="text-lg md:text-xl text-gray-700 mt-4 mb-8 max-w-lg"
                         initial={{ opacity: 0 }}

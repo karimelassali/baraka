@@ -58,7 +58,13 @@
     "view_products": "View Products",
     "contact_us": "Contact Us",
     "quote": "We take pride in quality and customer satisfaction.",
-    "team": "Baraka Team"
+    "team": "Baraka Team",
+    "flip_words": [
+      "Baraka",
+      "Premium Quality",
+      "Your Trust",
+      "Halal Excellence"
+    ]
   },
   "About": {
     "title": "About Us",
@@ -1043,7 +1049,8 @@
       "success_update": "Customer updated successfully",
       "error_create": "Failed to create customer",
       "error_update": "Failed to update customer",
-      "error_generic": "An error occurred"
+      "error_generic": "An error occurred",
+      "load_more": "Load More"
     },
     "Suggestions": {
       "inactive_title": "Inactive Customers",

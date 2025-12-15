@@ -587,14 +587,7 @@ export default function EnhancedCustomerManagement() {
     await loadCustomers(false);
   };
 
-  useEffect(() => {
-    const handleScroll = async () => {
-      if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight || loadingMore || !hasMore) return;
-      await loadMoreCustomers();
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadingMore, hasMore, offset]);
+
 
   return (
     <motion.div
@@ -736,9 +729,19 @@ export default function EnhancedCustomerManagement() {
         </div>
       )}
 
-      {loadingMore && (
+      {hasMore && (
         <div className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          {loadingMore ? (
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          ) : (
+            <Button
+              onClick={loadMoreCustomers}
+              variant="outline"
+              className="min-w-[200px] rounded-xl border-primary/20 hover:bg-primary/5 hover:text-primary transition-all"
+            >
+              {t('load_more')}
+            </Button>
+          )}
         </div>
       )}
 

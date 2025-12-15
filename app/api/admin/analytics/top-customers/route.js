@@ -11,36 +11,32 @@ export async function GET(request) {
         const limit = parseInt(searchParams.get('limit')) || 5;
         const offset = parseInt(searchParams.get('offset')) || 0;
 
-        // Fetch top customers by points balance
-        const { data: pointsData, error: pointsError } = await supabase
-            .from('customer_points_balance')
-            .select('customer_id, total_points')
+        // Try to fetch from admin_customers_extended first
+        // We assume it has total_points or points_balance. 
+        // If not, we might need to join tables, but let's try the view first as it's optimized.
+        // We'll select * to be safe and then map.
+
+        const { data, error } = await supabase
+            .from('admin_customers_extended')
+            .select('*')
             .order('total_points', { ascending: false })
             .range(offset, offset + limit - 1);
 
-        if (pointsError) throw pointsError;
-
-        if (!pointsData || pointsData.length === 0) {
-            return NextResponse.json([]);
+        if (error) {
+            // Fallback if view doesn't have total_points or doesn't exist (though it should)
+            console.warn("Error fetching from view, trying direct query", error);
+            throw error;
         }
 
-        // Fetch customer details
-        const customerIds = pointsData.map(p => p.customer_id);
-        const { data: customersData, error: customersError } = await supabase
-            .from('customers')
-            .select('id, first_name, last_name, email')
-            .in('id', customerIds);
-
-        if (customersError) throw customersError;
-
-        // Merge data
-        const result = pointsData.map(p => {
-            const customer = customersData.find(c => c.id === p.customer_id);
-            return {
-                ...p,
-                customer: customer || { first_name: 'Unknown', last_name: 'User', email: '' }
-            };
-        });
+        const result = data.map(c => ({
+            customer_id: c.id,
+            total_points: c.total_points || 0,
+            customer: {
+                first_name: c.first_name,
+                last_name: c.last_name,
+                email: c.email
+            }
+        }));
 
         return NextResponse.json(result);
     } catch (error) {

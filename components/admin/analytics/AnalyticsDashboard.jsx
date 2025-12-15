@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import {
     Users,
     MessageCircle,
@@ -13,7 +14,9 @@ import {
     Package,
     AlertTriangle,
     Clock,
-    PieChart as PieChartIcon
+    PieChart as PieChartIcon,
+    X,
+    Info
 } from 'lucide-react';
 import GlassCard from '../../ui/GlassCard';
 import DateRangeFilter from './DateRangeFilter';
@@ -22,6 +25,7 @@ import MessageActivityChart from './charts/MessageActivityChart';
 import VoucherRedemptionChart from './charts/VoucherRedemptionChart';
 import CategoryDistributionChart from './charts/CategoryDistributionChart';
 import TopCustomersTable from './TopCustomersTable';
+import TopCountriesList from './TopCountriesList';
 import InventoryAlerts from './InventoryAlerts';
 
 export default function AnalyticsDashboard() {
@@ -31,22 +35,40 @@ export default function AnalyticsDashboard() {
     const [messageActivity, setMessageActivity] = useState([]);
     const [activityLogs, setActivityLogs] = useState([]);
     const [topCustomers, setTopCustomers] = useState([]);
+    const [topCountries, setTopCountries] = useState([]);
     const [topCustomersOffset, setTopCustomersOffset] = useState(0);
     const [topCustomersHasMore, setTopCustomersHasMore] = useState(true);
     const [loadingMoreCustomers, setLoadingMoreCustomers] = useState(false);
     const [inventoryStats, setInventoryStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Modals state
+    const [calculationModal, setCalculationModal] = useState(null);
+    const [usersListModal, setUsersListModal] = useState(null);
+
     useEffect(() => {
         const fetchData = async () => {
             if (!overview) setLoading(true);
             try {
-                const [overviewRes, clientsRes, messagesRes, activityRes, topCustomersRes, inventoryRes] = await Promise.all([
-                    fetch('/api/admin/analytics/overview'),
-                    fetch(`/api/admin/analytics/clients?range=${range}`),
+                let overviewUrl = '/api/admin/analytics/overview';
+                let clientsUrl = '/api/admin/analytics/clients';
+                if (typeof range === 'object') {
+                    const query = `?startDate=${range.start}&endDate=${range.end}`;
+                    overviewUrl += query;
+                    clientsUrl += query;
+                } else {
+                    const query = `?range=${range}`;
+                    overviewUrl += query;
+                    clientsUrl += query;
+                }
+
+                const [overviewRes, clientsRes, messagesRes, activityRes, topCustomersRes, topCountriesRes, inventoryRes] = await Promise.all([
+                    fetch(overviewUrl),
+                    fetch(clientsUrl),
                     fetch('/api/admin/analytics/messages'),
                     fetch('/api/admin/analytics/activity'),
                     fetch('/api/admin/analytics/top-customers?limit=10'),
+                    fetch('/api/admin/analytics/top-countries'),
                     fetch('/api/admin/analytics/inventory')
                 ]);
 
@@ -55,12 +77,14 @@ export default function AnalyticsDashboard() {
                 const messagesData = await messagesRes.json();
                 const activityData = await activityRes.json();
                 const topCustomersData = await topCustomersRes.json();
+                const topCountriesData = await topCountriesRes.json();
                 const inventoryData = await inventoryRes.json();
 
                 setOverview(overviewData);
                 setClientGrowth(clientsData);
                 setMessageActivity(messagesData);
                 setActivityLogs(activityData);
+                setTopCountries(Array.isArray(topCountriesData) ? topCountriesData : []);
 
                 // Ensure topCustomersData is always an array
                 const validTopCustomers = Array.isArray(topCustomersData) ? topCustomersData : [];
@@ -99,6 +123,32 @@ export default function AnalyticsDashboard() {
         }
     };
 
+    const handleCardClick = (type) => {
+        const calculations = {
+            totalRevenue: {
+                title: "Total Revenue (Est.)",
+                explanation: "Estimated revenue based on the total value of all vouchers created within the selected time period."
+            },
+            totalProducts: {
+                title: "Total Products",
+                explanation: "Count of all active products currently in the database."
+            },
+            inventoryValue: {
+                title: "Inventory Value",
+                explanation: "Sum of (Quantity * Purchase Price) for all products. If Purchase Price is missing, Selling Price is used as a fallback."
+            },
+            lowStock: {
+                title: "Low Stock Items",
+                explanation: "Count of products where the current Quantity is less than or equal to the Minimum Stock Level set for that product."
+            },
+            expiringSoon: {
+                title: "Expiring Soon",
+                explanation: "Count of products that have an expiration date within the next 7 days."
+            }
+        };
+        setCalculationModal(calculations[type]);
+    };
+
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -120,7 +170,7 @@ export default function AnalyticsDashboard() {
 
     return (
         <motion.div
-            className="space-y-8 p-2"
+            className="space-y-8 p-2 relative"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -144,7 +194,7 @@ export default function AnalyticsDashboard() {
                     title="Total Clients"
                     value={overview?.totalCustomers}
                     icon={Users}
-                    trend="+12%"
+                    trend="+12.0%"
                     trendUp={true}
                     color="blue"
                 />
@@ -152,9 +202,10 @@ export default function AnalyticsDashboard() {
                     title="Total Revenue (Est.)"
                     value={`€${overview?.totalVoucherValue?.toFixed(0) || '0'}`}
                     icon={CreditCard}
-                    trend="+8%"
+                    trend="+8.0%"
                     trendUp={true}
                     color="emerald"
+                    onClick={() => handleCardClick('totalRevenue')}
                 />
                 <ModernStatsCard
                     title="Active Offers"
@@ -168,7 +219,7 @@ export default function AnalyticsDashboard() {
                     title="Engagement"
                     value={overview?.totalMessages}
                     icon={MessageCircle}
-                    trend="+24%"
+                    trend="+24.0%"
                     trendUp={true}
                     color="rose"
                 />
@@ -234,12 +285,15 @@ export default function AnalyticsDashboard() {
                 <GlassCard className="h-[600px] flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-xl font-semibold text-foreground">Message Activity</h3>
-                            <p className="text-sm text-muted-foreground">WhatsApp campaign performance</p>
+                            <h3 className="text-xl font-semibold text-foreground">Top Countries</h3>
+                            <p className="text-sm text-muted-foreground">User distribution by country</p>
                         </div>
                     </div>
-                    <div className="flex-1 min-h-0">
-                        <MessageActivityChart data={messageActivity} />
+                    <div className="flex-1 overflow-hidden">
+                        <TopCountriesList
+                            data={topCountries}
+                            onCountryClick={(country) => setUsersListModal(country)}
+                        />
                     </div>
                 </GlassCard>
 
@@ -261,6 +315,19 @@ export default function AnalyticsDashboard() {
                 </GlassCard>
             </div>
 
+            {/* Message Activity */}
+            <GlassCard className="h-[400px] flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 className="text-xl font-semibold text-foreground">Message Activity</h3>
+                        <p className="text-sm text-muted-foreground">WhatsApp campaign performance</p>
+                    </div>
+                </div>
+                <div className="flex-1 min-h-0">
+                    <MessageActivityChart data={messageActivity} />
+                </div>
+            </GlassCard>
+
             {/* Inventory Section */}
             <div className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-border/40 pb-4">
@@ -274,12 +341,14 @@ export default function AnalyticsDashboard() {
                         value={inventoryStats?.totalProducts}
                         icon={Package}
                         color="blue"
+                        onClick={() => handleCardClick('totalProducts')}
                     />
                     <ModernStatsCard
                         title="Inventory Value"
-                        value={`€${(inventoryStats?.totalValue > 0 ? inventoryStats.totalValue : inventoryStats?.totalSalesValue)?.toLocaleString() || '0'}`}
+                        value={`€${(inventoryStats?.totalValue > 0 ? inventoryStats.totalValue : inventoryStats?.totalSalesValue)?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0'}`}
                         icon={CreditCard}
                         color="emerald"
+                        onClick={() => handleCardClick('inventoryValue')}
                     />
                     <ModernStatsCard
                         title="Low Stock Items"
@@ -288,6 +357,7 @@ export default function AnalyticsDashboard() {
                         color="yellow"
                         trend={inventoryStats?.lowStockCount > 0 ? "Action Needed" : "Healthy"}
                         trendUp={inventoryStats?.lowStockCount === 0}
+                        onClick={() => handleCardClick('lowStock')}
                     />
                     <ModernStatsCard
                         title="Expiring Soon"
@@ -296,6 +366,7 @@ export default function AnalyticsDashboard() {
                         color="rose"
                         trend={inventoryStats?.expiringSoonCount > 0 ? "Review" : "Good"}
                         trendUp={inventoryStats?.expiringSoonCount === 0}
+                        onClick={() => handleCardClick('expiringSoon')}
                     />
                 </div>
 
@@ -321,9 +392,9 @@ export default function AnalyticsDashboard() {
                                 <h3 className="text-xl font-semibold text-foreground">Attention Needed</h3>
                                 <p className="text-sm text-muted-foreground">Low stock and expiring items</p>
                             </div>
-                            <button className="text-sm text-primary hover:underline">
+                            <Link href="/admin/inventory" className="text-sm text-primary hover:underline">
                                 View All Inventory
-                            </button>
+                            </Link>
                         </div>
                         <div className="flex-1 min-h-0">
                             <InventoryAlerts
@@ -380,11 +451,110 @@ export default function AnalyticsDashboard() {
                     )}
                 </div>
             </GlassCard>
+
+            {/* Calculation Modal */}
+            <AnimatePresence>
+                {calculationModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="bg-background rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-border"
+                        >
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                                            <Info size={20} />
+                                        </div>
+                                        <h3 className="text-lg font-bold">{calculationModal.title}</h3>
+                                    </div>
+                                    <button
+                                        onClick={() => setCalculationModal(null)}
+                                        className="p-2 hover:bg-muted rounded-full transition-colors"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                                <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
+                                    <p className="text-muted-foreground leading-relaxed">
+                                        {calculationModal.explanation}
+                                    </p>
+                                </div>
+                                <div className="mt-6 flex justify-end">
+                                    <button
+                                        onClick={() => setCalculationModal(null)}
+                                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* Users List Modal (for Countries) */}
+            <AnimatePresence>
+                {usersListModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="bg-background rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-border flex flex-col max-h-[80vh]"
+                        >
+                            <div className="p-6 border-b border-border">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <h3 className="text-xl font-bold">Users from {usersListModal.country}</h3>
+                                        <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
+                                            {usersListModal.count} Users
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() => setUsersListModal(null)}
+                                        className="p-2 hover:bg-muted rounded-full transition-colors"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {(usersListModal.count > 10 ? usersListModal.users.slice(0, 5) : usersListModal.users).map((user, i) => (
+                                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors border border-border/50">
+                                            <div className="w-10 h-10 rounded-full border border-background overflow-hidden flex-shrink-0">
+                                                <img
+                                                    src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.first_name}`}
+                                                    alt={user.first_name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-medium truncate">{user.first_name} {user.last_name}</p>
+                                                <p className="text-xs text-muted-foreground truncate">{user.phone_number || 'No phone'}</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {usersListModal.count > 10 && (
+                                        <div className="col-span-1 sm:col-span-2 text-center py-4 text-muted-foreground">
+                                            <p>...and {usersListModal.count - 5} more users</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 }
 
-function ModernStatsCard({ title, value, icon: Icon, trend, trendUp, color }) {
+function ModernStatsCard({ title, value, icon: Icon, trend, trendUp, color, onClick }) {
     const colorMap = {
         blue: 'text-blue-500 bg-blue-500/10',
         emerald: 'text-emerald-500 bg-emerald-500/10',
@@ -396,7 +566,10 @@ function ModernStatsCard({ title, value, icon: Icon, trend, trendUp, color }) {
     const activeColor = colorMap[color] || colorMap.blue;
 
     return (
-        <GlassCard className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary">
+        <GlassCard
+            className={`relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-l-4 border-l-transparent hover:border-l-primary ${onClick ? 'cursor-pointer' : ''}`}
+            onClick={onClick}
+        >
             <div className="flex justify-between items-start mb-4">
                 <div className={`p-3 rounded-xl ${activeColor} transition-transform group-hover:scale-110`}>
                     <Icon size={24} />

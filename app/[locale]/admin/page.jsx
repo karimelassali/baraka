@@ -277,22 +277,7 @@ export default function EnhancedAdminDashboardPage() {
         {/* Performance / Quick Actions */}
         <motion.div className="space-y-8" variants={itemVariants}>
           <DBPerformanceTest />
-          <GlassCard>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">{t('performance')}</h2>
-              <TrendingUp className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div className="flex items-center justify-center h-48 relative">
-              {/* Placeholder for Chart */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-32 h-32 rounded-full border-8 border-primary/20 border-t-primary animate-spin-slow" />
-              </div>
-              <div className="text-center relative z-10">
-                <span className="text-3xl font-bold">85%</span>
-                <p className="text-sm text-muted-foreground">{t('engagement_rate')}</p>
-              </div>
-            </div>
-          </GlassCard>
+
         </motion.div>
       </div>
     </motion.div>

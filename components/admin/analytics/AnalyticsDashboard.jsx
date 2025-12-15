@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import {
     Users,
     MessageCircle,
@@ -29,6 +30,7 @@ import TopCountriesList from './TopCountriesList';
 import InventoryAlerts from './InventoryAlerts';
 
 export default function AnalyticsDashboard() {
+    const t = useTranslations('Admin.Analytics');
     const [range, setRange] = useState('30d');
     const [overview, setOverview] = useState(null);
     const [clientGrowth, setClientGrowth] = useState([]);
@@ -126,23 +128,23 @@ export default function AnalyticsDashboard() {
     const handleCardClick = (type) => {
         const calculations = {
             totalRevenue: {
-                title: "Total Revenue (Est.)",
+                title: t('total_revenue'),
                 explanation: "Estimated revenue based on the total value of all vouchers created within the selected time period."
             },
             totalProducts: {
-                title: "Total Products",
+                title: t('total_products'),
                 explanation: "Count of all active products currently in the database."
             },
             inventoryValue: {
-                title: "Inventory Value",
+                title: t('inventory_value'),
                 explanation: "Sum of (Quantity * Purchase Price) for all products. If Purchase Price is missing, Selling Price is used as a fallback."
             },
             lowStock: {
-                title: "Low Stock Items",
+                title: t('low_stock_items'),
                 explanation: "Count of products where the current Quantity is less than or equal to the Minimum Stock Level set for that product."
             },
             expiringSoon: {
-                title: "Expiring Soon",
+                title: t('expiring_soon'),
                 explanation: "Count of products that have an expiration date within the next 7 days."
             }
         };
@@ -162,7 +164,7 @@ export default function AnalyticsDashboard() {
             <div className="flex items-center justify-center min-h-[600px]">
                 <div className="flex flex-col items-center gap-4">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                    <p className="text-muted-foreground animate-pulse">Gathering insights...</p>
+                    <p className="text-muted-foreground animate-pulse">{t('gathering_insights')}</p>
                 </div>
             </div>
         );
@@ -179,10 +181,10 @@ export default function AnalyticsDashboard() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/40 pb-6">
                 <div>
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
-                        Analytics Dashboard
+                        {t('title')}
                     </h1>
                     <p className="text-muted-foreground mt-2 text-lg">
-                        Real-time insights into your business performance.
+                        {t('subtitle')}
                     </p>
                 </div>
                 <DateRangeFilter currentRange={range} onRangeChange={setRange} />
@@ -191,7 +193,7 @@ export default function AnalyticsDashboard() {
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <ModernStatsCard
-                    title="Total Clients"
+                    title={t('total_clients')}
                     value={overview?.totalCustomers}
                     icon={Users}
                     trend="+12.0%"
@@ -199,7 +201,7 @@ export default function AnalyticsDashboard() {
                     color="blue"
                 />
                 <ModernStatsCard
-                    title="Total Revenue (Est.)"
+                    title={t('total_revenue')}
                     value={`€${overview?.totalVoucherValue?.toFixed(0) || '0'}`}
                     icon={CreditCard}
                     trend="+8.0%"
@@ -208,15 +210,15 @@ export default function AnalyticsDashboard() {
                     onClick={() => handleCardClick('totalRevenue')}
                 />
                 <ModernStatsCard
-                    title="Active Offers"
+                    title={t('active_offers')}
                     value={overview?.activeOffers}
                     icon={Ticket}
-                    trend="Stable"
+                    trend={t('stable')}
                     trendUp={true}
                     color="purple"
                 />
                 <ModernStatsCard
-                    title="Engagement"
+                    title={t('engagement')}
                     value={overview?.totalMessages}
                     icon={MessageCircle}
                     trend="+24.0%"
@@ -231,8 +233,8 @@ export default function AnalyticsDashboard() {
                 <GlassCard className="lg:col-span-2 flex flex-col h-[450px]">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-xl font-semibold text-foreground">Client Growth</h3>
-                            <p className="text-sm text-muted-foreground">New registrations over time</p>
+                            <h3 className="text-xl font-semibold text-foreground">{t('client_growth')}</h3>
+                            <p className="text-sm text-muted-foreground">{t('client_growth_desc')}</p>
                         </div>
                         <div className="p-2 bg-primary/10 rounded-lg">
                             <TrendingUp className="w-5 h-5 text-primary" />
@@ -247,8 +249,8 @@ export default function AnalyticsDashboard() {
                 <GlassCard className="flex flex-col h-[450px]">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-xl font-semibold text-foreground">Voucher Status</h3>
-                            <p className="text-sm text-muted-foreground">Redemption overview</p>
+                            <h3 className="text-xl font-semibold text-foreground">{t('voucher_status')}</h3>
+                            <p className="text-sm text-muted-foreground">{t('voucher_status_desc')}</p>
                         </div>
                         <div className="p-2 bg-emerald-500/10 rounded-lg">
                             <Activity className="w-5 h-5 text-emerald-500" />
@@ -262,16 +264,16 @@ export default function AnalyticsDashboard() {
                         {/* Center Text Overlay for Donut Chart */}
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                             <span className="text-3xl font-bold text-foreground">{overview?.totalVouchers || 0}</span>
-                            <span className="text-sm text-muted-foreground">Total</span>
+                            <span className="text-sm text-muted-foreground">{t('total')}</span>
                         </div>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-4 text-center">
                         <div className="p-3 rounded-xl bg-muted/50">
-                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Redeemed</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('redeemed')}</p>
                             <p className="text-lg font-bold text-emerald-500">{overview?.redeemedVouchers || 0}</p>
                         </div>
                         <div className="p-3 rounded-xl bg-muted/50">
-                            <p className="text-xs text-muted-foreground uppercase tracking-wider">Active</p>
+                            <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('active')}</p>
                             <p className="text-lg font-bold text-blue-500">
                                 {(overview?.totalVouchers || 0) - (overview?.redeemedVouchers || 0)}
                             </p>
@@ -285,8 +287,8 @@ export default function AnalyticsDashboard() {
                 <GlassCard className="h-[600px] flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-xl font-semibold text-foreground">Top Countries</h3>
-                            <p className="text-sm text-muted-foreground">User distribution by country</p>
+                            <h3 className="text-xl font-semibold text-foreground">{t('top_countries')}</h3>
+                            <p className="text-sm text-muted-foreground">{t('top_countries_desc')}</p>
                         </div>
                     </div>
                     <div className="flex-1 overflow-hidden">
@@ -300,8 +302,8 @@ export default function AnalyticsDashboard() {
                 <GlassCard className="h-[600px] flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                         <div>
-                            <h3 className="text-xl font-semibold text-foreground">Top Loyal Customers</h3>
-                            <p className="text-sm text-muted-foreground">Highest points balance</p>
+                            <h3 className="text-xl font-semibold text-foreground">{t('top_loyal_customers')}</h3>
+                            <p className="text-sm text-muted-foreground">{t('top_loyal_customers_desc')}</p>
                         </div>
                     </div>
                     <div className="flex-1 overflow-hidden">
@@ -319,8 +321,8 @@ export default function AnalyticsDashboard() {
             <GlassCard className="h-[400px] flex flex-col">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <h3 className="text-xl font-semibold text-foreground">Message Activity</h3>
-                        <p className="text-sm text-muted-foreground">WhatsApp campaign performance</p>
+                        <h3 className="text-xl font-semibold text-foreground">{t('message_activity')}</h3>
+                        <p className="text-sm text-muted-foreground">{t('message_activity_desc')}</p>
                     </div>
                 </div>
                 <div className="flex-1 min-h-0">
@@ -332,39 +334,39 @@ export default function AnalyticsDashboard() {
             <div className="space-y-6">
                 <div className="flex items-center gap-3 border-b border-border/40 pb-4">
                     <Package className="w-6 h-6 text-primary" />
-                    <h2 className="text-2xl font-bold text-foreground">Inventory Overview</h2>
+                    <h2 className="text-2xl font-bold text-foreground">{t('inventory_overview')}</h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <ModernStatsCard
-                        title="Total Products"
+                        title={t('total_products')}
                         value={inventoryStats?.totalProducts}
                         icon={Package}
                         color="blue"
                         onClick={() => handleCardClick('totalProducts')}
                     />
                     <ModernStatsCard
-                        title="Inventory Value"
+                        title={t('inventory_value')}
                         value={`€${(inventoryStats?.totalValue > 0 ? inventoryStats.totalValue : inventoryStats?.totalSalesValue)?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0'}`}
                         icon={CreditCard}
                         color="emerald"
                         onClick={() => handleCardClick('inventoryValue')}
                     />
                     <ModernStatsCard
-                        title="Low Stock Items"
+                        title={t('low_stock_items')}
                         value={inventoryStats?.lowStockCount}
                         icon={AlertTriangle}
                         color="yellow"
-                        trend={inventoryStats?.lowStockCount > 0 ? "Action Needed" : "Healthy"}
+                        trend={inventoryStats?.lowStockCount > 0 ? t('action_needed') : t('healthy')}
                         trendUp={inventoryStats?.lowStockCount === 0}
                         onClick={() => handleCardClick('lowStock')}
                     />
                     <ModernStatsCard
-                        title="Expiring Soon"
+                        title={t('expiring_soon')}
                         value={inventoryStats?.expiringSoonCount}
                         icon={Clock}
                         color="rose"
-                        trend={inventoryStats?.expiringSoonCount > 0 ? "Review" : "Good"}
+                        trend={inventoryStats?.expiringSoonCount > 0 ? t('review') : t('good')}
                         trendUp={inventoryStats?.expiringSoonCount === 0}
                         onClick={() => handleCardClick('expiringSoon')}
                     />
@@ -374,8 +376,8 @@ export default function AnalyticsDashboard() {
                     <GlassCard className="lg:col-span-1 h-[350px] flex flex-col">
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="text-xl font-semibold text-foreground">Category Distribution</h3>
-                                <p className="text-sm text-muted-foreground">Products by category</p>
+                                <h3 className="text-xl font-semibold text-foreground">{t('category_distribution')}</h3>
+                                <p className="text-sm text-muted-foreground">{t('category_distribution_desc')}</p>
                             </div>
                             <div className="p-2 bg-purple-500/10 rounded-lg">
                                 <PieChartIcon className="w-5 h-5 text-purple-500" />
@@ -389,11 +391,11 @@ export default function AnalyticsDashboard() {
                     <GlassCard className="lg:col-span-2 h-[350px] flex flex-col">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-xl font-semibold text-foreground">Attention Needed</h3>
-                                <p className="text-sm text-muted-foreground">Low stock and expiring items</p>
+                                <h3 className="text-xl font-semibold text-foreground">{t('attention_needed')}</h3>
+                                <p className="text-sm text-muted-foreground">{t('attention_needed_desc')}</p>
                             </div>
                             <Link href="/admin/inventory" className="text-sm text-primary hover:underline">
-                                View All Inventory
+                                {t('view_all_inventory')}
                             </Link>
                         </div>
                         <div className="flex-1 min-h-0">
@@ -410,7 +412,7 @@ export default function AnalyticsDashboard() {
             <GlassCard>
                 <div className="flex items-center gap-3 mb-6">
                     <Calendar className="w-5 h-5 text-primary" />
-                    <h3 className="text-xl font-semibold text-foreground">Recent System Activity</h3>
+                    <h3 className="text-xl font-semibold text-foreground">{t('recent_system_activity')}</h3>
                 </div>
                 <div className="space-y-1">
                     {activityLogs.map((log, index) => (
@@ -446,7 +448,7 @@ export default function AnalyticsDashboard() {
                     {activityLogs.length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
                             <Activity className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                            <p>No recent activity recorded</p>
+                            <p>{t('no_recent_activity')}</p>
                         </div>
                     )}
                 </div>

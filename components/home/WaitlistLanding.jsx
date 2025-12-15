@@ -176,6 +176,8 @@ export default function WaitlistLanding() {
     <LazyMotion features={domAnimation}>
       <div className={`min-h-screen bg-white text-gray-900 flex flex-col items-center justify-center p-4 relative overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
 
+
+
         {/* Language Switcher */}
         <div className="fixed top-6 right-6 z-50">
           <div className="bg-white/95 backdrop-blur-xl border-2 border-gray-200 rounded-2xl p-2 shadow-2xl flex gap-1.5">

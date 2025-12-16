@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
-import { it } from 'date-fns/locale';
+import { it, enUS, ar } from 'date-fns/locale';
 import {
     Search,
     Filter,
@@ -23,10 +23,11 @@ import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function PaymentsList({ refreshTrigger }) {
-    const t = useTranslations('Payments');
+    const t = useTranslations('Admin.Payments');
+    const locale = useLocale();
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -35,6 +36,8 @@ export default function PaymentsList({ refreshTrigger }) {
     const [totalPages, setTotalPages] = useState(1);
     const [actionLoading, setActionLoading] = useState(null);
     const limit = 20;
+
+    const dateLocale = locale === 'it' ? it : locale === 'ar' ? ar : enUS;
 
     const fetchPayments = async () => {
         setLoading(true);
@@ -122,23 +125,23 @@ export default function PaymentsList({ refreshTrigger }) {
 
         doc.setFontSize(12);
         doc.setTextColor(100);
-        doc.text('Report Pagamenti', 14, 35);
-        doc.text(`Generato il: ${format(new Date(), 'PPP', { locale: it })}`, 14, 41);
+        doc.text(t('report_title'), 14, 35);
+        doc.text(`${t('generated_on')} ${format(new Date(), 'PPP', { locale: dateLocale })}`, 14, 41);
 
         const tableColumn = [
-            "Data Scadenza",
-            "Destinatario",
-            "Importo",
-            "Tipo",
-            "Stato",
-            "Note"
+            t('table.due_date'),
+            t('table.recipient'),
+            t('table.amount'),
+            t('table.type'),
+            t('table.status'),
+            t('table.notes')
         ];
         const tableRows = [];
 
         payments.forEach(payment => {
-            const status = payment.status === 'Paid' ? 'Pagato' : 'In Attesa';
+            const status = payment.status === 'Paid' ? t('status_paid') : t('status_pending');
             const paymentData = [
-                format(parseISO(payment.due_date), 'd MMM yyyy', { locale: it }),
+                format(parseISO(payment.due_date), 'd MMM yyyy', { locale: dateLocale }),
                 payment.recipient,
                 `€${payment.amount}`,
                 payment.payment_type + (payment.check_number ? ` #${payment.check_number}` : ''),
@@ -154,7 +157,7 @@ export default function PaymentsList({ refreshTrigger }) {
             startY: 50,
             theme: 'grid',
             headStyles: { fillColor: [220, 38, 38] },
-            styles: { fontSize: 9 }
+            styles: { fontSize: 9, font: 'helvetica' } // Use standard font to avoid issues
         });
 
         const pageCount = doc.internal.getNumberOfPages();
@@ -162,7 +165,7 @@ export default function PaymentsList({ refreshTrigger }) {
             doc.setPage(i);
             doc.setFontSize(8);
             doc.setTextColor(150);
-            doc.text('Baraka - Documento Interno', 14, doc.internal.pageSize.height - 10);
+            doc.text(t('internal_doc'), 14, doc.internal.pageSize.height - 10);
         }
 
         doc.save(`report_pagamenti_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
@@ -229,8 +232,8 @@ export default function PaymentsList({ refreshTrigger }) {
                 </div>
             </div>
 
-            {/* Table */}
-            <div className="overflow-x-auto">
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
@@ -248,21 +251,21 @@ export default function PaymentsList({ refreshTrigger }) {
                                 <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                                     <div className="flex justify-center items-center gap-2">
                                         <Loader2 className="w-4 h-4 animate-spin text-red-600" />
-                                        Loading payments...
+                                        {t('loading')}
                                     </div>
                                 </td>
                             </tr>
                         ) : payments.length === 0 ? (
                             <tr>
                                 <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
-                                    No payments found
+                                    {t('no_payments')}
                                 </td>
                             </tr>
                         ) : (
                             payments.map((payment) => (
                                 <tr key={payment.id} className="hover:bg-gray-50 transition-colors group">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {format(parseISO(payment.due_date), 'MMM d, yyyy')}
+                                        {format(parseISO(payment.due_date), 'MMM d, yyyy', { locale: dateLocale })}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                         {payment.recipient}
@@ -323,6 +326,86 @@ export default function PaymentsList({ refreshTrigger }) {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile List View */}
+            <div className="md:hidden">
+                {loading ? (
+                    <div className="p-8 text-center text-gray-500 flex justify-center items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                        {t('loading')}
+                    </div>
+                ) : payments.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500">
+                        {t('no_payments')}
+                    </div>
+                ) : (
+                    <div className="divide-y divide-gray-200">
+                        {payments.map((payment) => (
+                            <div key={payment.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div>
+                                        <h3 className="font-medium text-gray-900">{payment.recipient}</h3>
+                                        <p className="text-xs text-gray-500">
+                                            {format(parseISO(payment.due_date), 'MMM d, yyyy', { locale: dateLocale })}
+                                        </p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-bold text-gray-900">€{payment.amount}</p>
+                                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+                                            {payment.payment_type}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {payment.notes && (
+                                    <p className="text-xs text-gray-500 mb-3 italic">{payment.notes}</p>
+                                )}
+
+                                <div className="flex justify-between items-center mt-3">
+                                    <div>
+                                        {payment.status === 'Paid' ? (
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                <CheckCircle className="w-3 h-3" />
+                                                {t('status_paid')}
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                <Clock className="w-3 h-3" />
+                                                {t('status_pending')}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        {actionLoading === payment.id ? (
+                                            <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                                        ) : (
+                                            <>
+                                                {payment.status !== 'Paid' && (
+                                                    <button
+                                                        onClick={() => handleMarkAsPaid(payment.id)}
+                                                        className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+                                                        title={t('modal.mark_paid')}
+                                                    >
+                                                        <CheckCircle className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => handleDelete(payment.id)}
+                                                    className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                                                    title={t('modal.delete')}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Pagination */}

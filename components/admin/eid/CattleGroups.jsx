@@ -166,6 +166,25 @@ export default function CattleGroups() {
         }
     };
 
+    const handleTogglePaid = async (member) => {
+        try {
+            const response = await fetch('/api/admin/eid/cattle/members', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: member.id,
+                    is_paid: !member.is_paid
+                })
+            });
+            if (response.ok) {
+                toast.success(t('toast.updated'));
+                fetchGroups();
+            }
+        } catch (error) {
+            toast.error(t('toast.error_update'));
+        }
+    };
+
     const handleDeleteGroup = async (groupId) => {
         if (!confirm(t('confirm_delete'))) return;
         try {
@@ -475,7 +494,11 @@ export default function CattleGroups() {
 
                                                         {member && !cleanView && (
                                                             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-                                                                <Badge variant="outline" className={member.is_paid ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200'}>
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className={`cursor-pointer select-none transition-colors ${member.is_paid ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'}`}
+                                                                    onClick={() => handleTogglePaid(member)}
+                                                                >
                                                                     {member.is_paid ? 'PAID' : 'PENDING'}
                                                                 </Badge>
                                                                 <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-full" onClick={() => handleRemoveMember(member.id)}>

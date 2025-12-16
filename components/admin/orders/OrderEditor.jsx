@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 
 export default function OrderEditor({ orderId }) {
-    const t = useTranslations('OrderEditor');
+    const t = useTranslations('Admin.OrderEditor');
     const router = useRouter();
     const [order, setOrder] = useState(null);
     const [suppliers, setSuppliers] = useState([]);

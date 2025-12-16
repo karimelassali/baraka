@@ -4,7 +4,7 @@ import { X, Loader2, Calendar, User, DollarSign, CreditCard, FileText, Hash } fr
 import { useTranslations } from 'next-intl';
 
 export default function AddPaymentModal({ isOpen, onClose, onSuccess }) {
-    const t = useTranslations('Payments');
+    const t = useTranslations('Admin.Payments');
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         due_date: '',
@@ -126,9 +126,9 @@ export default function AddPaymentModal({ isOpen, onClose, onSuccess }) {
                                     onChange={(e) => setFormData({ ...formData, payment_type: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all outline-none cursor-pointer"
                                 >
-                                    <option value="Check">Check</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Check">{t('types.check')}</option>
+                                    <option value="Cash">{t('types.cash')}</option>
+                                    <option value="Bank Transfer">{t('types.bank_transfer')}</option>
                                 </select>
                             </div>
                         </div>
@@ -141,7 +141,7 @@ export default function AddPaymentModal({ isOpen, onClose, onSuccess }) {
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="Check #"
+                                    placeholder={t('table.check_number')}
                                     value={formData.check_number}
                                     onChange={(e) => setFormData({ ...formData, check_number: e.target.value })}
                                     className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all outline-none"
@@ -156,7 +156,7 @@ export default function AddPaymentModal({ isOpen, onClose, onSuccess }) {
                             </label>
                             <textarea
                                 rows="3"
-                                placeholder="Optional notes..."
+                                placeholder={t('modal.notes')}
                                 value={formData.notes}
                                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all outline-none resize-none"
@@ -179,7 +179,7 @@ export default function AddPaymentModal({ isOpen, onClose, onSuccess }) {
                                 {loading ? (
                                     <>
                                         <Loader2 className="w-4 h-4 animate-spin" />
-                                        Saving...
+                                        {t('modal.saving')}
                                     </>
                                 ) : (
                                     t('modal.save')

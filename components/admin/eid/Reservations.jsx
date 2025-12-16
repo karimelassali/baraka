@@ -328,95 +328,98 @@ export default function Reservations() {
             </div>
 
             <GlassCard className="overflow-hidden border-t-4 border-t-red-500">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="hover:bg-red-50/50">
-                            <TableHead className="text-red-900 font-bold">{t('table.id')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.customer')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.phone')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.type')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.weight')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.pickup')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.deposit')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.status')}</TableHead>
-                            <TableHead className="text-red-900 font-bold">{t('table.actions')}</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={9} className="h-24 text-center">
-                                    <div className="flex justify-center items-center">
-                                        <Loader2 className="h-6 w-6 animate-spin text-red-500" />
-                                    </div>
-                                </TableCell>
+                {/* Table View */}
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="hover:bg-red-50/50">
+                                <TableHead className="text-red-900 font-bold">{t('table.id')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.customer')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.phone')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.type')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.weight')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.pickup')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.deposit')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.status')}</TableHead>
+                                <TableHead className="text-red-900 font-bold">{t('table.actions')}</TableHead>
                             </TableRow>
-                        ) : reservations.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                                    {t('no_reservations')}
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            reservations.map((res) => (
-                                <TableRow
-                                    key={res.id}
-                                    className={`hover:bg-red-50/30 transition-colors ${res.status === 'COLLECTED' && res.is_paid ? 'bg-green-50/30' : ''}`}
-                                >
-                                    <TableCell className="font-mono">#{res.order_number}</TableCell>
-                                    <TableCell className="font-medium">
-                                        <div>
-                                            {res.customers?.first_name} {res.customers?.last_name}
-                                        </div>
-                                        {res.notes && (
-                                            <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                                <FileText className="w-3 h-3" />
-                                                <span className="truncate max-w-[150px]" title={res.notes}>{res.notes}</span>
-                                            </div>
-                                        )}
-                                    </TableCell>
-                                    <TableCell>{res.customers?.phone_number}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className={res.animal_type === 'SHEEP' ? 'border-red-200 text-red-700 bg-red-50' : 'border-orange-200 text-orange-700 bg-orange-50'}>
-                                            {res.animal_type}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{res.requested_weight}</TableCell>
-                                    <TableCell>
-                                        {res.pickup_time ? new Date(res.pickup_time).toLocaleString() : '-'}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div
-                                            className="cursor-pointer hover:text-red-600 font-bold flex items-center gap-1 transition-colors"
-                                            onClick={() => openDepositModal(res)}
-                                        >
-                                            {res.total_deposit}€
-                                            <Plus className="w-3 h-3" />
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge className={
-                                            res.status === 'COLLECTED' ? 'bg-green-500 hover:bg-green-600' :
-                                                res.status === 'CONFIRMED' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-yellow-500 hover:bg-yellow-600'
-                                        }>
-                                            {res.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <Button variant="ghost" size="sm" className="hover:text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(res)}>
-                                                <Edit className="w-4 h-4" />
-                                            </Button>
-                                            <Button variant="ghost" size="sm" className="hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(res.id)}>
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
+                        </TableHeader>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={9} className="h-24 text-center">
+                                        <div className="flex justify-center items-center">
+                                            <Loader2 className="h-6 w-6 animate-spin text-red-500" />
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            ) : reservations.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+                                        {t('no_reservations')}
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                reservations.map((res) => (
+                                    <TableRow
+                                        key={res.id}
+                                        className={`hover:bg-red-50/30 transition-colors ${res.status === 'COLLECTED' && res.is_paid ? 'bg-green-50/30' : ''}`}
+                                    >
+                                        <TableCell className="font-mono">#{res.order_number}</TableCell>
+                                        <TableCell className="font-medium">
+                                            <div>
+                                                {res.customers?.first_name} {res.customers?.last_name}
+                                            </div>
+                                            {res.notes && (
+                                                <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                                                    <FileText className="w-3 h-3" />
+                                                    <span className="truncate max-w-[150px]" title={res.notes}>{res.notes}</span>
+                                                </div>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>{res.customers?.phone_number}</TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline" className={res.animal_type === 'SHEEP' ? 'border-red-200 text-red-700 bg-red-50' : 'border-orange-200 text-orange-700 bg-orange-50'}>
+                                                {res.animal_type}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>{res.requested_weight}</TableCell>
+                                        <TableCell>
+                                            {res.pickup_time ? new Date(res.pickup_time).toLocaleString() : '-'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div
+                                                className="cursor-pointer hover:text-red-600 font-bold flex items-center gap-1 transition-colors"
+                                                onClick={() => openDepositModal(res)}
+                                            >
+                                                {res.total_deposit}€
+                                                <Plus className="w-3 h-3" />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge className={
+                                                res.status === 'COLLECTED' ? 'bg-green-500 hover:bg-green-600' :
+                                                    res.status === 'CONFIRMED' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-yellow-500 hover:bg-yellow-600'
+                                            }>
+                                                {res.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <Button variant="ghost" size="sm" className="hover:text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(res)}>
+                                                    <Edit className="w-4 h-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="sm" className="hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete(res.id)}>
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
 
                 {/* Pagination Controls */}
                 <div className="p-4 border-t flex items-center justify-between bg-muted/20">

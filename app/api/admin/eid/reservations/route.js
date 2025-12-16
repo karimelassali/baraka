@@ -4,8 +4,7 @@ import { cookies } from 'next/headers';
 
 export async function GET(request) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const { searchParams } = new URL(request.url);
         const status = searchParams.get('status');
         const statusFilter = searchParams.get('statusFilter'); // PAID, UNPAID, COLLECTED, NOT_COLLECTED
@@ -119,8 +118,7 @@ export async function GET(request) {
 
 export async function POST(request) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const body = await request.json();
         const { customer_id, animal_type, requested_weight, pickup_time, notes, deposit_amount } = body;
 

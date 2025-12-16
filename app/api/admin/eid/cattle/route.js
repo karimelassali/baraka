@@ -4,8 +4,7 @@ import { cookies } from 'next/headers';
 
 export async function GET(request) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page')) || 1;
         const limit = parseInt(searchParams.get('limit')) || 10;
@@ -60,8 +59,7 @@ export async function GET(request) {
 
 export async function POST(request) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const body = await request.json();
         const { group_name, cattle_weight, price, total_deposit } = body;
 
@@ -95,8 +93,7 @@ export async function POST(request) {
 
 export async function PUT(request) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const body = await request.json();
         const { id, group_name, cattle_weight, price, status, tag_number } = body;
 

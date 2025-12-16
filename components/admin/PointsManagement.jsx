@@ -23,10 +23,12 @@ import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 import { countries } from '../../lib/constants/countries';
+import { useTranslations } from 'next-intl';
 
 // --- Sub-components ---
 
 function PointsConsole({ customer, isOpen, onClose, onSave }) {
+  const t = useTranslations('Admin.Points');
   const [pointsChange, setPointsChange] = useState('');
   const [reason, setReason] = useState('');
   const [action, setAction] = useState('add'); // 'add' or 'deduct'
@@ -63,7 +65,7 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!customer?.id) {
-      setStatus({ type: 'error', message: 'Customer ID is missing' });
+      setStatus({ type: 'error', message: t('toast.error_missing_id') });
       return;
     }
 
@@ -79,24 +81,24 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           points: finalPoints,
-          description: reason || (action === 'add' ? 'Manual Adjustment (Add)' : 'Manual Adjustment (Deduct)')
+          description: reason || (action === 'add' ? t('console.manual_add') : t('console.manual_deduct'))
         }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        setStatus({ type: 'success', message: 'Points updated successfully!' });
+        setStatus({ type: 'success', message: t('toast.success') });
         setPointsChange('');
         setReason('');
         loadHistory();
         onSave && onSave();
         setTimeout(() => setStatus({ type: '', message: '' }), 2000);
       } else {
-        setStatus({ type: 'error', message: result.error || 'Failed to update points' });
+        setStatus({ type: 'error', message: result.error || t('toast.error_update') });
       }
     } catch (error) {
-      setStatus({ type: 'error', message: 'An error occurred' });
+      setStatus({ type: 'error', message: t('toast.error_generic') });
     } finally {
       setLoading(false);
     }
@@ -113,14 +115,14 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
       >
         {/* Header */}
-        <div className="p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-yellow-500/10 rounded-xl">
-              <TrendingUp className="w-6 h-6 text-yellow-600" />
+        <div className="p-4 md:p-6 border-b border-border/50 flex justify-between items-center bg-muted/20">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="p-2 md:p-3 bg-yellow-500/10 rounded-xl">
+              <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-yellow-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Points Console</h2>
-              <p className="text-sm text-muted-foreground">Manage points for {customer.first_name}</p>
+              <h2 className="text-lg md:text-xl font-bold">{t('console.title')}</h2>
+              <p className="text-xs md:text-sm text-muted-foreground">{t('console.manage_for', { name: customer.first_name })}</p>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
@@ -130,10 +132,10 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
 
         <div className="flex-1 overflow-hidden flex flex-col md:flex-row">
           {/* Left Panel: Action */}
-          <div className="w-full md:w-1/3 p-6 border-r border-border/50 bg-muted/10 overflow-y-auto">
+          <div className="w-full md:w-1/3 p-4 md:p-6 border-b md:border-b-0 md:border-r border-border/50 bg-muted/10 overflow-y-auto">
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-yellow-500/20 shrink-0">
+              <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-yellow-500/20 shrink-0">
                 <img
                   src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
                   alt={customer.first_name}
@@ -141,8 +143,8 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
                 />
               </div>
               <div>
-                <h3 className="font-bold text-lg leading-tight">{customer.first_name} {customer.last_name}</h3>
-                <p className="text-xs text-muted-foreground">{customer.email}</p>
+                <h3 className="font-bold text-base md:text-lg leading-tight">{customer.first_name} {customer.last_name}</h3>
+                <p className="text-xs text-muted-foreground truncate max-w-[150px]">{customer.email}</p>
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                   <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
                   <span>{customer.country_of_origin || 'N/A'}</span>
@@ -150,9 +152,9 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
               </div>
             </div>
 
-            <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-6 mb-6">
-              <p className="text-sm font-medium text-yellow-600 mb-1">Current Balance</p>
-              <p className="text-3xl font-black">{customer.total_points || 0}</p>
+            <div className="bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-4 md:p-6 mb-6">
+              <p className="text-sm font-medium text-yellow-600 mb-1">{t('console.current_balance')}</p>
+              <p className="text-2xl md:text-3xl font-black">{customer.total_points || 0}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -162,19 +164,19 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
                   onClick={() => setAction('add')}
                   className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${action === 'add' ? 'bg-background shadow-sm text-green-600' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                  <Plus className="w-4 h-4" /> Add
+                  <Plus className="w-4 h-4" /> {t('console.add')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setAction('deduct')}
                   className={`flex-1 py-2 text-sm font-medium rounded-md transition-all flex items-center justify-center gap-2 ${action === 'deduct' ? 'bg-background shadow-sm text-red-600' : 'text-muted-foreground hover:text-foreground'}`}
                 >
-                  <Minus className="w-4 h-4" /> Deduct
+                  <Minus className="w-4 h-4" /> {t('console.deduct')}
                 </button>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-medium uppercase text-muted-foreground">Points Amount</label>
+                <label className="text-xs font-medium uppercase text-muted-foreground">{t('console.amount_label')}</label>
                 <Input
                   type="number"
                   value={pointsChange}
@@ -186,11 +188,11 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-medium uppercase text-muted-foreground">Reason (Optional)</label>
+                <label className="text-xs font-medium uppercase text-muted-foreground">{t('console.reason_label')}</label>
                 <Input
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
-                  placeholder="e.g. Bonus, Refund..."
+                  placeholder={t('console.reason_placeholder')}
                   className="bg-background"
                 />
               </div>
@@ -207,15 +209,15 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
                 disabled={loading || !pointsChange}
                 className={`w-full ${action === 'add' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'} text-white`}
               >
-                {loading ? 'Updating...' : (action === 'add' ? 'Add Points' : 'Deduct Points')}
+                {loading ? t('console.updating') : (action === 'add' ? t('console.add_btn') : t('console.deduct_btn'))}
               </Button>
             </form>
           </div>
 
           {/* Right Panel: History */}
-          <div className="w-full md:w-2/3 p-6 bg-background overflow-y-auto custom-scrollbar">
+          <div className="w-full md:w-2/3 p-4 md:p-6 bg-background overflow-y-auto custom-scrollbar h-[300px] md:h-auto">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <History className="w-4 h-4 text-muted-foreground" /> Transaction History
+              <History className="w-4 h-4 text-muted-foreground" /> {t('console.history')}
             </h3>
 
             {loadingHistory ? (
@@ -229,9 +231,9 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
                     key={transaction.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className="flex items-center justify-between p-4 rounded-xl border border-border/40 hover:bg-muted/30 transition-colors"
+                    className="flex items-center justify-between p-3 md:p-4 rounded-xl border border-border/40 hover:bg-muted/30 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 md:gap-4">
                       <div className={`p-2 rounded-full ${transaction.points > 0 ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-600'}`}>
                         {transaction.points > 0 ? <Plus className="w-4 h-4" /> : <Minus className="w-4 h-4" />}
                       </div>
@@ -247,9 +249,9 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-muted-foreground opacity-50">
-                <History className="w-16 h-16 mb-4 stroke-1" />
-                <p>No transactions yet</p>
+              <div className="flex flex-col items-center justify-center h-48 md:h-64 text-muted-foreground opacity-50">
+                <History className="w-12 h-12 md:w-16 md:h-16 mb-4 stroke-1" />
+                <p>{t('console.no_history')}</p>
               </div>
             )}
           </div>
@@ -259,7 +261,7 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
   );
 }
 
-const CustomerCard = ({ customer, onClick }) => (
+const CustomerCard = ({ customer, onClick, t }) => (
   <motion.div
     layout
     initial={{ opacity: 0, scale: 0.9 }}
@@ -294,7 +296,7 @@ const CustomerCard = ({ customer, onClick }) => (
         </div>
 
         <div className="mt-auto w-full pt-4 border-t border-border/50">
-          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Total Points</p>
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t('total_points')}</p>
           <p className="text-3xl font-black text-foreground group-hover:text-yellow-500 transition-colors">
             {customer.total_points || 0}
           </p>
@@ -305,6 +307,7 @@ const CustomerCard = ({ customer, onClick }) => (
 );
 
 export default function PointsManagement() {
+  const t = useTranslations('Admin.Points');
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -387,8 +390,8 @@ export default function PointsManagement() {
       <div className="flex flex-col gap-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Points Dashboard</h2>
-            <p className="text-muted-foreground mt-2">Manage customer loyalty points and view transaction history.</p>
+            <h2 className="text-3xl font-bold tracking-tight">{t('title')}</h2>
+            <p className="text-muted-foreground mt-2">{t('subtitle')}</p>
           </div>
 
           <div className="relative w-full md:w-96">
@@ -397,7 +400,7 @@ export default function PointsManagement() {
             </div>
             <input
               type="text"
-              placeholder="Search customers..."
+              placeholder={t('search_placeholder')}
               value={searchTerm}
               onChange={handleSearch}
               className="w-full pl-10 pr-4 py-3 bg-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all shadow-sm"
@@ -408,7 +411,7 @@ export default function PointsManagement() {
         {/* Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Nationality</label>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('nationality')}</label>
             <div className="relative">
               <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <select
@@ -416,7 +419,7 @@ export default function PointsManagement() {
                 onChange={(e) => setLocationFilter(e.target.value)}
                 className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 appearance-none transition-all"
               >
-                <option value="">All Countries</option>
+                <option value="">{t('all_countries')}</option>
                 {countries.map((c) => (
                   <option key={c.code} value={c.name}>
                     {c.flag} {c.name}
@@ -428,7 +431,7 @@ export default function PointsManagement() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Sort By</label>
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('sort_by')}</label>
             <div className="relative">
               <select
                 value={`${sortField}-${sortDirection}`}
@@ -439,12 +442,12 @@ export default function PointsManagement() {
                 }}
                 className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 appearance-none transition-all"
               >
-                <option value="created_at-desc">Newest First</option>
-                <option value="created_at-asc">Oldest First</option>
-                <option value="first_name-asc">Name (A-Z)</option>
-                <option value="first_name-desc">Name (Z-A)</option>
-                <option value="country_of_origin-asc">Nationality (A-Z)</option>
-                <option value="country_of_origin-desc">Nationality (Z-A)</option>
+                <option value="created_at-desc">{t('sort.newest')}</option>
+                <option value="created_at-asc">{t('sort.oldest')}</option>
+                <option value="first_name-asc">{t('sort.name_asc')}</option>
+                <option value="first_name-desc">{t('sort.name_desc')}</option>
+                <option value="country_of_origin-asc">{t('sort.nat_asc')}</option>
+                <option value="country_of_origin-desc">{t('sort.nat_desc')}</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
             </div>
@@ -468,6 +471,7 @@ export default function PointsManagement() {
                   key={customer.id}
                   customer={customer}
                   onClick={setSelectedCustomer}
+                  t={t}
                 />
               ))}
             </AnimatePresence>
@@ -483,10 +487,10 @@ export default function PointsManagement() {
                 {loadingMore ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Loading...
+                    {t('loading')}
                   </>
                 ) : (
-                  'Load More Customers'
+                  t('load_more')
                 )}
               </Button>
             </div>
@@ -497,8 +501,8 @@ export default function PointsManagement() {
           <div className="bg-muted/30 p-6 rounded-full mb-4">
             <User className="h-10 w-10 opacity-50" />
           </div>
-          <p className="text-lg font-medium">No customers found</p>
-          <p className="text-sm">Try adjusting your search terms</p>
+          <p className="text-lg font-medium">{t('no_customers')}</p>
+          <p className="text-sm">{t('try_adjusting')}</p>
         </div>
       )}
 

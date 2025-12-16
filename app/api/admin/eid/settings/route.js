@@ -10,8 +10,7 @@ export async function GET(request) {
         return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
     const tableName = type === 'suppliers' ? 'eid_suppliers' : 'eid_destinations';
 
     try {
@@ -36,8 +35,7 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
     const tableName = type === 'suppliers' ? 'eid_suppliers' : 'eid_destinations';
     const extraField = type === 'suppliers' ? 'contact_info' : 'location';
 
@@ -65,8 +63,7 @@ export async function DELETE(request) {
         return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
     const tableName = type === 'suppliers' ? 'eid_suppliers' : 'eid_destinations';
 
     try {

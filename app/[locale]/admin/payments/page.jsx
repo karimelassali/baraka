@@ -9,7 +9,7 @@ import AddPaymentModal from '@/components/admin/payments/AddPaymentModal';
 import { useTranslations } from 'next-intl';
 
 export default function PaymentsPage() {
-    const t = useTranslations('Payments');
+    const t = useTranslations('Admin.Payments');
     const [view, setView] = useState('calendar'); // 'calendar' or 'list'
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);

@@ -336,6 +336,120 @@
     }
   },
   "Admin": {
+    "Payments": {
+      "title": "Payments Management",
+      "subtitle": "Track and manage all customer payments and transactions.",
+      "calendar_view": "Calendar View",
+      "list_view": "List View",
+      "add_payment": "Add Payment",
+      "search_placeholder": "Search payments...",
+      "no_payments": "No payments found",
+      "today": "Today",
+      "weekly_total": "Weekly Total",
+      "export_pdf": "Export PDF",
+      "export_excel": "Export Excel",
+      "status_all": "All Statuses",
+      "status_pending": "Pending",
+      "status_paid": "Paid",
+      "loading": "Loading payments...",
+      "report_title": "Payments Report",
+      "generated_on": "Generated on:",
+      "internal_doc": "Baraka - Internal Document",
+      "status": {
+        "completed": "Completed",
+        "pending": "Pending",
+        "failed": "Failed",
+        "refunded": "Refunded",
+        "paid": "Paid"
+      },
+      "table": {
+        "id": "ID",
+        "customer": "Customer",
+        "recipient": "Recipient",
+        "amount": "Amount",
+        "due_date": "Due Date",
+        "date": "Date",
+        "type": "Type",
+        "method": "Method",
+        "check_number": "Check #",
+        "status": "Status",
+        "notes": "Notes",
+        "actions": "Actions"
+      },
+      "modal": {
+        "title": "Add New Payment",
+        "add_title": "Add New Payment",
+        "customer": "Customer",
+        "amount": "Amount (€)",
+        "date": "Date",
+        "method": "Payment Method",
+        "status": "Status",
+        "notes": "Notes",
+        "cancel": "Cancel",
+        "save": "Save Payment",
+        "saving": "Saving...",
+        "confirm_delete": "Are you sure you want to delete this payment?",
+        "mark_paid": "Mark as Paid",
+        "delete": "Delete"
+      },
+      "types": {
+        "check": "Check",
+        "cash": "Cash",
+        "bank_transfer": "Bank Transfer"
+      },
+      "toast": {
+        "created": "Payment recorded successfully",
+        "updated": "Payment updated successfully",
+        "deleted": "Payment deleted successfully",
+        "error_create": "Failed to record payment",
+        "error_update": "Failed to update payment",
+        "error_delete": "Failed to delete payment"
+      }
+    },
+    "Points": {
+      "title": "Points Dashboard",
+      "subtitle": "Manage customer loyalty points and view transaction history.",
+      "search_placeholder": "Search customers...",
+      "nationality": "Nationality",
+      "sort_by": "Sort By",
+      "all_countries": "All Countries",
+      "sort": {
+        "newest": "Newest First",
+        "oldest": "Oldest First",
+        "name_asc": "Name (A-Z)",
+        "name_desc": "Name (Z-A)",
+        "nat_asc": "Nationality (A-Z)",
+        "nat_desc": "Nationality (Z-A)"
+      },
+      "total_points": "Total Points",
+      "no_customers": "No customers found",
+      "try_adjusting": "Try adjusting your search terms",
+      "load_more": "Load More Customers",
+      "loading": "Loading...",
+      "console": {
+        "title": "Points Console",
+        "manage_for": "Manage points for {name}",
+        "current_balance": "Current Balance",
+        "add": "Add",
+        "deduct": "Deduct",
+        "amount_label": "Points Amount",
+        "reason_label": "Reason (Optional)",
+        "reason_placeholder": "e.g. Bonus, Refund...",
+        "add_btn": "Add Points",
+        "deduct_btn": "Deduct Points",
+        "updating": "Updating...",
+        "history": "Transaction History",
+        "no_history": "No transactions yet",
+        "manual_add": "Manual Adjustment (Add)",
+        "manual_deduct": "Manual Adjustment (Deduct)"
+      },
+      "toast": {
+        "success": "Points updated successfully!",
+        "error_missing_id": "Customer ID is missing",
+        "error_update": "Failed to update points",
+        "error_generic": "An error occurred"
+      }
+    },
     "Eid": {
       "Reservations": {
         "title": "Customer Reservations",

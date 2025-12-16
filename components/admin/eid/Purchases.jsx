@@ -755,63 +755,109 @@ export default function Purchases() {
 
                 <div className="lg:col-span-2">
                     <GlassCard className="overflow-hidden border-t-4 border-t-red-500">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-red-50/50">
-                                    <TableHead className="text-red-900 font-bold">#</TableHead>
-                                    <TableHead className="text-red-900 font-bold">{t('animals.table.tag')}</TableHead>
-                                    <TableHead className="text-red-900 font-bold">{t('animals.table.type')}</TableHead>
-                                    <TableHead className="text-red-900 font-bold">{t('animals.table.weight')}</TableHead>
-                                    <TableHead className="text-red-900 font-bold">{t('animals.table.destination')}</TableHead>
-                                    <TableHead className="text-red-900 font-bold">{t('animals.table.actions')}</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {loading ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center">
-                                            <Loader2 className="h-6 w-6 animate-spin text-red-500 mx-auto" />
-                                        </TableCell>
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="hover:bg-red-50/50">
+                                        <TableHead className="text-red-900 font-bold">#</TableHead>
+                                        <TableHead className="text-red-900 font-bold">{t('animals.table.tag')}</TableHead>
+                                        <TableHead className="text-red-900 font-bold">{t('animals.table.type')}</TableHead>
+                                        <TableHead className="text-red-900 font-bold">{t('animals.table.weight')}</TableHead>
+                                        <TableHead className="text-red-900 font-bold">{t('animals.table.destination')}</TableHead>
+                                        <TableHead className="text-red-900 font-bold">{t('animals.table.actions')}</TableHead>
                                     </TableRow>
-                                ) : purchases.map((p, i) => (
-                                    <TableRow key={p.id} className="hover:bg-red-50/30">
-                                        <TableCell>{(page - 1) * limit + i + 1}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-mono font-bold text-foreground">{p.tag_number}</span>
-                                                {p.tag_color && (
-                                                    <Tag
-                                                        className="w-5 h-5"
-                                                        style={{ fill: p.tag_color, color: p.tag_color }}
-                                                        title={p.tag_color}
-                                                    />
-                                                )}
+                                </TableHeader>
+                                <TableBody>
+                                    {loading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="h-24 text-center">
+                                                <Loader2 className="h-6 w-6 animate-spin text-red-500 mx-auto" />
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : purchases.map((p, i) => (
+                                        <TableRow key={p.id} className="hover:bg-red-50/30">
+                                            <TableCell>{(page - 1) * limit + i + 1}</TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-mono font-bold text-foreground">{p.tag_number}</span>
+                                                    {p.tag_color && (
+                                                        <Tag
+                                                            className="w-5 h-5"
+                                                            style={{ fill: p.tag_color, color: p.tag_color }}
+                                                            title={p.tag_color}
+                                                        />
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{p.animal_type}</TableCell>
+                                            <TableCell className="font-bold">{p.weight} kg</TableCell>
+                                            <TableCell className="text-muted-foreground">{p.destination || '-'}</TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(p)}>
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:bg-red-50" onClick={() => handleDeletePurchase(p.id)}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="md:hidden space-y-3 p-4">
+                            {loading ? (
+                                <div className="flex justify-center py-8">
+                                    <Loader2 className="h-8 w-8 animate-spin text-red-500" />
+                                </div>
+                            ) : purchases.map((p, i) => (
+                                <div key={p.id} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-3">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs">
+                                                {(page - 1) * limit + i + 1}
                                             </div>
-                                        </TableCell>
-                                        <TableCell>{p.animal_type}</TableCell>
-                                        <TableCell className="font-bold">{p.weight} kg</TableCell>
-                                        <TableCell className="text-muted-foreground">{p.destination || '-'}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(p)}>
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:bg-red-50" onClick={() => handleDeletePurchase(p.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
+                                            <div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-mono font-bold text-lg">{p.tag_number}</span>
+                                                    {p.tag_color && (
+                                                        <Tag
+                                                            className="w-4 h-4"
+                                                            style={{ fill: p.tag_color, color: p.tag_color }}
+                                                        />
+                                                    )}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">{p.animal_type}</div>
                                             </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                {purchases.length === 0 && !loading && (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                            {t('animals.table.no_animals')}
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                                        </div>
+                                        <Badge variant="outline" className="text-sm font-bold border-red-200 bg-red-50 text-red-900">
+                                            {p.weight} kg
+                                        </Badge>
+                                    </div>
+
+                                    {p.destination && (
+                                        <div className="text-xs text-muted-foreground flex items-center gap-1 bg-gray-50 p-2 rounded">
+                                            <Truck className="w-3 h-3" />
+                                            {t('animals.table.destination')}: {p.destination}
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                                        <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(p)}>
+                                            <Edit className="w-4 h-4 mr-1" /> {t('animals.form.edit_title')}
+                                        </Button>
+                                        <Button variant="ghost" size="sm" className="h-8 text-red-600 hover:bg-red-50" onClick={() => handleDeletePurchase(p.id)}>
+                                            <Trash2 className="w-4 h-4 mr-1" /> {t('delete')}
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
 
                         {/* Pagination Controls */}
                         <div className="p-4 border-t flex items-center justify-between bg-muted/20">

@@ -188,8 +188,8 @@ export default function EnhancedReviewManagement() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const data = await getReviews();
-      setReviews(data);
+      const result = await getReviews();
+      setReviews(result.data || []);
     } catch (error) {
       console.error('Failed to fetch reviews:', error);
     } finally {

@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function GET() {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
 
   // Fetch approved reviews, ordered by most recent
   const { data: reviews, error } = await supabase
@@ -41,8 +40,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = await createClient();
   const data = await request.json();
 
   const { reviewer_name, rating, content, approved } = data;

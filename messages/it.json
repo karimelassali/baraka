@@ -340,6 +340,120 @@
     }
   },
   "Admin": {
+    "Payments": {
+      "title": "Gestione Pagamenti",
+      "subtitle": "Traccia e gestisci tutti i pagamenti e le transazioni dei clienti.",
+      "calendar_view": "Vista Calendario",
+      "list_view": "Vista Elenco",
+      "add_payment": "Aggiungi Pagamento",
+      "search_placeholder": "Cerca pagamenti...",
+      "no_payments": "Nessun pagamento trovato",
+      "today": "Oggi",
+      "weekly_total": "Totale Settimanale",
+      "export_pdf": "Esporta PDF",
+      "export_excel": "Esporta Excel",
+      "status_all": "Tutti gli Stati",
+      "status_pending": "In Attesa",
+      "status_paid": "Pagato",
+      "loading": "Caricamento pagamenti...",
+      "report_title": "Report Pagamenti",
+      "generated_on": "Generato il:",
+      "internal_doc": "Baraka - Documento Interno",
+      "status": {
+        "completed": "Completato",
+        "pending": "In Attesa",
+        "failed": "Fallito",
+        "refunded": "Rimborsato",
+        "paid": "Pagato"
+      },
+      "table": {
+        "id": "ID",
+        "customer": "Cliente",
+        "recipient": "Destinatario",
+        "amount": "Importo",
+        "due_date": "Data Scadenza",
+        "date": "Data",
+        "type": "Tipo",
+        "method": "Metodo",
+        "check_number": "Assegno #",
+        "status": "Stato",
+        "notes": "Note",
+        "actions": "Azioni"
+      },
+      "modal": {
+        "title": "Aggiungi Nuovo Pagamento",
+        "add_title": "Aggiungi Nuovo Pagamento",
+        "customer": "Cliente",
+        "amount": "Importo (€)",
+        "date": "Data",
+        "method": "Metodo di Pagamento",
+        "status": "Stato",
+        "notes": "Note",
+        "cancel": "Annulla",
+        "save": "Salva Pagamento",
+        "saving": "Salvataggio...",
+        "confirm_delete": "Sei sicuro di voler eliminare questo pagamento?",
+        "mark_paid": "Segna come Pagato",
+        "delete": "Elimina"
+      },
+      "types": {
+        "check": "Assegno",
+        "cash": "Contanti",
+        "bank_transfer": "Bonifico Bancario"
+      },
+      "toast": {
+        "created": "Pagamento registrato con successo",
+        "updated": "Pagamento aggiornato con successo",
+        "deleted": "Pagamento eliminato con successo",
+        "error_create": "Impossibile registrare il pagamento",
+        "error_update": "Impossibile aggiornare il pagamento",
+        "error_delete": "Impossibile eliminare il pagamento"
+      }
+    },
+    "Points": {
+      "title": "Dashboard Punti",
+      "subtitle": "Gestisci i punti fedeltà dei clienti e visualizza la cronologia delle transazioni.",
+      "search_placeholder": "Cerca clienti...",
+      "nationality": "Nazionalità",
+      "sort_by": "Ordina Per",
+      "all_countries": "Tutti i Paesi",
+      "sort": {
+        "newest": "Più Recenti",
+        "oldest": "Meno Recenti",
+        "name_asc": "Nome (A-Z)",
+        "name_desc": "Nome (Z-A)",
+        "nat_asc": "Nazionalità (A-Z)",
+        "nat_desc": "Nazionalità (Z-A)"
+      },
+      "total_points": "Punti Totali",
+      "no_customers": "Nessun cliente trovato",
+      "try_adjusting": "Prova a modificare i termini di ricerca",
+      "load_more": "Carica Altri Clienti",
+      "loading": "Caricamento...",
+      "console": {
+        "title": "Console Punti",
+        "manage_for": "Gestisci punti per {name}",
+        "current_balance": "Saldo Attuale",
+        "add": "Aggiungi",
+        "deduct": "Deduci",
+        "amount_label": "Quantità Punti",
+        "reason_label": "Motivo (Opzionale)",
+        "reason_placeholder": "es. Bonus, Rimborso...",
+        "add_btn": "Aggiungi Punti",
+        "deduct_btn": "Deduci Punti",
+        "updating": "Aggiornamento...",
+        "history": "Cronologia Transazioni",
+        "no_history": "Nessuna transazione ancora",
+        "manual_add": "Aggiustamento Manuale (Aggiunta)",
+        "manual_deduct": "Aggiustamento Manuale (Deduzione)"
+      },
+      "toast": {
+        "success": "Punti aggiornati con successo!",
+        "error_missing_id": "ID Cliente mancante",
+        "error_update": "Impossibile aggiornare i punti",
+        "error_generic": "Si è verificato un errore"
+      }
+    },
     "Eid": {
       "Reservations": {
         "title": "Prenotazioni Clienti",

@@ -6,8 +6,7 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const supplier_id = searchParams.get('supplier_id');
 
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     try {
         let query = supabase
@@ -36,8 +35,7 @@ export async function POST(request) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     try {
         const { data, error } = await supabase

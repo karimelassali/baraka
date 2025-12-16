@@ -18,18 +18,22 @@ import {
     addDays,
     isSameWeek
 } from 'date-fns';
+import { it, enUS, ar } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Loader2, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import PaymentDetailsModal from './PaymentDetailsModal';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export default function PaymentsCalendar({ refreshTrigger }) {
-    const t = useTranslations('Payments');
+    const t = useTranslations('Admin.Payments');
+    const locale = useLocale();
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedPayment, setSelectedPayment] = useState(null);
+
+    const dateLocale = locale === 'it' ? it : locale === 'ar' ? ar : enUS;
 
     const fetchPayments = async () => {
         setLoading(true);
@@ -145,8 +149,8 @@ export default function PaymentsCalendar({ refreshTrigger }) {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full">
             {/* Header */}
             <div className="p-4 flex items-center justify-between border-b border-gray-200 shrink-0">
-                <h2 className="text-lg font-bold text-gray-900">
-                    {format(currentMonth, 'MMMM yyyy')}
+                <h2 className="text-lg font-bold text-gray-900 capitalize">
+                    {format(currentMonth, 'MMMM yyyy', { locale: dateLocale })}
                 </h2>
                 <div className="flex items-center gap-2">
                     <button
@@ -159,7 +163,7 @@ export default function PaymentsCalendar({ refreshTrigger }) {
                         onClick={() => setCurrentMonth(new Date())}
                         className="px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                        {t('modal.add_title').includes('Nuovo') ? 'Oggi' : 'Today'} {/* Simple fallback, ideally use localization for 'Today' too if needed, but not critical */}
+                        {t('today')}
                     </button>
                     <button
                         onClick={nextMonth}
@@ -172,12 +176,17 @@ export default function PaymentsCalendar({ refreshTrigger }) {
 
             {/* Days Header */}
             <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50 shrink-0">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        <span className="hidden sm:inline">{day}</span>
-                        <span className="sm:hidden">{day.charAt(0)}</span>
-                    </div>
-                ))}
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, index) => {
+                    // Get localized day name
+                    const date = new Date(2024, 0, index + 7); // First Sunday of 2024
+                    const dayName = format(date, 'EEE', { locale: dateLocale });
+                    return (
+                        <div key={day} className="py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <span className="hidden sm:inline">{dayName}</span>
+                            <span className="sm:hidden">{dayName.charAt(0)}</span>
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Calendar Grid */}
@@ -196,7 +205,7 @@ export default function PaymentsCalendar({ refreshTrigger }) {
                                         <div
                                             key={day.toString()}
                                             className={cn(
-                                                "min-h-[100px] sm:min-h-[120px] bg-white p-1 sm:p-2 transition-colors hover:bg-gray-50/50 relative group flex flex-col gap-1",
+                                                "min-h-[80px] sm:min-h-[120px] bg-white p-1 sm:p-2 transition-colors hover:bg-gray-50/50 relative group flex flex-col gap-1",
                                                 !isCurrentMonth && "bg-gray-50/30 text-gray-400"
                                             )}
                                         >
@@ -213,12 +222,12 @@ export default function PaymentsCalendar({ refreshTrigger }) {
                                                 </span>
                                                 {dayPayments.length > 0 && (
                                                     <span className="hidden sm:inline text-xs font-medium text-gray-500">
-                                                        {dayPayments.length} due
+                                                        {dayPayments.length}
                                                     </span>
                                                 )}
                                             </div>
 
-                                            <div className="space-y-1 flex-1 overflow-y-auto max-h-[80px] sm:max-h-none custom-scrollbar">
+                                            <div className="space-y-1 flex-1 overflow-y-auto max-h-[60px] sm:max-h-none custom-scrollbar">
                                                 {dayPayments.map(payment => (
                                                     <button
                                                         key={payment.id}

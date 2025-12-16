@@ -338,6 +338,120 @@
     }
   },
   "Admin": {
+    "Payments": {
+      "title": "إدارة المدفوعات",
+      "subtitle": "تتبع وإدارة جميع مدفوعات العملاء والمعاملات.",
+      "calendar_view": "عرض التقويم",
+      "list_view": "عرض القائمة",
+      "add_payment": "إضافة دفع",
+      "search_placeholder": "البحث في المدفوعات...",
+      "no_payments": "لم يتم العثور على مدفوعات",
+      "today": "اليوم",
+      "weekly_total": "الإجمالي الأسبوعي",
+      "export_pdf": "تصدير PDF",
+      "export_excel": "تصدير Excel",
+      "status_all": "جميع الحالات",
+      "status_pending": "قيد الانتظار",
+      "status_paid": "مدفوع",
+      "loading": "جاري تحميل المدفوعات...",
+      "report_title": "تقرير المدفوعات",
+      "generated_on": "تم الإنشاء في:",
+      "internal_doc": "بركة - وثيقة داخلية",
+      "status": {
+        "completed": "مكتمل",
+        "pending": "قيد الانتظار",
+        "failed": "فشل",
+        "refunded": "تم الاسترداد",
+        "paid": "مدفوع"
+      },
+      "table": {
+        "id": "المعرف",
+        "customer": "العميل",
+        "recipient": "المستلم",
+        "amount": "المبلغ",
+        "due_date": "تاريخ الاستحقاق",
+        "date": "التاريخ",
+        "type": "النوع",
+        "method": "الطريقة",
+        "check_number": "رقم الشيك",
+        "status": "الحالة",
+        "notes": "ملاحظات",
+        "actions": "إجراءات"
+      },
+      "modal": {
+        "title": "إضافة دفع جديد",
+        "add_title": "إضافة دفع جديد",
+        "customer": "العميل",
+        "amount": "المبلغ (€)",
+        "date": "التاريخ",
+        "method": "طريقة الدفع",
+        "status": "الحالة",
+        "notes": "ملاحظات",
+        "cancel": "إلغاء",
+        "save": "حفظ الدفع",
+        "saving": "جاري الحفظ...",
+        "confirm_delete": "هل أنت متأكد أنك تريد حذف هذا الدفع؟",
+        "mark_paid": "تحديد كمدفوع",
+        "delete": "حذف"
+      },
+      "types": {
+        "check": "شيك",
+        "cash": "نقدي",
+        "bank_transfer": "تحويل بنكي"
+      },
+      "toast": {
+        "created": "تم تسجيل الدفع بنجاح",
+        "updated": "تم تحديث الدفع بنجاح",
+        "deleted": "تم حذف الدفع بنجاح",
+        "error_create": "فشل في تسجيل الدفع",
+        "error_update": "فشل في تحديث الدفع",
+        "error_delete": "فشل في حذف الدفع"
+      }
+    },
+    "Points": {
+      "title": "لوحة النقاط",
+      "subtitle": "إدارة نقاط ولاء العملاء وعرض سجل المعاملات.",
+      "search_placeholder": "بحث عن عملاء...",
+      "nationality": "الجنسية",
+      "sort_by": "فرز حسب",
+      "all_countries": "جميع الدول",
+      "sort": {
+        "newest": "الأحدث أولاً",
+        "oldest": "الأقدم أولاً",
+        "name_asc": "الاسم (أ-ي)",
+        "name_desc": "الاسم (ي-أ)",
+        "nat_asc": "الجنسية (أ-ي)",
+        "nat_desc": "الجنسية (ي-أ)"
+      },
+      "total_points": "إجمالي النقاط",
+      "no_customers": "لم يتم العثور على عملاء",
+      "try_adjusting": "حاول تعديل مصطلحات البحث",
+      "load_more": "تحميل المزيد من العملاء",
+      "loading": "جاري التحميل...",
+      "console": {
+        "title": "وحدة تحكم النقاط",
+        "manage_for": "إدارة النقاط لـ {name}",
+        "current_balance": "الرصيد الحالي",
+        "add": "إضافة",
+        "deduct": "خصم",
+        "amount_label": "كمية النقاط",
+        "reason_label": "السبب (اختياري)",
+        "reason_placeholder": "مثال: مكافأة، استرداد...",
+        "add_btn": "إضافة نقاط",
+        "deduct_btn": "خصم نقاط",
+        "updating": "جاري التحديث...",
+        "history": "سجل المعاملات",
+        "no_history": "لا توجد معاملات حتى الآن",
+        "manual_add": "تعديل يدوي (إضافة)",
+        "manual_deduct": "تعديل يدوي (خصم)"
+      },
+      "toast": {
+        "success": "تم تحديث النقاط بنجاح!",
+        "error_missing_id": "معرف العميل مفقود",
+        "error_update": "فشل تحديث النقاط",
+        "error_generic": "حدث خطأ"
+      }
+    },
     "Eid": {
       "Reservations": {
         "title": "حجوزات العملاء",

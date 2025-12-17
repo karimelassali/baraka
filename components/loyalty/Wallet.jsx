@@ -434,7 +434,14 @@ export default function LoyaltyWallet({ compact = false }) {
                 </button>
               </div>
               <div className="p-6 space-y-4">
-                <p className="text-gray-600 mb-4">{t('tier_info_desc')}</p>
+                <div className="flex justify-center mb-4">
+                  <img
+                    src="/illus/undraw_wallet_diag.svg"
+                    alt="Tiers"
+                    className="h-32 w-auto object-contain"
+                  />
+                </div>
+                <p className="text-gray-600 mb-4 text-center">{t('tier_info_desc')}</p>
 
                 <div className="space-y-3">
                   {/* Legend */}

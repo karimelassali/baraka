@@ -13,13 +13,11 @@ export default function UnderConstruction() {
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="text-center max-w-4xl w-full"
             >
-                <div className="relative w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden shadow-xl border-4 border-red-600">
-                    <Image
-                        src="/logo.jpeg"
-                        alt="Baraka Logo"
-                        fill
-                        className="object-cover"
-                        priority
+                <div className="relative w-64 h-64 mx-auto mb-8">
+                    <img
+                        src="/illus/undraw_learning_qt7d.svg"
+                        alt="Under Construction"
+                        className="w-full h-full object-contain"
                     />
                 </div>
 

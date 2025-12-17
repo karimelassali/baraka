@@ -224,6 +224,7 @@
   "Dashboard": {
     "loading_dashboard": "Loading dashboard...",
     "welcome_back": "Welcome back",
+    "welcome_message": "Check your latest stats and offers.",
     "customer_dashboard": "Customer Dashboard",
     "overview": "Overview",
     "profile": "Profile",
@@ -1087,39 +1088,6 @@
       "delete_order": "Delete Order",
       "delete_confirm": "Permanently delete this order?"
     },
-    "Payments": {
-      "title": "Payments & Checks",
-      "subtitle": "Track upcoming payments, checks, and deadlines",
-      "calendar_view": "Calendar",
-      "list_view": "List",
-      "add_payment": "Add Payment",
-      "search_placeholder": "Search recipient...",
-      "status_all": "All Statuses",
-      "status_pending": "Pending",
-      "status_paid": "Paid",
-      "export_pdf": "Export PDF",
-      "export_excel": "Export Excel",
-      "table": {
-        "due_date": "Due Date",
-        "recipient": "Recipient",
-        "amount": "Amount",
-        "type": "Type",
-        "status": "Status",
-        "notes": "Notes",
-        "actions": "Actions",
-        "check_number": "Check #"
-      },
-      "modal": {
-        "add_title": "New Payment",
-        "details_title": "Payment Details",
-        "mark_paid": "Mark as Paid",
-        "delete": "Delete",
-        "save": "Save Payment",
-        "cancel": "Cancel",
-        "confirm_delete": "Are you sure you want to delete this payment?"
-      },
-      "weekly_total": "Weekly Total"
-    },
     "Customers": {
       "title": "Customer Management",
       "subtitle": "Manage your customer information and details",
@@ -1164,7 +1132,12 @@
       "error_create": "Failed to create customer",
       "error_update": "Failed to update customer",
       "error_generic": "An error occurred",
-      "load_more": "Load More"
+      "load_more": "Load More",
+      "quality_issues_title": "Data Quality Issues",
+      "quality_issues_desc": "The following customers have missing or invalid information.",
+      "attention_needed": "Attention Needed",
+      "quality_alert_msg": "We found {count} customer profiles with missing or invalid information.",
+      "view_details": "View Details"
     },
     "Suggestions": {
       "inactive_title": "Inactive Customers",
@@ -1473,6 +1446,176 @@
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected"
+    }
+  },
+  "HowToUse": {
+    "title": "How to Use Baraka Platform",
+    "subtitle": "Unlock the full potential of your loyalty experience. A complete guide for customers and administrators.",
+    "tabs": {
+      "overview": "Overview",
+      "admin": "Admin Guide",
+      "customer": "Customer Guide"
+    },
+    "Overview": {
+      "title": "Platform Overview",
+      "what_title": "What is Baraka?",
+      "what_desc": "Baraka is more than just a loyalty platform—it's a bridge between businesses and their community. We combine smart technology with personal care to create a seamless shopping experience.",
+      "why_title": "Why Choose Baraka?",
+      "why_desc": "Experience a new standard of customer engagement and rewards.",
+      "benefits": {
+        "loyalty_title": "Rewards That Matter",
+        "loyalty_desc": "Earn points on every purchase and redeem them for real value.",
+        "engagement_title": "Stay Connected",
+        "engagement_desc": "Receive personalized offers and updates that match your interests.",
+        "info_title": "Smart Management",
+        "info_desc": "Keep track of your history and manage your preferences effortlessly."
+      },
+      "features": {
+        "whatsapp": "WhatsApp Integration",
+        "multilang": "Multi-language Support",
+        "gdpr": "GDPR Compliance",
+        "analytics": "Real-time Analytics"
+      },
+      "when_title": "Who is it for?",
+      "business_title": "For Business Owners",
+      "customer_title": "For Customers",
+      "business_list": [
+        "Grow your customer base",
+        "Boost retention rates",
+        "Data-driven marketing",
+        "Seamless communication"
+      ],
+      "customer_list": [
+        "Earn exclusive rewards",
+        "Track your progress",
+        "Get personalized deals",
+        "Secure & Private"
+      ],
+      "how_title": "How It Works",
+      "steps": {
+        "1_title": "Join",
+        "1_desc": "Register in seconds and start your journey.",
+        "2_title": "Earn",
+        "2_desc": "Shop and collect points automatically.",
+        "3_title": "Enjoy",
+        "3_desc": "Redeem points for amazing rewards."
+      }
+    },
+    "Admin": {
+      "title": "Admin Guide",
+      "dashboard_title": "Command Center",
+      "dashboard_desc": "Your central hub for managing the entire loyalty ecosystem. Secure, powerful, and intuitive.",
+      "key_features_title": "Power Tools",
+      "features": {
+        "customer_mgmt": "Customer Insights",
+        "customer_list": [
+          "360° Customer View",
+          "Smart Filtering",
+          "Engagement History"
+        ],
+        "points_system": "Points Engine",
+        "points_list": [
+          "Instant Allocation",
+          "Transaction History",
+          "Flexible Rules"
+        ],
+        "offers_mgmt": "Campaign Manager",
+        "offers_list": [
+          "Weekly Deals",
+          "Targeted Offers",
+          "Multi-channel Reach"
+        ],
+        "reviews_comms": "Communication Hub",
+        "reviews_list": [
+          "Review Moderation",
+          "WhatsApp Campaigns",
+          "Automated Alerts"
+        ]
+      },
+      "manage_customers_title": "Managing Customers",
+      "manage_customers_steps": [
+        "Access 'Customers' section",
+        "View detailed profiles",
+        "Filter by demographics",
+        "Update information instantly"
+      ],
+      "process_points_title": "Processing Points",
+      "adding_points_title": "Awarding Points",
+      "adding_points_steps": [
+        "Select 'Add Points'",
+        "Find customer",
+        "Enter amount",
+        "Confirm transaction"
+      ],
+      "converting_vouchers_title": "Creating Vouchers",
+      "converting_vouchers_steps": [
+        "Open Customer Wallet",
+        "Select 'Create Voucher'",
+        "Set point value",
+        "Generate & Share"
+      ],
+      "whatsapp_title": "WhatsApp Campaigns",
+      "whatsapp_desc": "Reach your customers where they are. Send approved templates for promotions, updates, and greetings.",
+      "whatsapp_steps": [
+        "Go to 'Campaigns'",
+        "Choose template",
+        "Select audience",
+        "Send & Track"
+      ]
+    },
+    "Customer": {
+      "title": "Customer Guide",
+      "getting_started_title": "Start Your Journey",
+      "getting_started_desc": "Welcome to a rewarding experience. Baraka makes it easy to earn, track, and enjoy your benefits.",
+      "register_title": "Registration",
+      "required_info_title": "What You Need",
+      "required_info_list": [
+        "Basic Personal Details",
+        "Contact Information",
+        "Residence",
+        "GDPR Consent"
+      ],
+      "reg_steps_title": "Easy Steps",
+      "reg_steps_list": [
+        "Click Register",
+        "Fill Details",
+        "Confirm",
+        "Start Earning"
+      ],
+      "dashboard_title": "Your Dashboard",
+      "dashboard_desc": "Your personal command center for all things loyalty.",
+      "dashboard_sections": {
+        "profile": "Your Profile",
+        "profile_desc": "Manage your identity",
+        "wallet": "Your Wallet",
+        "wallet_desc": "Track your wealth",
+        "offers": "Your Deals",
+        "offers_desc": "Exclusive for you"
+      },
+      "points_title": "Points & Rewards",
+      "how_points_work_title": "The Math is Simple",
+      "how_points_work_desc": "Shop more, earn more. It's that easy.",
+      "how_points_work_list": [
+        "€1 Spent = 1 Point",
+        "Automatic Tracking",
+        "No Expiration (Active Accounts)"
+      ],
+      "redeeming_title": "Get Rewarded",
+      "redeeming_desc": "Turn your points into store credit.",
+      "redeeming_steps": [
+        "Check Balance",
+        "Request Voucher",
+        "Apply at Checkout"
+      ],
+      "managing_account_title": "Stay Updated",
+      "updating_info_title": "Keep it Fresh",
+      "updating_info_desc": "Ensure your details are current to never miss a reward.",
+      "updating_info_steps": [
+        "Login",
+        "Go to Profile",
+        "Update",
+        "Save"
+      ]
     }
   }
 }

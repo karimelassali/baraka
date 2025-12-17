@@ -454,12 +454,24 @@ const CustomerVoucherCard = ({ customer, onClick }) => (
       </div>
 
       <CardContent className="p-6 flex flex-col items-center text-center pt-8">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-900/10 flex items-center justify-center mb-4 shadow-inner overflow-hidden border-2 border-purple-500/20">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-900/10 flex items-center justify-center mb-4 shadow-inner overflow-visible border-2 border-purple-500/20 relative">
           <img
             src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
             alt={customer.first_name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover rounded-full overflow-hidden"
           />
+          {(() => {
+            const countryCode = countries.find(c => c.name === customer.country_of_origin)?.code?.toLowerCase();
+            return countryCode ? (
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-2 border-background overflow-hidden z-20 shadow-md bg-white">
+                <img
+                  src={`https://flagcdn.com/w80/${countryCode}.png`}
+                  alt={customer.country_of_origin}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : null;
+          })()}
         </div>
 
         <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>

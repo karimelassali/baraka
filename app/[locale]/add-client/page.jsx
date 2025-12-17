@@ -1088,12 +1088,24 @@ export default function AddClientPage() {
                                                 <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-8 h-8 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                                                            <div className="w-8 h-8 rounded-full bg-gray-100 overflow-visible shrink-0 border border-gray-200 relative">
                                                                 <img
                                                                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.email || item.first_name}`}
                                                                     alt="Avatar"
-                                                                    className="w-full h-full object-cover"
+                                                                    className="w-full h-full object-cover rounded-full overflow-hidden"
                                                                 />
+                                                                {(() => {
+                                                                    const countryCode = countries.find(c => c.name === item.country)?.code?.toLowerCase();
+                                                                    return countryCode ? (
+                                                                        <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border border-white overflow-hidden z-20 shadow-sm bg-white">
+                                                                            <img
+                                                                                src={`https://flagcdn.com/w40/${countryCode}.png`}
+                                                                                alt={item.country}
+                                                                                className="w-full h-full object-cover"
+                                                                            />
+                                                                        </div>
+                                                                    ) : null;
+                                                                })()}
                                                             </div>
                                                             <div>
                                                                 <p className="font-bold text-gray-800">{item.first_name} {item.last_name}</p>
@@ -1451,12 +1463,24 @@ export default function AddClientPage() {
                                                             className="p-4 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                                                         >
                                                             <div className="flex items-start gap-4">
-                                                                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-200">
+                                                                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-visible shrink-0 border border-gray-200 relative">
                                                                     <img
                                                                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${client.email || client.first_name}`}
                                                                         alt="Avatar"
-                                                                        className="w-full h-full object-cover"
+                                                                        className="w-full h-full object-cover rounded-full overflow-hidden"
                                                                     />
+                                                                    {(() => {
+                                                                        const countryCode = countries.find(c => c.name === client.country_of_origin)?.code?.toLowerCase();
+                                                                        return countryCode ? (
+                                                                            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border border-white overflow-hidden z-20 shadow-sm bg-white">
+                                                                                <img
+                                                                                    src={`https://flagcdn.com/w40/${countryCode}.png`}
+                                                                                    alt={client.country_of_origin}
+                                                                                    className="w-full h-full object-cover"
+                                                                                />
+                                                                            </div>
+                                                                        ) : null;
+                                                                    })()}
                                                                 </div>
                                                                 <div className="flex-grow">
                                                                     <h4 className="font-semibold text-gray-800">{client.first_name} {client.last_name}</h4>

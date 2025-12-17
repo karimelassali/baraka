@@ -224,6 +224,7 @@
   "Dashboard": {
     "loading_dashboard": "Caricamento dashboard...",
     "welcome_back": "Bentornato",
+    "welcome_message": "Controlla le tue ultime statistiche e offerte.",
     "customer_dashboard": "Dashboard Cliente",
     "overview": "Panoramica",
     "profile": "Profilo",
@@ -1091,39 +1092,6 @@
       "delete_order": "Elimina Ordine",
       "delete_confirm": "Eliminare definitivamente questo ordine?"
     },
-    "Payments": {
-      "title": "Pagamenti e Assegni",
-      "subtitle": "Traccia pagamenti imminenti, assegni e scadenze",
-      "calendar_view": "Calendar",
-      "list_view": "List",
-      "add_payment": "Aggiungi Pagamento",
-      "search_placeholder": "Cerca destinatario...",
-      "status_all": "Tutti gli Stati",
-      "status_pending": "In Sospeso",
-      "status_paid": "Pagato",
-      "export_pdf": "Esporta PDF",
-      "export_excel": "Esporta Excel",
-      "table": {
-        "due_date": "Data Scadenza",
-        "recipient": "Destinatario",
-        "amount": "Importo",
-        "type": "Tipo",
-        "status": "Stato",
-        "notes": "Note",
-        "actions": "Azioni",
-        "check_number": "Assegno #"
-      },
-      "modal": {
-        "add_title": "Nuovo Pagamento",
-        "details_title": "Dettagli Pagamento",
-        "mark_paid": "Segna come Pagato",
-        "delete": "Elimina",
-        "save": "Salva Pagamento",
-        "cancel": "Annulla",
-        "confirm_delete": "Sei sicuro di voler eliminare questo pagamento?"
-      },
-      "weekly_total": "Totale Settimanale"
-    },
     "Customers": {
       "title": "Gestione Clienti",
       "subtitle": "Gestisci le informazioni e i dettagli dei tuoi clienti",
@@ -1168,7 +1136,12 @@
       "error_create": "Impossibile creare il cliente",
       "error_update": "Impossibile aggiornare il cliente",
       "error_generic": "Si è verificato un errore",
-      "load_more": "Carica Altri"
+      "load_more": "Carica Altri",
+      "quality_issues_title": "Problemi Qualità Dati",
+      "quality_issues_desc": "I seguenti clienti hanno informazioni mancanti o non valide.",
+      "attention_needed": "Attenzione Richiesta",
+      "quality_alert_msg": "Abbiamo trovato {count} profili clienti con informazioni mancanti o non valide.",
+      "view_details": "Vedi Dettagli"
     },
     "Suggestions": {
       "inactive_title": "Clienti Inattivi",
@@ -1477,6 +1450,176 @@
       "pending": "In Attesa",
       "approved": "Approvato",
       "rejected": "Rifiutato"
+    }
+  },
+  "HowToUse": {
+    "title": "Come Usare la Piattaforma Baraka",
+    "subtitle": "Sblocca tutto il potenziale della tua esperienza fedeltà. Una guida completa per clienti e amministratori.",
+    "tabs": {
+      "overview": "Panoramica",
+      "admin": "Guida Amministratore",
+      "customer": "Guida Cliente"
+    },
+    "Overview": {
+      "title": "Panoramica Piattaforma",
+      "what_title": "Cos'è Baraka?",
+      "what_desc": "Baraka è più di una semplice piattaforma di fedeltà: è un ponte tra le aziende e la loro comunità. Combiniamo tecnologia intelligente con cura personale per creare un'esperienza di acquisto senza interruzioni.",
+      "why_title": "Perché Scegliere Baraka?",
+      "why_desc": "Sperimenta un nuovo standard di coinvolgimento e premi per i clienti.",
+      "benefits": {
+        "loyalty_title": "Premi che Contano",
+        "loyalty_desc": "Guadagna punti su ogni acquisto e riscattali per un valore reale.",
+        "engagement_title": "Resta Connesso",
+        "engagement_desc": "Ricevi offerte personalizzate e aggiornamenti che corrispondono ai tuoi interessi.",
+        "info_title": "Gestione Intelligente",
+        "info_desc": "Tieni traccia della tua cronologia e gestisci le tue preferenze senza sforzo."
+      },
+      "features": {
+        "whatsapp": "Integrazione WhatsApp",
+        "multilang": "Supporto Multilingua",
+        "gdpr": "Conformità GDPR",
+        "analytics": "Analisi in Tempo Reale"
+      },
+      "when_title": "Per chi è?",
+      "business_title": "Per Proprietari di Aziende",
+      "customer_title": "Per i Clienti",
+      "business_list": [
+        "Fai crescere la tua base clienti",
+        "Aumenta i tassi di fidelizzazione",
+        "Marketing basato sui dati",
+        "Comunicazione senza interruzioni"
+      ],
+      "customer_list": [
+        "Guadagna premi esclusivi",
+        "Traccia i tuoi progressi",
+        "Ottieni offerte personalizzate",
+        "Sicuro e Privato"
+      ],
+      "how_title": "Come Funziona",
+      "steps": {
+        "1_title": "Unisciti",
+        "1_desc": "Registrati in pochi secondi e inizia il tuo viaggio.",
+        "2_title": "Guadagna",
+        "2_desc": "Acquista e raccogli punti automaticamente.",
+        "3_title": "Divertiti",
+        "3_desc": "Riscatta i punti per premi incredibili."
+      }
+    },
+    "Admin": {
+      "title": "Guida Amministratore",
+      "dashboard_title": "Centro di Comando",
+      "dashboard_desc": "Il tuo hub centrale per gestire l'intero ecosistema di fedeltà. Sicuro, potente e intuitivo.",
+      "key_features_title": "Strumenti Potenti",
+      "features": {
+        "customer_mgmt": "Approfondimenti Clienti",
+        "customer_list": [
+          "Vista Cliente a 360°",
+          "Filtraggio Intelligente",
+          "Cronologia Coinvolgimento"
+        ],
+        "points_system": "Motore Punti",
+        "points_list": [
+          "Assegnazione Istantanea",
+          "Cronologia Transazioni",
+          "Regole Flessibili"
+        ],
+        "offers_mgmt": "Gestore Campagne",
+        "offers_list": [
+          "Offerte Settimanali",
+          "Offerte Mirate",
+          "Portata Multicanale"
+        ],
+        "reviews_comms": "Hub di Comunicazione",
+        "reviews_list": [
+          "Moderazione Recensioni",
+          "Campagne WhatsApp",
+          "Avvisi Automatizzati"
+        ]
+      },
+      "manage_customers_title": "Gestione Clienti",
+      "manage_customers_steps": [
+        "Accedi alla sezione 'Clienti'",
+        "Visualizza profili dettagliati",
+        "Filtra per dati demografici",
+        "Aggiorna le informazioni istantaneamente"
+      ],
+      "process_points_title": "Elaborazione Punti",
+      "adding_points_title": "Assegnazione Punti",
+      "adding_points_steps": [
+        "Seleziona 'Aggiungi Punti'",
+        "Trova cliente",
+        "Inserisci importo",
+        "Conferma transazione"
+      ],
+      "converting_vouchers_title": "Creazione Voucher",
+      "converting_vouchers_steps": [
+        "Apri Portafoglio Cliente",
+        "Seleziona 'Crea Voucher'",
+        "Imposta valore punti",
+        "Genera e Condividi"
+      ],
+      "whatsapp_title": "Campagne WhatsApp",
+      "whatsapp_desc": "Raggiungi i tuoi clienti dove si trovano. Invia modelli approvati per promozioni, aggiornamenti e saluti.",
+      "whatsapp_steps": [
+        "Vai a 'Campagne'",
+        "Scegli modello",
+        "Seleziona pubblico",
+        "Invia e Traccia"
+      ]
+    },
+    "Customer": {
+      "title": "Guida Cliente",
+      "getting_started_title": "Inizia il Tuo Viaggio",
+      "getting_started_desc": "Benvenuto in un'esperienza gratificante. Baraka rende facile guadagnare, tracciare e godere dei tuoi vantaggi.",
+      "register_title": "Registrazione",
+      "required_info_title": "Cosa Ti Serve",
+      "required_info_list": [
+        "Dettagli Personali di Base",
+        "Informazioni di Contatto",
+        "Residenza",
+        "Consenso GDPR"
+      ],
+      "reg_steps_title": "Passaggi Facili",
+      "reg_steps_list": [
+        "Clicca Registrati",
+        "Compila Dettagli",
+        "Conferma",
+        "Inizia a Guadagnare"
+      ],
+      "dashboard_title": "La Tua Dashboard",
+      "dashboard_desc": "Il tuo centro di comando personale per tutto ciò che riguarda la fedeltà.",
+      "dashboard_sections": {
+        "profile": "Il Tuo Profilo",
+        "profile_desc": "Gestisci la tua identità",
+        "wallet": "Il Tuo Portafoglio",
+        "wallet_desc": "Traccia la tua ricchezza",
+        "offers": "Le Tue Offerte",
+        "offers_desc": "Esclusivo per te"
+      },
+      "points_title": "Punti e Premi",
+      "how_points_work_title": "La Matematica è Semplice",
+      "how_points_work_desc": "Acquista di più, guadagna di più. È così facile.",
+      "how_points_work_list": [
+        "€1 Speso = 1 Punto",
+        "Tracciamento Automatico",
+        "Nessuna Scadenza (Account Attivi)"
+      ],
+      "redeeming_title": "Ottieni Premi",
+      "redeeming_desc": "Trasforma i tuoi punti in credito negozio.",
+      "redeeming_steps": [
+        "Controlla Saldo",
+        "Richiedi Voucher",
+        "Applica al Checkout"
+      ],
+      "managing_account_title": "Rimani Aggiornato",
+      "updating_info_title": "Tienilo Aggiornato",
+      "updating_info_desc": "Assicurati che i tuoi dettagli siano aggiornati per non perdere mai un premio.",
+      "updating_info_steps": [
+        "Accedi",
+        "Vai al Profilo",
+        "Aggiorna",
+        "Salva"
+      ]
     }
   }
 }

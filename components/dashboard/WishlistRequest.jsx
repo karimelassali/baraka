@@ -202,9 +202,13 @@ export default function WishlistRequest({ user }) {
                                 <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
                             </div>
                         ) : myRequests.length === 0 ? (
-                            <div className="text-center py-20">
-                                <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <Heart className="w-10 h-10 text-gray-400" />
+                            <div className="text-center py-16 flex flex-col items-center justify-center">
+                                <div className="w-48 h-48 mb-6 opacity-90">
+                                    <img
+                                        src="/illus/undraw_empty-cart_574u.svg"
+                                        alt="No requests"
+                                        className="w-full h-full object-contain"
+                                    />
                                 </div>
                                 <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                                     {t('Wishlist.NoRequests')}

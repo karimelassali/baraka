@@ -24,7 +24,9 @@ import {
   RefreshCw,
   Trash2,
   Shield,
-  Globe
+  Globe,
+  AlertTriangle,
+  ArrowRight
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -460,17 +462,29 @@ const CustomerGridCard = ({ customer, onEdit }) => (
       </div>
 
       <CardContent className="p-6 flex flex-col items-center text-center pt-8 flex-1">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-inner relative overflow-hidden border-2 border-primary/10">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-inner relative overflow-visible border-2 border-primary/10">
           <img
             src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
             alt={customer.first_name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover rounded-full overflow-hidden"
           />
           {customer.email_confirmed && (
-            <div className="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 border-2 border-background z-10">
+            <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-background z-10 shadow-sm">
               <Check className="w-3 h-3 text-white" />
             </div>
           )}
+          {(() => {
+            const countryCode = countries.find(c => c.name === customer.country_of_origin)?.code?.toLowerCase();
+            return countryCode ? (
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-2 border-background overflow-hidden z-20 shadow-md bg-white">
+                <img
+                  src={`https://flagcdn.com/w80/${countryCode}.png`}
+                  alt={customer.country_of_origin}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : null;
+          })()}
         </div>
 
         <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
@@ -494,6 +508,119 @@ const CustomerGridCard = ({ customer, onEdit }) => (
   </motion.div>
 );
 
+function DataQualityModal({ issues, isOpen, onClose, onEdit }) {
+  const t = useTranslations('Admin.Customers');
+  const [filter, setFilter] = useState('all');
+
+  if (!isOpen) return null;
+
+  const filteredIssues = issues.filter(issue => {
+    if (filter === 'all') return true;
+    return issue.missing.includes(filter);
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <motion.div
+        className="bg-background/95 border border-border/50 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+      >
+        <div className="p-6 border-b border-border/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold flex items-center gap-2 text-amber-600 dark:text-amber-500">
+              <AlertTriangle className="h-6 w-6" />
+              {t('quality_issues_title') || 'Data Quality Issues'}
+            </h2>
+            <p className="text-muted-foreground mt-1">
+              {t('quality_issues_desc') || 'The following customers have missing or invalid information.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="pl-9 pr-4 py-2 bg-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 appearance-none"
+              >
+                <option value="all">All Issues</option>
+                <option value="name">Missing Name</option>
+                <option value="email">Invalid Email</option>
+                <option value="location">Missing Location</option>
+              </select>
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="overflow-y-auto p-6 space-y-4">
+          {filteredIssues.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No issues found matching this filter.</p>
+            </div>
+          ) : (
+            filteredIssues.map((issue) => (
+              <div key={issue.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                    <img
+                      src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${issue.first_name || 'unknown'}`}
+                      alt="avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-sm">
+                      {issue.first_name || issue.last_name ? `${issue.first_name || ''} ${issue.last_name || ''}` : 'Unknown Name'}
+                    </h4>
+                    <p className="text-xs text-muted-foreground">{issue.email || 'No Email'}</p>
+                    <p className="text-[10px] text-muted-foreground/50 font-mono mt-0.5">{issue.id}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="flex gap-2">
+                    {issue.missing.includes('name') && (
+                      <Badge variant="outline" className="text-xs border-red-200 bg-red-50 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300">
+                        Missing Name
+                      </Badge>
+                    )}
+                    {issue.missing.includes('email') && (
+                      <Badge variant="outline" className="text-xs border-orange-200 bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-300">
+                        Invalid Email
+                      </Badge>
+                    )}
+                    {issue.missing.includes('location') && (
+                      <Badge variant="outline" className="text-xs border-yellow-200 bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300">
+                        Missing Location
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      onEdit(issue);
+                      onClose();
+                    }}
+                    className="hover:bg-primary/10 hover:text-primary"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function EnhancedCustomerManagement() {
   const t = useTranslations('Admin.Customers');
   const [customers, setCustomers] = useState([]);
@@ -513,6 +640,26 @@ export default function EnhancedCustomerManagement() {
   // Filter states
   const [locationFilter, setLocationFilter] = useState('');
   const [verifiedFilter, setVerifiedFilter] = useState('all');
+
+  // Quality Check State
+  const [qualityIssues, setQualityIssues] = useState([]);
+  const [showQualityModal, setShowQualityModal] = useState(false);
+
+  const checkQuality = async () => {
+    try {
+      const res = await fetch('/api/admin/customers/quality-check');
+      const data = await res.json();
+      if (data.issues) {
+        setQualityIssues(data.issues);
+      }
+    } catch (error) {
+      console.error('Failed to check quality:', error);
+    }
+  };
+
+  useEffect(() => {
+    checkQuality();
+  }, []);
 
   const loadCustomers = async (reset = false) => {
     const currentOffset = reset ? 0 : offset;
@@ -595,6 +742,41 @@ export default function EnhancedCustomerManagement() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
+      {/* Quality Alert Section */}
+      <AnimatePresence>
+        {qualityIssues.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, height: 0 }}
+            animate={{ opacity: 1, y: 0, height: 'auto' }}
+            exit={{ opacity: 0, y: -20, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div
+              onClick={() => setShowQualityModal(true)}
+              className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/20 transition-colors group"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg text-amber-600 dark:text-amber-500">
+                  <AlertTriangle className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-amber-900 dark:text-amber-400">
+                    {t('attention_needed') || 'Attention Needed'}
+                  </h3>
+                  <p className="text-sm text-amber-700 dark:text-amber-500/80">
+                    {t('quality_alert_msg', { count: qualityIssues.length }) || `We found ${qualityIssues.length} customer profiles with missing or invalid information.`}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-500 font-medium text-sm group-hover:translate-x-1 transition-transform">
+                {t('view_details') || 'View Details'}
+                <ArrowRight className="h-4 w-4" />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header Card */}
       <GlassCard className="border-l-4 border-l-primary overflow-hidden relative">
         <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
@@ -757,7 +939,17 @@ export default function EnhancedCustomerManagement() {
         customer={selectedCustomer}
         isOpen={!!selectedCustomer}
         onClose={() => setSelectedCustomer(null)}
-        onSave={() => loadCustomers(true)}
+        onSave={() => {
+          loadCustomers(true);
+          checkQuality(); // Re-check quality after edit
+        }}
+      />
+
+      <DataQualityModal
+        issues={qualityIssues}
+        isOpen={showQualityModal}
+        onClose={() => setShowQualityModal(false)}
+        onEdit={setSelectedCustomer}
       />
     </motion.div>
   );

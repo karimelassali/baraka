@@ -26,7 +26,7 @@ export async function PUT(request, { params }) {
   }
 
   // Extract customer id from params
-  const customerId = params.id;
+  const { id: customerId } = await params;
 
   if (!customerId) {
     return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
@@ -74,7 +74,7 @@ export async function DELETE(request, { params }) {
   }
 
   // Extract customer id from params
-  const customerId = params.id;
+  const { id: customerId } = await params;
 
   if (!customerId) {
     return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });

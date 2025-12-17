@@ -87,6 +87,23 @@ export default function DashboardPage() {
       case 'overview':
         return (
           <div className="space-y-6">
+            {/* Welcome Banner */}
+            <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+              <div className="relative z-10 max-w-lg">
+                <h2 className="text-2xl font-bold mb-2">{t('welcome_back')}, {user.user_metadata?.first_name || 'User'}!</h2>
+                <p className="text-red-100 mb-4">
+                  {t('welcome_message') || "Check your latest stats and offers."}
+                </p>
+              </div>
+              <div className="absolute right-0 bottom-0 w-64 h-64 transform translate-x-10 translate-y-10 opacity-20 pointer-events-none">
+                <img
+                  src="/illus/undraw_a-moment-to-relax_mrkn.svg"
+                  alt="Welcome"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+
             <Statistics user={user} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -161,7 +178,10 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <div className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
+            <div
+              className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform"
+              onClick={() => setActiveTab('profile')}
+            >
               <img
                 src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
                 alt="User Avatar"
@@ -187,8 +207,18 @@ export default function DashboardPage() {
                   {activeTab === 'wishlist' && t('wishlist_desc')}
                 </p>
               </div>
-              <div className="hidden lg:block">
+              <div className="hidden lg:flex items-center gap-4">
                 <LanguageSwitcher />
+                <div
+                  className="w-10 h-10 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform shadow-sm"
+                  onClick={() => setActiveTab('profile')}
+                >
+                  <img
+                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                    alt="User Avatar"
+                    className="w-full h-full rounded-full bg-white"
+                  />
+                </div>
               </div>
             </div>
 

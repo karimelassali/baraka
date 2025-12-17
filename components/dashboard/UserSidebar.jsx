@@ -102,7 +102,10 @@ export default function UserSidebar({
             {/* User Profile Section - Pushed to bottom */}
             <div className="p-4 border-t border-gray-100 bg-gray-50/50 shrink-0 mt-auto">
                 <div className="bg-white rounded-2xl p-4 mb-3 border border-gray-100 shadow-sm">
-                    <div className="flex items-center space-x-3 mb-3">
+                    <div
+                        className="flex items-center space-x-3 mb-3 cursor-pointer hover:bg-gray-50 p-2 rounded-xl transition-colors"
+                        onClick={() => setActiveTab('profile')}
+                    >
                         <div className="relative">
                             <div className="w-10 h-10 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
                                 <img
@@ -181,8 +184,12 @@ export default function UserSidebar({
                         className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 z-[101] border border-gray-100"
                     >
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4">
-                                <LogOut className="w-8 h-8 text-red-500" />
+                            <div className="w-full flex justify-center mb-4">
+                                <img
+                                    src="/illus/undraw_a-moment-to-relax_mrkn.svg"
+                                    alt="Sign Out"
+                                    className="h-32 w-auto object-contain"
+                                />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-2">
                                 {t('sign_out')}?

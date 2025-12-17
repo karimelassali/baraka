@@ -25,7 +25,7 @@ export default function TermsPage() {
             <li><strong>Applicazione:</strong> il sito web, l'app e i servizi correlati forniti da Baraka S.R.L.</li>
             <li><strong>Utente:</strong> la persona fisica o giuridica che utilizza l'Applicazione.</li>
             <li><strong>Servizio:</strong> il servizio offerto tramite l'Applicazione come descritto nei presenti Termini.</li>
-            <li><strong>Titolare:</strong> Baraka S.R.L., con sede legale in [Inserire Indirizzo], P.IVA [Inserire P.IVA].</li>
+            <li><strong>Titolare:</strong> Baraka S.R.L., P.IVA 02696700182.</li>
           </ul>
         </PolicySection>
 
@@ -123,8 +123,7 @@ export default function TermsPage() {
           <p>
             Per qualsiasi domanda riguardante i presenti Termini, si prega di contattarci a:<br />
             <strong>Baraka S.R.L.</strong><br />
-            Email: [Inserire Email Supporto]<br />
-            Telefono: [Inserire Telefono]
+            Email: baraka.csg@gmail.com
           </p>
         </PolicySection>
       </PolicyContent>

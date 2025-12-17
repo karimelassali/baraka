@@ -49,7 +49,9 @@ export default function WaitlistLanding() {
       step3: "Where are you located?",
       warningTitle: "Notice",
       close: "Close",
-      howToUse: "How to Use"
+      howToUse: "How to Use",
+      privacy: "Privacy Policy",
+      terms: "Terms & Conditions"
     },
     it: {
       title: "Prossimamente",
@@ -70,7 +72,9 @@ export default function WaitlistLanding() {
       step3: "Dove ti trovi?",
       warningTitle: "Avviso",
       close: "Chiudi",
-      howToUse: "Guida all'uso"
+      howToUse: "Guida all'uso",
+      privacy: "Privacy Policy",
+      terms: "Termini e Condizioni"
     },
     ar: {
       title: "قريباً",
@@ -91,7 +95,9 @@ export default function WaitlistLanding() {
       step3: "أين تقع؟",
       warningTitle: "تنبيه",
       close: "إغلاق",
-      howToUse: "كيفية الاستخدام"
+      howToUse: "كيفية الاستخدام",
+      privacy: "سياسة الخصوصية",
+      terms: "الشروط والأحكام"
     }
   };
 
@@ -513,8 +519,13 @@ export default function WaitlistLanding() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1.5 }}
-            className="absolute bottom-6 z-10"
+            className="absolute bottom-6 z-10 flex flex-col items-center gap-4"
           >
+            <div className="flex gap-6 text-sm text-gray-500">
+              <a href={`/${language}/privacy`} className="hover:text-gray-900 transition-colors font-medium">{currentT.privacy}</a>
+              <a href={`/${language}/terms`} className="hover:text-gray-900 transition-colors font-medium">{currentT.terms}</a>
+            </div>
+
             <a
               href="https://elassali.netlify.app/"
               target="_blank"

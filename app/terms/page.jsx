@@ -12,7 +12,7 @@ export default function TermsPage() {
         <PolicySection title="About Us" id="about-us">
           <p>
             These Terms and Conditions govern your use of [Service Name] operated by 
-            [Legal Company Name], registered at [Full Address], company/tax number 
+            Baraka, registered at [Full Address], company/tax number 
             [Number if applicable]. Contact: [support email] and [phone number]. 
             By accessing or registering, you agree to these Terms.
           </p>

@@ -17,6 +17,8 @@ export async function updateSession(request: NextRequest, response?: NextRespons
             cleanPath === '/' || // Allow root (which shows waitlist)
             cleanPath === '/add-client' ||
             cleanPath.startsWith('/how-to-use') || // Allow how-to-use pages
+            cleanPath.startsWith('/privacy') || // Allow privacy page
+            cleanPath.startsWith('/terms') || // Allow terms page
             pathname === '/' ||
             pathname === '/add-client' ||
             pathname.startsWith('/api') ||

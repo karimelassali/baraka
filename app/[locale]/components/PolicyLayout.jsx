@@ -18,7 +18,7 @@ const PolicyLayout = ({ title, children, lastUpdated }) => {
         </main>
         
         <footer className="mt-8 sm:mt-12 text-center text-xs sm:text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} [Legal Company Name]. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Baraka. All rights reserved.</p>
         </footer>
       </div>
     </div>

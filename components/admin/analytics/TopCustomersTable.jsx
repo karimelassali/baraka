@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trophy, Medal, Award, User } from 'lucide-react';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }) {
     if (!data || data.length === 0) {
@@ -51,7 +52,7 @@ export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }
                                                     index === 2 ? 'border-orange-300' :
                                                         'border-transparent'}`}>
                                             <img
-                                                src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${item.customer.first_name}`}
+                                                src={getAvatarUrl(item.customer.first_name)}
                                                 alt={item.customer.first_name}
                                                 className="w-full h-full object-cover"
                                             />

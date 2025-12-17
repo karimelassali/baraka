@@ -28,6 +28,7 @@ import CategoryDistributionChart from './charts/CategoryDistributionChart';
 import TopCustomersTable from './TopCustomersTable';
 import TopCountriesList from './TopCountriesList';
 import InventoryAlerts from './InventoryAlerts';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function AnalyticsDashboard() {
     const t = useTranslations('Admin.Analytics');
@@ -530,7 +531,7 @@ export default function AnalyticsDashboard() {
                                         <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors border border-border/50">
                                             <div className="w-10 h-10 rounded-full border border-background overflow-hidden flex-shrink-0">
                                                 <img
-                                                    src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.first_name}`}
+                                                    src={getAvatarUrl(user.first_name)}
                                                     alt={user.first_name}
                                                     className="w-full h-full object-cover"
                                                 />

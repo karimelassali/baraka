@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function AddClientPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -833,7 +834,7 @@ export default function AddClientPage() {
                                                         <div className="flex items-start gap-4">
                                                             <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center text-red-600 font-bold shrink-0 overflow-hidden border border-red-100">
                                                                 <img
-                                                                    src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${client.first_name}`}
+                                                                    src={getAvatarUrl(client.first_name)}
                                                                     alt={client.first_name}
                                                                     className="w-full h-full object-cover"
                                                                 />

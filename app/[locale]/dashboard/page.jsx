@@ -24,6 +24,7 @@ import UserSidebar from '@/components/dashboard/UserSidebar';
 import PaymentMethodsBox from '@/components/client/PaymentMethodsBox';
 import DashboardTour from '@/components/dashboard/DashboardTour';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
@@ -196,7 +197,7 @@ export default function DashboardPage() {
               onClick={() => setActiveTab('profile')}
             >
               <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                src={getAvatarUrl(user.email)}
                 alt="User Avatar"
                 className="w-full h-full rounded-full bg-white"
               />
@@ -227,7 +228,7 @@ export default function DashboardPage() {
                   onClick={() => setActiveTab('profile')}
                 >
                   <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                    src={getAvatarUrl(user.email)}
                     alt="User Avatar"
                     className="w-full h-full rounded-full bg-white"
                   />

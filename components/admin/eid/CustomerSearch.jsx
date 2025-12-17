@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { countries } from '@/lib/constants/countries';
 import { useTranslations } from 'next-intl';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function CustomerSearch({ onSelect, selectedCustomer }) {
     const t = useTranslations('Admin.Eid.CustomerSearch');
@@ -88,7 +89,7 @@ export default function CustomerSearch({ onSelect, selectedCustomer }) {
                         >
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-red-100 flex-shrink-0 border border-red-200">
                                 <img
-                                    src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
+                                    src={getAvatarUrl(customer.first_name)}
                                     alt="Avatar"
                                     className="w-full h-full object-cover"
                                 />

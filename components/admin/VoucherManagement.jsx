@@ -28,6 +28,8 @@ import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
 import { countries } from '../../lib/constants/countries';
 import { useTranslations } from 'next-intl';
+import { getAvatarUrl } from '@/lib/avatar';
+import { formatDistanceToNow } from 'date-fns';
 
 // --- Sub-components ---
 
@@ -188,7 +190,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500/20 shrink-0">
                 <img
-                  src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
+                  src={getAvatarUrl(customer.first_name)}
                   alt={customer.first_name}
                   className="w-full h-full object-cover"
                 />
@@ -456,7 +458,7 @@ const CustomerVoucherCard = ({ customer, onClick }) => (
       <CardContent className="p-6 flex flex-col items-center text-center pt-8">
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-900/10 flex items-center justify-center mb-4 shadow-inner overflow-visible border-2 border-purple-500/20 relative">
           <img
-            src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
+            src={getAvatarUrl(customer.first_name)}
             alt={customer.first_name}
             className="w-full h-full object-cover rounded-full overflow-hidden"
           />
@@ -475,7 +477,10 @@ const CustomerVoucherCard = ({ customer, onClick }) => (
         </div>
 
         <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
-        <p className="text-sm text-muted-foreground truncate w-full px-2 mb-4">{customer.email}</p>
+        <p className="text-sm text-muted-foreground truncate w-full px-2 mb-1">{customer.email}</p>
+        <p className="text-xs text-muted-foreground/70 mb-4">
+          Since {customer.created_at ? formatDistanceToNow(new Date(customer.created_at)) : 'N/A'}
+        </p>
 
         <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mb-4">
           <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>

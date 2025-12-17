@@ -35,6 +35,8 @@ import GlassCard from '../../components/ui/GlassCard';
 import { useSearchParams } from 'next/navigation';
 import { countries } from '../../lib/constants/countries';
 import { useTranslations } from 'next-intl';
+import { getAvatarUrl } from '@/lib/avatar';
+import { formatDistanceToNow } from 'date-fns';
 
 // --- Components ---
 
@@ -464,7 +466,7 @@ const CustomerGridCard = ({ customer, onEdit }) => (
       <CardContent className="p-6 flex flex-col items-center text-center pt-8 flex-1">
         <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-inner relative overflow-visible border-2 border-primary/10">
           <img
-            src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
+            src={getAvatarUrl(customer.first_name)}
             alt={customer.first_name}
             className="w-full h-full object-cover rounded-full overflow-hidden"
           />
@@ -488,7 +490,10 @@ const CustomerGridCard = ({ customer, onEdit }) => (
         </div>
 
         <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
-        <p className="text-sm text-muted-foreground truncate w-full px-2 mb-4">{customer.email}</p>
+        <p className="text-sm text-muted-foreground truncate w-full px-2 mb-1">{customer.email}</p>
+        <p className="text-xs text-muted-foreground/70 mb-4">
+          Since {customer.created_at ? formatDistanceToNow(new Date(customer.created_at)) : 'N/A'}
+        </p>
 
         <div className="w-full grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-border/50">
           <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
@@ -568,7 +573,7 @@ function DataQualityModal({ issues, isOpen, onClose, onEdit }) {
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                     <img
-                      src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${issue.first_name || 'unknown'}`}
+                      src={getAvatarUrl(issue.first_name || 'unknown')}
                       alt="avatar"
                       className="w-full h-full object-cover"
                     />

@@ -49,7 +49,9 @@
     "reviews": "Reviews",
     "contact": "Contact",
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "profile": "Profile",
+    "logout": "Log Out"
   },
   "Hero": {
     "welcome_to": "Welcome to",
@@ -372,6 +374,12 @@
         "settings_title": "System Settings",
         "settings_desc": "Configure platform settings, manage users, and customize the application to your needs."
       }
+    },
+    "Unauthorized": {
+      "title": "Access Denied",
+      "description": "You do not have permission to access this page. Please contact an administrator if you believe this is an error.",
+      "back_home": "Back to Home",
+      "go_back": "Go Back"
     },
     "Offers": {
       "title": "Special Offers",

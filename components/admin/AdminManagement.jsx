@@ -5,6 +5,7 @@ import GlassCard from '../ui/GlassCard';
 import AdminModal from './AdminModal';
 
 import { createClient } from '@/lib/supabase/client';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function AdminManagement() {
     const [admins, setAdmins] = useState([]);
@@ -157,7 +158,7 @@ export default function AdminManagement() {
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20">
                                                     <img
-                                                        src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${admin.full_name}`}
+                                                        src={getAvatarUrl(admin.full_name)}
                                                         alt={admin.full_name}
                                                         className="w-full h-full object-cover"
                                                     />

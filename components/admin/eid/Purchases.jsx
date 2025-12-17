@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { generateEidPdf } from '@/lib/eidPdfUtils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTranslations } from 'next-intl';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function Purchases() {
     const t = useTranslations('Admin.Eid.Purchases');
@@ -401,7 +402,7 @@ export default function Purchases() {
                             >
                                 <div className="relative">
                                     <img
-                                        src={`https://api.dicebear.com/9.x/initials/svg?seed=${s.name}`}
+                                        src={getAvatarUrl(s.name, 'initials')}
                                         alt={s.name}
                                         className="w-16 h-16 rounded-full border-2 border-red-100 shadow-sm group-hover:scale-105 transition-transform"
                                     />
@@ -431,7 +432,7 @@ export default function Purchases() {
                         <Button variant="ghost" onClick={handleBack} className="shrink-0"><ArrowLeft className="mr-2 h-4 w-4" /> {t('batches.back')}</Button>
                         <div className="flex items-center gap-3 overflow-hidden">
                             <img
-                                src={`https://api.dicebear.com/9.x/initials/svg?seed=${selectedSupplier?.name}`}
+                                src={getAvatarUrl(selectedSupplier?.name, 'initials')}
                                 alt={selectedSupplier?.name}
                                 className="w-10 h-10 rounded-full border border-red-100 shrink-0"
                             />

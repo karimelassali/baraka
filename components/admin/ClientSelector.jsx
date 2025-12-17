@@ -16,6 +16,7 @@ import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import GlassCard from '../ui/GlassCard';
 import { countries } from '../../lib/constants/countries';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function ClientSelector({ onSelectionChange, selectedIds = [] }) {
     const [customers, setCustomers] = useState([]);
@@ -157,15 +158,15 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                                         }`}
                                 >
                                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isSelected
-                                            ? 'bg-primary border-primary text-primary-foreground'
-                                            : 'border-muted-foreground/30'
+                                        ? 'bg-primary border-primary text-primary-foreground'
+                                        : 'border-muted-foreground/30'
                                         }`}>
                                         {isSelected && <Check className="h-3 w-3" />}
                                     </div>
 
                                     <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                                         <img
-                                            src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${customer.first_name}`}
+                                            src={getAvatarUrl(customer.first_name)}
                                             alt={customer.first_name}
                                             className="w-full h-full"
                                         />

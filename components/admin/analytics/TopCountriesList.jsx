@@ -2,6 +2,7 @@ import React from 'react';
 import { Globe, Users, ChevronRight } from 'lucide-react';
 import { countries } from '../../../lib/constants/countries';
 import { motion } from 'framer-motion';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function TopCountriesList({ data, onCountryClick }) {
     if (!data || data.length === 0) {
@@ -77,7 +78,7 @@ export default function TopCountriesList({ data, onCountryClick }) {
                                         {item.users.slice(0, 5).map((user, i) => (
                                             <div key={i} className="w-6 h-6 rounded-full border-2 border-background overflow-hidden" title={`${user.first_name} ${user.last_name}`}>
                                                 <img
-                                                    src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${user.first_name}`}
+                                                    src={getAvatarUrl(user.first_name)}
                                                     alt={user.first_name}
                                                     className="w-full h-full object-cover"
                                                 />

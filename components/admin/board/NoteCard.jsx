@@ -4,6 +4,7 @@ import { Pin, Trash2, Edit2, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function NoteCard({ note, currentUser, onEdit, onDelete, onPin, dragConstraints }) {
     const t = useTranslations('Admin.Board');
@@ -61,7 +62,7 @@ export default function NoteCard({ note, currentUser, onEdit, onDelete, onPin, d
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
                             <img
-                                src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${note.author?.full_name || 'User'}`}
+                                src={getAvatarUrl(note.author?.full_name || 'User')}
                                 alt={note.author?.full_name}
                                 className="w-full h-full object-cover"
                             />

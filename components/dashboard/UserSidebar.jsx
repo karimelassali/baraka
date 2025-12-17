@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function UserSidebar({
     activeTab,
@@ -102,6 +103,8 @@ export default function UserSidebar({
             {/* User Profile Section - Pushed to bottom */}
             <div className="p-4 border-t border-gray-100 bg-gray-50/50 shrink-0 mt-auto">
                 <div className="bg-white rounded-2xl p-4 mb-3 border border-gray-100 shadow-sm">
+
+
                     <div
                         className="flex items-center space-x-3 mb-3 cursor-pointer hover:bg-gray-50 p-2 rounded-xl transition-colors"
                         onClick={() => setActiveTab('profile')}
@@ -109,7 +112,7 @@ export default function UserSidebar({
                         <div className="relative">
                             <div className="w-10 h-10 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
                                 <img
-                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                                    src={getAvatarUrl(user.email)}
                                     alt="User Avatar"
                                     className="w-full h-full rounded-full bg-white"
                                 />

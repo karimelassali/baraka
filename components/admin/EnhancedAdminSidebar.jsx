@@ -35,6 +35,7 @@ import NotificationCenter from './NotificationCenter';
 import AdminProfileModal from './AdminProfileModal';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
+import { getAvatarUrl } from '@/lib/avatar';
 
 export default function EnhancedAdminSidebar() {
   const t = useTranslations('Admin.Sidebar');
@@ -215,7 +216,7 @@ export default function EnhancedAdminSidebar() {
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0 overflow-hidden border border-border bg-background">
               <img
-                src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${currentUser?.full_name || 'User'}`}
+                src={getAvatarUrl(currentUser?.full_name || 'User')}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />

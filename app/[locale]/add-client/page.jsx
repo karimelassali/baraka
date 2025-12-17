@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
+import { getAvatarUrl } from '@/lib/avatar';
 import CountdownTimer from '@/components/CountdownTimer';
 
 export default function AddClientPage() {
@@ -1090,7 +1091,7 @@ export default function AddClientPage() {
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-8 h-8 rounded-full bg-gray-100 overflow-visible shrink-0 border border-gray-200 relative">
                                                                 <img
-                                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.email || item.first_name}`}
+                                                                    src={getAvatarUrl(item.email || item.first_name)}
                                                                     alt="Avatar"
                                                                     className="w-full h-full object-cover rounded-full overflow-hidden"
                                                                 />
@@ -1465,7 +1466,7 @@ export default function AddClientPage() {
                                                             <div className="flex items-start gap-4">
                                                                 <div className="w-10 h-10 rounded-full bg-gray-100 overflow-visible shrink-0 border border-gray-200 relative">
                                                                     <img
-                                                                        src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${client.email || client.first_name}`}
+                                                                        src={getAvatarUrl(client.email || client.first_name)}
                                                                         alt="Avatar"
                                                                         className="w-full h-full object-cover rounded-full overflow-hidden"
                                                                     />

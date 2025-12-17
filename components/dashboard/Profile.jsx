@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { countries } from '@/lib/constants/countries';
 import { useRouter } from '@/navigation';
 import DeleteAccountModal from './DeleteAccountModal';
+import { getAvatarUrl } from '@/lib/avatar';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -145,7 +146,7 @@ export default function Profile({ compact = false, user }) {
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 shadow-sm">
             <img
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`}
+              src={getAvatarUrl(user?.email)}
               alt="User Avatar"
               className="w-full h-full rounded-full bg-white"
             />
@@ -214,7 +215,7 @@ export default function Profile({ compact = false, user }) {
               <div className="w-32 h-32 rounded-full p-1 bg-white shadow-xl">
                 <div className="w-full h-full rounded-full overflow-hidden bg-gray-100">
                   <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email}`}
+                    src={getAvatarUrl(user?.email)}
                     alt="User Avatar"
                     className="w-full h-full object-cover"
                   />

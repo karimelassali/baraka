@@ -48,7 +48,8 @@ export default function WaitlistLanding() {
       step2: "How can we reach you?",
       step3: "Where are you located?",
       warningTitle: "Notice",
-      close: "Close"
+      close: "Close",
+      howToUse: "How to Use"
     },
     it: {
       title: "Prossimamente",
@@ -68,7 +69,8 @@ export default function WaitlistLanding() {
       step2: "Come possiamo contattarti?",
       step3: "Dove ti trovi?",
       warningTitle: "Avviso",
-      close: "Chiudi"
+      close: "Chiudi",
+      howToUse: "Guida all'uso"
     },
     ar: {
       title: "قريباً",
@@ -88,7 +90,8 @@ export default function WaitlistLanding() {
       step2: "كيف يمكننا التواصل معك؟",
       step3: "أين تقع؟",
       warningTitle: "تنبيه",
-      close: "إغلاق"
+      close: "إغلاق",
+      howToUse: "كيفية الاستخدام"
     }
   };
 
@@ -177,29 +180,41 @@ export default function WaitlistLanding() {
       <div className={`min-h-screen bg-white text-gray-900 flex flex-col items-center justify-center p-4 relative overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
 
 
+        {/* Header Navigation */}
+        <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center">
+          {/* How to Use Link */}
+          <a
+            href={`/${language}/how-to-use/user`}
+            className="relative group overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+          >
+            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
+            <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-5 py-2 text-sm font-medium text-white backdrop-blur-3xl transition-all duration-300 group-hover:bg-slate-900 gap-2">
+              <span className="text-lg group-hover:scale-110 transition-transform duration-300">✨</span>
+              {currentT.howToUse}
+            </span>
+          </a>
 
-        {/* Language Switcher */}
-        <div className="fixed top-6 right-6 z-50">
-          <div className="bg-white/95 backdrop-blur-xl border-2 border-gray-200 rounded-2xl p-2 shadow-2xl flex gap-1.5">
+          {/* Language Switcher */}
+          <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-full p-1.5 shadow-lg shadow-gray-200/20 flex gap-1">
             {[
-              { code: 'en', label: 'English', flag: '🇬🇧' },
-              { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-              { code: 'ar', label: 'العربية', flag: '🇸🇦' }
+              { code: 'en', label: 'EN', flag: '🇬🇧' },
+              { code: 'it', label: 'IT', flag: '🇮🇹' },
+              { code: 'ar', label: 'AR', flag: '🇸🇦' }
             ].map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-2 ${language === lang.code
-                  ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg shadow-red-500/30 scale-105'
-                  : 'text-gray-700 hover:bg-gray-100 hover:scale-105'
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1.5 ${language === lang.code
+                  ? 'bg-gray-900 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
                   }`}
               >
-                <span className="text-lg">{lang.flag}</span>
+                <span>{lang.flag}</span>
                 <span className="hidden sm:inline">{lang.label}</span>
               </button>
             ))}
           </div>
-        </div>
+        </nav>
 
         {/* Background Elements */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">

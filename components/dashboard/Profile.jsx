@@ -15,11 +15,14 @@ import {
   Shield,
   Calendar,
   Lock,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { countries } from '@/lib/constants/countries';
+import { useRouter } from '@/navigation';
+import DeleteAccountModal from './DeleteAccountModal';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -44,11 +47,13 @@ function Skeleton({ compact }) {
 
 export default function Profile({ compact = false, user }) {
   const t = useTranslations('Dashboard.Profile');
+  const router = useRouter();
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({});
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ type: '', message: '' });
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -81,6 +86,12 @@ export default function Profile({ compact = false, user }) {
     e.preventDefault();
     setStatus({ type: '', message: '' });
 
+    // Validation
+    if (!formData.first_name?.trim() || !formData.last_name?.trim()) {
+      setStatus({ type: 'error', message: t('fill_required') });
+      return;
+    }
+
     try {
       const response = await fetch('/api/customer/profile', {
         method: 'PUT',
@@ -100,6 +111,23 @@ export default function Profile({ compact = false, user }) {
       }
     } catch (error) {
       setStatus({ type: 'error', message: t('error_generic') });
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      const response = await fetch('/api/customer/delete', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        window.location.href = '/auth/login';
+      } else {
+        const data = await response.json();
+        setStatus({ type: 'error', message: data.error || 'Failed to delete account' });
+      }
+    } catch (error) {
+      setStatus({ type: 'error', message: 'An unexpected error occurred' });
     }
   };
 
@@ -165,11 +193,17 @@ export default function Profile({ compact = false, user }) {
       transition={{ duration: 0.5 }}
       className="w-full max-w-5xl mx-auto space-y-6"
     >
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+      />
+
       {/* Header Card */}
       <div className="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden relative">
-        <div className="h-48 bg-gradient-to-r from-gray-900 to-gray-800 relative overflow-hidden">
+        <div className="h-48 bg-gradient-to-r from-red-900 to-red-800 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-          <div className="absolute right-0 bottom-0 opacity-10 transform translate-y-1/4 translate-x-1/4">
+          <div className="absolute right-0 bottom-0 opacity-20 transform translate-y-1/4 translate-x-1/4">
             <img src="/illus/undraw_a-moment-to-relax_mrkn.svg" className="w-96 h-96" alt="Profile Background" />
           </div>
         </div>
@@ -211,7 +245,7 @@ export default function Profile({ compact = false, user }) {
               {!editing ? (
                 <button
                   onClick={() => setEditing(true)}
-                  className="px-6 py-2.5 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors font-medium flex items-center shadow-lg shadow-gray-200"
+                  className="px-6 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium flex items-center shadow-lg shadow-red-200"
                 >
                   <Edit3 className="w-4 h-4 mr-2" />
                   {t('edit')}
@@ -261,7 +295,7 @@ export default function Profile({ compact = false, user }) {
               <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                 <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
                   <User className="w-5 h-5 mr-2 text-red-600" />
-                  Personal Information
+                  {t('personal_info')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -333,7 +367,7 @@ export default function Profile({ compact = false, user }) {
               <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                 <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center">
                   <MapPin className="w-5 h-5 mr-2 text-red-600" />
-                  Address Details
+                  {t('address_details')}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -362,7 +396,7 @@ export default function Profile({ compact = false, user }) {
                             {profile.country_of_origin}
                           </>
                         ) : (
-                          <span className="text-gray-400 italic text-base">Not specified</span>
+                          <span className="text-gray-400 italic text-base">{t('not_specified')}</span>
                         )}
                       </p>
                     )}
@@ -394,17 +428,17 @@ export default function Profile({ compact = false, user }) {
               <div className="bg-gradient-to-br from-red-50 to-white rounded-2xl p-6 border border-red-100 shadow-sm">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
                   <Shield className="w-5 h-5 mr-2 text-red-600" />
-                  Account Status
+                  {t('account_status')}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-red-50">
-                    <span className="text-sm text-gray-600">Member Since</span>
+                    <span className="text-sm text-gray-600">{t('member_since')}</span>
                     <span className="font-semibold text-gray-900">
                       {new Date(user?.created_at).toLocaleDateString()}
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-red-50">
-                    <span className="text-sm text-gray-600">Last Login</span>
+                    <span className="text-sm text-gray-600">{t('last_login')}</span>
                     <span className="font-semibold text-gray-900">
                       {new Date(user?.last_sign_in_at).toLocaleDateString()}
                     </span>
@@ -413,18 +447,20 @@ export default function Profile({ compact = false, user }) {
               </div>
 
               <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">{t('quick_actions')}</h3>
                 <div className="space-y-2">
-                  <button className="w-full flex items-center justify-between p-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors group">
-                    <span>Change Password</span>
+                  <button
+                    onClick={() => router.push(`/auth/reset-password?email=${user?.email}`)}
+                    className="w-full flex items-center justify-between p-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors group"
+                  >
+                    <span>{t('change_password')}</span>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                   </button>
-                  <button className="w-full flex items-center justify-between p-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors group">
-                    <span>Notification Settings</span>
-                    <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
-                  </button>
-                  <button className="w-full flex items-center justify-between p-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors group">
-                    <span>Delete Account</span>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="w-full flex items-center justify-between p-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors group"
+                  >
+                    <span>{t('delete_account')}</span>
                     <ChevronRight className="w-4 h-4 text-red-400 group-hover:text-red-600" />
                   </button>
                 </div>

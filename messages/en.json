@@ -132,7 +132,32 @@
       "register_link": "Register",
       "success": "Login successful! Redirecting...",
       "magic_link_sent": "Magic link sent! Check your email.",
+      "forgot_password": "Forgot Password?",
       "error_generic": "An unexpected error occurred. Please try again."
+    },
+    "ResetPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email to receive a reset link",
+      "email_label": "Email address",
+      "send_link": "Send Reset Link",
+      "sending": "Sending...",
+      "back_to_login": "Back to Login",
+      "success_message": "We have sent a password reset link to your email.",
+      "didnt_receive": "Didn't receive the email?",
+      "try_again": "Try again"
+    },
+    "UpdatePassword": {
+      "title": "Set New Password",
+      "subtitle": "Create a new secure password",
+      "new_password_label": "New Password",
+      "confirm_password_label": "Confirm Password",
+      "update_password": "Update Password",
+      "updating": "Updating...",
+      "passwords_mismatch": "Passwords do not match",
+      "password_too_short": "Password must be at least 6 characters",
+      "success_title": "Password Updated",
+      "success_message": "Your password has been successfully updated.",
+      "redirecting": "Redirecting to login..."
     },
     "Register": {
       "title": "Customer Registration",
@@ -308,7 +333,45 @@
       "select_country": "Select Country",
       "no_phone": "No phone",
       "no_address": "No address",
-      "active_member": "Active Member"
+      "active_member": "Active Member",
+      "personal_info": "Personal Information",
+      "account_status": "Account Status",
+      "member_since": "Member Since",
+      "last_login": "Last Login",
+      "address_details": "Address Details",
+      "not_specified": "Not specified",
+      "quick_actions": "Quick Actions",
+      "change_password": "Change Password",
+      "delete_account": "Delete Account",
+      "fill_required": "Please fill all required fields"
+    },
+    "HowToUse": {
+      "User": {
+        "back_to_dashboard": "Back to Dashboard",
+        "hero_title": "How to Use Baraka",
+        "hero_subtitle": "Discover how to make the most of your Baraka experience with our comprehensive guide.",
+        "dashboard_title": "Your Dashboard",
+        "dashboard_desc": "Get a complete overview of your account, recent activities, and quick access to all features in one place.",
+        "wallet_title": "Loyalty Wallet",
+        "wallet_desc": "Track your points, view your tier status, and unlock exclusive rewards as you engage with us.",
+        "offers_title": "Offers & Vouchers",
+        "offers_desc": "Browse special deals and redeem your points for vouchers to save on your next purchase.",
+        "wishlist_title": "Wishlist",
+        "wishlist_desc": "Save your favorite items for later and get notified when they go on sale or come back in stock."
+      },
+      "Admin": {
+        "back_to_admin": "Back to Admin Dashboard",
+        "hero_title": "Admin Guide",
+        "hero_subtitle": "Master the tools to manage your business efficiently with the Baraka Admin Panel.",
+        "customers_title": "Customer Management",
+        "customers_desc": "View, edit, and manage customer profiles, track their activity, and ensure their satisfaction.",
+        "inventory_title": "Inventory Control",
+        "inventory_desc": "Keep track of stock levels, manage products, and receive alerts for low inventory.",
+        "payments_title": "Payments & Finance",
+        "payments_desc": "Monitor transactions, manage invoices, and track revenue streams in real-time.",
+        "settings_title": "System Settings",
+        "settings_desc": "Configure platform settings, manage users, and customize the application to your needs."
+      }
     },
     "Offers": {
       "title": "Special Offers",
@@ -334,6 +397,20 @@
       "download": "Download",
       "no_vouchers": "No vouchers yet",
       "start_earning": "Start earning points to unlock exclusive vouchers!"
+    },
+    "DeleteAccount": {
+      "step1_title": "Are you sure?",
+      "step1_desc": "This action cannot be undone. You are about to start the process of deleting your account.",
+      "step1_button": "Yes, I understand",
+      "step2_title": "You will lose everything",
+      "step2_desc": "All your points, vouchers, and history will be permanently deleted. We cannot recover this data.",
+      "step2_button": "I accept the consequences",
+      "step3_title": "Final Confirmation",
+      "step3_desc": "Please confirm one last time. Your account will be immediately deleted.",
+      "step3_button": "Permanently Delete Account",
+      "cancel": "Cancel",
+      "deleting": "Deleting...",
+      "step_indicator": "Step {current} of {total}"
     }
   },
   "Admin": {

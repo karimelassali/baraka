@@ -28,6 +28,7 @@ import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [supabase, setSupabase] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [hasSeenTour, setHasSeenTour] = useState(false);
@@ -54,6 +55,16 @@ export default function DashboardPage() {
         router.push('/auth/login');
       } else {
         setUser(data.user);
+        // Fetch profile data
+        const { data: profileData } = await supabase
+          .from('customers')
+          .select('first_name, last_name')
+          .eq('auth_id', data.user.id)
+          .single();
+
+        if (profileData) {
+          setProfile(profileData);
+        }
       }
     };
 
@@ -90,7 +101,9 @@ export default function DashboardPage() {
             {/* Welcome Banner */}
             <div className="bg-gradient-to-r from-red-600 to-red-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
               <div className="relative z-10 max-w-lg">
-                <h2 className="text-2xl font-bold mb-2">{t('welcome_back')}, {user.user_metadata?.first_name || 'User'}!</h2>
+                <h2 className="text-2xl font-bold mb-2">
+                  {t('welcome_back')}, {profile?.first_name || user.user_metadata?.first_name || user.email?.split('@')[0] || 'User'}!
+                </h2>
                 <p className="text-red-100 mb-4">
                   {t('welcome_message') || "Check your latest stats and offers."}
                 </p>

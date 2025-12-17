@@ -52,9 +52,13 @@ export async function PUT(request) {
     language_preference,
   } = await request.json();
 
+  // Use upsert with email as conflict target since auth_id is not unique in schema
+  // Add gdpr_consent fields for new records
   const { data, error } = await supabase
     .from('customers')
-    .update({
+    .upsert({
+      auth_id: user.id,
+      email: user.email,
       first_name,
       last_name,
       date_of_birth,
@@ -62,12 +66,19 @@ export async function PUT(request) {
       phone_number,
       country_of_origin,
       language_preference,
-    })
-    .eq('auth_id', user.id);
+      updated_at: new Date().toISOString(),
+      // Default values for required fields if creating new record
+      gdpr_consent: true,
+      gdpr_consent_at: new Date().toISOString(),
+      is_active: true
+    }, { onConflict: 'email' })
+    .select()
+    .single();
 
   if (error) {
+    console.error('Error updating profile:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ...data, message: 'Profile updated successfully' });
+  return NextResponse.json(data);
 }

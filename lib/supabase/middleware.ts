@@ -16,6 +16,7 @@ export async function updateSession(request: NextRequest, response?: NextRespons
             cleanPath === '' || // Allow empty path (e.g. /en)
             cleanPath === '/' || // Allow root (which shows waitlist)
             cleanPath === '/add-client' ||
+            cleanPath.startsWith('/how-to-use') || // Allow how-to-use pages
             pathname === '/' ||
             pathname === '/add-client' ||
             pathname.startsWith('/api') ||

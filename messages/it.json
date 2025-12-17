@@ -132,7 +132,32 @@
       "register_link": "Registrati qui",
       "success": "Accesso riuscito! Reindirizzamento...",
       "magic_link_sent": "Magic link inviato! Controlla la tua email.",
+      "forgot_password": "Password dimenticata?",
       "error_generic": "Si è verificato un errore imprevisto. Riprova."
+    },
+    "ResetPassword": {
+      "title": "Reimposta Password",
+      "subtitle": "Inserisci la tua email per ricevere un link di reimpostazione",
+      "email_label": "Indirizzo Email",
+      "send_link": "Invia Link di Reimpostazione",
+      "sending": "Invio in corso...",
+      "back_to_login": "Torna al Login",
+      "success_message": "Abbiamo inviato un link per reimpostare la password alla tua email.",
+      "didnt_receive": "Non hai ricevuto l'email?",
+      "try_again": "Riprova"
+    },
+    "UpdatePassword": {
+      "title": "Imposta Nuova Password",
+      "subtitle": "Crea una nuova password sicura",
+      "new_password_label": "Nuova Password",
+      "confirm_password_label": "Conferma Password",
+      "update_password": "Aggiorna Password",
+      "updating": "Aggiornamento...",
+      "passwords_mismatch": "Le password non corrispondono",
+      "password_too_short": "La password deve essere di almeno 6 caratteri",
+      "success_title": "Password Aggiornata",
+      "success_message": "La tua password è stata aggiornata con successo.",
+      "redirecting": "Reindirizzamento al login..."
     },
     "Register": {
       "title": "Registrazione Cliente",
@@ -308,7 +333,45 @@
       "select_country": "Seleziona Paese",
       "no_phone": "Nessun telefono",
       "no_address": "Nessun indirizzo",
-      "active_member": "Membro Attivo"
+      "active_member": "Membro Attivo",
+      "personal_info": "Informazioni Personali",
+      "account_status": "Stato Account",
+      "member_since": "Membro Dal",
+      "last_login": "Ultimo Accesso",
+      "address_details": "Dettagli Indirizzo",
+      "not_specified": "Non specificato",
+      "quick_actions": "Azioni Rapide",
+      "change_password": "Cambia Password",
+      "delete_account": "Elimina Account",
+      "fill_required": "Compila tutti i campi obbligatori"
+    },
+    "HowToUse": {
+      "User": {
+        "back_to_dashboard": "Torna alla Dashboard",
+        "hero_title": "Come usare Baraka",
+        "hero_subtitle": "Scopri come sfruttare al meglio la tua esperienza Baraka con la nostra guida completa.",
+        "dashboard_title": "La tua Dashboard",
+        "dashboard_desc": "Ottieni una panoramica completa del tuo account, delle attività recenti e un accesso rapido a tutte le funzionalità in un unico posto.",
+        "wallet_title": "Portafoglio Fedeltà",
+        "wallet_desc": "Tieni traccia dei tuoi punti, visualizza il tuo stato di livello e sblocca premi esclusivi mentre interagisci con noi.",
+        "offers_title": "Offerte e Voucher",
+        "offers_desc": "Sfoglia le offerte speciali e riscatta i tuoi punti per voucher per risparmiare sul tuo prossimo acquisto.",
+        "wishlist_title": "Lista dei Desideri",
+        "wishlist_desc": "Salva i tuoi articoli preferiti per dopo e ricevi notifiche quando vanno in saldo o tornano disponibili."
+      },
+      "Admin": {
+        "back_to_admin": "Torna alla Dashboard Admin",
+        "hero_title": "Guida Amministratore",
+        "hero_subtitle": "Padroneggia gli strumenti per gestire la tua attività in modo efficiente con il Pannello di Amministrazione Baraka.",
+        "customers_title": "Gestione Clienti",
+        "customers_desc": "Visualizza, modifica e gestisci i profili dei clienti, traccia la loro attività e garantisci la loro soddisfazione.",
+        "inventory_title": "Controllo Inventario",
+        "inventory_desc": "Tieni traccia dei livelli delle scorte, gestisci i prodotti e ricevi avvisi per inventario basso.",
+        "payments_title": "Pagamenti e Finanza",
+        "payments_desc": "Monitora le transazioni, gestisci le fatture e traccia i flussi di entrate in tempo reale.",
+        "settings_title": "Impostazioni di Sistema",
+        "settings_desc": "Configura le impostazioni della piattaforma, gestisci gli utenti e personalizza l'applicazione in base alle tue esigenze."
+      }
     },
     "Offers": {
       "title": "Offerte Speciali",
@@ -338,6 +401,20 @@
       "no_vouchers": "Nessun voucher ancora",
       "start_earning": "Inizia a guadagnare punti per sbloccare voucher esclusivi!",
       "load_more": "Carica Altro"
+    },
+    "DeleteAccount": {
+      "step1_title": "Sei sicuro?",
+      "step1_desc": "Questa azione non può essere annullata. Stai per iniziare il processo di eliminazione del tuo account.",
+      "step1_button": "Sì, capisco",
+      "step2_title": "Perderai tutto",
+      "step2_desc": "Tutti i tuoi punti, voucher e cronologia verranno eliminati permanentemente. Non possiamo recuperare questi dati.",
+      "step2_button": "Accetto le conseguenze",
+      "step3_title": "Conferma Finale",
+      "step3_desc": "Per favore conferma un'ultima volta. Il tuo account verrà eliminato immediatamente.",
+      "step3_button": "Elimina Permanentemente Account",
+      "cancel": "Annulla",
+      "deleting": "Eliminazione...",
+      "step_indicator": "Passaggio {current} di {total}"
     }
   },
   "Admin": {

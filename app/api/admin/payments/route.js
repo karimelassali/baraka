@@ -1,6 +1,7 @@
 import { createClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { notifySuperAdmins } from '../../../../lib/email/notifications';
 
 export async function GET(request) {
     const cookieStore = await cookies();
@@ -117,6 +118,30 @@ export async function POST(request) {
         if (error) {
             console.error('Error creating payment:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Notify Admins
+        try {
+            const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(amount);
+
+            await notifySuperAdmins({
+                subject: `Nuovo Pagamento Programmato: ${formattedAmount} a ${recipient}`,
+                html: `
+                    <h3>Nuovo Pagamento Programmato</h3>
+                    <p>È stato programmato un nuovo pagamento.</p>
+                    <ul>
+                        <li><strong>Destinatario:</strong> ${recipient}</li>
+                        <li><strong>Importo:</strong> ${formattedAmount}</li>
+                        <li><strong>Data Scadenza:</strong> ${due_date}</li>
+                        <li><strong>Tipo:</strong> ${payment_type}</li>
+                        <li><strong>Numero Assegno:</strong> ${check_number || 'N/A'}</li>
+                        <li><strong>Note:</strong> ${notes || 'Nessuna'}</li>
+                    </ul>
+                    <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/payments">Visualizza nella Dashboard</a></p>
+                `
+            });
+        } catch (notifyError) {
+            console.error('Failed to notify admins of new payment:', notifyError);
         }
 
         return NextResponse.json({ payment }, { status: 201 });

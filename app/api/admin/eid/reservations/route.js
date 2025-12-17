@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { notifySuperAdmins } from '../../../../../lib/email/notifications';
 
 export async function GET(request) {
     try {
@@ -159,6 +160,36 @@ export async function POST(request) {
                 console.error('Error adding initial deposit:', depositError);
                 // We don't fail the whole request, but we should log it.
             }
+        }
+
+        // 3. Notify Admins
+        try {
+            // Fetch customer name for the email
+            const { data: customer } = await supabase
+                .from('customers')
+                .select('first_name, last_name, phone_number')
+                .eq('id', customer_id)
+                .single();
+
+            const customerName = customer ? `${customer.first_name} ${customer.last_name}` : 'Unknown Customer';
+
+            await notifySuperAdmins({
+                subject: `Nuova Prenotazione Eid: ${animal_type} (${requested_weight}kg)`,
+                html: `
+                    <h3>Nuova Prenotazione Eid Ricevuta</h3>
+                    <p>Una nuova prenotazione è stata effettuata da <strong>${customerName}</strong>.</p>
+                    <ul>
+                        <li><strong>Tipo Animale:</strong> ${animal_type}</li>
+                        <li><strong>Peso Richiesto:</strong> ${requested_weight} kg</li>
+                        <li><strong>Acconto:</strong> €${deposit_amount || 0}</li>
+                        <li><strong>Orario Ritiro:</strong> ${pickup_time || 'Non specificato'}</li>
+                        <li><strong>Note:</strong> ${notes || 'Nessuna'}</li>
+                    </ul>
+                    <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/eid/reservations">Visualizza nella Dashboard</a></p>
+                `
+            });
+        } catch (notifyError) {
+            console.error('Failed to notify admins of new reservation:', notifyError);
         }
 
         return NextResponse.json(reservation);

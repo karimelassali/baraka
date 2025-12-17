@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { sendEmail } from '@/lib/email/transporter';
+import { notifySuperAdmins } from '@/lib/email/notifications';
 import { generateExpirationEmailHtml } from '@/lib/email/templates/expiration-report';
 
 export const dynamic = 'force-dynamic';
@@ -66,23 +66,16 @@ export async function GET(request) {
         if (processedProducts.length > 0) {
             const html = generateExpirationEmailHtml(processedProducts);
 
-            // Send to the admin email (configured in env or hardcoded for now)
-            const recipientEmail = 'fifakarim52@gmail.com';
-
-            const result = await sendEmail({
-                to: recipientEmail,
-                subject: `⚠️ Alert Scadenze Baraka - ${processedProducts.length} prodotti richiedono attenzione`,
-                html
+            // Send to all super admins
+            await notifySuperAdmins({
+                subject: `Alert Scadenze Baraka - ${processedProducts.length} prodotti richiedono attenzione`,
+                html,
+                useTemplate: false // Use the custom template from generateExpirationEmailHtml
             });
-
-            if (!result.success) {
-                console.error('Email sending failed:', result.error);
-                throw new Error(`Failed to send email: ${result.error?.message || 'Unknown error'}`);
-            }
 
             return NextResponse.json({
                 success: true,
-                message: `Email sent to ${recipientEmail}`,
+                message: `Email sent to super admins`,
                 count: processedProducts.length
             });
         }

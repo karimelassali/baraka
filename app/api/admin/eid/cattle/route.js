@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { notifySuperAdmins } from '../../../../../lib/email/notifications';
 
 export async function GET(request) {
     try {
@@ -82,6 +83,26 @@ export async function POST(request) {
         if (error) {
             console.error('Error creating cattle group:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Notify Admins
+        try {
+            await notifySuperAdmins({
+                subject: `Nuovo Gruppo Bestiame Eid: ${group_name}`,
+                html: `
+                    <h3>Nuovo Gruppo Bestiame Eid Creato</h3>
+                    <p>È stato creato un nuovo gruppo di bestiame.</p>
+                    <ul>
+                        <li><strong>Nome Gruppo:</strong> ${group_name}</li>
+                        <li><strong>Peso:</strong> ${cattle_weight || 'N/A'} kg</li>
+                        <li><strong>Prezzo:</strong> €${price || 'N/A'}</li>
+                        <li><strong>Acconto Totale:</strong> €${total_deposit || 0}</li>
+                    </ul>
+                    <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/eid/cattle">Visualizza nella Dashboard</a></p>
+                `
+            });
+        } catch (notifyError) {
+            console.error('Failed to notify admins of new cattle group:', notifyError);
         }
 
         return NextResponse.json(data);

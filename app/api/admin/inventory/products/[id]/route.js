@@ -3,6 +3,7 @@
 import { createClient } from '../../../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { notifySuperAdmins } from '../../../../../../lib/email/notifications';
 
 export async function GET(request, { params }) {
     const cookieStore = await cookies();
@@ -148,6 +149,29 @@ export async function PUT(request, { params }) {
 
         if (!updatedProduct) {
             return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+        }
+
+        // Check for low stock and notify
+        if (updatedProduct.quantity <= updatedProduct.minimum_stock_level) {
+            try {
+                await notifySuperAdmins({
+                    subject: `Avviso Scorte Basse: ${updatedProduct.name}`,
+                    level: 'WARNING',
+                    html: `
+                        <h3>Avviso Scorte Basse</h3>
+                        <p>Il prodotto <strong>${updatedProduct.name}</strong> sta esaurendo le scorte.</p>
+                        <ul>
+                            <li><strong>Quantità Attuale:</strong> ${updatedProduct.quantity} ${updatedProduct.unit}</li>
+                            <li><strong>Livello Minimo:</strong> ${updatedProduct.minimum_stock_level} ${updatedProduct.unit}</li>
+                            <li><strong>SKU:</strong> ${updatedProduct.sku || 'N/A'}</li>
+                            <li><strong>Posizione:</strong> ${updatedProduct.location_in_shop || 'N/A'}</li>
+                        </ul>
+                        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/inventory">Gestisci Inventario</a></p>
+                    `
+                });
+            } catch (notifyError) {
+                console.error('Failed to notify admins of low stock:', notifyError);
+            }
         }
 
         return NextResponse.json({ product: updatedProduct });

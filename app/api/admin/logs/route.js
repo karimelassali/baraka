@@ -2,14 +2,14 @@
 import { createClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { logSystemError } from '../../../../lib/admin-logger';
 
 export async function GET(request) {
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     // Check auth
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -60,6 +60,10 @@ export async function GET(request) {
         } catch (err) {
             console.error('Error fetching system logs:', err);
             // Don't fail entirely, just log error
+            await logSystemError({
+                error: err,
+                context: 'API: GET /api/admin/logs (System Logs)',
+            });
         }
     }
 

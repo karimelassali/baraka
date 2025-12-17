@@ -1,19 +1,28 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { createClient as createServerSupabase } from '@/lib/supabase/server';
+
+// Initialize Supabase Admin Client
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+    {
+        auth: {
+            autoRefreshToken: false,
+            persistSession: false
+        }
+    }
+);
 
 export async function DELETE(request, { params }) {
     try {
         const { id } = await params;
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
 
-        // Check if group has members? Usually we might want to prevent delete if it has paid members.
-        // For now, we'll allow delete and cascade (if DB configured) or just delete.
-        // Assuming DB has cascade or we delete members first.
-        // Let's just try to delete the group.
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: 'Server configuration error: Service role key not found' }, { status: 500 });
+        }
 
-        const { error } = await supabase
+        const { error } = await supabaseAdmin
             .from('eid_cattle_groups')
             .delete()
             .eq('id', id);
@@ -33,13 +42,15 @@ export async function DELETE(request, { params }) {
 export async function PUT(request, { params }) {
     try {
         const { id } = await params;
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
         const body = await request.json();
-
         const { group_name, cattle_weight, status } = body;
 
-        const { data, error } = await supabase
+        // Use admin client for updates to bypass RLS
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: 'Server configuration error: Service role key not found' }, { status: 500 });
+        }
+
+        const { data, error } = await supabaseAdmin
             .from('eid_cattle_groups')
             .update({ group_name, cattle_weight, status })
             .eq('id', id)

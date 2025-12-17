@@ -1,6 +1,8 @@
 import { createServer } from '../../../../lib/supabaseServer';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { notifySuperAdmins } from '../../../../lib/email/notifications';
+import { logSystemError } from '../../../../lib/admin-logger';
 
 // Initialize Supabase Admin Client only if SERVICE_ROLE_KEY is available
 let supabaseAdmin = null;
@@ -18,11 +20,11 @@ if (process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY) {
 }
 
 export async function GET(request) {
-    const supabase = createServer();
+    const supabase = await createServer();
 
     // 1. Check authentication
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -30,7 +32,7 @@ export async function GET(request) {
     const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
         .select('role, permissions')
-        .eq('auth_id', session.user.id)
+        .eq('auth_id', user.id)
         .single();
 
     if (adminError || !adminUser) {
@@ -46,7 +48,12 @@ export async function GET(request) {
     }
 
     // 3. Fetch all admins
-    const { data: admins, error } = await supabase
+    // Use supabaseAdmin to bypass RLS if needed
+    if (!supabaseAdmin) {
+        return NextResponse.json({ error: 'Server configuration error: Service role key not found' }, { status: 500 });
+    }
+
+    const { data: admins, error } = await supabaseAdmin
         .from('admin_users')
         .select('*')
         .order('created_at', { ascending: false });
@@ -59,18 +66,18 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-    const supabase = createServer();
+    const supabase = await createServer();
 
     // 1. Check authentication and permissions
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
-        .select('id, role, permissions')
-        .eq('auth_id', session.user.id)
+        .select('id, email, role, permissions')
+        .eq('auth_id', user.id)
         .single();
 
     if (adminError || !adminUser) {
@@ -113,7 +120,8 @@ export async function POST(request) {
         }
 
         // 3. Create record in admin_users table
-        const { data: newAdmin, error: dbError } = await supabase
+        // Use supabaseAdmin to ensure insertion happens regardless of RLS
+        const { data: newAdmin, error: dbError } = await supabaseAdmin
             .from('admin_users')
             .insert([
                 {
@@ -134,9 +142,28 @@ export async function POST(request) {
             return NextResponse.json({ error: dbError.message }, { status: 500 });
         }
 
+        // 4. Notify Super Admins
+        await notifySuperAdmins({
+            subject: 'Nuovo Account Admin Creato',
+            html: `
+                <p>È stato creato un nuovo account amministratore.</p>
+                <ul>
+                    <li><strong>Nome:</strong> ${fullName}</li>
+                    <li><strong>Email:</strong> ${email}</li>
+                    <li><strong>Ruolo:</strong> ${role || 'admin'}</li>
+                    <li><strong>Creato da:</strong> ${adminUser.email}</li>
+                </ul>
+            `
+        });
+
         return NextResponse.json(newAdmin);
 
     } catch (error) {
+        await logSystemError({
+            error,
+            context: 'API: POST /api/admin/admins',
+            details: { body: await request.clone().json().catch(() => ({})) }
+        });
         console.error('Error creating admin:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

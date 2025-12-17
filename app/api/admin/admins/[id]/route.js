@@ -18,17 +18,17 @@ if (process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY) {
 }
 
 export async function DELETE(request, { params }) {
-    const { id } = params;
-    const supabase = createServer();
+    const { id } = await params;
+    const supabase = await createServer();
 
     // 1. Check Auth & Permissions
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
         .select('role, permissions')
-        .eq('auth_id', session.user.id)
+        .eq('auth_id', user.id)
         .single();
 
     if (adminError || !adminUser) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -40,13 +40,19 @@ export async function DELETE(request, { params }) {
 
     try {
         // 2. Get the admin to be deleted to find their auth_id
-        const { data: targetAdmin, error: fetchError } = await supabase
+        // Use supabaseAdmin to bypass RLS if needed, since we already verified the requestor is a super admin
+        if (!supabaseAdmin) {
+            return NextResponse.json({ error: 'Server configuration error: Service role key not found' }, { status: 500 });
+        }
+
+        const { data: targetAdmin, error: fetchError } = await supabaseAdmin
             .from('admin_users')
             .select('auth_id')
             .eq('id', id)
             .single();
 
         if (fetchError || !targetAdmin) {
+            console.error('Error fetching target admin:', fetchError);
             return NextResponse.json({ error: 'Admin not found' }, { status: 404 });
         }
 
@@ -63,7 +69,8 @@ export async function DELETE(request, { params }) {
         }
 
         // 4. Delete from admin_users table
-        const { error: dbDeleteError } = await supabase
+        // Use supabaseAdmin to ensure deletion happens regardless of RLS
+        const { error: dbDeleteError } = await supabaseAdmin
             .from('admin_users')
             .delete()
             .eq('id', id);
@@ -81,17 +88,17 @@ export async function DELETE(request, { params }) {
 }
 
 export async function PATCH(request, { params }) {
-    const { id } = params;
-    const supabase = createServer();
+    const { id } = await params;
+    const supabase = await createServer();
 
     // 1. Check Auth & Permissions
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { data: adminUser, error: adminError } = await supabase
         .from('admin_users')
         .select('id, role, permissions')
-        .eq('auth_id', session.user.id)
+        .eq('auth_id', user.id)
         .single();
 
     if (adminError || !adminUser) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });

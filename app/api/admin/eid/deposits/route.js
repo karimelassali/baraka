@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { notifySuperAdmins } from '../../../../../lib/email/notifications';
 
 export async function POST(request) {
     try {
@@ -26,6 +27,41 @@ export async function POST(request) {
         if (error) {
             console.error('Error adding deposit:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Notify Admins
+        try {
+            // Fetch reservation details for context
+            const { data: reservation } = await supabase
+                .from('eid_reservations')
+                .select(`
+                    *,
+                    customers (first_name, last_name)
+                `)
+                .eq('id', reservation_id)
+                .single();
+
+            const customerName = reservation?.customers
+                ? `${reservation.customers.first_name} ${reservation.customers.last_name}`
+                : 'Unknown Customer';
+
+            await notifySuperAdmins({
+                subject: `Nuovo Acconto Eid: €${amount} per ${customerName}`,
+                html: `
+                    <h3>Nuovo Acconto Eid Ricevuto</h3>
+                    <p>È stato registrato un nuovo acconto.</p>
+                    <ul>
+                        <li><strong>Cliente:</strong> ${customerName}</li>
+                        <li><strong>Importo:</strong> €${amount}</li>
+                        <li><strong>Metodo di Pagamento:</strong> ${payment_method || 'N/A'}</li>
+                        <li><strong>Note:</strong> ${notes || 'Nessuna'}</li>
+                        <li><strong>ID Prenotazione:</strong> ${reservation_id}</li>
+                    </ul>
+                    <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/eid/reservations">Visualizza nella Dashboard</a></p>
+                `
+            });
+        } catch (notifyError) {
+            console.error('Failed to notify admins of new deposit:', notifyError);
         }
 
         return NextResponse.json(data);

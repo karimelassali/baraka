@@ -438,69 +438,80 @@ const VoucherVerifier = () => {
   );
 };
 
-const CustomerVoucherCard = ({ customer, onClick }) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-    onClick={() => onClick(customer)}
-    className="group cursor-pointer relative"
-  >
-    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-    <GlassCard className="h-full border-border/50 hover:border-purple-500/50 transition-colors overflow-hidden relative">
-      <div className="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
-        <div className="bg-purple-500/10 p-2 rounded-full">
-          <Ticket className="w-4 h-4 text-purple-600" />
-        </div>
-      </div>
+const CustomerVoucherCard = ({ customer, onClick }) => {
+  const hasIssues = !customer.first_name || !customer.last_name || !customer.email || customer.email.includes('noemail') || !customer.country_of_origin;
 
-      <CardContent className="p-6 flex flex-col items-center text-center pt-8">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-900/10 flex items-center justify-center mb-4 shadow-inner overflow-visible border-2 border-purple-500/20 relative">
-          <img
-            src={getAvatarUrl(customer.first_name)}
-            alt={customer.first_name}
-            className="w-full h-full object-cover rounded-full overflow-hidden"
-          />
-          {(() => {
-            const countryCode = countries.find(c => c.name === customer.country_of_origin)?.code?.toLowerCase();
-            return countryCode ? (
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-2 border-background overflow-hidden z-20 shadow-md bg-white">
-                <img
-                  src={`https://flagcdn.com/w80/${countryCode}.png`}
-                  alt={customer.country_of_origin}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : null;
-          })()}
-        </div>
-
-        <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
-        <p className="text-sm text-muted-foreground truncate w-full px-2 mb-1">{customer.email}</p>
-        <p className="text-xs text-muted-foreground/70 mb-4">
-          Since {customer.created_at ? formatDistanceToNow(new Date(customer.created_at)) : 'N/A'}
-        </p>
-
-        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mb-4">
-          <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
-          <span className="truncate max-w-[100px]">{customer.country_of_origin || 'N/A'}</span>
-        </div>
-
-        <div className="mt-auto w-full pt-4 border-t border-border/50 flex justify-between items-center px-2">
-          <div className="text-left">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Points</p>
-            <p className="font-bold">{customer.total_points || 0}</p>
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      onClick={() => onClick(customer)}
+      className="group cursor-pointer relative"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <GlassCard className="h-full border-border/50 hover:border-purple-500/50 transition-colors overflow-hidden relative">
+        {hasIssues && (
+          <div className="absolute top-4 left-4 z-10" title="Missing Information">
+            <div className="p-2 bg-red-500/10 rounded-full text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/30">
+              <AlertCircle className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Vouchers</p>
-            <p className="font-bold text-purple-600 dark:text-purple-400">{customer.vouchers_count || 0}</p>
+        )}
+        <div className="absolute top-0 right-0 p-2 opacity-50 group-hover:opacity-100 transition-opacity">
+          <div className="bg-purple-500/10 p-2 rounded-full">
+            <Ticket className="w-4 h-4 text-purple-600" />
           </div>
         </div>
-      </CardContent>
-    </GlassCard>
-  </motion.div>
-);
+
+        <CardContent className="p-6 flex flex-col items-center text-center pt-8">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-900/10 flex items-center justify-center mb-4 shadow-inner overflow-visible border-2 border-purple-500/20 relative">
+            <img
+              src={getAvatarUrl(customer.first_name)}
+              alt={customer.first_name}
+              className="w-full h-full object-cover rounded-full overflow-hidden"
+            />
+            {(() => {
+              const countryCode = countries.find(c => c.name === customer.country_of_origin)?.code?.toLowerCase();
+              return countryCode ? (
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-2 border-background overflow-hidden z-20 shadow-md bg-white">
+                  <img
+                    src={`https://flagcdn.com/w80/${countryCode}.png`}
+                    alt={customer.country_of_origin}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : null;
+            })()}
+          </div>
+
+          <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
+          <p className="text-sm text-muted-foreground truncate w-full px-2 mb-1">{customer.email}</p>
+          <p className="text-xs text-muted-foreground/70 mb-4">
+            Since {customer.created_at ? formatDistanceToNow(new Date(customer.created_at)) : 'N/A'}
+          </p>
+
+          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mb-4">
+            <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
+            <span className="truncate max-w-[100px]">{customer.country_of_origin || 'N/A'}</span>
+          </div>
+
+          <div className="mt-auto w-full pt-4 border-t border-border/50 flex justify-between items-center px-2">
+            <div className="text-left">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Points</p>
+              <p className="font-bold">{customer.total_points || 0}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Vouchers</p>
+              <p className="font-bold text-purple-600 dark:text-purple-400">{customer.vouchers_count || 0}</p>
+            </div>
+          </div>
+        </CardContent>
+      </GlassCard>
+    </motion.div>
+  );
+};
 
 export default function VoucherManagement() {
   const t = useTranslations('Admin.Vouchers');

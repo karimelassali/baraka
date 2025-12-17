@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Medal, Award, User } from 'lucide-react';
+import { Trophy, Medal, Award, User, AlertCircle } from 'lucide-react';
 import { getAvatarUrl } from '@/lib/avatar';
 
 export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }) {
@@ -58,8 +58,11 @@ export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }
                                             />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-foreground text-sm group-hover:text-primary transition-colors">
+                                            <p className="font-medium text-foreground text-sm group-hover:text-primary transition-colors flex items-center gap-1">
                                                 {item.customer.first_name} {item.customer.last_name}
+                                                {(!item.customer.first_name || !item.customer.last_name || !item.customer.email || item.customer.email.includes('noemail') || !item.customer.country_of_origin) && (
+                                                    <AlertCircle className="w-3 h-3 text-red-500" />
+                                                )}
                                             </p>
                                             <p className="text-xs text-muted-foreground">{item.customer.email}</p>
                                         </div>

@@ -9,7 +9,8 @@ import {
     CheckCircle2,
     X,
     Loader2,
-    ChevronDown
+    ChevronDown,
+    AlertCircle
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -173,8 +174,11 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                                     </div>
 
                                     <div className="flex-1 min-w-0">
-                                        <div className="font-medium truncate">
+                                        <div className="font-medium truncate flex items-center gap-2">
                                             {customer.first_name} {customer.last_name}
+                                            {(!customer.first_name || !customer.last_name || !customer.email || customer.email.includes('noemail') || !customer.country_of_origin) && (
+                                                <AlertCircle className="w-3 h-3 text-red-500" />
+                                            )}
                                         </div>
                                         <div className="text-xs text-muted-foreground truncate flex items-center gap-2">
                                             <span>{customer.phone_number}</span>

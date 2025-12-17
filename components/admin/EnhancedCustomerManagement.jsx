@@ -447,71 +447,82 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
   );
 }
 
-const CustomerGridCard = ({ customer, onEdit }) => (
-  <motion.div
-    layout
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-    className="group relative"
-  >
-    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-    <GlassCard className="h-full border-border/50 hover:border-primary/50 transition-colors overflow-hidden relative flex flex-col">
-      <div className="absolute top-4 right-4 z-10">
-        <Button variant="ghost" size="icon" onClick={() => onEdit(customer)} className="rounded-full hover:bg-primary/10 hover:text-primary">
-          <Edit className="w-4 h-4" />
-        </Button>
-      </div>
+const CustomerGridCard = ({ customer, onEdit }) => {
+  const hasIssues = !customer.first_name || !customer.last_name || !customer.email || customer.email.includes('noemail') || !customer.country_of_origin;
 
-      <CardContent className="p-6 flex flex-col items-center text-center pt-8 flex-1">
-        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-inner relative overflow-visible border-2 border-primary/10">
-          <img
-            src={getAvatarUrl(customer.first_name)}
-            alt={customer.first_name}
-            className="w-full h-full object-cover rounded-full overflow-hidden"
-          />
-          {customer.email_confirmed && (
-            <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-background z-10 shadow-sm">
-              <Check className="w-3 h-3 text-white" />
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      className="group relative"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <GlassCard className="h-full border-border/50 hover:border-primary/50 transition-colors overflow-hidden relative flex flex-col">
+        {hasIssues && (
+          <div className="absolute top-4 left-4 z-10" title="Missing Information">
+            <div className="p-2 bg-red-500/10 rounded-full text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/30">
+              <AlertTriangle className="w-4 h-4" />
             </div>
-          )}
-          {(() => {
-            const countryCode = countries.find(c => c.name === customer.country_of_origin)?.code?.toLowerCase();
-            return countryCode ? (
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-2 border-background overflow-hidden z-20 shadow-md bg-white">
-                <img
-                  src={`https://flagcdn.com/w80/${countryCode}.png`}
-                  alt={customer.country_of_origin}
-                  className="w-full h-full object-cover"
-                />
+          </div>
+        )}
+        <div className="absolute top-4 right-4 z-10">
+          <Button variant="ghost" size="icon" onClick={() => onEdit(customer)} className="rounded-full hover:bg-primary/10 hover:text-primary">
+            <Edit className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <CardContent className="p-6 flex flex-col items-center text-center pt-8 flex-1">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-inner relative overflow-visible border-2 border-primary/10">
+            <img
+              src={getAvatarUrl(customer.first_name)}
+              alt={customer.first_name}
+              className="w-full h-full object-cover rounded-full overflow-hidden"
+            />
+            {customer.email_confirmed && (
+              <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-background z-10 shadow-sm">
+                <Check className="w-3 h-3 text-white" />
               </div>
-            ) : null;
-          })()}
-        </div>
+            )}
+            {(() => {
+              const countryCode = countries.find(c => c.name === customer.country_of_origin)?.code?.toLowerCase();
+              return countryCode ? (
+                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full border-2 border-background overflow-hidden z-20 shadow-md bg-white">
+                  <img
+                    src={`https://flagcdn.com/w80/${countryCode}.png`}
+                    alt={customer.country_of_origin}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : null;
+            })()}
+          </div>
 
-        <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
-        <p className="text-sm text-muted-foreground truncate w-full px-2 mb-1">{customer.email}</p>
-        <p className="text-xs text-muted-foreground/70 mb-4">
-          Since {customer.created_at ? formatDistanceToNow(new Date(customer.created_at)) : 'N/A'}
-        </p>
+          <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
+          <p className="text-sm text-muted-foreground truncate w-full px-2 mb-1">{customer.email}</p>
+          <p className="text-xs text-muted-foreground/70 mb-4">
+            Since {customer.created_at ? formatDistanceToNow(new Date(customer.created_at)) : 'N/A'}
+          </p>
 
-        <div className="w-full grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-border/50">
-          <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
-            <MapPin className="w-4 h-4 text-muted-foreground mb-1" />
-            <div className="flex items-center gap-1 text-xs font-medium truncate w-full justify-center">
-              <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
-              <span className="truncate">{customer.country_of_origin || 'N/A'}</span>
+          <div className="w-full grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-border/50">
+            <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
+              <MapPin className="w-4 h-4 text-muted-foreground mb-1" />
+              <div className="flex items-center gap-1 text-xs font-medium truncate w-full justify-center">
+                <span>{countries.find(c => c.name === customer.country_of_origin)?.flag}</span>
+                <span className="truncate">{customer.country_of_origin || 'N/A'}</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
+              <Phone className="w-4 h-4 text-muted-foreground mb-1" />
+              <span className="text-xs font-medium truncate w-full text-center">{customer.phone_number || 'N/A'}</span>
             </div>
           </div>
-          <div className="flex flex-col items-center p-2 rounded-lg bg-muted/30">
-            <Phone className="w-4 h-4 text-muted-foreground mb-1" />
-            <span className="text-xs font-medium truncate w-full text-center">{customer.phone_number || 'N/A'}</span>
-          </div>
-        </div>
-      </CardContent>
-    </GlassCard>
-  </motion.div>
-);
+        </CardContent>
+      </GlassCard>
+    </motion.div>
+  );
+};
 
 function DataQualityModal({ issues, isOpen, onClose, onEdit }) {
   const t = useTranslations('Admin.Customers');

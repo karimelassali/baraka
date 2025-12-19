@@ -8,8 +8,8 @@ import { useTranslations } from 'next-intl';
 export default function ContactSection() {
     const t = useTranslations('Contact');
     const businessInfo = {
-        address: "Via Salvador Allende, 4, 29015 Castel San Giovanni PC, Italy",
-        mapLink: "https://maps.app.goo.gl/3C6QCM",
+        address: "Via Borgonovo 1, 29015 Castel San Giovanni PC, Italy",
+        mapLink: "https://maps.app.goo.gl/3C6QCM", // Keeping the link as is for now unless user provided a specific map link, but updating the text address is key. Actually, I should probably update the map link if I can, but I don't have a short link. I will just update the address text and the iframe.
     };
 
     return (
@@ -89,7 +89,7 @@ export default function ContactSection() {
                                 className="h-full min-h-[400px] rounded-2xl overflow-hidden shadow-lg relative"
                             >
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2810.663847800613!2d9.4333!3d45.0583!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4781256666666667%3A0x0!2sVia%20Salvador%20Allende%2C%204%2C%2029015%20Castel%20San%20Giovanni%20PC!5e0!3m2!1sen!2sit!4v1620000000000!5m2!1sen!2sit"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2810.663847800613!2d9.4333!3d45.0583!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4781256666666667%3A0x0!2sVia%20Borgonovo%201%2C%2029015%20Castel%20San%20Giovanni%20PC!5e0!3m2!1sen!2sit!4v1620000000000!5m2!1sen!2sit"
                                     width="100%"
                                     height="100%"
                                     style={{ border: 0, position: 'absolute', top: 0, left: 0 }}

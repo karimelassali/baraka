@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit, Hammer } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
 import { getAvatarUrl } from '@/lib/avatar';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -76,6 +76,7 @@ export default function AddClientPage() {
     const [showWhatsNewModal, setShowWhatsNewModal] = useState(false);
 
     const [showDomainAlert, setShowDomainAlert] = useState(false);
+    const [showMaintenance, setShowMaintenance] = useState(true);
 
     useEffect(() => {
         // Check domain
@@ -1575,6 +1576,36 @@ export default function AddClientPage() {
             <footer className="p-6 text-center text-gray-400 text-sm">
                 &copy; {new Date().getFullYear()} Sistemi di Fedeltà Baraka
             </footer>
+
+            {/* Maintenance Modal */}
+            <AnimatePresence>
+                {showMaintenance && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-md"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden text-center p-8 border-t-4 border-blue-500"
+                        >
+                            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Hammer className="w-10 h-10 text-blue-500" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4">Manutenzione in Corso</h3>
+                            <p className="text-gray-600 mb-8 text-lg leading-relaxed">
+                                Stiamo effettuando aggiornamenti importanti. <br />
+                                Questa pagina non sarà disponibile per la prossima ora (1-2 ore massimo).
+                            </p>
+                            <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-blue-800 text-sm">
+                                Ci scusiamo per il disagio. Riprova più tardi.
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Floating Download Button */}
             <motion.button

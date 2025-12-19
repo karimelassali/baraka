@@ -123,7 +123,8 @@ export default function TermsPage() {
           <p>
             Per qualsiasi domanda riguardante i presenti Termini, si prega di contattarci a:<br />
             <strong>Baraka S.R.L.</strong><br />
-            Email: baraka.csg@gmail.com
+            Email: baraka.csg@gmail.com<br />
+            Indirizzo: Via Borgonovo 1, 29015 Castel San Giovanni PC
           </p>
         </PolicySection>
       </PolicyContent>

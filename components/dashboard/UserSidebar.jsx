@@ -150,21 +150,29 @@ export default function UserSidebar({
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
-                            className="relative flex flex-col items-center justify-center p-3 w-full"
+                            className="relative flex flex-col items-center justify-center p-1 w-full"
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="mobileActiveIndicator"
-                                    className="absolute -top-2.5 w-12 h-1 bg-red-500 rounded-b-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"
+                                    className="absolute -top-2.5 w-8 h-1 bg-red-500 rounded-b-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                 />
                             )}
-                            <div className={`relative p-2 rounded-xl transition-all duration-300 ${isActive ? 'bg-red-50' : ''}`}>
-                                <Icon className={`h-7 w-7 transition-colors duration-300 ${isActive ? 'text-red-600' : 'text-gray-400'}`} />
+                            <div className={`relative p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-red-50' : ''}`}>
+                                <Icon className={`h-6 w-6 transition-colors duration-300 ${isActive ? 'text-red-600' : 'text-gray-400'}`} />
                             </div>
                         </button>
                     );
                 })}
+                <button
+                    onClick={handleSignOutClick}
+                    className="relative flex flex-col items-center justify-center p-1 w-full"
+                >
+                    <div className="relative p-1.5 rounded-xl transition-all duration-300">
+                        <LogOut className="h-6 w-6 text-gray-400" />
+                    </div>
+                </button>
             </div>
         </div>
     );

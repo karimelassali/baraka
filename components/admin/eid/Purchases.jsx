@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Scale, ChevronLeft, ChevronRight, Loader2, Edit, Trash2, X, Tag, Search, Download, Folder, ArrowLeft, Calendar, Pin, PinOff } from 'lucide-react';
+import { Plus, Scale, ChevronLeft, ChevronRight, Loader2, Edit, Trash2, X, Tag, Search, Download, Folder, ArrowLeft, Calendar, Pin, PinOff, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import GlassCard from '@/components/ui/GlassCard';
 import { toast } from 'sonner';
 import { generateEidPdf } from '@/lib/eidPdfUtils';
@@ -331,6 +332,8 @@ export default function Purchases() {
             if (res.ok) {
                 toast.success(t('toast.deleted'));
                 fetchPurchases();
+                // Refresh tags to make the deleted tag available again
+                fetchAllTags();
             }
         } catch (e) {
             toast.error(t('toast.error_delete'));
@@ -454,7 +457,7 @@ export default function Purchases() {
                                 className={`p-6 cursor-pointer hover:shadow-lg transition-all border-t-4 group relative ${b.is_pinned ? 'border-t-yellow-500 bg-yellow-50/30' : 'border-t-red-500'}`}
                                 onClick={() => handleBatchClick(b)}
                             >
-                                <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute top-4 right-4 flex gap-1">
                                     <Button
                                         variant="ghost"
                                         size="icon"
@@ -604,9 +607,9 @@ export default function Purchases() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1">
-                    <GlassCard className="p-4 space-y-4 border-t-4 border-t-red-500 sticky top-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div className="lg:col-span-4 xl:col-span-3">
+                    <GlassCard className="p-6 space-y-5 border-t-4 border-t-red-500 sticky top-4 shadow-lg">
                         <div className="flex justify-between items-center">
                             <h3 className="font-semibold text-red-900">{editingPurchase ? t('animals.form.edit_title') : t('animals.form.add_title')}</h3>
                             {editingPurchase && (
@@ -754,7 +757,7 @@ export default function Purchases() {
                     </GlassCard>
                 </div>
 
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-8 xl:col-span-9">
                     <GlassCard className="overflow-hidden border-t-4 border-t-red-500">
                         {/* Desktop Table View */}
                         <div className="hidden md:block">
@@ -848,11 +851,11 @@ export default function Purchases() {
                                         </div>
                                     )}
 
-                                    <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
-                                        <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(p)}>
+                                    <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-gray-100">
+                                        <Button variant="ghost" size="sm" className="h-8 text-blue-600 hover:bg-blue-50 flex-1 sm:flex-none justify-center" onClick={() => handleEdit(p)}>
                                             <Edit className="w-4 h-4 mr-1" /> {t('animals.form.edit_title')}
                                         </Button>
-                                        <Button variant="ghost" size="sm" className="h-8 text-red-600 hover:bg-red-50" onClick={() => handleDeletePurchase(p.id)}>
+                                        <Button variant="ghost" size="sm" className="h-8 text-red-600 hover:bg-red-50 flex-1 sm:flex-none justify-center" onClick={() => handleDeletePurchase(p.id)}>
                                             <Trash2 className="w-4 h-4 mr-1" /> {t('delete')}
                                         </Button>
                                     </div>

@@ -782,6 +782,7 @@
         "no_contact": "Nessuna info contatto",
         "no_suppliers": "Nessun fornitore configurato. Aggiungi fornitori nelle Impostazioni.",
         "confirm_delete": "Sei sicuro?",
+        "delete": "Elimina",
         "confirm_delete_batch": "Sei sicuro di voler eliminare questo lotto?",
         "of": "di",
         "no_destinations": "Nessuna destinazione disponibile",
@@ -862,7 +863,8 @@
           "error_pin": "Errore aggiornamento stato pin",
           "error_add_animal": "Errore aggiunta animale",
           "error_update_animal": "Errore aggiornamento animale",
-          "error_delete_animal": "Errore eliminazione animale"
+          "error_delete_animal": "Errore eliminazione animale",
+          "error_save_purchase": "Errore salvataggio acquisto"
         },
         "pdf": {
           "title": "Report Acquisti",
@@ -1072,7 +1074,8 @@
       "pro_tip": "Consiglio Pro",
       "pro_tip_desc": "Personalizza la tua dashboard per vedere le metriche più importanti per te.",
       "customize_layout": "Personalizza Layout",
-      "from_last_month": "dal mese scorso"
+      "from_last_month": "dal mese scorso",
+      "checking_auth": "Verifica autorizzazioni..."
     },
     "Vouchers": {
       "title": "Centro Voucher",

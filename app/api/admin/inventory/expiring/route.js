@@ -3,6 +3,7 @@
 import { createClient } from '../../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createNotification } from '../../../../../lib/notifications';
 
 export async function GET(request) {
     const cookieStore = await cookies();
@@ -99,12 +100,38 @@ export async function GET(request) {
             console.error('Error fetching products expiring soon:', soonError);
         }
 
+        const totalAlerts = (expired?.length || 0) + (expiringToday?.length || 0) + (expiringTomorrow?.length || 0) + (expiringSoon?.length || 0);
+
+        if (totalAlerts > 0) {
+            // Check if we already sent a notification today to avoid spam
+            const { data: existingNotification } = await supabase
+                .from('notifications')
+                .select('id')
+                .eq('title', 'Avviso Scadenza Prodotti')
+                .gte('created_at', todayStr)
+                .limit(1)
+                .maybeSingle();
+
+            if (!existingNotification) {
+                await createNotification({
+                    type: 'alert',
+                    title: 'Avviso Scadenza Prodotti',
+                    message: `Ci sono ${totalAlerts} prodotti in scadenza o scaduti che richiedono attenzione.`,
+                    link: '/admin/inventory?filter=expiring',
+                    metadata: {
+                        count: totalAlerts,
+                        type: 'expiration_alert'
+                    }
+                });
+            }
+        }
+
         return NextResponse.json({
             expired: expired || [],
             expiring_today: expiringToday || [],
             expiring_tomorrow: expiringTomorrow || [],
             expiring_soon: expiringSoon || [],
-            total_alerts: (expired?.length || 0) + (expiringToday?.length || 0) + (expiringTomorrow?.length || 0) + (expiringSoon?.length || 0)
+            total_alerts: totalAlerts
         });
     } catch (error) {
         console.error('Error in GET /api/admin/inventory/expiring:', error);

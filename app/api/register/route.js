@@ -106,8 +106,8 @@ export async function POST(request) {
     // Create notification for admin
     await createNotification({
       type: 'info',
-      title: 'New Customer Registered',
-      message: `${first_name} ${last_name} has registered as a new customer.`,
+      title: 'Nuovo Cliente Registrato',
+      message: `${first_name} ${last_name} si è registrato come nuovo cliente.`,
       link: `/admin/customers/${registrationResult.profile.id}`,
       metadata: {
         customer_id: registrationResult.profile.id,

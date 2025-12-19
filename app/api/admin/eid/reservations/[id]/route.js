@@ -4,8 +4,7 @@ import { cookies } from 'next/headers';
 
 export async function PUT(request, { params }) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const { id } = await params;
         const body = await request.json();
 
@@ -58,8 +57,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
     try {
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const { id } = await params;
 
         const { error } = await supabase

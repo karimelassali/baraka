@@ -4,8 +4,7 @@ import { cookies } from 'next/headers';
 
 export async function GET(request, { params }) {
     const { id } = await params;
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     try {
         const { data, error } = await supabase
@@ -24,8 +23,7 @@ export async function GET(request, { params }) {
 
 export async function DELETE(request, { params }) {
     const { id } = await params;
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     try {
         // First, unlink purchases from this batch (optional, or cascade delete if configured)
@@ -49,8 +47,7 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { batch_number, notes, is_pinned } = body;
 
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = await createClient();
 
     try {
         const updates = {};

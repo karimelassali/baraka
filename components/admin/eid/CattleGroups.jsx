@@ -464,7 +464,7 @@ export default function CattleGroups() {
                                                 if (cleanView && !member) return null;
 
                                                 return (
-                                                    <div key={slot} className={`p-3 flex items-center justify-between transition-colors ${member?.is_paid ? 'bg-green-50/30' : 'hover:bg-gray-50'}`}>
+                                                    <div key={slot} className={`p-3 flex items-center justify-between transition-colors ${member?.is_paid ? 'bg-green-50/30' : 'hover:bg-gray-50'} relative`} style={{ zIndex: totalSlots - slot }}>
                                                         <div className="flex items-center gap-3 flex-1 min-w-0">
                                                             <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm ${member ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-400 border border-gray-200'}`}>
                                                                 {slot}

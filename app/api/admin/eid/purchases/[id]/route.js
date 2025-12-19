@@ -5,8 +5,7 @@ import { cookies } from 'next/headers';
 export async function DELETE(request, { params }) {
     try {
         const { id } = await params;
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
 
         const { error } = await supabase
             .from('eid_purchases')
@@ -28,8 +27,7 @@ export async function DELETE(request, { params }) {
 export async function PUT(request, { params }) {
     try {
         const { id } = await params;
-        const cookieStore = await cookies();
-        const supabase = createClient(cookieStore);
+        const supabase = await createClient();
         const body = await request.json();
 
         const { tag_number, tag_color, weight, animal_type, purchase_price, notes, destination } = body;

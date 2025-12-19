@@ -55,7 +55,7 @@ export default function EnhancedAdminDashboardPage() {
         setStats({
           customers: customersData.total || 0,
           offers: offersData.length || 0,
-          reviews: reviewsData.filter(r => !r.approved).length || 0,
+          reviews: reviewsData.data ? reviewsData.data.filter(r => !r.approved).length : 0,
           vouchers: vouchersData.length || 0,
         });
       } catch (error) {
@@ -169,22 +169,19 @@ export default function EnhancedAdminDashboardPage() {
   };
 
   return (
-    <motion.div
-      className="space-y-8"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <div className="flex flex-col gap-6">
       {/* Header Section */}
       <motion.header
         className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-        variants={itemVariants}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
         <div>
           <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-600">
             {t('title')}
           </h1>
-          <p className="text-muted-foreground mt-1">{t('welcome')}</p>
+          <p className="text-muted-foreground">{t('welcome')}</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -194,7 +191,10 @@ export default function EnhancedAdminDashboardPage() {
 
       {/* Expiration Alerts */}
       {!loadingExpiring && expiringData && expiringData.total_alerts > 0 && (
-        <motion.div variants={itemVariants}>
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+        >
           <ExpirationAlerts
             data={expiringData}
             onRefresh={handleRefreshExpiring}
@@ -203,7 +203,12 @@ export default function EnhancedAdminDashboardPage() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
         {statCards.map((stat, index) => (
           <EnhancedStatsCard
             key={stat.title}
@@ -212,12 +217,17 @@ export default function EnhancedAdminDashboardPage() {
             index={index}
           />
         ))}
-      </div>
+      </motion.div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
         {/* Activity Feed */}
-        <motion.div className="lg:col-span-2" variants={itemVariants}>
+        <div className="lg:col-span-2">
           <GlassCard className="h-full">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -272,14 +282,14 @@ export default function EnhancedAdminDashboardPage() {
               </div>
             )}
           </GlassCard>
-        </motion.div>
+        </div>
 
         {/* Performance / Quick Actions */}
-        <motion.div className="space-y-8" variants={itemVariants}>
+        <div className="space-y-8">
           <DBPerformanceTest />
 
-        </motion.div>
-      </div>
-    </motion.div>
+        </div>
+      </motion.div>
+    </div>
   );
 }

@@ -86,7 +86,7 @@ export default function RevenueStats({ data }) {
                     colorClass="bg-amber-500 text-amber-500"
                 />
                 <StatCard
-                    title="Annule"
+                    title="Altre"
                     value={totalRevenueAnnule}
                     icon={AlertTriangle}
                     colorClass="bg-red-500 text-red-500"

@@ -6,37 +6,37 @@ import { Link } from "@/navigation";
 import { ArrowLeft, Users, Package, CreditCard, Settings } from "lucide-react";
 
 export default function AdminGuidePage() {
-    const t = useTranslations('Dashboard.HowToUse.Admin');
+    const t = useTranslations('HowToUse');
 
     const sections = [
         {
             id: "customers",
-            title: t('customers_title'),
-            description: t('customers_desc'),
+            title: t('AdminGuide.features.customer_mgmt'),
+            description: t('AdminGuide.features.customer_list.0'),
             icon: Users,
             image: "/illus/undraw_sharing-knowledge_2jx3.svg",
             color: "bg-blue-50 text-blue-600"
         },
         {
             id: "inventory",
-            title: t('inventory_title'),
-            description: t('inventory_desc'),
+            title: t('AdminGuide.features.points_system'),
+            description: t('AdminGuide.features.points_list.0'),
             icon: Package,
             image: "/illus/undraw_product-demo_9d4i.svg",
             color: "bg-orange-50 text-orange-600"
         },
         {
             id: "payments",
-            title: t('payments_title'),
-            description: t('payments_desc'),
+            title: t('AdminGuide.features.offers_mgmt'),
+            description: t('AdminGuide.features.offers_list.0'),
             icon: CreditCard,
             image: "/illus/undraw_wallet_diag.svg",
             color: "bg-green-50 text-green-600"
         },
         {
             id: "settings",
-            title: t('settings_title'),
-            description: t('settings_desc'),
+            title: t('AdminGuide.features.reviews_comms'),
+            description: t('AdminGuide.features.reviews_list.0'),
             icon: Settings,
             image: "/illus/undraw_a-moment-to-relax_mrkn.svg",
             color: "bg-gray-50 text-gray-600"
@@ -48,17 +48,17 @@ export default function AdminGuidePage() {
             <BackgroundBeamsWithCollision className="h-[40vh] min-h-[400px] bg-neutral-950">
                 <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
                     <Link
-                        href="/admin"
+                        href="/how-to-use"
                         className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        {t('back_to_admin')}
+                        {t('Overview.title')}
                     </Link>
                     <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                        {t('hero_title')}
+                        {t('AdminGuide.title')}
                     </h1>
                     <p className="text-xl text-white/90 max-w-2xl mx-auto">
-                        {t('hero_subtitle')}
+                        {t('AdminGuide.dashboard_desc')}
                     </p>
                 </div>
             </BackgroundBeamsWithCollision>

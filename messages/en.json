@@ -952,7 +952,31 @@
       "revenue": "Revenue",
       "orders": "Orders",
       "payments": "Payments",
-      "board": "Admin Board"
+      "board": "Admin Board",
+      "customize_sidebar": "Customize Sidebar",
+      "customize_description": "Personalize your workspace. Drag and drop items to organize your sidebar exactly how you like it.",
+      "reset_default": "Reset to Default",
+      "cancel": "Cancel",
+      "save_changes": "Save Changes",
+      "settings": "Settings"
+    },
+    "Profile": {
+      "preferences": "Preferences",
+      "customize_desc": "Customize your admin sidebar layout and tabs.",
+      "customize_sidebar": "Customize Sidebar",
+      "security": "Security",
+      "new_password": "New Password",
+      "confirm_password": "Confirm Password",
+      "update_password": "Update Password",
+      "last_login": "Last Login",
+      "total_actions": "Total Actions",
+      "role": "Role Level",
+      "recent_activity": "Recent Activity",
+      "no_activity": "No recent activity found.",
+      "passwords_mismatch": "Passwords do not match",
+      "password_too_short": "Password must be at least 6 characters",
+      "password_updated": "Password updated successfully",
+      "action_on": "Action on {resource}"
     },
     "Board": {
       "title": "Admin Board",
@@ -1586,7 +1610,7 @@
         "3_desc": "Redeem points for amazing rewards."
       }
     },
-    "Admin": {
+    "AdminGuide": {
       "title": "Admin Guide",
       "dashboard_title": "Command Center",
       "dashboard_desc": "Your central hub for managing the entire loyalty ecosystem. Secure, powerful, and intuitive.",
@@ -1626,6 +1650,12 @@
       ],
       "process_points_title": "Processing Points",
       "adding_points_title": "Awarding Points",
+      "adding_points_steps": [
+        "Select 'Add Points'",
+        "Find customer",
+        "Enter amount",
+        "Confirm transaction"
+      ],
       "adding_points_steps": [
         "Select 'Add Points'",
         "Find customer",

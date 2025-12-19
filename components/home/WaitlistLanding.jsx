@@ -31,8 +31,10 @@ export default function WaitlistLanding() {
   // Translations
   const t = {
     en: {
-      title: "Coming Soon",
-      subtitle: "Join the exclusive waitlist today.",
+      title: "Opening Soon",
+      subtitle: "We are moving! Come visit us at our new store",
+      address: "Via Borgonovo 1, 29015 Castel San Giovanni PC",
+      description: "Subscribe to stay updated. Enjoy many new features and services designed especially for you.",
       successTitle: "You're on the list!",
       successSubtitle: "We're gonna inform you when we are open.",
       contact: "We'll contact you at:",
@@ -55,7 +57,9 @@ export default function WaitlistLanding() {
     },
     it: {
       title: "Prossimamente",
-      subtitle: "Iscriviti alla lista d'attesa esclusiva oggi.",
+      subtitle: "Ci spostiamo! Vieni a trovarci nel nuovo negozio",
+      address: "Via Borgonovo 1, 29015 Castel San Giovanni PC",
+      description: "Iscriviti per rimanere aggiornato. Per usufruire di tante novità e servizi studiate apposta per soddisfarti.",
       successTitle: "Sei in lista!",
       successSubtitle: "Ti informeremo quando apriremo.",
       contact: "Ti contatteremo a:",
@@ -78,7 +82,9 @@ export default function WaitlistLanding() {
     },
     ar: {
       title: "قريباً",
-      subtitle: "انضم إلى قائمة الانتظار الحصرية اليوم.",
+      subtitle: "نحن ننتقل! تعال لزيارتنا في متجرنا الجديد",
+      address: "Via Borgonovo 1, 29015 Castel San Giovanni PC",
+      description: "اشترك لتبقى على اطلاع. للاستفادة من العديد من الميزات والخدمات الجديدة المصممة خصيصًا لإرضائك.",
       successTitle: "أنت في القائمة!",
       successSubtitle: "سنقوم بإعلامك عندما نفتح.",
       contact: "سنتصل بك على:",
@@ -256,7 +262,16 @@ export default function WaitlistLanding() {
               <h1 className="text-4xl font-bold mb-2 text-gray-900">
                 {currentT.title}
               </h1>
-              <p className="text-gray-500">{currentT.subtitle}</p>
+              <p className="text-xl font-medium text-gray-700 mb-2">{currentT.subtitle}</p>
+              {currentT.address && (
+                <p className="text-gray-600 mb-4 flex items-center justify-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  {currentT.address}
+                </p>
+              )}
+              {currentT.description && (
+                <p className="text-gray-500 max-w-lg mx-auto leading-relaxed">{currentT.description}</p>
+              )}
             </m.div>
 
             <m.div

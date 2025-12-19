@@ -1,48 +1,53 @@
-// components/admin/EnhancedAdminSidebar.jsx
 "use client";
 
 import { Link, usePathname } from '@/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard,
-  Users,
-  Package,
-  Gift,
-  MessageCircle,
-  CheckCircle,
-  Ticket,
-  Megaphone,
-  FileText,
   Menu,
   X,
-  LogOut,
-  Settings,
-  Image as ImageIcon,
-  Shield,
-  BarChart2,
   ChevronRight,
-  ShoppingCart,
-  StickyNote,
-  CreditCard,
-  Brain,
-  Heart,
-  ClipboardList,
-  QrCode
+  Edit3
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import NotificationCenter from './NotificationCenter';
 import AdminProfileModal from './AdminProfileModal';
+import SidebarCustomizer from './SidebarCustomizer';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
+import { DEFAULT_NAV_CATEGORIES, COLOR_THEMES } from '@/lib/constants/admin-sidebar';
 
 export default function EnhancedAdminSidebar() {
   const t = useTranslations('Admin.Sidebar');
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [navCategories, setNavCategories] = useState(DEFAULT_NAV_CATEGORIES);
+
+  // Helper to rehydrate icons after loading from localStorage
+  const rehydrateCategories = (storedCategories) => {
+    return storedCategories.map(cat => ({
+      ...cat,
+      items: cat.items.map(item => {
+        // Find original item to get the icon component
+        let originalItem;
+        for (const defCat of DEFAULT_NAV_CATEGORIES) {
+          const found = defCat.items.find(i => i.id === item.id);
+          if (found) {
+            originalItem = found;
+            break;
+          }
+        }
+        return {
+          ...item,
+          icon: originalItem ? originalItem.icon : item.icon // Fallback if not found
+        };
+      })
+    }));
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,69 +68,31 @@ export default function EnhancedAdminSidebar() {
     };
 
     fetchUser();
+
+    // Load sidebar preference
+    const storedConfig = localStorage.getItem('admin_sidebar_config');
+    const hasOnboarded = localStorage.getItem('admin_sidebar_onboarded');
+
+    if (storedConfig) {
+      try {
+        const parsed = JSON.parse(storedConfig);
+        setNavCategories(rehydrateCategories(parsed));
+      } catch (e) {
+        console.error("Failed to parse sidebar config", e);
+      }
+    }
+
+    if (!hasOnboarded) {
+      // Small delay to ensure smooth initial render before showing modal
+      setTimeout(() => setIsCustomizerOpen(true), 1000);
+    }
   }, []);
 
-  const navCategories = [
-    {
-      title: t('cat_overview'),
-      items: [
-        { name: t('dashboard'), path: '/admin', icon: LayoutDashboard, permission: 'view_dashboard', color: 'indigo' },
-        { name: t('analytics'), path: '/admin/analytics', icon: BarChart2, permission: 'view_analytics', color: 'blue' },
-        { name: t('revenue'), path: '/admin/revenue', icon: BarChart2, permission: 'view_revenue', color: 'lime' },
-        { name: t('board'), path: '/admin/board', icon: StickyNote, permission: 'view_board', color: 'yellow' },
-      ]
-    },
-    {
-      title: t('cat_users_orders'),
-      items: [
-        { name: t('orders'), path: '/admin/order-management', icon: ShoppingCart, permission: 'manage_orders', color: 'emerald' },
-        { name: t('customers'), path: '/admin/customers', icon: Users, permission: 'manage_customers', color: 'green' },
-        { name: t('payments'), path: '/admin/payments', icon: CreditCard, permission: 'manage_payments', color: 'red' },
-        { name: t('points'), path: '/admin/points', icon: CheckCircle, permission: 'manage_points', color: 'teal' },
-        { name: t('wishlist'), path: '/admin/wishlist', icon: Heart, permission: 'manage_wishlist', color: 'purple' },
-        { name: t('reviews'), path: '/admin/reviews', icon: MessageCircle, permission: 'manage_reviews', color: 'rose' },
-        { name: 'Eid al Adha', path: '/admin/eid', icon: ClipboardList, permission: 'manage_eid', color: 'red' },
-      ]
-    },
-    {
-      title: t('cat_marketing_inventory'),
-      items: [
-        { name: t('inventory'), path: '/admin/inventory', icon: Package, permission: 'manage_inventory', color: 'cyan' },
-        { name: t('offers'), path: '/admin/offers', icon: Gift, permission: 'manage_offers', color: 'yellow' },
-        { name: t('campaigns'), path: '/admin/campaigns', icon: Megaphone, permission: 'manage_campaigns', color: 'orange' },
-        { name: t('vouchers'), path: '/admin/vouchers', icon: Ticket, permission: 'manage_vouchers', color: 'amber' },
-        { name: 'QR Codes', path: '/admin/qr-codes', icon: QrCode, permission: 'manage_offers', color: 'indigo' },
-        { name: t('gallery'), path: '/admin/gallery', icon: ImageIcon, permission: 'manage_gallery', color: 'pink' },
-      ]
-    },
-    {
-      title: t('cat_system_settings'),
-      items: [
-        { name: t('admins'), path: '/admin/admins', icon: Shield, permission: 'manage_admins', color: 'purple' },
-        { name: 'Agent Training', path: '/admin/agent-training', icon: Brain, permission: 'manage_agent_training', color: 'red' },
-        { name: t('logs'), path: '/admin/logs', icon: FileText, permission: 'view_logs', color: 'gray' },
-        { name: t('settings'), path: '/admin/settings', icon: Settings, permission: 'manage_settings', color: 'gray' },
-      ]
-    }
-  ];
-
-  // Color palette for each tab
-  const colorThemes = {
-    purple: { bg: 'bg-purple-500', hover: 'hover:bg-purple-50', light: 'bg-purple-50', text: 'text-purple-700', shadow: 'shadow-purple-100' },
-    blue: { bg: 'bg-blue-500', hover: 'hover:bg-blue-50', light: 'bg-blue-50', text: 'text-blue-700', shadow: 'shadow-blue-100' },
-    orange: { bg: 'bg-orange-500', hover: 'hover:bg-orange-50', light: 'bg-orange-50', text: 'text-orange-700', shadow: 'shadow-orange-100' },
-    green: { bg: 'bg-green-500', hover: 'hover:bg-green-50', light: 'bg-green-50', text: 'text-green-700', shadow: 'shadow-green-100' },
-    indigo: { bg: 'bg-indigo-500', hover: 'hover:bg-indigo-50', light: 'bg-indigo-50', text: 'text-indigo-700', shadow: 'shadow-indigo-100' },
-    pink: { bg: 'bg-pink-500', hover: 'hover:bg-pink-50', light: 'bg-pink-50', text: 'text-pink-700', shadow: 'shadow-pink-100' },
-    cyan: { bg: 'bg-cyan-500', hover: 'hover:bg-cyan-50', light: 'bg-cyan-50', text: 'text-cyan-700', shadow: 'shadow-cyan-100' },
-    gray: { bg: 'bg-gray-500', hover: 'hover:bg-gray-50', light: 'bg-gray-50', text: 'text-gray-700', shadow: 'shadow-gray-100' },
-    yellow: { bg: 'bg-yellow-500', hover: 'hover:bg-yellow-50', light: 'bg-yellow-50', text: 'text-yellow-700', shadow: 'shadow-yellow-100' },
-    emerald: { bg: 'bg-emerald-500', hover: 'hover:bg-emerald-50', light: 'bg-emerald-50', text: 'text-emerald-700', shadow: 'shadow-emerald-100' },
-    teal: { bg: 'bg-teal-500', hover: 'hover:bg-teal-50', light: 'bg-teal-50', text: 'text-teal-700', shadow: 'shadow-teal-100' },
-    lime: { bg: 'bg-lime-500', hover: 'hover:bg-lime-50', light: 'bg-lime-50', text: 'text-lime-700', shadow: 'shadow-lime-100' },
-    rose: { bg: 'bg-rose-500', hover: 'hover:bg-rose-50', light: 'bg-rose-50', text: 'text-rose-700', shadow: 'shadow-rose-100' },
-    amber: { bg: 'bg-amber-500', hover: 'hover:bg-amber-50', light: 'bg-amber-50', text: 'text-amber-700', shadow: 'shadow-amber-100' },
-    red: { bg: 'bg-red-500', hover: 'hover:bg-red-50', light: 'bg-red-50', text: 'text-red-700', shadow: 'shadow-red-100' },
+  const handleSaveCustomization = (newCategories) => {
+    setNavCategories(newCategories);
+    // Save to local storage (icons will be stripped automatically by JSON.stringify)
+    localStorage.setItem('admin_sidebar_config', JSON.stringify(newCategories));
+    localStorage.setItem('admin_sidebar_onboarded', 'true');
   };
 
   const filteredCategories = navCategories.map(category => ({
@@ -144,7 +111,7 @@ export default function EnhancedAdminSidebar() {
 
   const SidebarContent = () => (
     <>
-      <div className="h-20 flex items-center justify-center border-b border-border/50 bg-sidebar-accent/5">
+      <div className="h-20 flex items-center justify-center border-b border-border/50 bg-sidebar-accent/5 relative group">
         <motion.div
           className="flex items-center space-x-3"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -156,23 +123,32 @@ export default function EnhancedAdminSidebar() {
           </div>
           <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 tracking-tight">Baraka</span>
         </motion.div>
+
+        {/* Quick Customize Button */}
+        <button
+          onClick={() => setIsCustomizerOpen(true)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-muted-foreground/50 hover:text-primary hover:bg-primary/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
+          title={t('customize_sidebar')}
+        >
+          <Edit3 className="w-4 h-4" />
+        </button>
       </div>
 
       <nav className="flex-1 p-4 overflow-y-auto custom-scrollbar">
         <div className="space-y-6">
           {filteredCategories.map((category, catIndex) => (
-            <div key={catIndex}>
+            <div key={category.id || catIndex}>
               <h3 className={cn(
                 "mb-3 px-4 text-xs font-extrabold text-primary uppercase tracking-widest",
                 catIndex !== 0 && "mt-6"
               )}>
-                {category.title}
+                {t(category.titleKey)}
               </h3>
               <ul className="space-y-1.5">
                 {category.items.map((item, index) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.path;
-                  const theme = colorThemes[item.color] || colorThemes.gray;
+                  const theme = COLOR_THEMES[item.color] || COLOR_THEMES.gray;
 
                   return (
                     <motion.li
@@ -192,8 +168,8 @@ export default function EnhancedAdminSidebar() {
                         )}
                       >
                         <div className="relative z-10 flex items-center w-full">
-                          <Icon className={cn("h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110", isActive ? theme.text : "text-muted-foreground")} />
-                          <span>{item.name}</span>
+                          {Icon && <Icon className={cn("h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110", isActive ? theme.text : "text-muted-foreground")} />}
+                          <span>{item.isStatic ? item.nameKey : t(item.nameKey)}</span>
                           {isActive && (
                             <ChevronRight className="ml-auto h-4 w-4 opacity-50" />
                           )}
@@ -210,9 +186,10 @@ export default function EnhancedAdminSidebar() {
 
       <div className="p-4 border-t border-border/50 bg-muted/5">
         <div className="flex items-center gap-2">
-          <div
+          <Link
+            href="/admin/profile"
             className="flex-1 flex items-center space-x-3 p-2 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer group min-w-0"
-            onClick={() => setIsProfileOpen(true)}
+            onClick={() => setIsMobileMenuOpen(false)}
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0 overflow-hidden border border-border bg-background">
               <img
@@ -229,7 +206,7 @@ export default function EnhancedAdminSidebar() {
                 {currentUser?.email || 'admin@example.com'}
               </p>
             </div>
-          </div>
+          </Link>
           <NotificationCenter />
         </div>
       </div>
@@ -307,6 +284,13 @@ export default function EnhancedAdminSidebar() {
         onClose={() => setIsProfileOpen(false)}
         user={currentUser}
         onUpdate={setCurrentUser}
+      />
+
+      <SidebarCustomizer
+        isOpen={isCustomizerOpen}
+        onClose={() => setIsCustomizerOpen(false)}
+        onSave={handleSaveCustomization}
+        initialOrder={navCategories}
       />
     </>
   );

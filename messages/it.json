@@ -956,7 +956,31 @@
       "revenue": "Entrate",
       "orders": "Ordini",
       "payments": "Pagamenti",
-      "board": "Bacheca Admin"
+      "board": "Bacheca Admin",
+      "customize_sidebar": "Personalizza Sidebar",
+      "customize_description": "Personalizza il tuo spazio di lavoro. Trascina e rilascia gli elementi per organizzare la tua sidebar esattamente come preferisci.",
+      "reset_default": "Ripristina Default",
+      "cancel": "Annulla",
+      "save_changes": "Salva Modifiche",
+      "settings": "Impostazioni"
+    },
+    "Profile": {
+      "preferences": "Preferenze",
+      "customize_desc": "Personalizza il layout e le schede della barra laterale di amministrazione.",
+      "customize_sidebar": "Personalizza Sidebar",
+      "security": "Sicurezza",
+      "new_password": "Nuova Password",
+      "confirm_password": "Conferma Password",
+      "update_password": "Aggiorna Password",
+      "last_login": "Ultimo Accesso",
+      "total_actions": "Azioni Totali",
+      "role": "Livello Ruolo",
+      "recent_activity": "Attività Recente",
+      "no_activity": "Nessuna attività recente trovata.",
+      "passwords_mismatch": "Le password non corrispondono",
+      "password_too_short": "La password deve contenere almeno 6 caratteri",
+      "password_updated": "Password aggiornata con successo",
+      "action_on": "Azione su {resource}"
     },
     "Board": {
       "title": "Bacheca Admin",
@@ -1590,7 +1614,7 @@
         "3_desc": "Riscatta i punti per premi incredibili."
       }
     },
-    "Admin": {
+    "AdminGuide": {
       "title": "Guida Amministratore",
       "dashboard_title": "Centro di Comando",
       "dashboard_desc": "Il tuo hub centrale per gestire l'intero ecosistema di fedeltà. Sicuro, potente e intuitivo.",
@@ -1630,6 +1654,12 @@
       ],
       "process_points_title": "Elaborazione Punti",
       "adding_points_title": "Assegnazione Punti",
+      "adding_points_steps": [
+        "Seleziona 'Aggiungi Punti'",
+        "Trova cliente",
+        "Inserisci importo",
+        "Conferma transazione"
+      ],
       "adding_points_steps": [
         "Seleziona 'Aggiungi Punti'",
         "Trova cliente",

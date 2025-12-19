@@ -6,37 +6,37 @@ import { Link } from "@/navigation";
 import { ArrowLeft, Wallet, Gift, Sparkles, LayoutDashboard } from "lucide-react";
 
 export default function UserGuidePage() {
-    const t = useTranslations('Dashboard.HowToUse.User');
+    const t = useTranslations('HowToUse');
 
     const sections = [
         {
             id: "dashboard",
-            title: t('dashboard_title'),
-            description: t('dashboard_desc'),
+            title: t('Customer.dashboard_title'),
+            description: t('Customer.dashboard_desc'),
             icon: LayoutDashboard,
             image: "/illus/undraw_learning_qt7d.svg",
             color: "bg-blue-50 text-blue-600"
         },
         {
             id: "wallet",
-            title: t('wallet_title'),
-            description: t('wallet_desc'),
+            title: t('Customer.dashboard_sections.wallet'),
+            description: t('Customer.dashboard_sections.wallet_desc'),
             icon: Wallet,
             image: "/illus/undraw_wallet_diag.svg",
             color: "bg-green-50 text-green-600"
         },
         {
             id: "offers",
-            title: t('offers_title'),
-            description: t('offers_desc'),
+            title: t('Customer.dashboard_sections.offers'),
+            description: t('Customer.dashboard_sections.offers_desc'),
             icon: Gift,
             image: "/illus/undraw_gift-card_sfy8.svg",
             color: "bg-purple-50 text-purple-600"
         },
         {
             id: "wishlist",
-            title: t('wishlist_title'),
-            description: t('wishlist_desc'),
+            title: t('Customer.dashboard_sections.profile'),
+            description: t('Customer.dashboard_sections.profile_desc'),
             icon: Sparkles,
             image: "/illus/undraw_wishlist_0k5w.svg",
             color: "bg-yellow-50 text-yellow-600"
@@ -48,17 +48,17 @@ export default function UserGuidePage() {
             <BackgroundBeamsWithCollision className="h-[40vh] min-h-[400px] bg-neutral-950">
                 <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
                     <Link
-                        href="/dashboard"
+                        href="/how-to-use"
                         className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2" />
-                        {t('back_to_dashboard')}
+                        {t('Overview.title')}
                     </Link>
                     <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                        {t('hero_title')}
+                        {t('Customer.title')}
                     </h1>
                     <p className="text-xl text-white/90 max-w-2xl mx-auto">
-                        {t('hero_subtitle')}
+                        {t('Customer.getting_started_desc')}
                     </p>
                 </div>
             </BackgroundBeamsWithCollision>

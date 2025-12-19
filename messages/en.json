@@ -422,6 +422,44 @@
     }
   },
   "Admin": {
+    "Notifications": {
+      "title": "Notifications",
+      "new": "New",
+      "mark_all_read": "Mark all as read",
+      "delete_all": "Delete all",
+      "clear_all": "Clear all",
+      "empty_title": "No notifications",
+      "empty_desc": "You're all caught up! Check back later for updates.",
+      "view_details": "View Details",
+      "mark_read": "Mark as read",
+      "delete": "Delete",
+      "loading": "Loading...",
+      "load_more": "Load More",
+      "refresh": "Refresh",
+      "refreshing": "Refreshing...",
+      "unread_count": "{count} unread notifications",
+      "unread_single": "1 unread notification",
+      "restore": "Restore",
+      "others": "+ {count} others",
+      "categories": {
+        "new_customers": {
+          "label": "New Customers",
+          "description": "Customers registered in the last 24 hours"
+        },
+        "expiring_products": {
+          "label": "Expiring Products",
+          "description": "Products expiring within 7 days"
+        },
+        "low_stock": {
+          "label": "Low Stock",
+          "description": "Products below minimum threshold"
+        },
+        "pending_reviews": {
+          "label": "Pending Reviews",
+          "description": "Reviews awaiting moderation"
+        }
+      }
+    },
     "Payments": {
       "title": "Payments Management",
       "subtitle": "Track and manage all customer payments and transactions.",
@@ -1456,36 +1494,6 @@
         "pricing": "Pricing & Tracking"
       }
     },
-    "Notifications": {
-      "title": "Notifications",
-      "unread_count": "{count} unread notifications",
-      "unread_single": "1 unread notification",
-      "restore": "Restore",
-      "empty_title": "No Notifications",
-      "empty_desc": "You're all caught up!",
-      "refresh": "Refresh Notifications",
-      "refreshing": "Refreshing...",
-      "view_details": "View details",
-      "others": "+ {count} others",
-      "categories": {
-        "new_customers": {
-          "label": "New Customers",
-          "description": "Customers registered in the last 24 hours"
-        },
-        "expiring_products": {
-          "label": "Expiring Products",
-          "description": "Products expiring within 7 days"
-        },
-        "low_stock": {
-          "label": "Low Stock",
-          "description": "Products below minimum threshold"
-        },
-        "pending_reviews": {
-          "label": "Pending Reviews",
-          "description": "Reviews awaiting moderation"
-        }
-      }
-    },
     "Performance": {
       "title": "Database Performance Test",
       "run_test": "Run Performance Check",
@@ -1650,12 +1658,6 @@
       ],
       "process_points_title": "Processing Points",
       "adding_points_title": "Awarding Points",
-      "adding_points_steps": [
-        "Select 'Add Points'",
-        "Find customer",
-        "Enter amount",
-        "Confirm transaction"
-      ],
       "adding_points_steps": [
         "Select 'Add Points'",
         "Find customer",

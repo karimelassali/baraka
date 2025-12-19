@@ -2,6 +2,7 @@ import { createClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { notifySuperAdmins } from '../../../../lib/email/notifications';
+import { createNotification } from '@/lib/notifications';
 
 export async function GET(request) {
     const cookieStore = await cookies();
@@ -123,6 +124,15 @@ export async function POST(request) {
         // Notify Admins
         try {
             const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(amount);
+
+            // System Notification
+            await createNotification({
+                type: 'info',
+                title: 'Nuovo Pagamento Programmato',
+                message: `Pagamento di ${formattedAmount} a ${recipient} programmato per il ${due_date}.`,
+                link: '/admin/payments',
+                metadata: { paymentId: payment.id, amount, recipient }
+            });
 
             await notifySuperAdmins({
                 subject: `Nuovo Pagamento Programmato: ${formattedAmount} a ${recipient}`,

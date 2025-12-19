@@ -2,6 +2,7 @@ import { createClient } from '../../../../lib/supabase/server';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createNotification } from '@/lib/notifications';
 
 export async function POST(request) {
   const cookieStore = await cookies();
@@ -125,6 +126,24 @@ export async function POST(request) {
       // For now, we'll just throw the error
       throw pointError;
     }
+
+    // Fetch customer name for notification
+    const { data: customer } = await supabaseAdmin
+      .from('customers')
+      .select('first_name, last_name')
+      .eq('id', cleanCustomerId)
+      .single();
+
+    const customerName = customer ? `${customer.first_name} ${customer.last_name}` : 'Customer';
+
+    // Create notification
+    await createNotification({
+      type: 'success',
+      title: 'Nuovo Voucher Creato',
+      message: `Voucher ${voucherCode} creato per ${customerName} (${value} EUR)`,
+      link: `/admin/customers?id=${cleanCustomerId}`,
+      metadata: { customerId: cleanCustomerId, voucherCode, value }
+    });
 
     return NextResponse.json({
       success: true,

@@ -426,6 +426,44 @@
     }
   },
   "Admin": {
+    "Notifications": {
+      "title": "Notifiche",
+      "new": "Nuove",
+      "mark_all_read": "Segna tutte come lette",
+      "delete_all": "Elimina tutte",
+      "clear_all": "Cancella tutto",
+      "empty_title": "Nessuna notifica",
+      "empty_desc": "Sei aggiornato! Torna più tardi per nuovi aggiornamenti.",
+      "view_details": "Vedi dettagli",
+      "mark_read": "Segna come letta",
+      "delete": "Elimina",
+      "loading": "Caricamento...",
+      "load_more": "Carica altro",
+      "refresh": "Aggiorna",
+      "refreshing": "Aggiornamento...",
+      "unread_count": "{count} notifiche da leggere",
+      "unread_single": "1 notifica da leggere",
+      "restore": "Ripristina",
+      "others": "+ altri {count}",
+      "categories": {
+        "new_customers": {
+          "label": "Nuovi Clienti",
+          "description": "Clienti registrati nelle ultime 24 ore"
+        },
+        "expiring_products": {
+          "label": "Prodotti in Scadenza",
+          "description": "Prodotti che scadono entro 7 giorni"
+        },
+        "low_stock": {
+          "label": "Scorte Basse",
+          "description": "Prodotti sotto la soglia minima"
+        },
+        "pending_reviews": {
+          "label": "Recensioni da Approvare",
+          "description": "Recensioni in attesa di moderazione"
+        }
+      }
+    },
     "Payments": {
       "title": "Gestione Pagamenti",
       "subtitle": "Traccia e gestisci tutti i pagamenti e le transazioni dei clienti.",
@@ -1460,36 +1498,6 @@
         "pricing": "Prezzi & Tracking"
       }
     },
-    "Notifications": {
-      "title": "Notifiche",
-      "unread_count": "{count} notifiche da leggere",
-      "unread_single": "1 notifica da leggere",
-      "restore": "Ripristina",
-      "empty_title": "Nessuna Notifica",
-      "empty_desc": "Sei aggiornato!",
-      "refresh": "Aggiorna Notifiche",
-      "refreshing": "Aggiornamento...",
-      "view_details": "Visualizza dettagli",
-      "others": "+ altri {count}",
-      "categories": {
-        "new_customers": {
-          "label": "Nuovi Clienti",
-          "description": "Clienti registrati nelle ultime 24 ore"
-        },
-        "expiring_products": {
-          "label": "Prodotti in Scadenza",
-          "description": "Prodotti che scadono entro 7 giorni"
-        },
-        "low_stock": {
-          "label": "Scorte Basse",
-          "description": "Prodotti sotto la soglia minima"
-        },
-        "pending_reviews": {
-          "label": "Recensioni da Approvare",
-          "description": "Recensioni in attesa di moderazione"
-        }
-      }
-    },
     "Performance": {
       "title": "Test Prestazioni Database",
       "run_test": "Esegui Controllo Prestazioni",
@@ -1654,12 +1662,6 @@
       ],
       "process_points_title": "Elaborazione Punti",
       "adding_points_title": "Assegnazione Punti",
-      "adding_points_steps": [
-        "Seleziona 'Aggiungi Punti'",
-        "Trova cliente",
-        "Inserisci importo",
-        "Conferma transazione"
-      ],
       "adding_points_steps": [
         "Seleziona 'Aggiungi Punti'",
         "Trova cliente",

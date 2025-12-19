@@ -424,6 +424,44 @@
     }
   },
   "Admin": {
+    "Notifications": {
+      "title": "الإشعارات",
+      "new": "جديد",
+      "mark_all_read": "تحديد الكل كمقروء",
+      "delete_all": "حذف الكل",
+      "clear_all": "مسح الكل",
+      "empty_title": "لا توجد إشعارات",
+      "empty_desc": "أنت على اطلاع! تحقق لاحقًا للحصول على تحديثات جديدة.",
+      "view_details": "عرض التفاصيل",
+      "mark_read": "تحديد كمقروء",
+      "delete": "حذف",
+      "loading": "جاري التحميل...",
+      "load_more": "تحميل المزيد",
+      "refresh": "تحديث",
+      "refreshing": "جاري التحديث...",
+      "unread_count": "{count} إشعارات غير مقروءة",
+      "unread_single": "إشعار واحد غير مقروء",
+      "restore": "استعادة",
+      "others": "+ {count} آخرين",
+      "categories": {
+        "new_customers": {
+          "label": "عملاء جدد",
+          "description": "العملاء المسجلين في آخر 24 ساعة"
+        },
+        "expiring_products": {
+          "label": "منتجات منتهية الصلاحية",
+          "description": "المنتجات التي تنتهي صلاحيتها خلال 7 أيام"
+        },
+        "low_stock": {
+          "label": "مخزون منخفض",
+          "description": "المنتجات أقل من الحد الأدنى"
+        },
+        "pending_reviews": {
+          "label": "مراجعات معلقة",
+          "description": "المراجعات بانتظار الموافقة"
+        }
+      }
+    },
     "Sidebar": {
       "customize_sidebar": "تخصيص القائمة الجانبية",
       "customize_description": "قم بتخصيص مساحة العمل الخاصة بك. اسحب وأفلت العناصر لتنظيم القائمة الجانبية بالطريقة التي تفضلها.",
@@ -1440,36 +1478,6 @@
         "base": "معلومات أساسية",
         "inventory": "المخزون",
         "pricing": "التسعير والتتبع"
-      }
-    },
-    "Notifications": {
-      "title": "الإشعارات",
-      "unread_count": "{count} إشعارات غير مقروءة",
-      "unread_single": "إشعار واحد غير مقروء",
-      "restore": "استعادة",
-      "empty_title": "لا توجد إشعارات",
-      "empty_desc": "أنت على اطلاع بكل شيء!",
-      "refresh": "تحديث الإشعارات",
-      "refreshing": "جاري التحديث...",
-      "view_details": "عرض التفاصيل",
-      "others": "+ {count} آخرين",
-      "categories": {
-        "new_customers": {
-          "label": "عملاء جدد",
-          "description": "العملاء المسجلين في آخر 24 ساعة"
-        },
-        "expiring_products": {
-          "label": "منتجات منتهية الصلاحية",
-          "description": "المنتجات التي تنتهي صلاحيتها خلال 7 أيام"
-        },
-        "low_stock": {
-          "label": "مخزون منخفض",
-          "description": "المنتجات أقل من الحد الأدنى"
-        },
-        "pending_reviews": {
-          "label": "مراجعات معلقة",
-          "description": "المراجعات بانتظار الموافقة"
-        }
       }
     },
     "Performance": {

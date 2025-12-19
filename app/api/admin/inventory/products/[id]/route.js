@@ -4,6 +4,7 @@ import { createClient } from '../../../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { notifySuperAdmins } from '../../../../../../lib/email/notifications';
+import { createNotification } from '@/lib/notifications';
 
 export async function GET(request, { params }) {
     const cookieStore = await cookies();
@@ -154,6 +155,15 @@ export async function PUT(request, { params }) {
         // Check for low stock and notify
         if (updatedProduct.quantity <= updatedProduct.minimum_stock_level) {
             try {
+                // System Notification
+                await createNotification({
+                    type: 'warning',
+                    title: 'Avviso Scorte Basse',
+                    message: `Il prodotto ${updatedProduct.name} scarseggia (rimasti ${updatedProduct.quantity}).`,
+                    link: '/admin/inventory',
+                    metadata: { productId: updatedProduct.id, quantity: updatedProduct.quantity }
+                });
+
                 await notifySuperAdmins({
                     subject: `Avviso Scorte Basse: ${updatedProduct.name}`,
                     level: 'WARNING',

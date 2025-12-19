@@ -1,4 +1,3 @@
-//app/api/admin/notifications/route.js
 import { createClient } from '../../../../lib/supabase/server';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -14,81 +13,112 @@ export async function GET(request) {
     }
 
     try {
-        // Fetch counts for different notification types
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '20');
+        const offset = (page - 1) * limit;
 
-        // 1. New customers (last 24 hours)
-        const oneDayAgo = new Date();
-        oneDayAgo.setHours(oneDayAgo.getHours() - 24);
-
-        const { data: newCustomers, error: customersError } = await supabase
-            .from('customers')
-            .select('id, first_name, last_name, created_at')
-            .gte('created_at', oneDayAgo.toISOString())
+        // Fetch notifications
+        const { data: notifications, error, count } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact' })
             .order('created_at', { ascending: false })
-            .limit(5);
+            .range(offset, offset + limit - 1);
 
-        // 2. Expiring products (from inventory)
-        const { data: expiringProducts, error: expiringError } = await supabase
-            .from('inventory_products')
-            .select('id, name, expiration_date')
-            .eq('is_active', true)
-            .gte('expiration_date', new Date().toISOString().split('T')[0])
-            .lte('expiration_date', new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
-            .order('expiration_date', { ascending: true })
-            .limit(5);
+        if (error) {
+            console.error('Error fetching notifications:', error);
+            return NextResponse.json({ error: 'Database error' }, { status: 500 });
+        }
 
-        // 3. Low stock products
-        const { data: lowStockProducts, error: lowStockError } = await supabase
-            .rpc('get_low_stock_products')
-            .limit(5);
-
-        // 4. Pending reviews
-        const { data: pendingReviews, error: reviewsError } = await supabase
-            .from('reviews')
-            .select('id, customer_name, created_at')
-            .eq('approved', false)
-            .order('created_at', { ascending: false })
-            .limit(5);
-
-        const notifications = {
-            new_customers: {
-                count: newCustomers?.length || 0,
-                items: newCustomers || [],
-                icon: 'Users',
-                color: 'blue'
-            },
-            expiring_products: {
-                count: expiringProducts?.length || 0,
-                items: expiringProducts || [],
-                icon: 'AlertTriangle',
-                color: 'red'
-            },
-            low_stock: {
-                count: lowStockProducts?.length || 0,
-                items: lowStockProducts || [],
-                icon: 'Package',
-                color: 'orange'
-            },
-            pending_reviews: {
-                count: pendingReviews?.length || 0,
-                items: pendingReviews || [],
-                icon: 'MessageCircle',
-                color: 'yellow'
-            }
-        };
-
-        const totalCount = notifications.new_customers.count +
-            notifications.expiring_products.count +
-            notifications.low_stock.count +
-            notifications.pending_reviews.count;
+        // Fetch unread count
+        const { count: unreadCount, error: unreadError } = await supabase
+            .from('notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_read', false);
 
         return NextResponse.json({
-            total: totalCount,
-            notifications
-        }, { status: 200 });
+            notifications,
+            total: count,
+            unread: unreadCount,
+            page,
+            totalPages: Math.ceil(count / limit)
+        });
 
     } catch (error) {
-        console.error('Error fetching notifications:', error);
+        console.error('Error in notifications API:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
+
+export async function PUT(request) {
+    const cookieStore = await cookies();
+    const supabase = await createClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const body = await request.json();
+        const { id, action } = body;
+
+        if (action === 'mark_read') {
+            const { error } = await supabase
+                .from('notifications')
+                .update({ is_read: true })
+                .eq('id', id);
+
+            if (error) throw error;
+        } else if (action === 'mark_all_read') {
+            const { error } = await supabase
+                .from('notifications')
+                .update({ is_read: true })
+                .eq('is_read', false);
+
+            if (error) throw error;
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error updating notification:', error);
+        return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    }
+}
+
+export async function DELETE(request) {
+    const cookieStore = await cookies();
+    const supabase = await createClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    try {
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (id) {
+            const { error } = await supabase
+                .from('notifications')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+        } else {
+            // Delete all read notifications
+            const { error } = await supabase
+                .from('notifications')
+                .delete()
+                .eq('is_read', true);
+
+            if (error) throw error;
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
     }
 }

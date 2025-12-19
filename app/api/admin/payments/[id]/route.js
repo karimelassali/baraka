@@ -1,6 +1,7 @@
 import { createClient } from '../../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createNotification } from '@/lib/notifications';
 
 export async function PUT(request, { params }) {
     const { id } = await params;
@@ -52,6 +53,25 @@ export async function PUT(request, { params }) {
         if (error) {
             console.error('Error updating payment:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        // Create notification for status change
+        if (status) {
+            const type = status === 'Paid' ? 'success' : (status === 'Overdue' ? 'error' : 'info');
+            const statusMap = {
+                'Paid': 'Pagato',
+                'Overdue': 'Scaduto',
+                'Pending': 'In Attesa'
+            };
+            const translatedStatus = statusMap[status] || status;
+
+            await createNotification({
+                type,
+                title: 'Aggiornamento Stato Pagamento',
+                message: `Il pagamento a ${payment.recipient} è ora ${translatedStatus}.`,
+                link: '/admin/payments',
+                metadata: { paymentId: payment.id, status, recipient: payment.recipient }
+            });
         }
 
         return NextResponse.json({ payment });

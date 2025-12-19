@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { createNotification } from '@/lib/notifications';
 
 export async function POST(request) {
     try {
@@ -66,6 +67,15 @@ export async function POST(request) {
                 { status: 500 }
             );
         }
+
+        // Create notification
+        await createNotification({
+            type: 'info',
+            title: 'Nuova Richiesta Desideri',
+            message: `Nuova richiesta per: ${product_name}`,
+            link: '/admin/wishlist',
+            metadata: { wishlistId: data.id, productName: product_name }
+        });
 
         return NextResponse.json(data);
     } catch (error) {

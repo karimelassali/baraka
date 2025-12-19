@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { createNotification } from '@/lib/notifications';
 
 export async function POST(request) {
     const supabase = await createClient();
@@ -42,6 +43,15 @@ export async function POST(request) {
             console.error('Error tracking scan:', insertError);
             return NextResponse.json({ error: 'Failed to track scan' }, { status: 500 });
         }
+
+        // Create notification
+        await createNotification({
+            type: 'info',
+            title: 'Codice QR Scansionato',
+            message: `Il codice QR ${code} è stato scansionato.`,
+            link: '/admin/qr-codes',
+            metadata: { qrCodeId: qrCode.id, code }
+        });
 
         return NextResponse.json({ success: true });
     } catch (error) {

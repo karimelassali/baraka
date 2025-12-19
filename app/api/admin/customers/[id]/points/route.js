@@ -2,6 +2,7 @@ import { createClient } from '../../../../../../lib/supabase/server';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createNotification } from '@/lib/notifications';
 
 export async function GET(request, { params }) {
   const cookieStore = await cookies();
@@ -137,6 +138,24 @@ export async function PUT(request, { params }) {
     console.error('Error adding points:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Fetch customer name for notification
+  const { data: customer } = await supabaseAdmin
+    .from('customers')
+    .select('first_name, last_name')
+    .eq('id', cleanId)
+    .single();
+
+  const customerName = customer ? `${customer.first_name} ${customer.last_name}` : 'Customer';
+
+  // Create notification
+  await createNotification({
+    type: 'info',
+    title: 'Punti Aggiornati',
+    message: `${points > 0 ? 'Aggiunti' : 'Dedotti'} ${Math.abs(points)} punti per ${customerName}`,
+    link: `/admin/customers?id=${cleanId}`,
+    metadata: { customerId: cleanId, points }
+  });
 
   return NextResponse.json(newPoints);
 }

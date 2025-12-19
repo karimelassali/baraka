@@ -1,6 +1,7 @@
 import { createClient } from '../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createNotification } from '@/lib/notifications';
 
 export async function GET() {
   const supabase = await createClient();
@@ -64,6 +65,15 @@ export async function POST(request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Create notification
+  await createNotification({
+    type: 'info',
+    title: 'Nuova Recensione',
+    message: `Nuova recensione da ${rating} stelle di ${reviewer_name || 'Anonimo'}`,
+    link: '/admin/reviews',
+    metadata: { reviewId: newReview.id, rating }
+  });
 
   return NextResponse.json(newReview);
 }

@@ -1578,7 +1578,7 @@ export default function AddClientPage() {
             </footer>
 
             {/* Maintenance Modal */}
-            <AnimatePresence>
+            {/* <AnimatePresence>
                 {showMaintenance && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -1605,7 +1605,7 @@ export default function AddClientPage() {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence> */}
 
             {/* Floating Download Button */}
             <motion.button

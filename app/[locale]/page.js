@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import WaitlistLanding from "../../components/home/WaitlistLanding";
 import ThemeWrapper from '@/components/themes/ThemeWrapper';
 import { getTheme } from '@/lib/data/theme';
+import QRTracker from '@/components/home/QRTracker';
 
 // Dynamically import components to optimize bundle size
 const Hero = dynamic(() => import('@/components/home/Hero'));
@@ -29,6 +31,9 @@ export default async function Home() {
 
   return (
     <ThemeWrapper initialTheme={theme}>
+      <Suspense fallback={null}>
+        <QRTracker />
+      </Suspense>
       <Navbar />
       <Hero />
       <About />

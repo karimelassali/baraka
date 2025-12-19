@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { createNotification } from '@/lib/notifications';
 
 export async function GET(request) {
     try {
@@ -81,6 +82,15 @@ export async function POST(request) {
             console.error('Error creating revenue entry:', error);
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
+
+        // Create notification
+        await createNotification({
+            type: 'success',
+            title: 'Nuovo Record Entrate',
+            message: `Entrate per il ${date}: ${cleanData.total_revenue} EUR`,
+            link: '/admin/analytics',
+            metadata: { revenueId: data.id, date, amount: cleanData.total_revenue }
+        });
 
         return NextResponse.json(data);
     } catch (error) {

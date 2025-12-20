@@ -33,20 +33,16 @@ export default async function RootLayout({ children, params }) {
   const direction = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={direction}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <NextIntlClientProvider messages={messages}>
-          <Suspense fallback={null}>
-            <QRTracker />
-          </Suspense>
-          {children}
-          <Toaster />
-        </NextIntlClientProvider>
-        <SpeedInsights />
-        <Analytics />
-      </body>
-    </html>
+    <>
+      <NextIntlClientProvider messages={messages}>
+        <Suspense fallback={null}>
+          <QRTracker />
+        </Suspense>
+        {children}
+        <Toaster />
+      </NextIntlClientProvider>
+      <SpeedInsights />
+      <Analytics />
+    </>
   );
 }

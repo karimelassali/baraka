@@ -127,27 +127,9 @@ export async function PUT(request) {
         if (cattle_weight !== undefined) updates.cattle_weight = cattle_weight ? Number(cattle_weight) : null;
         if (price !== undefined) updates.price = price ? Number(price) : null;
         if (status !== undefined) updates.status = status;
+        if (tag_number !== undefined) updates.tag_number = tag_number;
 
-        // Handle tag assignment if provided
-        if (tag_number) {
-            // Find a member without a tag
-            const { data: members } = await supabase
-                .from('eid_cattle_members')
-                .select('id, tag_number')
-                .eq('group_id', id);
 
-            const emptyMember = members?.find(m => !m.tag_number);
-
-            if (emptyMember) {
-                await supabase
-                    .from('eid_cattle_members')
-                    .update({ tag_number: tag_number })
-                    .eq('id', emptyMember.id);
-            } else {
-                // Optional: Handle case where all members have tags (maybe overwrite first? or ignore?)
-                // For now, we'll ignore to prevent accidental overwrites
-            }
-        }
 
         const { data, error } = await supabase
             .from('eid_cattle_groups')

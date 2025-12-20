@@ -18,7 +18,7 @@ const ROLES = [
         icon: '⚡',
         color: 'from-blue-500 to-cyan-600'
     },
-    {
+        {
         id: 'viewer',
         label: 'Viewer',
         description: 'Read-only access',

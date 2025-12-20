@@ -235,8 +235,9 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
 
   if (!isOpen) return null;
 
-  return (
-    createPortal(
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <motion.div
         className="bg-card rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
@@ -410,8 +411,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
           </CardContent>
         </GlassCard>
       </motion.div >
-    </div >
-  ),
+    </div>,
     document.body
   );
 }
@@ -709,7 +709,7 @@ export default function EnhancedOfferManagement() {
         </CardContent>
       </GlassCard>
 
-      {isModalOpen && typeof document !== 'undefined' && createPortal(
+      {isModalOpen && (
         <OfferModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -717,8 +717,7 @@ export default function EnhancedOfferManagement() {
           offer={editingOffer}
           initialData={initialData}
           categories={categories}
-        />,
-        document.body
+        />
       )}
     </motion.div>
   );

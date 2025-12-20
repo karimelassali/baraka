@@ -224,10 +224,10 @@ export default function Delivery() {
             // Group
             setForm({
                 final_weight: item.cattle_weight || '',
-                tag_number: '', // Groups don't have single tag
+                tag_number: item.tag_number || '', // Groups can have tag
                 tag_color: '',
                 final_price: item.price || '',
-                destination: '', // Groups might not have destination field yet, or use generic
+                destination: '', // Groups don't have destination
                 is_paid: item.status === 'PAID' || item.status === 'COMPLETED',
                 status: item.status
             });
@@ -268,7 +268,7 @@ export default function Delivery() {
                         cattle_weight: form.final_weight,
                         price: form.final_price,
                         status: newStatus,
-                        tag_number: form.tag_number // Pass tag number for assignment
+                        tag_number: form.tag_number
                     })
                 });
             }
@@ -458,6 +458,15 @@ export default function Delivery() {
                             </Badge>
                         </div>
 
+                        {selectedItem.type === 'GROUP' && (
+                            <div className="bg-red-50 p-3 rounded-lg flex items-center gap-2 text-red-800">
+                                <Users className="w-4 h-4" />
+                                <span className="font-medium">
+                                    {t('members_count', { count: selectedItem.eid_cattle_members?.length || 0 })}
+                                </span>
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">{t('details.requested_weight')}</label>
@@ -483,6 +492,7 @@ export default function Delivery() {
                                             value={tagSearch}
                                             onChange={(e) => setTagSearch(e.target.value)}
                                             className="flex-1"
+                                            disabled={false} // Groups can have tag now
                                         />
                                         {form.tag_color && (
                                             <div
@@ -560,7 +570,7 @@ export default function Delivery() {
                                     placeholder={t('destination_placeholder')}
                                     className="focus-visible:ring-red-500"
                                     list="destinations-list"
-                                    disabled={selectedItem.type === 'GROUP'} // Disable for groups for now if not supported
+                                    disabled={selectedItem.type === 'GROUP'} // Groups don't have destination
                                 />
                                 <datalist id="destinations-list">
                                     {configuredDestinations.map(d => (

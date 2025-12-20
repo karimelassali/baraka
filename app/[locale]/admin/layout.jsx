@@ -30,10 +30,10 @@ export default function AdminLayout({ children }) {
 
   if (isAdmin === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background" suppressHydrationWarning>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-lg text-muted-foreground">{t('checking_auth')}</p>
+          <p className="mt-4 text-lg text-muted-foreground" suppressHydrationWarning>{t('checking_auth')}</p>
         </div>
       </div>
     );

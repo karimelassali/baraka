@@ -1302,7 +1302,12 @@
       "quality_issues_desc": "The following customers have missing or invalid information.",
       "attention_needed": "Attention Needed",
       "quality_alert_msg": "We found {count} customer profiles with missing or invalid information.",
-      "view_details": "View Details"
+      "view_details": "View Details",
+      "delete_customer_title": "Delete Customer",
+      "delete_customer_desc": "Are you sure you want to remove this customer?",
+      "delete_warning": "Warning: This action will deactivate the user account. They will no longer be able to log in.",
+      "deleting": "Deleting...",
+      "confirm_delete": "Delete Customer"
     },
     "Suggestions": {
       "inactive_title": "Inactive Customers",

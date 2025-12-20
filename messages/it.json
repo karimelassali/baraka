@@ -480,6 +480,10 @@
         }
       }
     },
+    "Sidebar": {
+      "eid": "Eid al Adha",
+      "qr_codes": "Codici QR"
+    },
     "Payments": {
       "title": "Gestione Pagamenti",
       "subtitle": "Traccia e gestisci tutti i pagamenti e le transazioni dei clienti.",
@@ -1309,7 +1313,12 @@
       "quality_issues_desc": "I seguenti clienti hanno informazioni mancanti o non valide.",
       "attention_needed": "Attenzione Richiesta",
       "quality_alert_msg": "Abbiamo trovato {count} profili clienti con informazioni mancanti o non valide.",
-      "view_details": "Vedi Dettagli"
+      "view_details": "Vedi Dettagli",
+      "delete_customer_title": "Elimina Cliente",
+      "delete_customer_desc": "Sei sicuro di voler rimuovere questo cliente?",
+      "delete_warning": "Attenzione: Questa azione disattiverà l'account utente. Non potranno più accedere.",
+      "deleting": "Eliminazione...",
+      "confirm_delete": "Elimina Cliente"
     },
     "Suggestions": {
       "inactive_title": "Clienti Inattivi",

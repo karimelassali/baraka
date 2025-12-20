@@ -85,12 +85,15 @@ export default function Reservations() {
         }
     };
 
+    const [isSaving, setIsSaving] = useState(false);
+
     const handleSaveReservation = async () => {
         if (!formData.customer) {
             toast.error(t('toast.select_customer'));
             return;
         }
 
+        setIsSaving(true);
         try {
             const url = editingReservation
                 ? `/api/admin/eid/reservations/${editingReservation.id}`
@@ -127,6 +130,8 @@ export default function Reservations() {
         } catch (error) {
             console.error('Error saving reservation:', error);
             toast.error(t('toast.error_save'));
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -537,7 +542,8 @@ export default function Reservations() {
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>{t('modal.cancel')}</Button>
-                        <Button onClick={handleSaveReservation} className="bg-red-600 hover:bg-red-700">
+                        <Button onClick={handleSaveReservation} className="bg-red-600 hover:bg-red-700" disabled={isSaving}>
+                            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             {editingReservation ? t('modal.update') : t('modal.create')}
                         </Button>
                     </DialogFooter>

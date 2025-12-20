@@ -1,5 +1,5 @@
 // app/api/admin/customers/[id]/route.js
-import { createClient } from '../../../../../lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { logAdminAction } from '../../../../../lib/admin-logger';
 import { cookies } from 'next/headers';
@@ -59,7 +59,7 @@ export async function PUT(request, { params }) {
   return NextResponse.json(updatedCustomer);
 }
 
-// Also handle DELETE if needed
+// Handle DELETE (Hard Delete)
 export async function DELETE(request, { params }) {
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
@@ -89,26 +89,89 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: 'Customer ID is required' }, { status: 400 });
   }
 
-  // This would normally delete the customer, but for safety, we'll just deactivate
-  const { data: updatedCustomer, error: updateError } = await supabase
+  // Initialize Admin Client to bypass RLS
+  const { createAdminClient } = await import('@/lib/supabase/admin');
+  const supabaseAdmin = createAdminClient();
+
+  // 1. Fetch customer to get auth_id before deleting
+  const { data: customer, error: fetchError } = await supabaseAdmin
     .from('customers')
-    .update({ is_active: false })
+    .select('auth_id, first_name, last_name, email')
     .eq('id', customerId)
-    .select()
     .single();
 
-  if (updateError) {
-    console.error('Error deactivating customer:', updateError);
-    return NextResponse.json({ error: updateError.message }, { status: 500 });
+  if (fetchError) {
+    return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+  }
+
+  // 2. Delete related records manually using Admin Client to bypass RLS
+  
+  // Delete loyalty points
+  const { error: pointsError } = await supabaseAdmin.from('loyalty_points').delete().eq('customer_id', customerId);
+  if (pointsError) console.error('Error deleting loyalty points:', pointsError);
+
+  // Delete vouchers
+  const { error: vouchersError } = await supabaseAdmin.from('vouchers').delete().eq('customer_id', customerId);
+  if (vouchersError) console.error('Error deleting vouchers:', vouchersError);
+
+  // Delete reviews
+  const { error: reviewsError } = await supabaseAdmin.from('reviews').delete().eq('customer_id', customerId);
+  if (reviewsError) console.error('Error deleting reviews:', reviewsError);
+
+  // Delete offers created by the customer (if any)
+  const { error: offersError } = await supabaseAdmin.from('offers').delete().eq('created_by', customerId);
+  if (offersError) console.error('Error deleting offers:', offersError);
+
+  // Delete whatsapp messages
+  const { error: waError } = await supabaseAdmin.from('whatsapp_messages').delete().eq('customer_id', customerId);
+  if (waError) console.error('Error deleting whatsapp messages:', waError);
+
+  // Delete GDPR logs
+  const { error: gdprError } = await supabaseAdmin.from('gdpr_logs').delete().eq('customer_id', customerId);
+  if (gdprError) console.error('Error deleting GDPR logs:', gdprError);
+
+  // Delete Eid cattle members (if applicable)
+  const { error: eidError } = await supabaseAdmin.from('eid_cattle_members').delete().eq('customer_id', customerId);
+  if (eidError) console.error('Error deleting Eid cattle members:', eidError);
+
+  // 3. Delete from customers table using Admin Client
+  const { error: deleteError } = await supabaseAdmin
+    .from('customers')
+    .delete()
+    .eq('id', customerId);
+
+  if (deleteError) {
+    console.error('Error deleting customer:', deleteError);
+    return NextResponse.json({ error: deleteError.message }, { status: 500 });
+  }
+
+  // 4. If auth_id exists, delete from auth.users using Admin Client
+  if (customer.auth_id) {
+    try {
+      const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(customer.auth_id);
+      
+      if (authDeleteError) {
+        console.error('Error deleting auth user:', authDeleteError);
+        // We don't return error here because the main customer record is already deleted
+      } else {
+        console.log(`Auth user ${customer.auth_id} deleted successfully`);
+      }
+    } catch (err) {
+      console.error('Failed to delete auth user:', err);
+    }
   }
 
   await logAdminAction({
-    action: 'DEACTIVATE',
+    action: 'DELETE',
     resource: 'customers',
     resourceId: customerId,
-    details: { is_active: false },
+    details: {
+      name: `${customer.first_name} ${customer.last_name}`,
+      email: customer.email,
+      auth_id: customer.auth_id
+    },
     adminId: adminData.id
   });
 
-  return NextResponse.json({ message: 'Customer deactivated successfully', customer: updatedCustomer });
+  return NextResponse.json({ message: 'Customer permanently deleted' });
 }

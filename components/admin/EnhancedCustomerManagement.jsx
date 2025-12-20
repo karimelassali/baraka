@@ -1,7 +1,8 @@
 // components/admin/EnhancedCustomerManagement.jsx
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
@@ -146,10 +147,10 @@ function AddCustomerModal({ isOpen, onClose, onSave }) {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`mb-6 p-4 rounded-xl border ${status.type === 'success'
+              className={`mb - 6 p - 4 rounded - xl border ${status.type === 'success'
                 ? 'bg-green-50 text-green-900 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800'
                 : 'bg-red-50 text-red-900 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800'
-                }`}
+                } `}
             >
               <div className="flex items-center gap-2">
                 {status.type === 'success' ? <Check className="h-5 w-5" /> : <X className="h-5 w-5" />}
@@ -351,7 +352,7 @@ function EditCustomerModal({ customer, isOpen, onClose, onSave }) {
           </div>
 
           {status.message && (
-            <div className={`mb-6 p-4 rounded-xl border ${status.type === 'success' ? 'bg-green-50 text-green-900 border-green-200' : 'bg-red-50 text-red-900 border-red-200'}`}>
+            <div className={`mb - 6 p - 4 rounded - xl border ${status.type === 'success' ? 'bg-green-50 text-green-900 border-green-200' : 'bg-red-50 text-red-900 border-red-200'} `}>
               {status.message}
             </div>
           )}
@@ -467,9 +468,12 @@ const CustomerGridCard = ({ customer, onEdit }) => {
             </div>
           </div>
         )}
-        <div className="absolute top-4 right-4 z-10">
+        <div className="absolute top-4 right-4 z-10 flex gap-2">
           <Button variant="ghost" size="icon" onClick={() => onEdit(customer)} className="rounded-full hover:bg-primary/10 hover:text-primary">
             <Edit className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => onEdit(customer, 'delete')} className="rounded-full hover:bg-red-500/10 hover:text-red-500 text-muted-foreground/50">
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
 
@@ -494,10 +498,10 @@ const CustomerGridCard = ({ customer, onEdit }) => {
                     alt={customer.country_of_origin}
                     className="w-full h-full object-cover"
                   />
-                </div>
+                </div >
               ) : null;
             })()}
-          </div>
+          </div >
 
           <h3 className="font-bold text-lg truncate w-full px-2">{customer.first_name} {customer.last_name}</h3>
           <p className="text-sm text-muted-foreground truncate w-full px-2 mb-1">{customer.email}</p>
@@ -518,9 +522,9 @@ const CustomerGridCard = ({ customer, onEdit }) => {
               <span className="text-xs font-medium truncate w-full text-center">{customer.phone_number || 'N/A'}</span>
             </div>
           </div>
-        </CardContent>
-      </GlassCard>
-    </motion.div>
+        </CardContent >
+      </GlassCard >
+    </motion.div >
   );
 };
 
@@ -637,6 +641,160 @@ function DataQualityModal({ issues, isOpen, onClose, onEdit }) {
   );
 }
 
+function DeleteCustomerModal({ customer, isOpen, onClose, onDelete }) {
+  const t = useTranslations('Admin.Customers');
+  const [details, setDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && customer) {
+      setLoading(true);
+      fetch(`/api/admin/customers/${customer.id}/details`)
+        .then(res => res.json())
+        .then(data => {
+          setDetails(data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Error fetching details:', err);
+          setLoading(false);
+        });
+    }
+  }, [isOpen, customer]);
+
+  const handleConfirm = async () => {
+    setIsDeleting(true);
+    await onDelete(customer);
+    setIsDeleting(false);
+    onClose();
+  };
+
+  if (!isOpen || !customer) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[9999] p-4">
+      <motion.div
+        className="bg-background/95 border border-red-200 dark:border-red-900/30 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+      >
+        <div className="p-6 bg-red-50/50 dark:bg-red-900/10 border-b border-red-100 dark:border-red-900/20">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-full text-red-600 dark:text-red-400">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-red-900 dark:text-red-400">
+                {t('delete_customer_title') || 'Delete Customer'}
+              </h2>
+              <p className="text-sm text-red-700 dark:text-red-300/80">
+                {t('delete_customer_desc') || 'Are you sure you want to remove this customer?'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-border/50">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
+              <img
+                src={getAvatarUrl(customer.first_name)}
+                alt={customer.first_name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg">{customer.first_name} {customer.last_name}</h3>
+              <p className="text-sm text-muted-foreground">{customer.email}</p>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <Loader className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : details ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium uppercase tracking-wider mb-1">Vouchers</p>
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">{details.vouchers.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
+                  <p className="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wider mb-1">Points</p>
+                  <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{details.points}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/20">
+                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium uppercase tracking-wider mb-1">Eid Reservations</p>
+                  <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">{details.eidReservations.length}</p>
+                </div>
+                <div className="p-3 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/20">
+                  <p className="text-xs text-green-600 dark:text-green-400 font-medium uppercase tracking-wider mb-1">Joined</p>
+                  <p className="text-sm font-bold text-green-700 dark:text-green-300 mt-1">
+                    {customer.created_at ? new Date(customer.created_at).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+              </div>
+
+              {details.history.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Recent History</p>
+                  <div className="space-y-2">
+                    {details.history.map((log) => (
+                      <div key={log.id} className="text-xs p-2 bg-muted/50 rounded-lg flex justify-between">
+                        <span className="font-medium">{log.action}</span>
+                        <span className="text-muted-foreground">{formatDistanceToNow(new Date(log.created_at))} ago</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground">Could not load details.</p>
+          )}
+
+          <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 text-sm text-red-800 dark:text-red-300">
+            <div className="flex gap-2">
+              <AlertTriangle className="h-5 w-5 shrink-0" />
+              <p>
+                {t('delete_warning') || 'Warning: This action will deactivate the user account. They will no longer be able to log in.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 border-t border-border/50 flex justify-end gap-3 bg-muted/10">
+          <Button variant="outline" onClick={onClose} disabled={isDeleting}>
+            {t('cancel')}
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={isDeleting || loading}
+            className="bg-red-600 hover:bg-red-700 text-white"
+          >
+            {isDeleting ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                {t('deleting') || 'Deleting...'}
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                {t('confirm_delete') || 'Delete Customer'}
+              </>
+            )}
+          </Button>
+        </div>
+      </motion.div>
+    </div>,
+    document.body
+  );
+}
+
 export default function EnhancedCustomerManagement() {
   const t = useTranslations('Admin.Customers');
   const [customers, setCustomers] = useState([]);
@@ -660,6 +818,10 @@ export default function EnhancedCustomerManagement() {
   // Quality Check State
   const [qualityIssues, setQualityIssues] = useState([]);
   const [showQualityModal, setShowQualityModal] = useState(false);
+
+  // Delete State
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
 
   const checkQuality = async () => {
     try {
@@ -748,6 +910,35 @@ export default function EnhancedCustomerManagement() {
   const loadMoreCustomers = async () => {
     if (!hasMore || loadingMore) return;
     await loadCustomers(false);
+  };
+
+  const handleEditClick = (customer, action = 'edit') => {
+    if (action === 'delete') {
+      setCustomerToDelete(customer);
+      setShowDeleteModal(true);
+    } else {
+      setSelectedCustomer(customer);
+    }
+  };
+
+  const handleDeleteCustomer = async (customer) => {
+    try {
+      const response = await fetch(`/api/admin/customers/${customer.id}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Remove from list
+        setCustomers(prev => prev.filter(c => c.id !== customer.id));
+        // Also remove from quality issues if present
+        setQualityIssues(prev => prev.filter(i => i.id !== customer.id));
+      } else {
+        console.error('Failed to delete customer');
+        // Optionally show error toast
+      }
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+    }
   };
 
 
@@ -912,7 +1103,7 @@ export default function EnhancedCustomerManagement() {
               <CustomerGridCard
                 key={customer.id}
                 customer={customer}
-                onEdit={setSelectedCustomer}
+                onEdit={handleEditClick}
               />
             ))}
           </AnimatePresence>
@@ -955,10 +1146,20 @@ export default function EnhancedCustomerManagement() {
         customer={selectedCustomer}
         isOpen={!!selectedCustomer}
         onClose={() => setSelectedCustomer(null)}
-        onSave={() => {
-          loadCustomers(true);
-          checkQuality(); // Re-check quality after edit
+        onSave={(updatedCustomer) => {
+          setCustomers(prev => prev.map(c => c.id === updatedCustomer.id ? updatedCustomer : c));
+          setSelectedCustomer(null);
         }}
+      />
+
+      <DeleteCustomerModal
+        customer={customerToDelete}
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setCustomerToDelete(null);
+        }}
+        onDelete={handleDeleteCustomer}
       />
 
       <DataQualityModal

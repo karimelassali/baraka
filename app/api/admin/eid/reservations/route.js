@@ -180,6 +180,7 @@ export async function POST(request) {
         }
 
         // 3. Notify Admins
+        let customerName = 'Unknown Customer';
         try {
             // Fetch customer name for the email
             const { data: customer } = await supabase
@@ -188,7 +189,9 @@ export async function POST(request) {
                 .eq('id', customer_id)
                 .single();
 
-            const customerName = customer ? `${customer.first_name} ${customer.last_name}` : 'Unknown Customer';
+            if (customer) {
+                customerName = `${customer.first_name} ${customer.last_name}`;
+            }
 
             await notifySuperAdmins({
                 subject: `Nuova Prenotazione Eid: ${animal_type} (${requested_weight}kg)`,

@@ -442,14 +442,7 @@ export default function CattleGroups() {
                                             <div className="px-4 py-2 bg-gray-50 border-b flex justify-between items-center text-xs text-muted-foreground">
                                                 <div className="flex gap-4">
                                                     <span>{t('card.price')}: <span className="font-semibold text-gray-900">{group.price ? `${group.price}€` : '-'}</span></span>
-                                                    <span>{t('card.paid')}: <span className="font-semibold text-gray-900">{group.total_deposit}€</span></span>
                                                 </div>
-                                                {(group.status === 'PAID' || group.status === 'COMPLETED') && (
-                                                    <div className="flex items-center gap-1 text-green-600 font-medium">
-                                                        <CheckCircle className="w-3 h-3" />
-                                                        {group.status === 'COMPLETED' ? t('status.delivered') : t('status.fully_paid')}
-                                                    </div>
-                                                )}
                                             </div>
                                         )}
                                         <div className="divide-y divide-gray-100">
@@ -559,7 +552,8 @@ export default function CattleGroups() {
                         </div>
                     )}
                 </>
-            )}
+            )
+            }
 
             {/* Create Modal */}
             <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
@@ -627,6 +621,6 @@ export default function CattleGroups() {
                     </div>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }

@@ -227,7 +227,7 @@ export default function GalleryManagement() {
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300" />
 
-                                <div className="absolute inset-0 p-4 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div className="absolute inset-0 p-4 flex flex-col justify-between transition-opacity duration-300">
                                     <div className="flex justify-end">
                                         <Button
                                             size="icon"

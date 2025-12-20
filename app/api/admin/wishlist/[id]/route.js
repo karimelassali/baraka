@@ -26,7 +26,7 @@ export async function PUT(request, { params }) {
                 },
             }
         );
-        const { id } = params;
+        const { id } = await params;
         const body = await request.json();
         const { status } = body;
 
@@ -35,10 +35,23 @@ export async function PUT(request, { params }) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Use Service Role
+        // Use Service Role with fallback
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!serviceRoleKey) {
+            console.error('CRITICAL: Service Role Key is missing!');
+            return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+        }
+
         const supabaseAdmin = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+            serviceRoleKey,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                }
+            }
         );
 
         const { data, error } = await supabaseAdmin
@@ -83,17 +96,30 @@ export async function DELETE(request, { params }) {
                 },
             }
         );
-        const { id } = params;
+        const { id } = await params;
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        // Use Service Role
+        // Use Service Role with fallback
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!serviceRoleKey) {
+            console.error('CRITICAL: Service Role Key is missing!');
+            return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+        }
+
         const supabaseAdmin = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.SUPABASE_SERVICE_ROLE_KEY
+            serviceRoleKey,
+            {
+                auth: {
+                    autoRefreshToken: false,
+                    persistSession: false
+                }
+            }
         );
 
         const { error } = await supabaseAdmin

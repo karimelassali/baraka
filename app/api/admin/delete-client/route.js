@@ -17,10 +17,17 @@ export async function DELETE(request) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
         }
 
-        // Initialize Supabase Admin Client
+        // Initialize Supabase Admin Client with fallback for service role key
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!serviceRoleKey) {
+            console.error('CRITICAL: Service Role Key is missing!');
+            return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+        }
+
         const supabaseAdmin = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+            serviceRoleKey,
             {
                 auth: {
                     autoRefreshToken: false,
@@ -29,26 +36,23 @@ export async function DELETE(request) {
             }
         );
 
-        // Delete user from Supabase Auth
-        // This usually cascades to public tables if foreign keys are set up with ON DELETE CASCADE
-        const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(authId);
-
-        if (deleteError) throw deleteError;
-
-        // Optionally, we can try to delete from 'customers' table explicitly if cascade isn't set,
-        // but usually auth deletion is the source of truth. 
-        // Let's also try to delete from customers just in case, or rely on cascade.
-        // If we delete from auth, the user can't login.
-        // Let's assume cascade or manual cleanup. 
-        // To be safe and ensure UI consistency, let's try to delete from customers table too if it still exists.
-
+        // First, delete from customers table to avoid foreign key constraint issues
         const { error: tableError } = await supabaseAdmin
             .from('customers')
             .delete()
             .eq('auth_id', authId);
 
         if (tableError) {
-            console.warn("Could not delete from customers table (might already be gone via cascade):", tableError);
+            console.warn("Could not delete from customers table:", tableError);
+            // Continue anyway, might not exist
+        }
+
+        // Now delete user from Supabase Auth
+        const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(authId);
+
+        if (deleteError) {
+            console.error('Error deleting auth user:', deleteError);
+            throw deleteError;
         }
 
         // Log the action (no admin session, so use null for adminId - deleted via add-client page)

@@ -51,8 +51,13 @@ export async function DELETE(request) {
         const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(authId);
 
         if (deleteError) {
-            console.error('Error deleting auth user:', deleteError);
-            throw deleteError;
+            // If user doesn't exist in auth, that's okay - goal is to remove them anyway
+            if (deleteError.code === 'user_not_found') {
+                console.log('Auth user not found, continuing with deletion...');
+            } else {
+                console.error('Error deleting auth user:', deleteError);
+                throw deleteError;
+            }
         }
 
         // Log the action (no admin session, so use null for adminId - deleted via add-client page)

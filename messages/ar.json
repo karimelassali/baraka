@@ -87,6 +87,8 @@
   "Offers": {
     "title": "عروض خاصة",
     "subtitle": "صفقات حصرية لك فقط",
+    "special": "عروض خاصة",
+    "special_subtitle": "صفقات حصرية لك فقط",
     "special_offer": "عرض خاص",
     "weekly": "أسبوعي",
     "weekly_subtitle": "عروض لفترة محدودة",
@@ -344,7 +346,21 @@
       "quick_actions": "إجراءات سريعة",
       "change_password": "تغيير كلمة المرور",
       "delete_account": "حذف الحساب",
-      "fill_required": "يرجى ملء جميع الحقول المطلوبة"
+      "fill_required": "يرجى ملء جميع الحقول المطلوبة",
+      "language": "اللغة",
+      "customize_sidebar": "تخصيص القائمة الجانبية",
+      "customize_desc": "قم بتخصيص مساحة العمل الخاصة بك. اسحب وأفلت العناصر لتنظيم القائمة الجانبية بالطريقة التي تفضلها.",
+      "security": "الأمان",
+      "new_password": "كلمة المرور الجديدة",
+      "confirm_password": "تأكيد كلمة المرور",
+      "update_password": "تحديث كلمة المرور",
+      "recent_activity": "النشاط الأخير",
+      "total_actions": "إجمالي الإجراءات",
+      "action_on": "إجراء على {resource}",
+      "no_activity": "لا يوجد نشاط حديث",
+      "passwords_mismatch": "كلمات المرور غير متطابقة",
+      "password_too_short": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+      "password_updated": "تم تحديث كلمة المرور بنجاح"
     },
     "HowToUse": {
       "User": {
@@ -1002,6 +1018,25 @@
         "no_results": "لم يتم العثور على عملاء."
       }
     },
+    "Profile": {
+      "preferences": "تفضيلات",
+      "customize_desc": "تخصيص تخطيط القائمة الجانبية وعلامات التبويب.",
+      "customize_sidebar": "تخصيص القائمة الجانبية",
+      "security": "الأمان",
+      "new_password": "كلمة المرور الجديدة",
+      "confirm_password": "تأكيد كلمة المرور",
+      "update_password": "تحديث كلمة المرور",
+      "last_login": "آخر تسجيل دخول",
+      "total_actions": "إجمالي الإجراءات",
+      "role": "مستوى الدور",
+      "recent_activity": "النشاط الأخير",
+      "no_activity": "لم يتم العثور على نشاط حديث.",
+      "passwords_mismatch": "كلمات المرور غير متطابقة",
+      "password_too_short": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+      "password_updated": "تم تحديث كلمة المرور بنجاح",
+      "action_on": "إجراء على {resource}",
+      "language": "اللغة"
+    },
     "Board": {
       "title": "لوحة الإدارة",
       "subtitle": "مساحة مشتركة للملاحظات والتذكيرات وتحديثات الفريق.",
@@ -1054,7 +1089,8 @@
       "pro_tip": "نصيحة احترافية",
       "pro_tip_desc": "قم بتخصيص لوحة التحكم لرؤية المقاييس الأكثر أهمية بالنسبة لك.",
       "customize_layout": "تخصيص التخطيط",
-      "from_last_month": "من الشهر الماضي"
+      "from_last_month": "من الشهر الماضي",
+      "checking_auth": "جاري التحقق من الصلاحيات..."
     },
     "Vouchers": {
       "title": "مركز القسائم",

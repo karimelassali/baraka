@@ -17,7 +17,7 @@ import {
   History,
   Plus,
   Smartphone,
-  Sparkles,
+
   UserCheck
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -47,43 +47,9 @@ export default function WhatsAppCampaign() {
   const [recipientCount, setRecipientCount] = useState(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  useEffect(() => {
-    const aiFilter = searchParams.get('ai_filter');
-    if (aiFilter) {
-      if (aiFilter.toLowerCase().includes('country=')) {
-        const countryMatch = aiFilter.match(/country=([^,]*)/i);
-        if (countryMatch && countryMatch[1]) {
-          setFormData(prev => ({
-            ...prev,
-            targetGroup: 'nationality',
-            nationality: countryMatch[1].trim()
-          }));
-        }
-      }
-    }
-  }, [searchParams]);
 
-  // Listen for AI commands
-  useEffect(() => {
-    const handleAICommand = (e) => {
-      const { command } = e.detail;
-      if (command) {
-        // Simple heuristic to fill message from AI suggestion
-        // In a real app, this might call an AI API to generate the text
-        if (command.includes("festività")) {
-          setFormData(prev => ({ ...prev, message: "🎄 Auguri di Buone Feste! Passa a trovarci per scoprire le nostre offerte speciali natalizie. 🎁" }));
-        } else if (command.includes("filtri")) {
-          setFormData(prev => ({ ...prev, targetGroup: 'points', pointsThreshold: 100 }));
-        } else if (command.includes("consigli")) {
-          // Just focus the message area
-          document.querySelector('textarea[name="message"]')?.focus();
-        }
-      }
-    };
 
-    window.addEventListener('baraka-ai-command', handleAICommand);
-    return () => window.removeEventListener('baraka-ai-command', handleAICommand);
-  }, []);
+
 
   const validate = () => {
     const newErrors = {};
@@ -242,7 +208,7 @@ export default function WhatsAppCampaign() {
               <GlassCard className="overflow-hidden">
                 <CardHeader className="border-b border-border/50 bg-muted/20">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <Sparkles className="h-5 w-5 text-indigo-500" />
+
                     Campaign Details
                   </CardTitle>
                 </CardHeader>

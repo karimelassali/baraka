@@ -4,9 +4,9 @@
 import { useEffect, useState } from 'react';
 import { ClientAuthService } from '../../../lib/auth/client-auth';
 import EnhancedAdminSidebar from '../../../components/admin/EnhancedAdminSidebar';
-import AICopilot from '../../../components/admin/ai/AICopilot';
+
 import { motion } from 'framer-motion';
-import LanguageSwitcher from '../../../components/LanguageSwitcher';
+
 import { useTranslations } from 'next-intl';
 
 export default function AdminLayout({ children }) {
@@ -52,9 +52,7 @@ export default function AdminLayout({ children }) {
 
 
       <main className={`flex-1 relative z-10 h-screen overflow-y-auto transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
-        <div className="absolute top-4 right-8 z-50">
-          <LanguageSwitcher />
-        </div>
+
         <motion.div
           className="w-full p-4 md:p-6"
           initial={{ opacity: 0, y: 20 }}
@@ -65,7 +63,7 @@ export default function AdminLayout({ children }) {
         </motion.div>
       </main>
 
-      <AICopilot />
+
     </div>
   );
 }

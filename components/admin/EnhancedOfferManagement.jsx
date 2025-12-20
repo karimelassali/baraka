@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { createClient } from '../../lib/supabaseClient';
+import { createPortal } from 'react-dom';
+
 import {
   Plus,
   Gift,
@@ -234,6 +236,7 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
   if (!isOpen) return null;
 
   return (
+    createPortal(
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <motion.div
         className="bg-card rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
@@ -408,6 +411,8 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
         </GlassCard>
       </motion.div >
     </div >
+  ),
+    document.body
   );
 }
 
@@ -425,19 +430,7 @@ export default function EnhancedOfferManagement() {
     fetchOffers();
     fetchCategories();
 
-    // Check for AI draft params
-    const create = searchParams.get('create');
-    if (create === 'true') {
-      const title = searchParams.get('title');
-      const type = searchParams.get('type');
-      const value = searchParams.get('value');
 
-      if (title || type || value) {
-        setInitialData({ title, type, value });
-        setEditingOffer(null);
-        setIsModalOpen(true);
-      }
-    }
   }, [searchParams]);
 
   const fetchCategories = async () => {
@@ -716,14 +709,17 @@ export default function EnhancedOfferManagement() {
         </CardContent>
       </GlassCard>
 
-      <OfferModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={fetchOffers}
-        offer={editingOffer}
-        initialData={initialData}
-        categories={categories}
-      />
+      {isModalOpen && typeof document !== 'undefined' && createPortal(
+        <OfferModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={fetchOffers}
+          offer={editingOffer}
+          initialData={initialData}
+          categories={categories}
+        />,
+        document.body
+      )}
     </motion.div>
   );
 }

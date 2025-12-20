@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Shield, User, Mail, Phone, Check, Key, AlertCircle } from 'lucide-react';
 
@@ -49,7 +50,7 @@ const PERMISSIONS = [
     { id: 'manage_campaigns', label: 'Campaigns' },
     { id: 'manage_vouchers', label: 'Vouchers' },
     { id: 'manage_gallery', label: 'Gallery' },
-    { id: 'manage_admins', label: 'Admins' },   
+    { id: 'manage_admins', label: 'Admins' },
     { id: 'view_logs', label: 'Logs' },
     { id: 'manage_settings', label: 'Settings' }
 ];
@@ -198,13 +199,13 @@ export default function AdminModal({
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <AnimatePresence>
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
                 onClick={onClose}
             >
                 <motion.div
@@ -212,7 +213,7 @@ export default function AdminModal({
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     transition={{ type: 'spring', damping: 30, stiffness: 400 }}
-                    className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl"
+                    className="w-full max-w-2xl max-h-[90vh] overflow-y-auto z-[99999] bg-white rounded-2xl shadow-2xl"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="relative p-6">
@@ -439,6 +440,7 @@ export default function AdminModal({
                     </div>
                 </motion.div>
             </motion.div>
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }

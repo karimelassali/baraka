@@ -87,6 +87,8 @@
   "Offers": {
     "title": "Special Offers",
     "subtitle": "Exclusive deals just for you",
+    "special": "Special Offers",
+    "special_subtitle": "Exclusive deals just for you",
     "special_offer": "Special Offer",
     "weekly": "Weekly",
     "weekly_subtitle": "Limited Time Deals",
@@ -345,7 +347,21 @@
       "quick_actions": "Quick Actions",
       "change_password": "Change Password",
       "delete_account": "Delete Account",
-      "fill_required": "Please fill all required fields"
+      "fill_required": "Please fill all required fields",
+      "language": "Language",
+      "customize_sidebar": "Customize Sidebar",
+      "customize_desc": "Customize your workspace. Drag and drop items to organize the sidebar the way you prefer.",
+      "security": "Security",
+      "new_password": "New Password",
+      "confirm_password": "Confirm Password",
+      "update_password": "Update Password",
+      "recent_activity": "Recent Activity",
+      "total_actions": "Total Actions",
+      "action_on": "Action on {resource}",
+      "no_activity": "No recent activity",
+      "passwords_mismatch": "Passwords do not match",
+      "password_too_short": "Password must be at least 6 characters",
+      "password_updated": "Password updated successfully"
     },
     "HowToUse": {
       "User": {
@@ -1014,7 +1030,8 @@
       "passwords_mismatch": "Passwords do not match",
       "password_too_short": "Password must be at least 6 characters",
       "password_updated": "Password updated successfully",
-      "action_on": "Action on {resource}"
+      "action_on": "Action on {resource}",
+      "language": "Language"
     },
     "Board": {
       "title": "Admin Board",
@@ -1068,7 +1085,8 @@
       "pro_tip": "Pro Tip",
       "pro_tip_desc": "Customize your dashboard to see the metrics that matter most to you.",
       "customize_layout": "Customize Layout",
-      "from_last_month": "from last month"
+      "from_last_month": "from last month",
+      "checking_auth": "Checking authentication..."
     },
     "Vouchers": {
       "title": "Voucher Center",

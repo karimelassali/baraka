@@ -13,9 +13,9 @@ export default function LanguageSwitcher() {
     const currentLocale = useLocale();
 
     const languages = [
-        { code: "en", name: "English", flag: "🇺🇸" },
-        { code: "it", name: "Italian", flag: "🇮🇹" },
-        { code: "ar", name: "Arabic", flag: "🇸🇦" }
+        { code: "en", name: "English", flagCode: "us" },
+        { code: "it", name: "Italian", flagCode: "it" },
+        { code: "ar", name: "Arabic", flagCode: "sa" }
     ];
 
     const currentLanguage = languages.find(l => l.code === currentLocale) || languages[0];
@@ -46,7 +46,12 @@ export default function LanguageSwitcher() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 group shadow-sm"
                 whileTap={{ scale: 0.98 }}
             >
-                <span className="text-lg leading-none">{currentLanguage.flag}</span>
+                <img
+                    src={`https://flagcdn.com/w40/${currentLanguage.flagCode}.png`}
+                    srcSet={`https://flagcdn.com/w80/${currentLanguage.flagCode}.png 2x`}
+                    alt={currentLanguage.name}
+                    className="w-5 h-auto object-cover rounded-sm shadow-sm"
+                />
                 <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 hidden sm:inline-block">
                     {currentLanguage.name}
                 </span>
@@ -75,11 +80,16 @@ export default function LanguageSwitcher() {
                                 key={language.code}
                                 onClick={() => handleLanguageChange(language.code)}
                                 className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-3 transition-colors ${currentLocale === language.code
-                                        ? "bg-red-50 text-red-700 font-medium"
-                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                    ? "bg-red-50 text-red-700 font-medium"
+                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                     }`}
                             >
-                                <span className="text-lg leading-none">{language.flag}</span>
+                                <img
+                                    src={`https://flagcdn.com/w40/${language.flagCode}.png`}
+                                    srcSet={`https://flagcdn.com/w80/${language.flagCode}.png 2x`}
+                                    alt={language.name}
+                                    className="w-5 h-auto object-cover rounded-sm shadow-sm"
+                                />
                                 <span>{language.name}</span>
                                 {currentLocale === language.code && (
                                     <motion.div

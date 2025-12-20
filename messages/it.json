@@ -87,6 +87,8 @@
   "Offers": {
     "title": "Offerte Speciali",
     "subtitle": "Offerte esclusive solo per te",
+    "special": "Offerte Speciali",
+    "special_subtitle": "Offerte esclusive solo per te",
     "special_offer": "Offerta Speciale",
     "weekly": "Settimanale",
     "weekly_subtitle": "Offerte a Tempo Limitato",
@@ -345,7 +347,21 @@
       "quick_actions": "Azioni Rapide",
       "change_password": "Cambia Password",
       "delete_account": "Elimina Account",
-      "fill_required": "Compila tutti i campi obbligatori"
+      "fill_required": "Compila tutti i campi obbligatori",
+      "language": "Lingua",
+      "customize_sidebar": "Personalizza Barra Laterale",
+      "customize_desc": "Personalizza il tuo spazio di lavoro. Trascina e rilascia gli elementi per organizzare la barra laterale come preferisci.",
+      "security": "Sicurezza",
+      "new_password": "Nuova Password",
+      "confirm_password": "Conferma Password",
+      "update_password": "Aggiorna Password",
+      "recent_activity": "Attività Recente",
+      "total_actions": "Azioni Totali",
+      "action_on": "Azione su {resource}",
+      "no_activity": "Nessuna attività recente",
+      "passwords_mismatch": "Le password non corrispondono",
+      "password_too_short": "La password deve essere di almeno 6 caratteri",
+      "password_updated": "Password aggiornata con successo"
     },
     "HowToUse": {
       "User": {
@@ -1020,7 +1036,8 @@
       "passwords_mismatch": "Le password non corrispondono",
       "password_too_short": "La password deve contenere almeno 6 caratteri",
       "password_updated": "Password aggiornata con successo",
-      "action_on": "Azione su {resource}"
+      "action_on": "Azione su {resource}",
+      "language": "Lingua"
     },
     "Board": {
       "title": "Bacheca Admin",

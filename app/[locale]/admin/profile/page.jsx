@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useTransition, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import {
     User,
     Mail,
@@ -14,7 +16,8 @@ import {
     Edit3,
     Loader2,
     CheckCircle,
-    Bell
+    Bell,
+    Globe
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createClient } from '@/lib/supabase/client';
@@ -43,6 +46,29 @@ export default function AdminProfilePage() {
     const [passLoading, setPassLoading] = useState(false);
 
     const [activeTab, setActiveTab] = useState('overview');
+
+    // Language Settings
+    const locale = useLocale();
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+
+    const languages = [
+        { code: 'en', name: 'English', country: 'gb' },
+        { code: 'it', name: 'Italiano', country: 'it' },
+        { code: 'ar', name: 'العربية', country: 'sa' }
+    ];
+
+    const handleLanguageChange = (code) => {
+        if (code === locale) return;
+
+        startTransition(() => {
+            const currentPath = window.location.pathname;
+            const segments = currentPath.split('/');
+            segments[1] = code;
+            const newPath = segments.join('/');
+            router.push(newPath);
+        });
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -168,6 +194,37 @@ export default function AdminProfilePage() {
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                         {/* Left Column: Customization & Security (4 cols) */}
                         <div className="lg:col-span-4 space-y-6">
+                            {/* Language Settings Card */}
+                            <GlassCard className="p-6">
+                                <h3 className="font-semibold flex items-center gap-2 mb-4">
+                                    <Globe className="w-4 h-4 text-primary" />
+                                    {t('language') || 'Language'}
+                                </h3>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {languages.map((lang) => (
+                                        <button
+                                            key={lang.code}
+                                            onClick={() => handleLanguageChange(lang.code)}
+                                            disabled={isPending}
+                                            className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${locale === lang.code
+                                                    ? 'bg-primary/10 border-primary shadow-sm ring-1 ring-primary/20'
+                                                    : 'bg-background border-border hover:bg-muted hover:border-primary/50'
+                                                } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            <div className="relative w-8 h-6 mb-2 shadow-sm rounded overflow-hidden">
+                                                <img
+                                                    src={`https://flagcdn.com/w40/${lang.country}.png`}
+                                                    alt={lang.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <span className={`text-xs font-medium ${locale === lang.code ? 'text-primary' : 'text-muted-foreground'}`}>
+                                                {lang.name}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </GlassCard>
                             {/* Sidebar Customization Card */}
                             <GlassCard className="p-6 flex flex-col items-center text-center space-y-4 border-primary/20 shadow-lg shadow-primary/5 relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">

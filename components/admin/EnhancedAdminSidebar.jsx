@@ -41,11 +41,14 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
             break;
           }
         }
-        return {
-          ...item,
-          icon: originalItem ? originalItem.icon : item.icon // Fallback if not found
-        };
-      })
+        if (originalItem) {
+          return {
+            ...item,
+            icon: originalItem.icon
+          };
+        }
+        return null;
+      }).filter(Boolean)
     }));
   };
 

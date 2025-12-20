@@ -4,6 +4,8 @@ import WaitlistLanding from "../../components/home/WaitlistLanding";
 import ThemeWrapper from '@/components/themes/ThemeWrapper';
 import { getTheme } from '@/lib/data/theme';
 import QRTracker from '@/components/home/QRTracker';
+import PaymentMethodsBox from '@/components/client/PaymentMethodsBox';
+
 
 // Dynamically import components to optimize bundle size
 const Hero = dynamic(() => import('@/components/home/Hero'));
@@ -37,7 +39,8 @@ export default async function Home() {
       <Navbar />
       <Hero />
       <About />
-      <CategoriesSection />
+      {/* <CategoriesSection /> */}
+      <PaymentMethodsB ox />
       <OffersSection />
       <GallerySection />
       <ReviewsSection />

@@ -316,7 +316,8 @@ export default function AddClientPage() {
                     lastName: formData.lastName,
                     phoneNumber: formData.phoneNumber,
                     countryOfOrigin: formData.countryOfOrigin,
-                    residence: formData.residence
+                    residence: formData.residence,
+                    accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
                 })
             });
 

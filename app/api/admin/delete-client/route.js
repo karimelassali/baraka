@@ -1,29 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
-import { createClient as createServerClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { logAdminAction } from '../../../../lib/admin-logger';
 
 export async function DELETE(request) {
     try {
-        // Verify admin access first
-        const supabase = await createServerClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const body = await request.json();
+        const { authId, accessPassword } = body;
+
+        // Verify access via password (no session needed)
+        const expectedPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+        if (!accessPassword || accessPassword !== expectedPassword) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
-
-        const { data: adminData, error: adminError } = await supabase
-            .from('admin_users')
-            .select('id')
-            .eq('auth_id', user.id)
-            .eq('is_active', true)
-            .single();
-
-        if (adminError || !adminData) {
-            return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
-        }
-
-        const { authId } = await request.json();
 
         if (!authId) {
             return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -63,13 +51,13 @@ export async function DELETE(request) {
             console.warn("Could not delete from customers table (might already be gone via cascade):", tableError);
         }
 
-        // Log the action
+        // Log the action (no admin session, so use null for adminId - deleted via add-client page)
         await logAdminAction({
             action: 'DELETE',
             resource: 'customers',
             resourceId: authId,
-            details: { authId },
-            adminId: adminData.id
+            details: { authId, source: 'add-client-page' },
+            adminId: null
         });
 
         return NextResponse.json({ success: true });

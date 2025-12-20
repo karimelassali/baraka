@@ -235,7 +235,10 @@ export default function AddClientPage() {
             const res = await fetch('/api/admin/delete-client', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ authId: clientToDelete.auth_id }),
+                body: JSON.stringify({
+                    authId: clientToDelete.auth_id,
+                    accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                }),
             });
 
             if (!res.ok) {

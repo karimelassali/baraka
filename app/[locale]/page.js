@@ -40,7 +40,7 @@ export default async function Home() {
       <Hero />
       <About />
       {/* <CategoriesSection /> */}
-      <PaymentMethodsB ox />
+      <PaymentMethodsBox />
       <OffersSection />
       <GallerySection />
       <ReviewsSection />

@@ -1,6 +1,7 @@
 // app/admin/vouchers/page.jsx
 "use client";
 
+import { Suspense } from 'react';
 import VoucherManagement from '../../../../components/admin/VoucherManagement';
 
 export default function AdminVouchersPage() {
@@ -13,7 +14,9 @@ export default function AdminVouchersPage() {
       </div>
 
       <div className="max-w-6xl mx-auto">
-        <VoucherManagement />
+        <Suspense fallback={<div className="flex justify-center p-8">Loading...</div>}>
+          <VoucherManagement />
+        </Suspense>
       </div>
     </>
   );

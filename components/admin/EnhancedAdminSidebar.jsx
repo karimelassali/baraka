@@ -18,7 +18,7 @@ import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { DEFAULT_NAV_CATEGORIES, COLOR_THEMES } from '@/lib/constants/admin-sidebar';
 
-export default function EnhancedAdminSidebar() {
+export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
   const t = useTranslations('Admin.Sidebar');
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -109,41 +109,47 @@ export default function EnhancedAdminSidebar() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ mobile = false }) => (
     <>
-      <div className="h-20 flex items-center justify-center border-b border-border/50 bg-sidebar-accent/5 relative group">
+      <div className={cn("h-20 flex items-center border-b border-border/50 bg-sidebar-accent/5 relative group transition-all duration-300", isCollapsed && !mobile ? "justify-center px-2" : "justify-center px-4")}>
         <motion.div
           className="flex items-center space-x-3"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-primary/20 bg-background overflow-hidden">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-primary/20 bg-background overflow-hidden shrink-0">
             <img src="/images/logo.png" alt="Baraka Logo" className="w-full h-full object-contain" />
           </div>
-          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 tracking-tight">Baraka</span>
+          {(!isCollapsed || mobile) && (
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 tracking-tight whitespace-nowrap overflow-hidden">Baraka</span>
+          )}
         </motion.div>
 
         {/* Quick Customize Button */}
-        <button
-          onClick={() => setIsCustomizerOpen(true)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-muted-foreground/50 hover:text-primary hover:bg-primary/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
-          title={t('customize_sidebar')}
-        >
-          <Edit3 className="w-4 h-4" />
-        </button>
+        {(!isCollapsed || mobile) && (
+          <button
+            onClick={() => setIsCustomizerOpen(true)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-muted-foreground/50 hover:text-primary hover:bg-primary/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
+            title={t('customize_sidebar')}
+          >
+            <Edit3 className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
-      <nav className="flex-1 p-4 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 p-3 overflow-y-auto custom-scrollbar overflow-x-hidden">
         <div className="space-y-6">
           {filteredCategories.map((category, catIndex) => (
             <div key={category.id || catIndex}>
-              <h3 className={cn(
-                "mb-3 px-4 text-xs font-extrabold text-primary uppercase tracking-widest",
-                catIndex !== 0 && "mt-6"
-              )}>
-                {t(category.titleKey)}
-              </h3>
+              {(!isCollapsed || mobile) && (
+                <h3 className={cn(
+                  "mb-3 px-4 text-xs font-extrabold text-primary uppercase tracking-widest whitespace-nowrap",
+                  catIndex !== 0 && "mt-6"
+                )}>
+                  {t(category.titleKey)}
+                </h3>
+              )}
               <ul className="space-y-1.5">
                 {category.items.map((item, index) => {
                   const Icon = item.icon;
@@ -161,17 +167,23 @@ export default function EnhancedAdminSidebar() {
                         href={item.path}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
-                          "relative flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 overflow-hidden group",
+                          "relative flex items-center text-sm font-medium rounded-xl transition-all duration-200 overflow-hidden group",
+                          isCollapsed && !mobile ? "justify-center px-2 py-3" : "px-4 py-3",
                           isActive
                             ? `${theme.light} ${theme.text} shadow-md ${theme.shadow}`
                             : `text-muted-foreground ${theme.hover}`
                         )}
+                        title={isCollapsed && !mobile ? t(item.nameKey) : ''}
                       >
-                        <div className="relative z-10 flex items-center w-full">
-                          {Icon && <Icon className={cn("h-5 w-5 mr-3 transition-transform duration-300 group-hover:scale-110", isActive ? theme.text : "text-muted-foreground")} />}
-                          <span>{item.isStatic ? item.nameKey : t(item.nameKey)}</span>
-                          {isActive && (
-                            <ChevronRight className="ml-auto h-4 w-4 opacity-50" />
+                        <div className={cn("relative z-10 flex items-center w-full", isCollapsed && !mobile ? "justify-center" : "")}>
+                          {Icon && <Icon className={cn("h-5 w-5 transition-transform duration-300 group-hover:scale-110 shrink-0", (!isCollapsed || mobile) ? "mr-3" : "", isActive ? theme.text : "text-muted-foreground")} />}
+                          {(!isCollapsed || mobile) && (
+                            <>
+                              <span className="whitespace-nowrap">{item.isStatic ? item.nameKey : t(item.nameKey)}</span>
+                              {isActive && (
+                                <ChevronRight className="ml-auto h-4 w-4 opacity-50" />
+                              )}
+                            </>
                           )}
                         </div>
                       </Link>
@@ -184,12 +196,13 @@ export default function EnhancedAdminSidebar() {
         </div>
       </nav>
 
-      <div className="p-4 border-t border-border/50 bg-muted/5">
-        <div className="flex items-center gap-2">
+      <div className={cn("border-t border-border/50 bg-muted/5 transition-all duration-300", isCollapsed && !mobile ? "p-2" : "p-4")}>
+        <div className="flex items-center gap-2 justify-center">
           <Link
             href="/admin/profile"
-            className="flex-1 flex items-center space-x-3 p-2 rounded-xl hover:bg-muted/50 transition-colors cursor-pointer group min-w-0"
+            className={cn("flex items-center rounded-xl hover:bg-muted/50 transition-colors cursor-pointer group min-w-0", isCollapsed && !mobile ? "justify-center p-1 flex-1" : "flex-1 space-x-3 p-2")}
             onClick={() => setIsMobileMenuOpen(false)}
+            title={isCollapsed && !mobile ? (currentUser?.full_name || t('default_user')) : ''}
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0 overflow-hidden border border-border bg-background">
               <img
@@ -198,16 +211,18 @@ export default function EnhancedAdminSidebar() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
-                {currentUser?.full_name || t('default_user')}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {currentUser?.email || 'admin@example.com'}
-              </p>
-            </div>
+            {(!isCollapsed || mobile) && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                  {currentUser?.full_name || t('default_user')}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {currentUser?.email || 'admin@example.com'}
+                </p>
+              </div>
+            )}
           </Link>
-          <NotificationCenter />
+          {(!isCollapsed || mobile) && <NotificationCenter />}
         </div>
       </div>
     </>
@@ -234,12 +249,27 @@ export default function EnhancedAdminSidebar() {
 
       {/* Desktop Sidebar */}
       <motion.aside
-        className="hidden md:flex fixed top-0 left-0 h-full w-64 bg-card border-r border-border z-40 flex-col shadow-sm"
+        className={cn(
+          "hidden md:flex fixed top-0 left-0 h-full bg-card border-r border-border z-40 flex-col shadow-sm transition-all duration-300",
+          isCollapsed ? "w-20" : "w-64"
+        )}
         initial={{ x: -260 }}
         animate={{ x: 0 }}
         transition={{ type: 'spring', damping: 20, stiffness: 100 }}
       >
         <SidebarContent />
+
+        {/* Collapse Toggle Button */}
+        <button
+          onClick={toggleCollapse}
+          className="absolute -right-3 top-24 bg-background border border-border rounded-full p-1 shadow-md hover:bg-accent transition-colors z-50 hidden md:flex items-center justify-center"
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-muted-foreground rotate-180" />
+          )}
+        </button>
       </motion.aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -273,7 +303,7 @@ export default function EnhancedAdminSidebar() {
                   <X className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
-              <SidebarContent />
+              <SidebarContent mobile={true} />
             </motion.aside>
           </>
         )}

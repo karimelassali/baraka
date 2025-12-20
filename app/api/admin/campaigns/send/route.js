@@ -1,6 +1,7 @@
 // app/api/admin/campaigns/send/route.js
 
-import { createClient } from '../../../../../lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getCurrentUser } from '../../../../../lib/auth/server';
@@ -22,8 +23,11 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Message is required' }, { status: 400 });
   }
 
+  // Use admin client to bypass RLS and ensure access to views
+  const supabaseAdmin = createAdminClient();
+
   // Fetch target customers based on targetGroup
-  let customersQuery = supabase
+  let customersQuery = supabaseAdmin
     .from('customers')
     .select('id, email, phone_number, first_name, last_name')
     .not('phone_number', 'is', null); // Only customers with phone numbers
@@ -31,7 +35,12 @@ export async function POST(request) {
   if (targetGroup === 'nationality' && nationality) {
     customersQuery = customersQuery.ilike('country_of_origin', `%${nationality}%`);
   } else if (targetGroup === 'points' && pointsThreshold) {
-    customersQuery = customersQuery.gte('total_points', parseInt(pointsThreshold));
+    // Join with view to filter by points
+    customersQuery = supabaseAdmin
+      .from('customers')
+      .select('id, email, phone_number, first_name, last_name, customer_points_balance!inner(total_points)')
+      .not('phone_number', 'is', null)
+      .gte('customer_points_balance.total_points', parseInt(pointsThreshold));
   } else if (targetGroup === 'specific' && selectedCustomerIds && selectedCustomerIds.length > 0) {
     customersQuery = customersQuery.in('id', selectedCustomerIds);
   }

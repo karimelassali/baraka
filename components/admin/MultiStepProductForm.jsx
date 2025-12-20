@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     X,
@@ -88,8 +89,8 @@ export default function MultiStepProductForm({
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+    return createPortal(
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 overflow-y-auto">
             <motion.div
                 className="bg-card rounded-xl shadow-2xl w-full max-w-3xl my-8"
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -412,6 +413,7 @@ export default function MultiStepProductForm({
                     </CardContent>
                 </GlassCard>
             </motion.div>
-        </div>
+        </div>,
+        document.body
     );
 }

@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 
 export default function AdminLayout({ children }) {
   const t = useTranslations('Admin.Dashboard');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isAdmin, setIsAdmin] = useState(null);
 
   useEffect(() => {
@@ -44,15 +45,18 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="flex min-h-screen w-full bg-background text-foreground overflow-hidden">
-      <EnhancedAdminSidebar />
+      <EnhancedAdminSidebar
+        isCollapsed={isSidebarCollapsed}
+        toggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
 
 
-      <main className="flex-1 md:ml-64 relative z-10 h-screen overflow-y-auto">
+      <main className={`flex-1 relative z-10 h-screen overflow-y-auto transition-all duration-300 ${isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'}`}>
         <div className="absolute top-4 right-8 z-50">
           <LanguageSwitcher />
         </div>
         <motion.div
-          className="max-w-7xl mx-auto p-6 md:p-8"
+          className="w-full p-4 md:p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}

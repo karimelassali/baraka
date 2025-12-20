@@ -5,9 +5,10 @@ import { motion } from 'framer-motion';
 import { Plus, Search, Calendar, DollarSign, User, FileText, Trash2, Edit, CheckCircle, ChevronLeft, ChevronRight, Loader2, Download, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '../../ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import CustomerSearch from './CustomerSearch';
@@ -259,89 +260,86 @@ export default function Reservations() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between gap-4">
-                <h2 className="text-xl font-semibold text-red-700 whitespace-nowrap">{t('title')} {currentYear}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 items-center mb-6">
+                <div className="xl:col-span-2">
+                    <h2 className="text-xl font-semibold text-red-700 whitespace-nowrap">{t('title')} {currentYear}</h2>
+                </div>
 
-                <div className="flex flex-col gap-3 w-full md:w-auto lg:flex-row lg:items-center">
-                    {/* Search and Filters */}
-                    <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                        <div className="relative flex-1 sm:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder={t('search_placeholder')}
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-9 w-full"
-                            />
-                        </div>
-                        <div className="flex gap-1 bg-muted/20 p-1 rounded-lg overflow-x-auto no-scrollbar max-w-[100vw] sm:max-w-none">
-                            {['ALL', 'PENDING', 'CONFIRMED', 'COLLECTED', 'CANCELLED'].map((status) => (
-                                <button
-                                    key={status}
-                                    onClick={() => {
-                                        if (status === 'ALL') {
-                                            setStatusFilters(['ALL']);
-                                        } else {
-                                            setStatusFilters(prev => {
-                                                if (prev.includes('ALL')) return [status];
-                                                if (prev.includes(status)) {
-                                                    const newFilters = prev.filter(s => s !== status);
-                                                    return newFilters.length === 0 ? ['ALL'] : newFilters;
-                                                }
-                                                return [...prev, status];
-                                            });
-                                        }
-                                    }}
-                                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${statusFilters.includes(status)
-                                        ? 'bg-white text-red-700 shadow-sm ring-1 ring-black/5 font-bold'
-                                        : 'text-muted-foreground hover:bg-white/50'
-                                        }`}
-                                >
-                                    {t(`status.${status.toLowerCase()}`)}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                <div className="xl:col-span-3 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder={t('search_placeholder')}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9 w-full"
+                    />
+                </div>
 
-                    {/* Actions */}
-                    <div className="flex gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                        <Button
-                            variant="outline"
-                            onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
-                            className="border-red-200 text-red-700 hover:bg-red-50 px-3"
-                            title={sortOrder === 'desc' ? t('sort.newest') : t('sort.oldest')}
-                        >
-                            {sortOrder === 'desc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}
-                        </Button>
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
-                                <Download className="w-4 h-4 mr-2" />
-                                PDF
-                            </Button>
-                            <Button onClick={() => { resetForm(); setIsAddModalOpen(true); }} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
-                                <Plus className="w-4 h-4 mr-2" />
-                                {t('new_reservation')}
-                            </Button>
-                        </div>
+                <div className="xl:col-span-5">
+                    <div className="flex flex-wrap gap-1">
+                        {['ALL', 'PENDING', 'CONFIRMED', 'COLLECTED', 'CANCELLED'].map((status) => (
+                            <button
+                                key={status}
+                                onClick={() => {
+                                    if (status === 'ALL') {
+                                        setStatusFilters(['ALL']);
+                                    } else {
+                                        setStatusFilters(prev => {
+                                            if (prev.includes('ALL')) return [status];
+                                            if (prev.includes(status)) {
+                                                const newFilters = prev.filter(s => s !== status);
+                                                return newFilters.length === 0 ? ['ALL'] : newFilters;
+                                            }
+                                            return [...prev, status];
+                                        });
+                                    }
+                                }}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${statusFilters.includes(status)
+                                    ? 'bg-red-100 text-red-700 shadow-sm ring-1 ring-red-200 font-bold'
+                                    : 'bg-muted/20 text-muted-foreground hover:bg-muted/30'
+                                    }`}
+                            >
+                                {t(`status.${status.toLowerCase()}`)}
+                            </button>
+                        ))}
                     </div>
+                </div>
+
+                <div className="md:col-span-2 xl:col-span-2 flex justify-end gap-2">
+                    <Button
+                        variant="outline"
+                        onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+                        className="border-red-200 text-red-700 hover:bg-red-50 px-3"
+                        title={sortOrder === 'desc' ? t('sort.newest') : t('sort.oldest')}
+                    >
+                        {sortOrder === 'desc' ? <ArrowDown className="w-4 h-4" /> : <ArrowUp className="w-4 h-4" />}
+                    </Button>
+                    <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
+                        <Download className="w-4 h-4 mr-2" />
+                        PDF
+                    </Button>
+                    <Button onClick={() => { resetForm(); setIsAddModalOpen(true); }} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
+                        <Plus className="w-4 h-4 mr-2" />
+                        {t('new_reservation')}
+                    </Button>
                 </div>
             </div>
 
-            <GlassCard className="overflow-hidden border-t-4 border-t-red-500">
+            <GlassCard className="overflow-hidden border-t-4 border-t-red-500 p-0 w-full max-w-[85vw] md:max-w-full">
                 {/* Table View */}
-                <div className="overflow-x-auto">
-                    <Table>
+                <div className="overflow-x-auto w-full">
+                    <Table className="min-w-full">
                         <TableHeader>
                             <TableRow className="hover:bg-red-50/50">
-                                <TableHead className="text-red-900 font-bold">{t('table.id')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.customer')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.phone')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.type')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.weight')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.pickup')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.deposit')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.status')}</TableHead>
-                                <TableHead className="text-red-900 font-bold">{t('table.actions')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.id')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.customer')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.phone')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.type')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.weight')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.pickup')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.deposit')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.status')}</TableHead>
+                                <TableHead className="text-red-900 font-bold whitespace-nowrap px-4">{t('table.actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -365,8 +363,8 @@ export default function Reservations() {
                                         key={res.id}
                                         className={`hover:bg-red-50/30 transition-colors ${res.status === 'COLLECTED' && res.is_paid ? 'bg-green-50/30' : ''}`}
                                     >
-                                        <TableCell className="font-mono">#{res.order_number}</TableCell>
-                                        <TableCell className="font-medium">
+                                        <TableCell className="font-mono whitespace-nowrap px-4">#{res.order_number}</TableCell>
+                                        <TableCell className="font-medium whitespace-nowrap px-4">
                                             <div>
                                                 {res.customers?.first_name} {res.customers?.last_name}
                                             </div>
@@ -377,17 +375,17 @@ export default function Reservations() {
                                                 </div>
                                             )}
                                         </TableCell>
-                                        <TableCell>{res.customers?.phone_number}</TableCell>
-                                        <TableCell>
+                                        <TableCell className="whitespace-nowrap px-4">{res.customers?.phone_number}</TableCell>
+                                        <TableCell className="whitespace-nowrap px-4">
                                             <Badge variant="outline" className={res.animal_type === 'SHEEP' ? 'border-red-200 text-red-700 bg-red-50' : 'border-orange-200 text-orange-700 bg-orange-50'}>
                                                 {res.animal_type}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>{res.requested_weight}</TableCell>
-                                        <TableCell>
+                                        <TableCell className="whitespace-nowrap px-4">{res.requested_weight}</TableCell>
+                                        <TableCell className="whitespace-nowrap px-4">
                                             {res.pickup_time ? new Date(res.pickup_time).toLocaleString() : '-'}
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="whitespace-nowrap px-4">
                                             <div
                                                 className="cursor-pointer hover:text-red-600 font-bold flex items-center gap-1 transition-colors"
                                                 onClick={() => openDepositModal(res)}
@@ -396,7 +394,7 @@ export default function Reservations() {
                                                 <Plus className="w-3 h-3" />
                                             </div>
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="whitespace-nowrap px-4">
                                             <Badge className={
                                                 res.status === 'COLLECTED' ? 'bg-green-500 hover:bg-green-600' :
                                                     res.status === 'CONFIRMED' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-yellow-500 hover:bg-yellow-600'
@@ -404,7 +402,7 @@ export default function Reservations() {
                                                 {res.status}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell>
+                                        <TableCell className="whitespace-nowrap px-4">
                                             <div className="flex items-center gap-2">
                                                 <Button variant="ghost" size="sm" className="hover:text-blue-600 hover:bg-blue-50" onClick={() => handleEdit(res)}>
                                                     <Edit className="w-4 h-4" />

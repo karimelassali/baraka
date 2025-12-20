@@ -303,30 +303,14 @@ function OfferModal({ isOpen, onClose, onSave, offer, initialData, categories })
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">{t('form.category')}</label>
-                  <select
-                    name="category_id"
-                    value={formData.category_id}
-                    // Ensure category_id is set to null if empty string
-                    onChange={(e) => handleChange({ ...e, target: { ...e.target, value: e.target.value === '' ? '' : e.target.value } })}
-                    className="w-full px-3 py-2 border border-input rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name?.en || cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex items-center space-x-2 pt-6">
-                  <Switch
-                    id="is_popup"
-                    checked={formData.is_popup}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_popup: checked }))}
-                  />
-                  <Label htmlFor="is_popup">{t('form.popup')}</Label>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="is_popup"
+                      checked={formData.is_popup}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_popup: checked }))}
+                    />
+                    <Label htmlFor="is_popup">{t('form.popup')}</Label>
+                  </div>
                 </div>
               </div>
 
@@ -569,7 +553,7 @@ export default function EnhancedOfferManagement() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <CategoryManagement />
+      {/* <CategoryManagement /> */}
 
       <GlassCard>
         <CardHeader>

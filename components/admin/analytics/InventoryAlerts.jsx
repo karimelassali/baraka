@@ -33,7 +33,7 @@ export default function InventoryAlerts({ lowStockItems = [], expiringItems = []
                     <AlertTriangle size={16} />
                     Low Stock ({lowStockItems.length})
                 </button>
-                <button
+                {/* <button
                     onClick={() => setActiveTab('expiring')}
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'expiring'
                             ? 'bg-rose-500/10 text-rose-600'
@@ -42,7 +42,7 @@ export default function InventoryAlerts({ lowStockItems = [], expiringItems = []
                 >
                     <Clock size={16} />
                     Expiring ({expiringItems.length})
-                </button>
+                </button> */}
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">

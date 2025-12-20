@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
@@ -36,10 +37,12 @@ export async function POST(request) {
         const buffer = await file.arrayBuffer();
         const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
 
-        // Use service role client for storage operations to bypass RLS if needed, 
-        // or ensure the user has permissions. 
-        // For simplicity, we'll use the authenticated client first.
-        const { data, error } = await supabase
+        // Use admin client for storage operations to bypass RLS
+        console.log(`[Upload] Attempting upload to bucket: ${bucket}`);
+        const supabaseAdmin = createAdminClient();
+        console.log('[Upload] Admin client created successfully');
+
+        const { data, error } = await supabaseAdmin
             .storage
             .from(bucket)
             .upload(fileName, buffer, {

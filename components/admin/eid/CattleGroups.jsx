@@ -12,6 +12,7 @@ import CustomerSearch from './CustomerSearch';
 import { toast } from 'sonner';
 import { generateEidPdf } from '@/lib/eidPdfUtils';
 import { useTranslations } from 'next-intl';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function CattleGroups() {
     const t = useTranslations('Admin.Eid.CattleGroups');
@@ -297,85 +298,84 @@ export default function CattleGroups() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between gap-4">
-                <h2 className="text-xl font-semibold text-red-700 whitespace-nowrap">{t('title')} {currentYear}</h2>
-
-                <div className="flex flex-col gap-3 w-full md:w-auto lg:flex-row lg:items-center">
-                    <div className="flex items-center space-x-2">
-                        <input
-                            type="checkbox"
-                            id="cleanView"
-                            checked={cleanView}
-                            onChange={(e) => setCleanView(e.target.checked)}
-                            className="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300"
-                        />
-                        <label htmlFor="cleanView" className="text-sm font-medium text-gray-700 cursor-pointer select-none whitespace-nowrap">
-                            {t('clean_view')}
-                        </label>
-                    </div>
-
-                    {!cleanView && (
-                        <>
-                            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-                                <div className="relative flex-1 sm:w-64">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder={t('search_placeholder')}
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        className="pl-9 w-full"
-                                    />
-                                </div>
-
-                                {/* Status Filters */}
-                                <div className="flex gap-1 bg-muted/20 p-1 rounded-lg overflow-x-auto no-scrollbar max-w-[100vw] sm:max-w-none">
-                                    {['ALL', 'PENDING', 'PAID', 'COMPLETED'].map((status) => (
-                                        <button
-                                            key={status}
-                                            onClick={() => {
-                                                if (status === 'ALL') {
-                                                    setStatusFilters(['ALL']);
-                                                } else {
-                                                    setStatusFilters(prev => {
-                                                        if (prev.includes('ALL')) return [status];
-                                                        if (prev.includes(status)) {
-                                                            const newFilters = prev.filter(s => s !== status);
-                                                            return newFilters.length === 0 ? ['ALL'] : newFilters;
-                                                        }
-                                                        return [...prev, status];
-                                                    });
-                                                }
-                                            }}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${statusFilters.includes(status)
-                                                ? 'bg-white text-red-700 shadow-sm ring-1 ring-black/5 font-bold'
-                                                : 'text-muted-foreground hover:bg-white/50'
-                                                }`}
-                                        >
-                                            {t(`status.${status.toLowerCase()}`)}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="flex gap-2 w-full sm:w-auto justify-between sm:justify-end">
-                                <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
-                                    <Download className="w-4 h-4 mr-2" />
-                                    PDF
-                                </Button>
-                                <Button onClick={() => {
-                                    setEditingGroup(null);
-                                    setNewGroupName('');
-                                    setNewGroupWeight('');
-                                    setNewGroupPrice('');
-                                    setIsCreateModalOpen(true);
-                                }} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
-                                    <Plus className="w-4 h-4 mr-2" />
-                                    {t('new_group')}
-                                </Button>
-                            </div>
-                        </>
-                    )}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 items-center mb-6">
+                <div className="xl:col-span-2">
+                    <h2 className="text-xl font-semibold text-red-700 whitespace-nowrap">{t('title')} {currentYear}</h2>
                 </div>
+
+                <div className="xl:col-span-2 flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="cleanView"
+                        checked={cleanView}
+                        onChange={(e) => setCleanView(e.target.checked)}
+                        className="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300"
+                    />
+                    <label htmlFor="cleanView" className="text-sm font-medium text-gray-700 cursor-pointer select-none whitespace-nowrap">
+                        {t('clean_view')}
+                    </label>
+                </div>
+
+                {!cleanView && (
+                    <>
+                        <div className="xl:col-span-2 relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder={t('search_placeholder')}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-9 w-full"
+                            />
+                        </div>
+
+                        <div className="xl:col-span-4">
+                            <div className="flex flex-wrap gap-1">
+                                {['ALL', 'PENDING', 'PAID', 'COMPLETED'].map((status) => (
+                                    <button
+                                        key={status}
+                                        onClick={() => {
+                                            if (status === 'ALL') {
+                                                setStatusFilters(['ALL']);
+                                            } else {
+                                                setStatusFilters(prev => {
+                                                    if (prev.includes('ALL')) return [status];
+                                                    if (prev.includes(status)) {
+                                                        const newFilters = prev.filter(s => s !== status);
+                                                        return newFilters.length === 0 ? ['ALL'] : newFilters;
+                                                    }
+                                                    return [...prev, status];
+                                                });
+                                            }
+                                        }}
+                                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap ${statusFilters.includes(status)
+                                            ? 'bg-red-100 text-red-700 shadow-sm ring-1 ring-red-200 font-bold'
+                                            : 'bg-muted/20 text-muted-foreground hover:bg-muted/30'
+                                            }`}
+                                    >
+                                        {t(`status.${status.toLowerCase()}`)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="md:col-span-2 xl:col-span-2 flex justify-end gap-2">
+                            <Button variant="outline" onClick={handleDownloadPdf} className="border-red-200 text-red-700 hover:bg-red-50">
+                                <Download className="w-4 h-4 mr-2" />
+                                PDF
+                            </Button>
+                            <Button onClick={() => {
+                                setEditingGroup(null);
+                                setNewGroupName('');
+                                setNewGroupWeight('');
+                                setNewGroupPrice('');
+                                setIsCreateModalOpen(true);
+                            }} className="bg-red-600 hover:bg-red-700 text-white whitespace-nowrap">
+                                <Plus className="w-4 h-4 mr-2" />
+                                {t('new_group')}
+                            </Button>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Active Groups Stats Card */}

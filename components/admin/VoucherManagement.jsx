@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -280,9 +281,9 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
   );
 }
 
-const VoucherVerifier = () => {
+const VoucherVerifier = ({ initialCode }) => {
   const t = useTranslations('Admin.Vouchers.verify');
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(initialCode || '');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
@@ -578,6 +579,16 @@ export default function VoucherManagement() {
     }
   };
 
+  const searchParams = useSearchParams();
+  const verifyCode = searchParams.get('verify') || searchParams.get('code');
+  console.log('VoucherManagement: verifyCode from URL:', verifyCode);
+
+  useEffect(() => {
+    if (verifyCode) {
+      setActiveTab('verify');
+    }
+  }, [verifyCode]);
+
   useEffect(() => {
     loadCustomers(true);
   }, [searchTerm, sortField, sortDirection, locationFilter]);
@@ -765,7 +776,7 @@ export default function VoucherManagement() {
             )}
           </>
         ) : (
-          <VoucherVerifier />
+          <VoucherVerifier initialCode={verifyCode} />
         )}
       </div>
 

@@ -338,7 +338,7 @@ export default function AnalyticsDashboard() {
                     <h2 className="text-2xl font-bold text-foreground">{t('inventory_overview')}</h2>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     <ModernStatsCard
                         title={t('total_products')}
                         value={inventoryStats?.totalProducts}
@@ -362,7 +362,7 @@ export default function AnalyticsDashboard() {
                         trendUp={inventoryStats?.lowStockCount === 0}
                         onClick={() => handleCardClick('lowStock')}
                     />
-                    <ModernStatsCard
+                    {/* <ModernStatsCard
                         title={t('expiring_soon')}
                         value={inventoryStats?.expiringSoonCount}
                         icon={Clock}
@@ -370,7 +370,7 @@ export default function AnalyticsDashboard() {
                         trend={inventoryStats?.expiringSoonCount > 0 ? t('review') : t('good')}
                         trendUp={inventoryStats?.expiringSoonCount === 0}
                         onClick={() => handleCardClick('expiringSoon')}
-                    />
+                    /> */}
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

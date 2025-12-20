@@ -155,11 +155,28 @@ export default function ReviewManagement() {
                     <button
                       onClick={() => handleToggleApproved(review.id, !(review.is_approved || review.approved))}
                       className={`px-3 py-1 rounded-md text-sm ${review.is_approved || review.approved
-                          ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                          : 'bg-green-100 text-green-800 hover:bg-green-200'
+                        ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                        : 'bg-green-100 text-green-800 hover:bg-green-200'
                         }`}
                     >
                       {review.is_approved || review.approved ? 'Hide' : 'Approve'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (window.confirm('Are you sure you want to delete this review?')) {
+                          try {
+                            const { deleteReview } = await import('../../lib/supabase/review');
+                            await deleteReview(review.id);
+                            setReviews(prev => prev.filter(r => r.id !== review.id));
+                          } catch (error) {
+                            console.error('Failed to delete review:', error);
+                          }
+                        }
+                      }}
+                      className="ml-2 px-3 py-1 rounded-md text-sm bg-red-100 text-red-800 hover:bg-red-200"
+                      title="Delete"
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>

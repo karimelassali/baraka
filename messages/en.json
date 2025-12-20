@@ -1324,6 +1324,8 @@
         "save": "Save",
         "update": "Update Offer",
         "create_btn": "Create Offer",
+        "create": "Create Offer",
+        "edit": "Edit Offer",
         "uploading": "Uploading...",
         "saving": "Saving..."
       },
@@ -1357,6 +1359,8 @@
       "add": "Add Review",
       "search": "Search reviews...",
       "total": "Total Reviews",
+      "delete": "Delete",
+      "delete_confirm": "Are you sure you want to delete this review?",
       "last_updated": "Last updated: Today",
       "table": {
         "content": "Content",

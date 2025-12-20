@@ -1132,7 +1132,8 @@
         "redeemed_status": "RISCATTATO",
         "issued_to": "Emesso A",
         "expires_on": "Scade Il",
-        "redeemed_at": "Riscattato Il"
+        "redeemed_at": "Riscattato Il",
+        "value": "Valore"
       }
     },
     "Revenue": {
@@ -1331,6 +1332,8 @@
         "save": "Salva",
         "update": "Aggiorna Offerta",
         "create_btn": "Crea Offerta",
+        "create": "Crea Offerta",
+        "edit": "Modifica Offerta",
         "uploading": "Caricamento...",
         "saving": "Salvataggio..."
       },
@@ -1364,6 +1367,8 @@
       "add": "Aggiungi Recensione",
       "search": "Cerca recensioni...",
       "total": "Recensioni Totali",
+      "delete": "Elimina",
+      "delete_confirm": "Sei sicuro di voler eliminare questa recensione?",
       "last_updated": "Ultimo aggiornamento: Oggi",
       "table": {
         "content": "Contenuto",

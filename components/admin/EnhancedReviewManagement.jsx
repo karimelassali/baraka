@@ -12,14 +12,15 @@ import {
   Eye,
   EyeOff,
   Plus,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
 import { Input } from '../../components/ui/input';
-import { getReviews, updateReviewApproval } from '../../lib/supabase/review';
+import { getReviews, updateReviewApproval, deleteReview } from '../../lib/supabase/review';
 import { useTranslations } from 'next-intl';
 
 function SkeletonRow() {
@@ -212,6 +213,17 @@ export default function EnhancedReviewManagement() {
     }
   };
 
+  const handleDelete = async (reviewId) => {
+    if (window.confirm(t('delete_confirm') || 'Are you sure you want to delete this review?')) {
+      try {
+        await deleteReview(reviewId);
+        setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      } catch (error) {
+        console.error('Failed to delete review:', error);
+      }
+    }
+  };
+
   const toggleReviewDetails = (reviewId) => {
     setExpandedReviewId(expandedReviewId === reviewId ? null : reviewId);
   };
@@ -354,6 +366,14 @@ export default function EnhancedReviewManagement() {
                                   {t('details.approve')}
                                 </>
                               )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDelete(review.id)}
+                              title={t('delete') || "Delete"}
+                            >
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </td>

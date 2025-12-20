@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { notifySuperAdmins } from '../../../../../lib/email/notifications';
+import { logAdminAction } from '../../../../../lib/admin-logger';
 
 export async function GET(request) {
     try {
@@ -120,6 +121,22 @@ export async function GET(request) {
 export async function POST(request) {
     try {
         const supabase = await createClient();
+
+        // Verify admin
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        const { data: adminData } = await supabase
+            .from('admin_users')
+            .select('id')
+            .eq('auth_id', user.id)
+            .eq('is_active', true)
+            .single();
+        if (!adminData) {
+            return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+        }
+
         const body = await request.json();
         const { customer_id, animal_type, requested_weight, pickup_time, notes, deposit_amount } = body;
 
@@ -191,6 +208,15 @@ export async function POST(request) {
         } catch (notifyError) {
             console.error('Failed to notify admins of new reservation:', notifyError);
         }
+
+        // Log the action
+        await logAdminAction({
+            action: 'CREATE',
+            resource: 'eid_reservations',
+            resourceId: reservation.id,
+            details: { customerName, animal_type, requested_weight, deposit_amount },
+            adminId: adminData.id
+        });
 
         return NextResponse.json(reservation);
     } catch (error) {

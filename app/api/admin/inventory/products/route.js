@@ -3,6 +3,7 @@
 import { createClient } from '../../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { logAdminAction } from '../../../../../lib/admin-logger';
 
 export async function GET(request) {
     const cookieStore = await cookies();
@@ -191,6 +192,15 @@ export async function POST(request) {
             console.error('Error creating product:', createError);
             return NextResponse.json({ error: createError.message }, { status: 500 });
         }
+
+        // Log the action
+        await logAdminAction({
+            action: 'CREATE',
+            resource: 'inventory_products',
+            resourceId: newProduct.id,
+            details: { name, sku, quantity },
+            adminId: adminData.id
+        });
 
         return NextResponse.json({ product: newProduct }, { status: 201 });
     } catch (error) {

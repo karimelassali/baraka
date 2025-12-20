@@ -1,6 +1,7 @@
 // app/api/admin/customers/[id]/route.js
 import { createClient } from '../../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logAdminAction } from '../../../../../lib/admin-logger';
 import { cookies } from 'next/headers';
 
 export async function PUT(request, { params }) {
@@ -47,6 +48,14 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
+  await logAdminAction({
+    action: 'UPDATE',
+    resource: 'customers',
+    resourceId: customerId,
+    details: updates,
+    adminId: adminData.id
+  });
+
   return NextResponse.json(updatedCustomer);
 }
 
@@ -92,6 +101,14 @@ export async function DELETE(request, { params }) {
     console.error('Error deactivating customer:', updateError);
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
+
+  await logAdminAction({
+    action: 'DEACTIVATE',
+    resource: 'customers',
+    resourceId: customerId,
+    details: { is_active: false },
+    adminId: adminData.id
+  });
 
   return NextResponse.json({ message: 'Customer deactivated successfully', customer: updatedCustomer });
 }

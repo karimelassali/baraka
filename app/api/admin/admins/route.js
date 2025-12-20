@@ -2,7 +2,7 @@ import { createServer } from '../../../../lib/supabaseServer';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { notifySuperAdmins } from '../../../../lib/email/notifications';
-import { logSystemError } from '../../../../lib/admin-logger';
+import { logSystemError, logAdminAction } from '../../../../lib/admin-logger';
 
 // Initialize Supabase Admin Client only if SERVICE_ROLE_KEY is available
 let supabaseAdmin = null;
@@ -154,6 +154,15 @@ export async function POST(request) {
                     <li><strong>Creato da:</strong> ${adminUser.email}</li>
                 </ul>
             `
+        });
+
+        // Log the action
+        await logAdminAction({
+            action: 'CREATE',
+            resource: 'admin_users',
+            resourceId: newAdmin.id,
+            details: { email, fullName, role },
+            adminId: adminUser.id
         });
 
         return NextResponse.json(newAdmin);

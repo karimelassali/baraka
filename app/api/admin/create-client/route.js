@@ -1,8 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logAdminAction } from '../../../../lib/admin-logger';
 
 export async function POST(request) {
     try {
+        // Verify admin access first
+        const supabase = await createServerClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { data: adminData, error: adminError } = await supabase
+            .from('admin_users')
+            .select('id')
+            .eq('auth_id', user.id)
+            .eq('is_active', true)
+            .single();
+
+        if (adminError || !adminData) {
+            return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
+        }
+
         const body = await request.json();
         const { email, password, firstName, lastName, phoneNumber, countryOfOrigin, residence } = body;
 
@@ -77,6 +97,21 @@ export async function POST(request) {
                 await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
                 throw profileError;
             }
+
+            // Log the action
+            await logAdminAction({
+                action: 'CREATE',
+                resource: 'customers',
+                resourceId: authData.user.id,
+                details: {
+                    email: finalEmail,
+                    firstName,
+                    lastName,
+                    phoneNumber,
+                    country: countryOfOrigin
+                },
+                adminId: adminData.id
+            });
         }
 
         return NextResponse.json({ success: true, user: authData.user });
@@ -86,3 +121,4 @@ export async function POST(request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

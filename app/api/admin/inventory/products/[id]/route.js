@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { notifySuperAdmins } from '../../../../../../lib/email/notifications';
 import { createNotification } from '@/lib/notifications';
+import { logAdminAction } from '../../../../../../lib/admin-logger';
 
 export async function GET(request, { params }) {
     const cookieStore = await cookies();
@@ -184,6 +185,15 @@ export async function PUT(request, { params }) {
             }
         }
 
+        // Log the action
+        await logAdminAction({
+            action: 'UPDATE',
+            resource: 'inventory_products',
+            resourceId: id,
+            details: { name, quantity, is_active },
+            adminId: adminData.id
+        });
+
         return NextResponse.json({ product: updatedProduct });
     } catch (error) {
         console.error('Error in PUT /api/admin/inventory/products/[id]:', error);
@@ -234,6 +244,15 @@ export async function DELETE(request, { params }) {
         if (!deletedProduct) {
             return NextResponse.json({ error: 'Product not found' }, { status: 404 });
         }
+
+        // Log the action
+        await logAdminAction({
+            action: 'DELETE',
+            resource: 'inventory_products',
+            resourceId: id,
+            details: { name: deletedProduct.name },
+            adminId: adminData.id
+        });
 
         return NextResponse.json({ message: 'Product deleted successfully', product: deletedProduct });
     } catch (error) {

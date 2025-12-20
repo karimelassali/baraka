@@ -1,6 +1,23 @@
 import { createClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { logAdminAction } from '../../../../lib/admin-logger';
+
+// Helper to verify admin and get adminId
+async function verifyAdmin(supabase) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: adminData, error } = await supabase
+    .from('admin_users')
+    .select('id')
+    .eq('auth_id', user.id)
+    .eq('is_active', true)
+    .single();
+
+  if (error || !adminData) return null;
+  return adminData.id;
+}
 
 export async function GET(request) {
   const supabase = await createClient();
@@ -22,6 +39,12 @@ export async function GET(request) {
 
 export async function POST(request) {
   const supabase = await createClient();
+
+  const adminId = await verifyAdmin(supabase);
+  if (!adminId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const data = await request.json();
 
   // If this offer is set to be a popup, disable all other popups first
@@ -55,11 +78,26 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Log the action
+  await logAdminAction({
+    action: 'CREATE',
+    resource: 'offers',
+    resourceId: newOffer.id,
+    details: { title: data.title, type: data.type },
+    adminId
+  });
+
   return NextResponse.json(newOffer);
 }
 
 export async function PUT(request) {
   const supabase = await createClient();
+
+  const adminId = await verifyAdmin(supabase);
+  if (!adminId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const data = await request.json();
 
   if (!data.id) {
@@ -98,17 +136,41 @@ export async function PUT(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Log the action
+  await logAdminAction({
+    action: 'UPDATE',
+    resource: 'offers',
+    resourceId: data.id,
+    details: { title: data.title, type: data.type },
+    adminId
+  });
+
   return NextResponse.json(updatedOffer);
 }
 
 export async function DELETE(request) {
   const supabase = await createClient();
+
+  const adminId = await verifyAdmin(supabase);
+  if (!adminId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const id = searchParams.get('id');
 
   if (!id) {
     return NextResponse.json({ error: 'ID is required' }, { status: 400 });
   }
+
+  // Fetch the offer before deleting to get its title for logging
+  const { data: offerToDelete } = await supabase
+    .from('offers')
+    .select('title')
+    .eq('id', id)
+    .single();
+
+  const offerTitle = offerToDelete?.title?.en || offerToDelete?.title || 'Unknown';
 
   const { error } = await supabase
     .from('offers')
@@ -118,6 +180,15 @@ export async function DELETE(request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Log the action
+  await logAdminAction({
+    action: 'DELETE',
+    resource: 'offers',
+    resourceId: id,
+    details: { title: offerTitle },
+    adminId
+  });
 
   return NextResponse.json({ success: true });
 }

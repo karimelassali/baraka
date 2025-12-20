@@ -2,6 +2,7 @@ import { createClient } from '../../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createNotification } from '@/lib/notifications';
+import { logAdminAction } from '../../../../../lib/admin-logger';
 
 export async function PUT(request, { params }) {
     const { id } = await params;
@@ -74,6 +75,15 @@ export async function PUT(request, { params }) {
             });
         }
 
+        // Log the action
+        await logAdminAction({
+            action: 'UPDATE',
+            resource: 'payments',
+            resourceId: id,
+            details: { recipient: payment.recipient, amount: payment.amount, status },
+            adminId: adminData.id
+        });
+
         return NextResponse.json({ payment });
     } catch (error) {
         console.error('Error processing request:', error);
@@ -113,6 +123,15 @@ export async function DELETE(request, { params }) {
         console.error('Error deleting payment:', error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    // Log the action
+    await logAdminAction({
+        action: 'DELETE',
+        resource: 'payments',
+        resourceId: id,
+        details: { id },
+        adminId: adminData.id
+    });
 
     return NextResponse.json({ success: true });
 }

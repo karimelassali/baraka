@@ -1,8 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { logAdminAction } from '../../../../lib/admin-logger';
 
 export async function DELETE(request) {
     try {
+        // Verify admin access first
+        const supabase = await createServerClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { data: adminData, error: adminError } = await supabase
+            .from('admin_users')
+            .select('id')
+            .eq('auth_id', user.id)
+            .eq('is_active', true)
+            .single();
+
+        if (adminError || !adminData) {
+            return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
+        }
+
         const { authId } = await request.json();
 
         if (!authId) {
@@ -43,6 +63,15 @@ export async function DELETE(request) {
             console.warn("Could not delete from customers table (might already be gone via cascade):", tableError);
         }
 
+        // Log the action
+        await logAdminAction({
+            action: 'DELETE',
+            resource: 'customers',
+            resourceId: authId,
+            details: { authId },
+            adminId: adminData.id
+        });
+
         return NextResponse.json({ success: true });
 
     } catch (error) {
@@ -50,3 +79,4 @@ export async function DELETE(request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+

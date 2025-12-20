@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createNotification } from '@/lib/notifications';
+import { logAdminAction } from '../../../../lib/admin-logger';
 
 export async function POST(request) {
   const cookieStore = await cookies();
@@ -143,6 +144,15 @@ export async function POST(request) {
       message: `Voucher ${voucherCode} creato per ${customerName} (${value} EUR)`,
       link: `/admin/customers?id=${cleanCustomerId}`,
       metadata: { customerId: cleanCustomerId, voucherCode, value }
+    });
+
+    // Log the action
+    await logAdminAction({
+      action: 'CREATE',
+      resource: 'vouchers',
+      resourceId: newVoucher.id,
+      details: { code: voucherCode, customerId: cleanCustomerId, points: points_to_convert, value: value, customerName },
+      adminId: adminData.id
     });
 
     return NextResponse.json({

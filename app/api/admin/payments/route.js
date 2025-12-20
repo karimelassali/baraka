@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { notifySuperAdmins } from '../../../../lib/email/notifications';
 import { createNotification } from '@/lib/notifications';
+import { logAdminAction } from '../../../../lib/admin-logger';
 
 export async function GET(request) {
     const cookieStore = await cookies();
@@ -153,6 +154,15 @@ export async function POST(request) {
         } catch (notifyError) {
             console.error('Failed to notify admins of new payment:', notifyError);
         }
+
+        // Log the action
+        await logAdminAction({
+            action: 'CREATE',
+            resource: 'payments',
+            resourceId: payment.id,
+            details: { recipient, amount, payment_type, due_date },
+            adminId: adminData.id
+        });
 
         return NextResponse.json({ payment }, { status: 201 });
     } catch (error) {

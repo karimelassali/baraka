@@ -46,16 +46,36 @@ export async function GET(request) {
                     throw error;
                 }
             } else {
-                systemLogs = data.map(log => ({
-                    id: log.id,
-                    source: 'SYSTEM',
-                    type: log.action,
-                    details: log.details,
-                    actor: log.admin?.full_name || 'Unknown',
-                    status: 'SUCCESS', // System logs usually imply success unless we track failures
-                    created_at: log.created_at,
-                    metadata: { resource: log.resource, resource_id: log.resource_id }
-                }));
+                systemLogs = data.map(log => {
+                    let type = log.action;
+                    if (log.resource) {
+                        let resourceName = log.resource.toUpperCase();
+                        // Map resource names to what UnifiedLogs expects (singular mostly)
+                        if (resourceName === 'INVENTORY_PRODUCTS') resourceName = 'PRODUCT';
+                        else if (resourceName === 'CUSTOMERS') resourceName = 'CUSTOMER';
+                        else if (resourceName === 'OFFERS') resourceName = 'OFFER';
+                        else if (resourceName === 'VOUCHERS') resourceName = 'VOUCHER';
+                        else if (resourceName === 'PAYMENTS') resourceName = 'PAYMENT';
+                        else if (resourceName === 'LOYALTY_POINTS') resourceName = 'POINTS';
+                        else if (resourceName === 'EID_RESERVATIONS') resourceName = 'EID_RESERVATION';
+                        else if (resourceName === 'EID_DEPOSITS') resourceName = 'EID_DEPOSIT';
+                        else if (resourceName === 'ADMIN_USERS') resourceName = 'ADMIN';
+                        else if (resourceName.endsWith('S')) resourceName = resourceName.slice(0, -1); // Generic singularization
+
+                        type = `${log.action}_${resourceName}`;
+                    }
+
+                    return {
+                        id: log.id,
+                        source: 'SYSTEM',
+                        type: type,
+                        details: log.details,
+                        actor: log.admin?.full_name || 'Unknown',
+                        status: 'SUCCESS', // System logs usually imply success unless we track failures
+                        created_at: log.created_at,
+                        metadata: { resource: log.resource, resource_id: log.resource_id }
+                    };
+                });
             }
         } catch (err) {
             console.error('Error fetching system logs:', err);

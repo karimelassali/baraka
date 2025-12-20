@@ -161,17 +161,17 @@ export default function UnifiedLogs() {
             return (
                 <div>
                     {renderField('Offer', d.title || 'Unknown Offer')}
-                    {renderField('ID', d.id)}
                 </div>
             );
         }
 
-        if (log.type.includes('CREATE_VOUCHER')) {
+        if (log.type.includes('VOUCHER')) {
             return (
                 <div>
                     {renderField('Code', d.code)}
-                    {renderField('Points', d.pointsRedeemed)}
-                    {renderField('Value', `€${d.value}`)}
+                    {renderField('Customer', d.customerName)}
+                    {renderField('Points', d.points)}
+                    {renderField('Value', d.value ? `€${d.value}` : null)}
                 </div>
             );
         }
@@ -181,7 +181,29 @@ export default function UnifiedLogs() {
                 <div>
                     {renderField('Customer', d.customerName)}
                     {renderField('Points', d.points > 0 ? `+${d.points}` : d.points)}
-                    {renderField('Reason', d.reason)}
+                    {renderField('Reason', d.description)}
+                </div>
+            );
+        }
+
+        if (log.type.includes('PAYMENT')) {
+            return (
+                <div>
+                    {renderField('Recipient', d.recipient)}
+                    {renderField('Amount', d.amount ? `€${d.amount}` : null)}
+                    {renderField('Status', d.status)}
+                    {renderField('Type', d.payment_type)}
+                </div>
+            );
+        }
+
+        if (log.type.includes('EID')) {
+            return (
+                <div>
+                    {renderField('Customer', d.customerName)}
+                    {renderField('Animal', d.animal_type)}
+                    {renderField('Weight', d.requested_weight ? `${d.requested_weight}kg` : null)}
+                    {renderField('Deposit', d.amount ? `€${d.amount}` : (d.deposit_amount ? `€${d.deposit_amount}` : null))}
                 </div>
             );
         }

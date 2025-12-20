@@ -3,6 +3,7 @@ import { createClient as createServiceClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createNotification } from '@/lib/notifications';
+import { logAdminAction } from '../../../../../../lib/admin-logger';
 
 export async function GET(request, { params }) {
   const cookieStore = await cookies();
@@ -155,6 +156,15 @@ export async function PUT(request, { params }) {
     message: `${points > 0 ? 'Aggiunti' : 'Dedotti'} ${Math.abs(points)} punti per ${customerName}`,
     link: `/admin/customers?id=${cleanId}`,
     metadata: { customerId: cleanId, points }
+  });
+
+  // Log the action
+  await logAdminAction({
+    action: points > 0 ? 'ADD_POINTS' : 'DEDUCT_POINTS',
+    resource: 'loyalty_points',
+    resourceId: newPoints.id,
+    details: { customerName, points, description },
+    adminId: adminData.id
   });
 
   return NextResponse.json(newPoints);

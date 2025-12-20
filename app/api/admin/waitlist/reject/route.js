@@ -4,7 +4,13 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { id } = body;
+        const { id, accessPassword } = body;
+
+        // Verify access via password
+        const expectedPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+        if (!accessPassword || accessPassword !== expectedPassword) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         if (!id) {
             return NextResponse.json({ error: 'Missing waitlist ID' }, { status: 400 });

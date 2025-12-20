@@ -1,30 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
-import { createClient as createServerClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { logAdminAction } from '../../../../lib/admin-logger';
 
 export async function PUT(request) {
     try {
-        // Verify admin access first
-        const supabase = await createServerClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const body = await request.json();
+        const { id, firstName, lastName, email, phoneNumber, countryOfOrigin, residence, accessPassword } = body;
+
+        // Verify access via password (no session needed)
+        const expectedPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+        if (!accessPassword || accessPassword !== expectedPassword) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
-
-        const { data: adminData, error: adminError } = await supabase
-            .from('admin_users')
-            .select('id')
-            .eq('auth_id', user.id)
-            .eq('is_active', true)
-            .single();
-
-        if (adminError || !adminData) {
-            return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
-        }
-
-        const body = await request.json();
-        const { id, firstName, lastName, email, phoneNumber, countryOfOrigin, residence } = body;
 
         if (!id) {
             return NextResponse.json({ error: 'Missing client ID' }, { status: 400 });
@@ -50,7 +37,7 @@ export async function PUT(request) {
 
         if (updateError) throw updateError;
 
-        // Log the action
+        // Log the action (no admin session, so use null for adminId)
         await logAdminAction({
             action: 'UPDATE',
             resource: 'customers',
@@ -61,9 +48,10 @@ export async function PUT(request) {
                 email,
                 phoneNumber,
                 country: countryOfOrigin,
-                residence
+                residence,
+                source: 'add-client-page'
             },
-            adminId: adminData.id
+            adminId: null
         });
 
         return NextResponse.json({ success: true });
@@ -73,4 +61,3 @@ export async function PUT(request) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
-

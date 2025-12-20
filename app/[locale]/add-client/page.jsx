@@ -92,7 +92,7 @@ export default function AddClientPage() {
             if (now - timestamp < 5 * 60 * 60 * 1000) {
                 setIsAuthenticated(true);
                 // Fetch waitlist immediately if authenticated
-                fetch('/api/admin/waitlist')
+                fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`)
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) setWaitlist(data.data);
@@ -138,7 +138,7 @@ export default function AddClientPage() {
             }));
             setError('');
             // Fetch waitlist after login
-            fetch('/api/admin/waitlist')
+            fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) setWaitlist(data.data);
@@ -278,7 +278,8 @@ export default function AddClientPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     id: clientToEdit.id,
-                    ...editFormData
+                    ...editFormData,
+                    accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
                 })
             });
 
@@ -387,7 +388,7 @@ export default function AddClientPage() {
     const fetchWaitlist = async () => {
         setLoadingWaitlist(true);
         try {
-            const res = await fetch('/api/admin/waitlist');
+            const res = await fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`);
             const data = await res.json();
             if (data.success) {
                 setWaitlist(data.data);
@@ -413,7 +414,7 @@ export default function AddClientPage() {
             const res = await fetch('/api/admin/waitlist/approve', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
+                body: JSON.stringify({ id, accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD })
             });
 
             if (!res.ok) {
@@ -437,7 +438,7 @@ export default function AddClientPage() {
             const res = await fetch('/api/admin/waitlist/reject', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
+                body: JSON.stringify({ id, accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD })
             });
 
             if (!res.ok) {
@@ -461,7 +462,7 @@ export default function AddClientPage() {
             const res = await fetch('/api/admin/waitlist', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id })
+                body: JSON.stringify({ id, accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD })
             });
 
             if (!res.ok) {

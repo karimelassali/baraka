@@ -3,6 +3,15 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request) {
     try {
+        // Check password from query param for GET requests
+        const { searchParams } = new URL(request.url);
+        const accessPassword = searchParams.get('accessPassword');
+        const expectedPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+
+        if (!accessPassword || accessPassword !== expectedPassword) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
             process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
@@ -25,11 +34,19 @@ export async function GET(request) {
 
 export async function DELETE(request) {
     try {
+        const body = await request.json();
+        const { id, accessPassword } = body;
+
+        // Verify access via password
+        const expectedPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+        if (!accessPassword || accessPassword !== expectedPassword) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
             process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
         );
-        const { id } = await request.json();
 
         const { error } = await supabase
             .from('waitlist')

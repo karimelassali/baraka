@@ -4,7 +4,13 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { id } = body; // Waitlist ID
+        const { id, accessPassword } = body;
+
+        // Verify access via password
+        const expectedPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+        if (!accessPassword || accessPassword !== expectedPassword) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
         if (!id) {
             return NextResponse.json({ error: 'Missing waitlist ID' }, { status: 400 });
@@ -40,9 +46,6 @@ export async function POST(request) {
         const email = entry.email || `${entry.phone_number.replace(/\D/g, '')}@noemail.baraka`;
         const password = 'TempPassword123!'; // Default password for now
 
-        // Check for existing user in auth or customers to avoid duplicates
-        // (Simplified check, ideally check both)
-
         // Create Auth User
         const { data: authData, error: authError } = await supabase.auth.admin.createUser({
             email: email,
@@ -56,8 +59,6 @@ export async function POST(request) {
         });
 
         if (authError) {
-            // If user already exists, we might just want to link them or error out.
-            // For now, let's error out to be safe.
             throw authError;
         }
 
@@ -72,7 +73,7 @@ export async function POST(request) {
                     last_name: entry.last_name,
                     phone_number: entry.phone_number,
                     country_of_origin: entry.country,
-                    residence: entry.city || '', // Map city to residence if available
+                    residence: entry.city || '',
                     gdpr_consent: true,
                     gdpr_consent_at: new Date().toISOString(),
                     is_active: true

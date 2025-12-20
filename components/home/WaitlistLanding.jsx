@@ -352,7 +352,7 @@ export default function WaitlistLanding() {
                                   onChange={handleChange}
                                   placeholder={`${currentT.firstName} *`}
                                   className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-3 ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all`}
-                                  name="firstName_visible"
+                                  name="firstName"
                                 />
                               </div>
                               <div className="relative">
@@ -363,7 +363,7 @@ export default function WaitlistLanding() {
                                   onChange={handleChange}
                                   placeholder={`${currentT.lastName} *`}
                                   className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-3 ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all`}
-                                  name="lastName_visible"
+                                  name="lastName"
                                 />
                               </div>
                             </div>
@@ -387,7 +387,7 @@ export default function WaitlistLanding() {
                                   onChange={handleChange}
                                   placeholder={`${currentT.phone} *`}
                                   className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-3 ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all`}
-                                  name="phoneNumber_visible"
+                                  name="phoneNumber"
                                 />
                               </div>
                               <div className="relative">
@@ -398,7 +398,7 @@ export default function WaitlistLanding() {
                                   onChange={handleChange}
                                   placeholder={currentT.email}
                                   className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-3 ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all`}
-                                  name="email_visible"
+                                  name="email"
                                 />
                               </div>
                             </div>
@@ -438,7 +438,7 @@ export default function WaitlistLanding() {
                                   onChange={handleChange}
                                   placeholder={currentT.city}
                                   className={`w-full bg-gray-50 border border-gray-200 rounded-xl py-3 ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'} text-gray-900 placeholder-gray-400 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all`}
-                                  name="city_visible"
+                                  name="city"
                                 />
                               </div>
                             </div>

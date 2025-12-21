@@ -1709,6 +1709,8 @@
     },
     "Customer": {
       "title": "Customer Guide",
+      "badge": "Customer Guide",
+      "step": "Step",
       "getting_started_title": "Start Your Journey",
       "getting_started_desc": "Welcome to a rewarding experience. Baraka makes it easy to earn, track, and enjoy your benefits.",
       "register_title": "Registration",
@@ -1730,12 +1732,41 @@
       "dashboard_desc": "Your personal command center for all things loyalty.",
       "dashboard_sections": {
         "profile": "Your Profile",
-        "profile_desc": "Manage your identity",
+        "profile_desc": "Manage your identity and preferences with ease.",
         "wallet": "Your Wallet",
-        "wallet_desc": "Track your wealth",
+        "wallet_desc": "Track your points balance and transaction history.",
         "offers": "Your Deals",
-        "offers_desc": "Exclusive for you"
+        "offers_desc": "Discover exclusive offers tailored just for you."
       },
+      "benefits": {
+        "fast_title": "Fast & Easy",
+        "fast_desc": "Get started in seconds",
+        "secure_title": "Secure",
+        "secure_desc": "Your data is protected",
+        "personalized_title": "Personalized",
+        "personalized_desc": "Tailored just for you",
+        "rewards_title": "Rewards",
+        "rewards_desc": "Earn points on every visit"
+      },
+      "features": {
+        "view_points": "View your loyalty points balance",
+        "track_history": "Track your rewards history",
+        "access_benefits": "Access exclusive member benefits",
+        "check_points": "Check your current points",
+        "view_transactions": "View transaction history",
+        "redeem_rewards": "Redeem rewards instantly",
+        "browse_deals": "Browse exclusive deals",
+        "unlock_discounts": "Unlock special discounts",
+        "personalized_offers": "Get personalized offers",
+        "manage_preferences": "Manage your preferences",
+        "update_contact": "Update contact information",
+        "customize_notifications": "Customize notifications"
+      },
+      "need_help": "Need Help?",
+      "cta_title": "Ready to Start",
+      "cta_highlight": "Earning Rewards?",
+      "cta_description": "Join our loyalty program today and unlock exclusive benefits, discounts, and personalized offers tailored just for you.",
+      "join_waitlist": "Join Waitlist",
       "points_title": "Points & Rewards",
       "how_points_work_title": "The Math is Simple",
       "how_points_work_desc": "Shop more, earn more. It's that easy.",

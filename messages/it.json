@@ -1720,6 +1720,8 @@
     },
     "Customer": {
       "title": "Guida Cliente",
+      "badge": "Guida Cliente",
+      "step": "Passo",
       "getting_started_title": "Inizia il Tuo Viaggio",
       "getting_started_desc": "Benvenuto in un'esperienza gratificante. Baraka rende facile guadagnare, tracciare e godere dei tuoi vantaggi.",
       "register_title": "Registrazione",
@@ -1741,12 +1743,41 @@
       "dashboard_desc": "Il tuo centro di comando personale per tutto ciò che riguarda la fedeltà.",
       "dashboard_sections": {
         "profile": "Il Tuo Profilo",
-        "profile_desc": "Gestisci la tua identità",
+        "profile_desc": "Gestisci la tua identità e le preferenze con facilità.",
         "wallet": "Il Tuo Portafoglio",
-        "wallet_desc": "Traccia la tua ricchezza",
+        "wallet_desc": "Traccia il saldo punti e la cronologia delle transazioni.",
         "offers": "Le Tue Offerte",
-        "offers_desc": "Esclusivo per te"
+        "offers_desc": "Scopri offerte esclusive create apposta per te."
       },
+      "benefits": {
+        "fast_title": "Veloce e Facile",
+        "fast_desc": "Inizia in pochi secondi",
+        "secure_title": "Sicuro",
+        "secure_desc": "I tuoi dati sono protetti",
+        "personalized_title": "Personalizzato",
+        "personalized_desc": "Su misura per te",
+        "rewards_title": "Premi",
+        "rewards_desc": "Guadagna punti ad ogni visita"
+      },
+      "features": {
+        "view_points": "Visualizza il saldo punti fedeltà",
+        "track_history": "Traccia la cronologia dei premi",
+        "access_benefits": "Accedi ai vantaggi esclusivi per i membri",
+        "check_points": "Controlla i tuoi punti attuali",
+        "view_transactions": "Visualizza cronologia transazioni",
+        "redeem_rewards": "Riscatta premi istantaneamente",
+        "browse_deals": "Sfoglia offerte esclusive",
+        "unlock_discounts": "Sblocca sconti speciali",
+        "personalized_offers": "Ricevi offerte personalizzate",
+        "manage_preferences": "Gestisci le tue preferenze",
+        "update_contact": "Aggiorna informazioni di contatto",
+        "customize_notifications": "Personalizza le notifiche"
+      },
+      "need_help": "Serve Aiuto?",
+      "cta_title": "Pronto a Iniziare",
+      "cta_highlight": "a Guadagnare Premi?",
+      "cta_description": "Unisciti al nostro programma fedeltà oggi stesso e sblocca vantaggi esclusivi, sconti e offerte personalizzate create apposta per te.",
+      "join_waitlist": "Iscriviti alla Lista d'Attesa",
       "points_title": "Punti e Premi",
       "how_points_work_title": "La Matematica è Semplice",
       "how_points_work_desc": "Acquista di più, guadagna di più. È così facile.",

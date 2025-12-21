@@ -1712,6 +1712,8 @@
     },
     "Customer": {
       "title": "دليل العميل",
+      "badge": "دليل العميل",
+      "step": "الخطوة",
       "getting_started_title": "ابدأ رحلتك",
       "getting_started_desc": "مرحبًا بك في تجربة مجزية. تجعل بركة من السهل كسب وتتبع والاستمتاع بمزاياك.",
       "register_title": "التسجيل",
@@ -1733,12 +1735,41 @@
       "dashboard_desc": "مركز القيادة الشخصي الخاص بك لكل ما يتعلق بالولاء.",
       "dashboard_sections": {
         "profile": "ملفك الشخصي",
-        "profile_desc": "أدر هويتك",
+        "profile_desc": "أدر هويتك وتفضيلاتك بسهولة.",
         "wallet": "محفظتك",
-        "wallet_desc": "تتبع ثروتك",
+        "wallet_desc": "تتبع رصيد نقاطك وسجل معاملاتك.",
         "offers": "صفقاتك",
-        "offers_desc": "حصرية لك"
+        "offers_desc": "اكتشف العروض الحصرية المصممة خصيصًا لك."
       },
+      "benefits": {
+        "fast_title": "سريع وسهل",
+        "fast_desc": "ابدأ في ثوانٍ",
+        "secure_title": "آمن",
+        "secure_desc": "بياناتك محمية",
+        "personalized_title": "مخصص",
+        "personalized_desc": "مصمم خصيصًا لك",
+        "rewards_title": "مكافآت",
+        "rewards_desc": "اكسب نقاطًا في كل زيارة"
+      },
+      "features": {
+        "view_points": "عرض رصيد نقاط الولاء",
+        "track_history": "تتبع سجل المكافآت",
+        "access_benefits": "الوصول إلى مزايا الأعضاء الحصرية",
+        "check_points": "تحقق من نقاطك الحالية",
+        "view_transactions": "عرض سجل المعاملات",
+        "redeem_rewards": "استبدل المكافآت فورًا",
+        "browse_deals": "تصفح الصفقات الحصرية",
+        "unlock_discounts": "افتح خصومات خاصة",
+        "personalized_offers": "احصل على عروض مخصصة",
+        "manage_preferences": "أدر تفضيلاتك",
+        "update_contact": "حدث معلومات الاتصال",
+        "customize_notifications": "خصص الإشعارات"
+      },
+      "need_help": "تحتاج مساعدة؟",
+      "cta_title": "مستعد للبدء",
+      "cta_highlight": "في كسب المكافآت؟",
+      "cta_description": "انضم إلى برنامج الولاء اليوم واحصل على مزايا حصرية وخصومات وعروض مخصصة مصممة خصيصًا لك.",
+      "join_waitlist": "انضم لقائمة الانتظار",
       "points_title": "النقاط والمكافآت",
       "how_points_work_title": "الرياضيات بسيطة",
       "how_points_work_desc": "تسوق أكثر، اكسب أكثر. الأمر بهذه السهولة.",

@@ -189,25 +189,27 @@ export default function WaitlistLanding() {
 
   return (
     <LazyMotion features={domAnimation}>
-      <div className={`min-h-screen bg-white text-gray-900 flex flex-col items-center justify-center p-4 relative overflow-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div className={`min-h-screen bg-white text-gray-900 flex flex-col items-center p-4 pt-20 pb-8 relative overflow-x-hidden ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
 
 
         {/* Header Navigation */}
-        <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center">
+        <nav className="fixed top-0 left-0 w-full z-50 px-3 sm:px-6 py-3 sm:py-4 flex justify-between items-center bg-white/90 backdrop-blur-xl border-b border-gray-100/80 shadow-sm">
           {/* How to Use Link */}
           <a
             href={`/${language}/how-to-use/user`}
-            className="relative group overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+            className="relative group overflow-hidden rounded-2xl p-[2px] focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-white shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           >
-            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-            <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-5 py-2 text-sm font-medium text-white backdrop-blur-3xl transition-all duration-300 group-hover:bg-slate-900 gap-2">
-              <span className="text-lg group-hover:scale-110 transition-transform duration-300">✨</span>
-              {currentT.howToUse}
+            {/* Animated gradient border */}
+            <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#ef4444_0%,#f97316_25%,#ec4899_50%,#ef4444_75%,#f97316_100%)]" />
+            <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-[14px] bg-gradient-to-r from-red-600 to-red-500 px-4 sm:px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-3xl transition-all duration-300 group-hover:from-red-500 group-hover:to-red-600 gap-2">
+              <span className="text-base sm:text-lg group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300">✨</span>
+              <span className="hidden xs:inline">{currentT.howToUse}</span>
+              <span className="xs:hidden">Guide</span>
             </span>
           </a>
 
           {/* Language Switcher */}
-          <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-full p-1.5 shadow-lg shadow-gray-200/20 flex gap-1">
+          <div className="bg-white/95 backdrop-blur-xl border border-gray-200/80 rounded-2xl p-1 sm:p-1.5 shadow-lg shadow-gray-300/30 flex gap-0.5 sm:gap-1">
             {[
               { code: 'en', label: 'EN', flag: '🇬🇧' },
               { code: 'it', label: 'IT', flag: '🇮🇹' },
@@ -216,12 +218,12 @@ export default function WaitlistLanding() {
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1.5 ${language === lang.code
-                  ? 'bg-gray-900 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
+                className={`px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-1 sm:gap-1.5 ${language === lang.code
+                  ? 'bg-gradient-to-r from-gray-900 to-gray-800 text-white shadow-lg shadow-gray-400/40 scale-105'
+                  : 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 hover:scale-[1.02] active:scale-[0.98]'
                   }`}
               >
-                <span>{lang.flag}</span>
+                <span className="text-base sm:text-lg">{lang.flag}</span>
                 <span className="hidden sm:inline">{lang.label}</span>
               </button>
             ))}
@@ -234,7 +236,7 @@ export default function WaitlistLanding() {
           <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[100px]"></div>
         </div>
 
-        <div className="z-10 w-full max-w-6xl flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+        <div className="z-10 w-full max-w-6xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-16 flex-1">
           {/* Illustration - Visible on Desktop */}
           <m.div
             initial={{ opacity: 0, x: -50 }}
@@ -254,23 +256,23 @@ export default function WaitlistLanding() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-center mb-8"
+              className="text-center mb-4 sm:mb-8"
             >
-              <div className="w-24 h-24 mx-auto mb-6 relative rounded-full overflow-hidden border-4 border-white shadow-xl">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 sm:mb-6 relative rounded-full overflow-hidden border-4 border-white shadow-xl">
                 <Image src="/logo.jpeg" alt="Baraka Logo" fill className="object-cover" priority />
               </div>
-              <h1 className="text-4xl font-bold mb-2 text-gray-900">
+              <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-900">
                 {currentT.title}
               </h1>
-              <p className="text-xl font-medium text-gray-700 mb-2">{currentT.subtitle}</p>
+              <p className="text-lg sm:text-xl font-medium text-gray-700 mb-2">{currentT.subtitle}</p>
               {currentT.address && (
-                <p className="text-gray-600 mb-4 flex items-center justify-center gap-2">
-                  <MapPin className="w-4 h-4" />
-                  {currentT.address}
+                <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4 flex items-center justify-center gap-2">
+                  <MapPin className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-center">{currentT.address}</span>
                 </p>
               )}
               {currentT.description && (
-                <p className="text-gray-500 max-w-lg mx-auto leading-relaxed">{currentT.description}</p>
+                <p className="text-sm sm:text-base text-gray-500 max-w-lg mx-auto leading-relaxed px-2">{currentT.description}</p>
               )}
             </m.div>
 
@@ -278,7 +280,7 @@ export default function WaitlistLanding() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="bg-white border border-gray-100 rounded-3xl p-8 shadow-2xl shadow-gray-200/50"
+              className="bg-white border border-gray-100 rounded-2xl sm:rounded-3xl p-5 sm:p-8 shadow-2xl shadow-gray-200/50"
             >
               <AnimatePresence mode="wait">
                 {success ? (
@@ -528,33 +530,33 @@ export default function WaitlistLanding() {
               </div>
             )}
           </AnimatePresence>
-
-          {/* Footer */}
-          <m.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1.5 }}
-            className="absolute bottom-6 z-10 flex flex-col items-center gap-4"
-          >
-            <div className="flex gap-6 text-sm text-gray-500">
-              <a href={`/${language}/privacy`} className="hover:text-gray-900 transition-colors font-medium">{currentT.privacy}</a>
-              <a href={`/${language}/terms`} className="hover:text-gray-900 transition-colors font-medium">{currentT.terms}</a>
-            </div>
-
-            <a
-              href="https://elassali.netlify.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity duration-500"
-            >
-              <span className="text-[10px] font-light uppercase tracking-widest text-gray-500">Powered by</span>
-              <span className="font-serif italic text-sm text-gray-600 relative">
-                Karim El Assali
-                <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-red-500 transition-all duration-300 group-hover:w-full"></span>
-              </span>
-            </a>
-          </m.div>
         </div>
+
+        {/* Footer */}
+        <m.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1.5 }}
+          className="z-10 flex flex-col items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full"
+        >
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-gray-500">
+            <a href={`/${language}/privacy`} className="hover:text-gray-900 transition-colors font-medium">{currentT.privacy}</a>
+            <a href={`/${language}/terms`} className="hover:text-gray-900 transition-colors font-medium">{currentT.terms}</a>
+          </div>
+
+          <a
+            href="https://elassali.netlify.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-2 opacity-40 hover:opacity-100 transition-opacity duration-500"
+          >
+            <span className="text-[10px] font-light uppercase tracking-widest text-gray-500">Powered by</span>
+            <span className="font-serif italic text-sm text-gray-600 relative">
+              Karim El Assali
+              <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-red-500 transition-all duration-300 group-hover:w-full"></span>
+            </span>
+          </a>
+        </m.div>
       </div>
     </LazyMotion>
   );

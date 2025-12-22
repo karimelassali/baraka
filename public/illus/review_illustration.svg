@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF4B4B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF9068;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Elements -->
+  <circle cx="400" cy="300" r="250" fill="#FFF5F5" />
+  <circle cx="600" cy="150" r="50" fill="#FFE0E0" opacity="0.5" />
+  <circle cx="200" cy="500" r="30" fill="#FFE0E0" opacity="0.5" />
+  
+  <!-- Main Character/Element -->
+  <g transform="translate(250, 150)">
+    <!-- Speech Bubble -->
+    <path d="M50,50 H250 A20,20 0 0 1 270,70 V200 A20,20 0 0 1 250,220 H100 L50,270 V220 H30 A20,20 0 0 1 10,200 V70 A20,20 0 0 1 30,50 Z" fill="url(#grad1)" />
+    
+    <!-- Stars -->
+    <g transform="translate(60, 110)">
+      <path d="M20,0 L26,12 L40,14 L30,24 L32,38 L20,32 L8,38 L10,24 L0,14 L14,12 Z" fill="white" />
+      <path d="M70,0 L76,12 L90,14 L80,24 L82,38 L70,32 L58,38 L60,24 L50,14 L64,12 Z" fill="white" />
+      <path d="M120,0 L126,12 L140,14 L130,24 L132,38 L120,32 L108,38 L110,24 L100,14 L114,12 Z" fill="white" />
+      <path d="M170,0 L176,12 L190,14 L180,24 L182,38 L170,32 L158,38 L160,24 L150,14 L164,12 Z" fill="white" />
+      <path d="M220,0 L226,12 L240,14 L230,24 L232,38 L220,32 L208,38 L210,24 L200,14 L214,12 Z" fill="white" opacity="0.5" />
+    </g>
+  </g>
+  
+  <!-- Decorative Elements -->
+  <path d="M550,400 L570,380 L590,400" stroke="#FF4B4B" stroke-width="5" fill="none" />
+  <circle cx="200" cy="200" r="5" fill="#FF4B4B" />
+  <circle cx="600" cy="450" r="8" fill="#FF4B4B" opacity="0.6" />
+</svg>

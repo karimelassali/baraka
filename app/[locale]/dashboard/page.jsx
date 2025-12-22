@@ -10,12 +10,14 @@ import {
   Gift,
   Ticket,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  MessageSquare
 } from 'lucide-react';
 import LoyaltyWallet from '@/components/loyalty/Wallet';
 import Profile from '@/components/dashboard/Profile';
 import Offers from '@/components/dashboard/Offers';
 import Vouchers from '@/components/dashboard/Vouchers';
+import Reviews from '@/components/dashboard/Reviews';
 import Statistics from '@/components/dashboard/Statistics';
 import WishlistRequest from '@/components/dashboard/WishlistRequest';
 import { useTranslations } from 'next-intl';
@@ -90,6 +92,7 @@ export default function DashboardPage() {
     { id: 'wallet', label: t('wallet'), icon: Wallet },
     { id: 'offers', label: t('offers'), icon: Gift },
     { id: 'vouchers', label: t('vouchers'), icon: Ticket },
+    { id: 'reviews', label: t('reviews'), icon: MessageSquare },
     { id: 'wishlist', label: t('wishlist'), icon: Sparkles },
   ];
 
@@ -150,6 +153,21 @@ export default function DashboardPage() {
                   <Offers limit={3} user={user} />
                 </div>
               </div>
+
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden lg:col-span-2">
+                <div className="p-6 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-lg">{t('reviews')}</h3>
+                    <p className="text-gray-500 text-sm mt-1">{t('reviews_desc')}</p>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('reviews')}
+                    className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-md"
+                  >
+                    {t('Reviews.title') || 'Go to Reviews'}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -161,6 +179,8 @@ export default function DashboardPage() {
         return <Offers user={user} />;
       case 'vouchers':
         return <Vouchers user={user} />;
+      case 'reviews':
+        return <Reviews user={user} />;
       case 'wishlist':
         return <WishlistRequest user={user} />;
       default:
@@ -218,6 +238,7 @@ export default function DashboardPage() {
                   {activeTab === 'wallet' && t('wallet_desc')}
                   {activeTab === 'offers' && t('offers_desc')}
                   {activeTab === 'vouchers' && t('vouchers_desc')}
+                  {activeTab === 'reviews' && t('reviews_desc')}
                   {activeTab === 'wishlist' && t('wishlist_desc')}
                 </p>
               </div>

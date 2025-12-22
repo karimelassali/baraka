@@ -104,6 +104,35 @@ export default function DashboardTour({ activeTab }) {
                         align: 'start'
                     }
                 }
+            ],
+            reviews: [
+                {
+                    element: '#reviews-header',
+                    popover: {
+                        title: t('reviews_header_title'),
+                        description: t('reviews_header_desc'),
+                        side: "bottom",
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#reviews-content',
+                    popover: {
+                        title: t('reviews_content_title'),
+                        description: t('reviews_content_desc'),
+                        side: "left",
+                        align: 'start'
+                    }
+                },
+                {
+                    element: '#reviews-sidebar',
+                    popover: {
+                        title: t('reviews_sidebar_title'),
+                        description: t('reviews_sidebar_desc'),
+                        side: "left",
+                        align: 'start'
+                    }
+                }
             ]
         };
 
@@ -141,7 +170,7 @@ export default function DashboardTour({ activeTab }) {
     };
 
     // Only show button if there are steps for the current tab
-    const hasSteps = ['overview', 'wallet', 'offers', 'vouchers', 'wishlist'].includes(activeTab);
+    const hasSteps = ['overview', 'wallet', 'offers', 'vouchers', 'wishlist', 'reviews'].includes(activeTab);
 
     if (!hasSteps) return null;
 

@@ -24,6 +24,7 @@ import { countries } from '@/lib/constants/countries';
 import { useRouter } from '@/navigation';
 import DeleteAccountModal from './DeleteAccountModal';
 import { getAvatarUrl } from '@/lib/avatar';
+import { createClient } from '@/lib/supabase/client';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -49,12 +50,14 @@ function Skeleton({ compact }) {
 export default function Profile({ compact = false, user }) {
   const t = useTranslations('Dashboard.Profile');
   const router = useRouter();
+  const supabase = createClient();
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({});
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({ type: '', message: '' });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -115,6 +118,15 @@ export default function Profile({ compact = false, user }) {
     }
   };
 
+  const handleSignOut = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/auth/login');
+  };
+
   const handleDeleteAccount = async () => {
     try {
       const response = await fetch('/api/customer/delete', {
@@ -131,6 +143,58 @@ export default function Profile({ compact = false, user }) {
       setStatus({ type: 'error', message: 'An unexpected error occurred' });
     }
   };
+
+  const LogoutModal = () => (
+    <AnimatePresence>
+      {showLogoutModal && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100]"
+            onClick={() => setShowLogoutModal(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 z-[101] border border-gray-100"
+          >
+            <div className="flex flex-col items-center text-center">
+              <div className="w-full flex justify-center mb-4">
+                <img
+                  src="/illus/undraw_a-moment-to-relax_mrkn.svg"
+                  alt="Sign Out"
+                  className="h-32 w-auto object-contain"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                {t('sign_out')}?
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Are you sure you want to sign out? You'll need to sign in again to access your account.
+              </p>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => setShowLogoutModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmSignOut}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-500/20"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 
   if (loading) {
     return <Skeleton compact={compact} />;
@@ -194,6 +258,7 @@ export default function Profile({ compact = false, user }) {
       transition={{ duration: 0.5 }}
       className="w-full max-w-5xl mx-auto space-y-6"
     >
+      <LogoutModal />
       <DeleteAccountModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -456,6 +521,13 @@ export default function Profile({ compact = false, user }) {
                   >
                     <span>{t('change_password')}</span>
                     <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
+                  </button>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full flex items-center justify-between p-3 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors group"
+                  >
+                    <span>{t('sign_out')}</span>
+                    <LogOut className="w-4 h-4 text-gray-400 group-hover:text-gray-600" />
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}

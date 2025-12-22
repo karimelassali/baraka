@@ -18,18 +18,26 @@
     "vouchers_usage_title": "Utilizzo Voucher",
     "vouchers_usage_desc": "Clicca su 'Usa' per mostrare il codice QR o 'Scarica' per salvarlo.",
     "wishlist_title": "Lista dei Desideri",
-    "wishlist_desc": "Richiedi nuovi prodotti che vorresti vedere nel nostro negozio."
+    "wishlist_desc": "Richiedi nuovi prodotti che vorresti vedere nel nostro negozio.",
+    "reviews_title": "Recensioni",
+    "reviews_desc": "Condividi la tua esperienza e aiutaci a migliorare. Puoi inviare una recensione ogni 15 giorni.",
+    "reviews_header_title": "Dashboard Recensioni",
+    "reviews_header_desc": "Benvenuto nel tuo centro recensioni. Qui puoi vedere il tuo stato e la cronologia.",
+    "reviews_content_title": "Invia e Traccia",
+    "reviews_content_desc": "Controlla la tua idoneità e invia nuove recensioni qui.",
+    "reviews_sidebar_title": "Cronologia e Consigli",
+    "reviews_sidebar_desc": "Visualizza la tua ultima recensione e ricevi consigli utili."
   },
   "Home": {
     "rights_reserved": "Tutti i diritti riservati.",
-    "privacy_policy": "Privacy Policy",
+    "privacy_policy": "Informativa sulla Privacy",
     "terms_of_service": "Termini di Servizio"
   },
   "PaymentMethods": {
     "title": "Metodi di Pagamento Accettati",
     "cash": {
       "title": "Contanti",
-      "standard": "Pagamenti in contanti standard"
+      "standard": "Pagamenti standard in contanti"
     },
     "cards": {
       "title": "Carte di Debito/Credito",
@@ -56,7 +64,7 @@
   "Hero": {
     "welcome_to": "Benvenuti da",
     "baraka": "Baraka",
-    "description": "La tua attività locale di fiducia che offre prodotti e servizi di qualità con un'assistenza clienti eccezionale.",
+    "description": "La tua attività locale di fiducia che fornisce prodotti e servizi di qualità con un'assistenza clienti eccezionale.",
     "view_products": "Vedi Prodotti",
     "contact_us": "Contattaci",
     "quote": "Siamo orgogliosi della qualità e della soddisfazione del cliente.",
@@ -70,9 +78,9 @@
   },
   "About": {
     "title": "Chi Siamo",
-    "description": "Baraka è un'attività locale leader dedicata a servire la nostra comunità con servizi e prodotti di alto livello. Con anni di esperienza e passione per l'eccellenza, ci sforziamo di superare le aspettative dei clienti in tutto ciò che facciamo.",
+    "description": "Baraka è un'attività locale di primo piano dedicata a servire la nostra comunità con servizi e prodotti di alto livello. Con anni di esperienza e una passione per l'eccellenza, ci sforziamo di superare le aspettative dei clienti in tutto ciò che faciamo.",
     "our_mission": "La Nostra Missione",
-    "mission_desc": "Offrire qualità, valore e soddisfazione a ogni cliente che serviamo.",
+    "mission_desc": "Fornire qualità, valore e soddisfazione a ogni cliente che serviamo.",
     "our_vision": "La Nostra Visione",
     "vision_desc": "Essere l'attività locale più affidabile e preferita nella nostra regione.",
     "our_values": "I Nostri Valori",
@@ -82,7 +90,7 @@
     "title": "La Nostra Galleria",
     "subtitle": "Uno sguardo nel nostro mondo",
     "view_all": "Vedi Tutto",
-    "no_images": "Nessuna immagine nella galleria."
+    "no_images": "Nessuna immagine nella galleria ancora."
   },
   "Offers": {
     "title": "Offerte Speciali",
@@ -104,7 +112,7 @@
   },
   "Contact": {
     "title": "Visita il Nostro Negozio",
-    "subtitle": "Siamo comodamente situati a Castel San Giovanni. Passa a trovarci e prova la nostra qualità di persona.",
+    "subtitle": "Siamo comodamente situati a Castel San Giovanni. Passa a trovarci e sperimenta la nostra qualità in prima persona.",
     "info_title": "Informazioni di Contatto",
     "name": "Nome",
     "email": "Email",
@@ -166,7 +174,7 @@
     "Register": {
       "title": "Registrazione Cliente",
       "subtitle": "Processo di registrazione passo dopo passo",
-      "join_community": "Unisciti alla nostra community",
+      "join_community": "Unisciti alla nostra comunità",
       "join_desc": "Registrazione veloce, archiviazione sicura e accesso alla tua area personale. Rispettiamo la tua privacy.",
       "step": "Passo",
       "of": "di",
@@ -196,7 +204,7 @@
           "placeholder": "Città, Indirizzo..."
         },
         "4": {
-          "title": "Contatti",
+          "title": "Contatto",
           "subtitle": "Come possiamo contattarti?",
           "phone": "Numero di Telefono",
           "email": "Email"
@@ -211,7 +219,7 @@
         },
         "6": {
           "title": "Paese di Origine",
-          "subtitle": "Da dove vieni?",
+          "subtitle": "Di dove sei?",
           "label": "Paese di Origine"
         },
         "7": {
@@ -221,18 +229,18 @@
         },
         "8": {
           "title": "Privacy Policy",
-          "subtitle": "Abbiamo bisogno del tuo consenso per trattare i tuoi dati",
+          "subtitle": "Abbiamo bisogno del tuo consenso per elaborare i tuoi dati",
           "agree": "Accetto la",
           "link": "Privacy Policy"
         },
         "9": {
-          "title": "Termini e Condizioni",
+          "title": "Termini & Condizioni",
           "subtitle": "Conferma di accettare i nostri termini",
           "accept": "Accetto i",
-          "link": "Termini e Condizioni"
+          "link": "Termini & Condizioni"
         },
         "10": {
-          "title": "Rivedi e Invia",
+          "title": "Rivedi & Invia",
           "subtitle": "Rivedi le tue informazioni prima di inviare",
           "agreed": "Accettato",
           "not_agreed": "Non Accettato"
@@ -245,8 +253,8 @@
         "password_length": "La password deve essere di almeno 8 caratteri",
         "password_mismatch": "Le password non corrispondono",
         "privacy_policy": "Devi accettare la Privacy Policy",
-        "terms": "Devi accettare i Termini e Condizioni",
-        "email_registered": "Questo indirizzo email è già registrato. Per favore accedi."
+        "terms": "Devi accettare i Termini & Condizioni",
+        "email_registered": "Questo indirizzo email è già registrato. Per favorire accedi."
       }
     }
   },
@@ -266,8 +274,39 @@
     "overview_desc": "Panoramica dell'attività del tuo account e dei premi.",
     "profile_desc": "Gestisci le tue informazioni personali e preferenze.",
     "wallet_desc": "Traccia i tuoi punti fedeltà e la cronologia delle transazioni.",
-    "offers_desc": "Scopri offerte e promozioni esclusive disponibili per te.",
+    "offers_desc": "Scopri offerte esclusive e promozioni disponibili per te.",
     "vouchers_desc": "Gestisci e riscatta i voucher guadagnati.",
+    "reviews": "Recensioni",
+    "reviews_desc": "Condividi la tua esperienza e aiutaci a migliorare.",
+    "Reviews": {
+      "title": "Le Tue Recensioni",
+      "subtitle": "Condividi la tua esperienza con noi",
+      "eligible_title": "Apprezziamo il tuo feedback!",
+      "eligible_desc": "Sono passati più di 6 mesi dalla tua ultima recensione. Ci piacerebbe sentirti di nuovo.",
+      "ineligible_title": "Grazie per la tua recensione!",
+      "ineligible_desc": "Puoi inviare un'altra recensione tra:",
+      "days_remaining": "{count} giorni",
+      "your_last_review": "La Tua Ultima Recensione",
+      "submit_success": "Recensione inviata con successo!",
+      "rating_label": "La Tua Valutazione",
+      "comment_label": "Il Tuo Feedback",
+      "submit_btn": "Invia Recensione",
+      "submitting": "Invio in corso...",
+      "placeholder": "Raccontaci la tua esperienza...",
+      "did_you_know_title": "Lo sapevi?",
+      "tips": {
+        "1": "Le tue recensioni ci aiutano a migliorare i nostri servizi e aiutano altri clienti a fare scelte migliori.",
+        "2": "Leggiamo ogni singola recensione per assicurarci di soddisfare le tue aspettative.",
+        "3": "Menzionare prodotti specifici aiuta gli altri a decidere cosa acquistare.",
+        "4": "Il feedback onesto è la chiave per il nostro continuo miglioramento.",
+        "5": "La tua voce conta! Prendiamo seriamente i tuoi suggerimenti.",
+        "6": "Le recensioni dettagliate sono le più utili per la nostra comunità.",
+        "7": "Aiutarci a identificare ciò che facciamo meglio ci permette di farlo di più.",
+        "8": "Le critiche costruttive ci aiutano a risolvere i problemi che potresti incontrare.",
+        "9": "Condividere la tua esperienza aiuta a costruire fiducia nella nostra comunità.",
+        "10": "Apprezziamo il tempo che dedichi a condividere i tuoi pensieri."
+      }
+    },
     "Wallet": {
       "title": "Portafoglio Fedeltà",
       "available_balance": "Saldo Disponibile",
@@ -345,6 +384,7 @@
       "address_details": "Dettagli Indirizzo",
       "not_specified": "Non specificato",
       "quick_actions": "Azioni Rapide",
+      "sign_out": "Disconnetti",
       "change_password": "Cambia Password",
       "delete_account": "Elimina Account",
       "fill_required": "Compila tutti i campi obbligatori",

@@ -12,7 +12,8 @@ import {
     ChevronRight,
     Heart,
     Sparkles,
-    AlertCircle
+    AlertCircle,
+    MessageSquare
 } from 'lucide-react';
 import { useRouter } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -34,6 +35,7 @@ export default function UserSidebar({
         { id: 'wallet', label: t('wallet'), icon: Wallet },
         { id: 'offers', label: t('offers'), icon: Gift },
         { id: 'vouchers', label: t('vouchers'), icon: Ticket },
+        { id: 'reviews', label: t('reviews'), icon: MessageSquare },
         { id: 'wishlist', label: t('wishlist'), icon: Heart },
     ];
 
@@ -141,8 +143,8 @@ export default function UserSidebar({
     );
 
     const MobileBottomNav = () => (
-        <div id="mobile-bottom-nav" className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-gray-200 pb-safe z-50">
-            <div className="flex justify-around items-center px-2 py-2">
+        <div id="mobile-bottom-nav" className="lg:hidden fixed bottom-4 left-4 right-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 z-50 ring-1 ring-black/5">
+            <div className="flex justify-between items-center px-2 py-3 overflow-x-auto no-scrollbar">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
@@ -150,29 +152,24 @@ export default function UserSidebar({
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
-                            className="relative flex flex-col items-center justify-center p-1 w-full"
+                            className="relative flex flex-col items-center justify-center p-2 min-w-[4rem]"
                         >
                             {isActive && (
                                 <motion.div
                                     layoutId="mobileActiveIndicator"
-                                    className="absolute -top-2.5 w-8 h-1 bg-red-500 rounded-b-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"
+                                    className="absolute inset-0 bg-red-50 rounded-xl"
                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                 />
                             )}
-                            <div className={`relative p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-red-50' : ''}`}>
-                                <Icon className={`h-6 w-6 transition-colors duration-300 ${isActive ? 'text-red-600' : 'text-gray-400'}`} />
-                            </div>
+                            <Icon className={`h-6 w-6 transition-all duration-300 relative z-10 ${isActive ? 'text-red-600 scale-110' : 'text-gray-400 hover:text-gray-600'}`} />
+                            {isActive && (
+                                <span className="text-[10px] font-bold text-red-600 mt-1 relative z-10">
+                                    {item.label}
+                                </span>
+                            )}
                         </button>
                     );
                 })}
-                <button
-                    onClick={handleSignOutClick}
-                    className="relative flex flex-col items-center justify-center p-1 w-full"
-                >
-                    <div className="relative p-1.5 rounded-xl transition-all duration-300">
-                        <LogOut className="h-6 w-6 text-gray-400" />
-                    </div>
-                </button>
             </div>
         </div>
     );

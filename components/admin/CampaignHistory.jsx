@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import {
     CheckCircle2,
@@ -29,9 +30,31 @@ export default function CampaignHistory() {
     const [statusFilter, setStatusFilter] = useState('all');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
+    const router = useRouter();
+    const [demoCampaigns, setDemoCampaigns] = useState([]);
+
     useEffect(() => {
         fetchHistory();
+        fetchDemoCampaigns();
     }, [statusFilter, dateRange]);
+
+    const fetchDemoCampaigns = () => {
+        const campaigns = [];
+        for (let i = 0; i < sessionStorage.length; i++) {
+            const key = sessionStorage.key(i);
+            if (key.startsWith('campaign_')) {
+                try {
+                    const data = JSON.parse(sessionStorage.getItem(key));
+                    campaigns.push(data);
+                } catch (e) {
+                    console.error('Error parsing campaign data', e);
+                }
+            }
+        }
+        // Sort by date desc
+        campaigns.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setDemoCampaigns(campaigns);
+    };
 
     const fetchHistory = async () => {
         setLoading(true);
@@ -158,7 +181,45 @@ export default function CampaignHistory() {
             </div >
 
             {/* Messages List */}
-            < div className="space-y-3" >
+            <div className="space-y-3">
+                {/* Demo Campaigns Section */}
+                {demoCampaigns.length > 0 && (
+                    <div className="mb-6 space-y-3">
+                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Recent Sessions (Demo)</h3>
+                        {demoCampaigns.map((camp) => (
+                            <GlassCard key={camp.id} className="p-4 hover:bg-white/5 transition-colors border-l-4 border-l-indigo-500">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <Badge variant="outline" className="bg-indigo-500/10 text-indigo-600 border-indigo-200">
+                                                Campaign Session
+                                            </Badge>
+                                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                                <Clock className="h-3 w-3" />
+                                                {format(new Date(camp.createdAt), 'MMM d, yyyy HH:mm')}
+                                            </span>
+                                        </div>
+                                        <p className="text-sm font-medium truncate">{camp.message}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            {camp.users?.length || 0} recipients
+                                        </p>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => router.push(`/admin/campaigns/${camp.id}`)}
+                                        className="gap-2"
+                                    >
+                                        View Progress
+                                        <BarChart3 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </GlassCard>
+                        ))}
+                    </div>
+                )}
+
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Message Log</h3>
                 {
                     loading ? (
                         <div className="flex justify-center items-center h-64" >

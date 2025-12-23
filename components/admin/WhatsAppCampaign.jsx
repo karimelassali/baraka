@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Send,
   MessageCircle,
@@ -121,6 +121,8 @@ export default function WhatsAppCampaign() {
     setRecipientCount(null);
   };
 
+  const router = useRouter();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
@@ -130,7 +132,7 @@ export default function WhatsAppCampaign() {
     }
 
     const confirmed = window.confirm(
-      `Are you sure you want to send this campaign to ${recipientCount || 'all'} customers?`
+      `Are you sure you want to send this campaign to ${recipientCount !== null ? recipientCount : 'selected'} customers?`
     );
     if (!confirmed) return;
 
@@ -138,32 +140,75 @@ export default function WhatsAppCampaign() {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/admin/campaigns/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // For demo: Fetch the actual users to simulate sending
+      let users = [];
 
-      const result = await response.json();
+      if (formData.targetGroup === 'specific') {
+        // If specific users are selected, we need to fetch their details if we don't have them
+        // But ClientSelector passes IDs. We might need to fetch details or just use what we have if we had the full objects.
+        // Since ClientSelector only passes IDs back, let's fetch the details for these IDs.
+        // We can use the same preview endpoint but we might need to adjust it to accept IDs or just use a different way.
+        // Actually, for 'specific', let's just fetch them by ID.
+        // Or simpler: The preview endpoint doesn't support list of IDs yet. 
+        // Let's just use the preview endpoint for all other cases, and for specific, we might need to fetch them.
+        // However, to keep it simple and consistent, let's just fetch all users from the preview endpoint 
+        // and filter them if needed, or better, just rely on the preview endpoint logic I added.
+        // Wait, my preview endpoint modification handles 'nationality' and 'points'. 
+        // It does NOT handle 'specific' list of IDs.
 
-      if (response.ok) {
-        setStatus({ type: 'success', message: result.message || 'Campaign sent successfully' });
-        setFormData({
-          message: '',
-          targetGroup: 'all',
-          nationality: '',
-          pointsThreshold: 0,
-          selectedCustomerIds: []
-        });
-        setRecipientCount(null);
-        // Switch to history tab after success after a delay
-        setTimeout(() => setActiveTab('history'), 2000);
+        // Let's handle 'specific' case here or update the API. 
+        // Updating API is cleaner. But I already updated it.
+        // Let's update the API to handle 'specific' list of IDs? 
+        // Or just fetch them here?
+        // Actually, ClientSelector has the data. But it's internal state.
+        // Let's just fetch them.
+
+        const response = await fetch('/api/admin/customers?limit=1000'); // Fetch all to filter
+        const data = await response.json();
+        users = data.customers.filter(c => formData.selectedCustomerIds.includes(c.id));
+
       } else {
-        setStatus({ type: 'error', message: result.error || 'Failed to send campaign' });
+        const response = await fetch('/api/admin/campaigns/preview?returnUsers=true', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            targetGroup: formData.targetGroup,
+            nationality: formData.nationality,
+            pointsThreshold: formData.pointsThreshold
+          }),
+        });
+        const result = await response.json();
+        if (response.ok) {
+          users = result.users || [];
+        } else {
+          throw new Error(result.error || 'Failed to fetch recipients');
+        }
       }
+
+      if (users.length === 0) {
+        setStatus({ type: 'error', message: 'No recipients found for this selection.' });
+        setLoading(false);
+        return;
+      }
+
+      // Generate UID
+      const uid = 'camp_' + Math.random().toString(36).substr(2, 9);
+
+      // Store campaign data in sessionStorage
+      sessionStorage.setItem(`campaign_${uid}`, JSON.stringify({
+        id: uid,
+        message: formData.message,
+        users: users,
+        createdAt: new Date().toISOString(),
+        status: 'running'
+      }));
+
+      // Redirect to animation page
+      router.push(`/admin/campaigns/${uid}`);
+
     } catch (error) {
-      setStatus({ type: 'error', message: 'An error occurred while sending the campaign' });
-    } finally {
+      console.error('Error starting campaign:', error);
+      setStatus({ type: 'error', message: 'An error occurred while starting the campaign' });
       setLoading(false);
     }
   };

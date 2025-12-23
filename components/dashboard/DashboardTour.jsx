@@ -6,7 +6,7 @@ import "driver.js/dist/driver.css";
 import { useTranslations } from 'next-intl';
 import { HelpCircle } from 'lucide-react';
 
-export default function DashboardTour({ activeTab }) {
+export default function DashboardTour({ activeTab, enabled = true }) {
     const t = useTranslations('Tour');
     const driverObj = useRef(null);
 
@@ -138,7 +138,7 @@ export default function DashboardTour({ activeTab }) {
 
         const currentSteps = stepsConfig[activeTab] || [];
 
-        if (currentSteps.length === 0) return;
+        if (currentSteps.length === 0 || !enabled) return;
 
         driverObj.current = driver({
             showProgress: true,
@@ -161,7 +161,7 @@ export default function DashboardTour({ activeTab }) {
                 localStorage.setItem(tourKey, 'true');
             }, 1000);
         }
-    }, [t, activeTab]);
+    }, [t, activeTab, enabled]);
 
     const startTour = () => {
         if (driverObj.current) {

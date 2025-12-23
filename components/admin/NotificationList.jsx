@@ -21,7 +21,7 @@ import { it, enUS, ar } from 'date-fns/locale';
 
 import { createClient } from '@/lib/supabaseClient';
 
-export default function NotificationList({ isCompact = false, onUnreadCountChange, onItemClick }) {
+export default function NotificationList({ isCompact = false, isMobile = false, onUnreadCountChange, onItemClick }) {
     const t = useTranslations('Admin.Notifications');
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -172,7 +172,7 @@ export default function NotificationList({ isCompact = false, onUnreadCountChang
         <div className="flex flex-col h-full">
             {/* Header Actions */}
             {/* Header Actions */}
-            <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isCompact ? 'p-4 bg-muted/30 border-b border-border/50' : 'mb-4'}`}>
+            <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isCompact ? 'p-4 bg-muted/30 border-b border-border/50' : 'mb-4'} ${isMobile ? 'pr-12' : ''}`}>
                 <div className="flex items-center justify-between w-full sm:w-auto gap-2">
                     {isCompact && <h3 className="font-semibold text-sm">{t('title')}</h3>}
                     {!isCompact && (
@@ -305,7 +305,7 @@ export default function NotificationList({ isCompact = false, onUnreadCountChang
                                 </div>
 
                                 {/* Hover Actions */}
-                                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-background/80 backdrop-blur rounded-md shadow-sm border border-border/50">
+                                <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-background/80 backdrop-blur rounded-md shadow-sm border border-border/50">
                                     <Button
                                         variant="ghost"
                                         size="icon"

@@ -116,6 +116,7 @@ export default function NotificationCenter() {
                         <div className="flex-1 overflow-y-auto">
                             <NotificationList
                                 isCompact={true}
+                                isMobile={isMobile}
                                 onUnreadCountChange={setUnreadCount}
                                 onItemClick={() => setIsOpen(false)}
                             />

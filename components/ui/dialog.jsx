@@ -5,30 +5,34 @@ import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
+const DialogContext = React.createContext({})
+
 const Dialog = ({
     open,
     onOpenChange,
     children
 }) => {
     return (
-        <AnimatePresence>
-            {open && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Backdrop */}
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/50 backdrop-blur-sm"
-                        onClick={() => onOpenChange(false)}
-                    />
-                    {/* Content Container to ensure z-index above backdrop */}
-                    <div className="relative z-50 w-full flex justify-center p-4">
-                        {children}
+        <DialogContext.Provider value={{ open, onOpenChange }}>
+            <AnimatePresence>
+                {open && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center">
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+                            onClick={() => onOpenChange(false)}
+                        />
+                        {/* Content Container to ensure z-index above backdrop */}
+                        <div className="relative z-50 w-full flex justify-center p-4">
+                            {children}
+                        </div>
                     </div>
-                </div>
-            )}
-        </AnimatePresence>
+                )}
+            </AnimatePresence>
+        </DialogContext.Provider>
     )
 }
 
@@ -42,35 +46,33 @@ const DialogTrigger = ({ children, onClick, ...props }) => {
     return React.cloneElement(children, { onClick, ...props })
 }
 
-const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => (
-    <motion.div
-        ref={ref}
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        transition={{ duration: 0.2 }}
-        className={cn(
-            "relative w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg",
-            className
-        )}
-        {...props}
-    >
-        {children}
-        <button
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-            onClick={(e) => {
-                // We need to find the close handler. 
-                // Since we are inside Dialog, we don't have direct access to onOpenChange unless we use Context.
-                // For simplicity in this fix, I'll rely on the backdrop click or explicit cancel buttons.
-                // Or I can try to traverse up, but Context is better.
-                // Let's implement a simple Context.
-            }}
+const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => {
+    const { onOpenChange } = React.useContext(DialogContext)
+
+    return (
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className={cn(
+                "relative w-full max-w-lg gap-4 border bg-background p-6 shadow-lg duration-200 sm:rounded-lg",
+                className
+            )}
+            {...props}
         >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-        </button>
-    </motion.div>
-))
+            {children}
+            <button
+                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
+                onClick={() => onOpenChange?.(false)}
+            >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+            </button>
+        </motion.div>
+    )
+})
 DialogContent.displayName = "DialogContent"
 
 const DialogHeader = ({

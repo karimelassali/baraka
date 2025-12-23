@@ -49,6 +49,42 @@ export async function POST(request) {
     // Only count customers with phone numbers
     query = query.not('phone_number', 'is', null);
 
+    // Check if we need to return the actual users (for demo/preview list)
+    const returnUsers = await request.nextUrl.searchParams.get('returnUsers') === 'true';
+
+    if (returnUsers) {
+        // Remove head: true to get actual data
+        // We need to rebuild the query without head: true because .select() is chainable but modifying options might be tricky
+        // So let's just re-declare the select part or use a different approach.
+        // Easier to just branch logic.
+
+        let dataQuery = supabaseAdmin
+            .from('customers')
+            .select('id, first_name, last_name, phone_number, country_of_origin, email'); // Select specific fields
+
+        if (targetGroup === 'nationality' && nationality) {
+            dataQuery = dataQuery.ilike('country_of_origin', `%${nationality}%`);
+        } else if (targetGroup === 'points' && pointsThreshold) {
+            const threshold = parseInt(pointsThreshold);
+            if (!isNaN(threshold)) {
+                dataQuery = supabaseAdmin
+                    .from('customers')
+                    .select('id, first_name, last_name, phone_number, country_of_origin, email, customer_points_balance!inner(total_points)')
+                    .gte('customer_points_balance.total_points', threshold);
+            }
+        }
+
+        dataQuery = dataQuery.not('phone_number', 'is', null).limit(50); // Limit for demo
+
+        const { data, error } = await dataQuery;
+
+        if (error) {
+            console.error('Campaign preview data error:', error);
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+        return NextResponse.json({ count: data.length, users: data });
+    }
+
     const { count, error } = await query;
 
     if (error) {

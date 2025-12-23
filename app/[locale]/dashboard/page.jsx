@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from '@/navigation';
+import { useRouter, usePathname } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
 import {
   LayoutDashboard,
@@ -28,14 +28,21 @@ import DashboardTour from '@/components/dashboard/DashboardTour';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { getAvatarUrl } from '@/lib/avatar';
 
+import LanguageSelectionModal from '@/components/dashboard/LanguageSelectionModal';
+import { useLocale } from 'next-intl';
+
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
+  const locale = useLocale();
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [supabase, setSupabase] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [hasSeenTour, setHasSeenTour] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [isLanguageConfirmed, setIsLanguageConfirmed] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setSupabase(createClient());
@@ -46,8 +53,27 @@ export default function DashboardPage() {
       if (tourSeen === 'true') {
         setHasSeenTour(true);
       }
+
+      const langPref = localStorage.getItem('language_preference_set');
+      if (!langPref) {
+        setShowLanguageModal(true);
+        setIsLanguageConfirmed(false);
+      } else {
+        setIsLanguageConfirmed(true);
+      }
     }
   }, []);
+
+  const handleLanguageSelect = (selectedLocale) => {
+    localStorage.setItem('language_preference_set', 'true');
+    setShowLanguageModal(false);
+    setIsLanguageConfirmed(true);
+
+    if (selectedLocale !== locale) {
+      // If language changed, redirect
+      router.replace('/dashboard', { locale: selectedLocale });
+    }
+  };
 
   useEffect(() => {
     if (!supabase) return;
@@ -190,8 +216,13 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex font-sans">
+      <LanguageSelectionModal
+        isOpen={showLanguageModal}
+        onSelect={handleLanguageSelect}
+        currentLocale={locale}
+      />
       {hasSeenTour && <PopupOffer />}
-      <DashboardTour activeTab={activeTab} />
+      <DashboardTour activeTab={activeTab} enabled={isLanguageConfirmed} />
 
       <UserSidebar
         activeTab={activeTab}

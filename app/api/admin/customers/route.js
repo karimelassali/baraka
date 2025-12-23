@@ -76,6 +76,82 @@ export async function GET(request) {
     return NextResponse.json({ error: customerError.message }, { status: 500 });
   }
 
+  // --- ENHANCEMENT: Fetch Auth Data for these customers ---
+  // We need to get the actual Auth User object to check 'user_metadata' and 'email_confirmed_at'
+  // accurately, as the database view might be out of sync or missing protected metadata.
+
+  // Extract auth_ids from the fetched customers
+  const authIds = customers.map(c => c.auth_id).filter(id => id);
+
+  if (authIds.length > 0) {
+    // Unfortunately, listUsers doesn't support "in" filter for IDs directly in a simple way without iterating
+    // But for a page of 20-50 users, we can fetch them. 
+    // Actually, 'listUsers' is for ALL users. 'getUserById' is one by one.
+    // Optimization: We can't easily fetch JUST these 20 users from Auth API in one go without a custom function.
+    // However, since we are admin, we can use the `auth.users` table if we had direct access, but we only have API.
+    // Alternative: We iterate and fetch user data? No, too slow (N+1).
+    // BETTER ALTERNATIVE: We assume the DB view is mostly correct, BUT for the specific "force_password_change" flag,
+    // we might need to rely on what we have. 
+    // WAIT: The user specifically said "try use role auth key... and some users im 100% not verified i see next to them verified".
+    // This implies the DB view `is_verified` column is WRONG.
+
+    // Let's try to fetch the users. For 20 users, parallel requests might be okay-ish, or we fetch a larger page of users
+    // and filter in memory? No, that's bad for scaling.
+
+    // Actually, supabaseAdmin.auth.admin.listUsers() returns a list. We can't filter by ID list.
+    // But we CAN use `supabaseAdmin.from('auth.users')` if we have permissions? No, `auth` schema is protected.
+
+    // Let's stick to the plan: We will try to fetch the specific users if possible, or just accept the overhead
+    // of fetching the users one by one in parallel (Promise.all) for the current page. 
+    // 20 requests is acceptable for an admin dashboard page.
+
+    const authUsersMap = {};
+
+    await Promise.all(authIds.map(async (authId) => {
+      try {
+        const { data: { user }, error } = await supabaseAdmin.auth.admin.getUserById(authId);
+        if (user && !error) {
+          authUsersMap[authId] = user;
+        }
+      } catch (e) {
+        // Ignore errors for individual users
+      }
+    }));
+
+    // Merge data back into customers
+    customers.forEach(customer => {
+      if (customer.auth_id && authUsersMap[customer.auth_id]) {
+        const authUser = authUsersMap[customer.auth_id];
+
+        // Update Verified Status
+        // Logic: Verified if email_confirmed_at OR phone_confirmed_at is present
+        const isVerified = !!(authUser.email_confirmed_at || authUser.phone_confirmed_at);
+        customer.is_verified = isVerified;
+        customer.email_confirmed_at = authUser.email_confirmed_at;
+        customer.phone_confirmed_at = authUser.phone_confirmed_at;
+
+        // Update Metadata (Force Password Change)
+        // Ensure we have the latest metadata
+        const oldMeta = customer.user_metadata || {};
+        const newMeta = authUser.user_metadata || {};
+
+        customer.user_metadata = {
+          ...oldMeta,
+          ...newMeta
+        };
+
+        // Debug log for specific user (optional, or log all for now since it's dev)
+        // console.log(`[AuthDebug] User ${customer.email}: force_password_change = ${customer.user_metadata.force_password_change} (Auth: ${newMeta.force_password_change}, DB: ${oldMeta.force_password_change})`);
+
+      } else if (customer.auth_id) {
+        // Auth ID exists but user not found in Auth system? 
+        // This implies a broken link or deleted user.
+        // Mark as unverified to be safe.
+        customer.is_verified = false;
+      }
+    });
+  }
+
   return NextResponse.json({
     customers: customers || [],
     total: count || 0,

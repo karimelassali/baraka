@@ -51,12 +51,13 @@ export async function POST(request) {
         // 1. Create user
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: finalEmail,
-            password,
-            email_confirm: false, // Do not auto-confirm. Admin can send verification later.
+            password: password || 'TempPassword123!',
+            email_confirm: true, // Auto-confirm since admin is creating it
             user_metadata: {
                 first_name: firstName,
                 last_name: lastName,
-                phone_number: phoneNumber
+                phone_number: phoneNumber,
+                force_password_change: true // Force user to change password on first login
             }
         });
 

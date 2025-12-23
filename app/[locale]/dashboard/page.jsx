@@ -11,8 +11,10 @@ import {
   Ticket,
   ChevronRight,
   Sparkles,
-  MessageSquare
+  MessageSquare,
+  AlertTriangle
 } from 'lucide-react';
+import { Link } from '@/navigation';
 import LoyaltyWallet from '@/components/loyalty/Wallet';
 import Profile from '@/components/dashboard/Profile';
 import Offers from '@/components/dashboard/Offers';
@@ -146,6 +148,31 @@ export default function DashboardPage() {
                 />
               </div>
             </div>
+
+            {/* Security Alert */}
+            {user.user_metadata?.force_password_change && (
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm mb-6">
+                <div className="flex items-start">
+                  <div className="flex-shrink-0">
+                    <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div className="ml-3 flex-1 md:flex md:justify-between">
+                    <p className="text-sm text-amber-800">
+                      <span className="font-bold block mb-1">Avviso di Sicurezza</span>
+                      Stai utilizzando una password temporanea. Ti consigliamo di cambiarla per maggiore sicurezza.
+                    </p>
+                    <p className="mt-3 text-sm md:mt-0 md:ml-6">
+                      <Link
+                        href="/auth/update-password"
+                        className="whitespace-nowrap font-medium text-amber-700 hover:text-amber-600 bg-amber-100 px-4 py-2 rounded-lg hover:bg-amber-200 transition-colors"
+                      >
+                        Cambia Password &rarr;
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <Statistics user={user} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

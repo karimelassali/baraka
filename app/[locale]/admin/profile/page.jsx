@@ -116,7 +116,10 @@ export default function AdminProfilePage() {
 
         setPassLoading(true);
         const supabase = createClient();
-        const { error } = await supabase.auth.updateUser({ password: passwordData.newPassword });
+        const { error } = await supabase.auth.updateUser({
+            password: passwordData.newPassword,
+            data: { force_password_change: false }
+        });
 
         if (error) {
             toast.error(error.message);
@@ -207,8 +210,8 @@ export default function AdminProfilePage() {
                                             onClick={() => handleLanguageChange(lang.code)}
                                             disabled={isPending}
                                             className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${locale === lang.code
-                                                    ? 'bg-primary/10 border-primary shadow-sm ring-1 ring-primary/20'
-                                                    : 'bg-background border-border hover:bg-muted hover:border-primary/50'
+                                                ? 'bg-primary/10 border-primary shadow-sm ring-1 ring-primary/20'
+                                                : 'bg-background border-border hover:bg-muted hover:border-primary/50'
                                                 } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             <div className="relative w-8 h-6 mb-2 shadow-sm rounded overflow-hidden">

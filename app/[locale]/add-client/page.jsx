@@ -3,10 +3,196 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit, Hammer } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit, Hammer, Key, Lock, ShieldCheck, Loader2, CheckCircle2 } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
 import { getAvatarUrl } from '@/lib/avatar';
 import CountdownTimer from '@/components/CountdownTimer';
+
+// Bulk Reset Animation Component
+function BulkResetAnimation({ newPassword, accessPassword, onComplete, onCancel }) {
+    const [users, setUsers] = useState([]);
+    const [currentIdx, setCurrentIdx] = useState(-1);
+    const [completed, setCompleted] = useState(false);
+    const [error, setError] = useState(null);
+    const scrollRef = useRef(null);
+    const [isResetting, setIsResetting] = useState(false);
+
+    useEffect(() => {
+        if (isResetting) return;
+
+        const startReset = async () => {
+            setIsResetting(true);
+            try {
+                // 1. Fetch all users first to populate the list
+                const res = await fetch('/api/admin/customers?limit=1000');
+                const data = await res.json();
+
+                if (!data.customers || data.customers.length === 0) {
+                    throw new Error("Nessun cliente trovato.");
+                }
+
+                setUsers(data.customers);
+
+                // 2. Start the actual reset process in background
+                const resetRes = await fetch('/api/admin/bulk-reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password: newPassword,
+                        accessPassword: accessPassword
+                    })
+                });
+
+                if (!resetRes.ok) {
+                    const errorData = await resetRes.json();
+                    throw new Error(errorData.error || "Errore durante il reset.");
+                }
+
+            } catch (err) {
+                console.error("Reset failed:", err);
+                setError(err.message);
+            }
+        };
+
+        startReset();
+    }, [newPassword, accessPassword]);
+
+    // Animation Loop
+    useEffect(() => {
+        if (users.length === 0 || completed || error) return;
+
+        const interval = setInterval(() => {
+            setCurrentIdx(prev => {
+                const next = prev + 1;
+
+                // If we reached the end
+                if (next >= users.length) {
+                    clearInterval(interval);
+                    setCompleted(true);
+                    return prev;
+                }
+
+                // Auto scroll
+                if (scrollRef.current) {
+                    const activeElement = scrollRef.current.children[next];
+                    if (activeElement) {
+                        activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+
+                return next;
+            });
+        }, 50); // Fast animation
+
+        return () => clearInterval(interval);
+    }, [users, completed, error]);
+
+    if (error) {
+        return (
+            <div className="p-6 text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <AlertTriangle className="h-8 w-8 text-red-600" />
+                </div>
+                <h2 className="text-xl font-bold text-red-800 mb-2">Errore Reset</h2>
+                <p className="text-red-600 mb-6">{error}</p>
+                <button onClick={onCancel} className="bg-red-600 text-white px-6 py-2 rounded-lg">Chiudi</button>
+            </div>
+        );
+    }
+
+    if (completed) {
+        return (
+            <div className="p-8 text-center space-y-6">
+                <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <CheckCircle2 className="h-12 w-12 text-green-600" />
+                </div>
+                <div>
+                    <h2 className="text-2xl font-bold mb-2 text-green-600">Reset Completato!</h2>
+                    <p className="text-gray-500">
+                        Password aggiornata con successo per {users.length} clienti.
+                    </p>
+                </div>
+                <button
+                    onClick={onComplete}
+                    className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl shadow-lg shadow-green-200 font-bold"
+                >
+                    Torna alla Dashboard
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col h-[600px]">
+            {/* Header Status */}
+            <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="relative w-12 h-12">
+                        <motion.div
+                            className="w-full h-full border-2 border-indigo-100 rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Lock className="h-5 w-5 text-indigo-600" />
+                        </div>
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-gray-800">Aggiornamento in corso...</h3>
+                        <p className="text-xs text-gray-500">Elaborazione {currentIdx + 1} di {users.length}</p>
+                    </div>
+                </div>
+                <div className="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full font-bold">
+                    {users.length > 0 ? Math.round(((currentIdx + 1) / users.length) * 100) : 0}%
+                </div>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50/50" ref={scrollRef}>
+                {users.map((user, idx) => {
+                    const status = idx < currentIdx ? 'done' : idx === currentIdx ? 'processing' : 'pending';
+                    return (
+                        <motion.div
+                            key={user.id}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{
+                                opacity: 1,
+                                x: 0,
+                                scale: status === 'processing' ? 1.02 : 1,
+                                backgroundColor: status === 'processing' ? '#fff' : 'transparent'
+                            }}
+                            className={`p-3 rounded-xl border transition-all flex items-center gap-3 ${status === 'done'
+                                ? 'border-green-200 bg-green-50/50 opacity-50'
+                                : status === 'processing'
+                                    ? 'border-indigo-500 shadow-md'
+                                    : 'border-transparent opacity-40'
+                                }`}
+                        >
+                            <div className="relative shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                                    <img src={getAvatarUrl(user.first_name)} alt={user.first_name} className="w-full h-full" />
+                                </div>
+                                {status === 'done' && (
+                                    <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5 border border-white">
+                                        <CheckCircle2 className="h-2 w-2 text-white" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="font-medium truncate text-sm text-gray-900">{user.first_name} {user.last_name}</div>
+                            </div>
+                            <div className="text-xs font-medium whitespace-nowrap">
+                                {status === 'done' && <span className="text-green-600">Fatto</span>}
+                                {status === 'processing' && <span className="text-indigo-600 flex items-center gap-1">In corso <Loader2 className="h-3 w-3 animate-spin" /></span>}
+                                {status === 'pending' && <span className="text-gray-400">In attesa</span>}
+                            </div>
+                        </motion.div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+}
 
 export default function AddClientPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -77,6 +263,37 @@ export default function AddClientPage() {
 
     const [showDomainAlert, setShowDomainAlert] = useState(false);
     const [showMaintenance, setShowMaintenance] = useState(true);
+
+    // Set Password Modal State
+    const [clientToSetPassword, setClientToSetPassword] = useState(null);
+    const [newPassword, setNewPassword] = useState('');
+    const [isSettingPassword, setIsSettingPassword] = useState(false);
+
+    // Bulk Reset State
+    const [showBulkResetModal, setShowBulkResetModal] = useState(false);
+    const [bulkResetPassword, setBulkResetPassword] = useState('');
+    const [isBulkResetting, setIsBulkResetting] = useState(false);
+
+    const handleVerificationClick = (client) => {
+        let msg = "Stato Verifica: VERIFICATO ✅\n";
+
+        if (client.email_confirmed_at) {
+            msg += `\n📧 Metodo: Email`;
+            msg += `\n📅 Data: ${new Date(client.email_confirmed_at).toLocaleString('it-IT')}`;
+        } else if (client.phone_confirmed_at) {
+            msg += `\n📱 Metodo: Telefono`;
+            msg += `\n📅 Data: ${new Date(client.phone_confirmed_at).toLocaleString('it-IT')}`;
+        } else {
+            msg += `\n🛡️ Metodo: Admin / Manuale`;
+            msg += `\n(Data specifica non disponibile)`;
+        }
+
+        alert(msg);
+    };
+
+    const initiateBulkReset = () => {
+        setShowBulkResetModal(true);
+    };
 
     useEffect(() => {
         // Check domain
@@ -321,6 +538,7 @@ export default function AddClientPage() {
                     phoneNumber: formData.phoneNumber,
                     countryOfOrigin: formData.countryOfOrigin,
                     residence: formData.residence,
+                    password: formData.password, // Send the custom password
                     accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
                 })
             });
@@ -336,12 +554,10 @@ export default function AddClientPage() {
 
             setSuccess(true);
             setFormData({
-                firstName: '',
-                lastName: '',
-                email: '',
                 phoneNumber: '',
                 countryOfOrigin: '',
-                residence: ''
+                residence: '',
+                password: ''
             });
             // Refresh client list if open
             if (showClients) fetchClients(1, false);
@@ -475,6 +691,80 @@ export default function AddClientPage() {
         } catch (err) {
             console.error('Error deleting:', err);
             alert('Errore durante l\'eliminazione: ' + err.message);
+        }
+    };
+
+    const handleSetPasswordSubmit = async (e) => {
+        e.preventDefault();
+        if (newPassword.length < 6) {
+            alert('La password deve essere di almeno 6 caratteri');
+            return;
+        }
+
+        setIsSettingPassword(true);
+        try {
+            const res = await fetch('/api/admin/set-client-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    authId: clientToSetPassword.auth_id,
+                    newPassword: newPassword,
+                    accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to set password');
+            }
+
+            alert('Password aggiornata con successo!');
+            setClientToSetPassword(null);
+            setNewPassword('');
+        } catch (err) {
+            console.error('Error setting password:', err);
+            alert('Errore durante l\'aggiornamento della password: ' + err.message);
+        } finally {
+            setIsSettingPassword(false);
+        }
+    };
+
+    const handleBulkReset = async (e) => {
+        e.preventDefault();
+        if (bulkResetPassword.length < 6) {
+            alert('La password deve essere di almeno 6 caratteri');
+            return;
+        }
+
+        if (!confirm('SEI SICURO? Questa azione cambierà la password di TUTTI i clienti. Non può essere annullata.')) {
+            return;
+        }
+
+        setIsBulkResetting(true);
+        try {
+            const res = await fetch('/api/admin/bulk-reset-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    newPassword: bulkResetPassword,
+                    accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                })
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to bulk reset');
+            }
+
+            const result = await res.json();
+            alert(`Operazione completata! ${result.message}`);
+            setShowBulkResetModal(false);
+            setBulkResetPassword('');
+        } catch (err) {
+            console.error('Error bulk resetting:', err);
+            alert('Errore durante il reset massivo: ' + err.message);
+        } finally {
+            setIsBulkResetting(false);
         }
     };
 
@@ -786,6 +1076,157 @@ export default function AddClientPage() {
                                     Ho capito
                                 </button>
                             </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Set Password Modal */}
+            <AnimatePresence>
+                {clientToSetPassword && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-[75] flex items-center justify-center p-4 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden"
+                        >
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                        <Key className="w-5 h-5 text-yellow-600" />
+                                        Imposta Password
+                                    </h3>
+                                    <button onClick={() => setClientToSetPassword(null)} className="text-gray-400 hover:text-gray-600">
+                                        <XCircle className="w-6 h-6" />
+                                    </button>
+                                </div>
+                                <p className="text-gray-500 mb-4 text-sm">
+                                    Imposta una nuova password per <strong>{clientToSetPassword.first_name} {clientToSetPassword.last_name}</strong>.
+                                </p>
+                                <form onSubmit={handleSetPasswordSubmit} className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Nuova Password</label>
+                                        <input
+                                            type="text"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-yellow-500 outline-none transition-all"
+                                            placeholder="Min. 6 caratteri"
+                                            required
+                                            minLength={6}
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={isSettingPassword}
+                                        className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 rounded-xl transition-colors shadow-lg flex items-center justify-center gap-2"
+                                    >
+                                        {isSettingPassword ? 'Salvataggio...' : 'Aggiorna Password'}
+                                    </button>
+                                </form>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Bulk Reset Modal with Animation */}
+            <AnimatePresence>
+                {showBulkResetModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden"
+                        >
+                            {!isBulkResetting ? (
+                                <>
+                                    <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                                        <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                                            <Hammer className="w-5 h-5 text-red-600" />
+                                            Reset Password Massivo
+                                        </h3>
+                                        <button onClick={() => setShowBulkResetModal(false)} className="text-gray-400 hover:text-gray-600">
+                                            <XCircle className="w-6 h-6" />
+                                        </button>
+                                    </div>
+                                    <div className="p-6 space-y-4">
+                                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                                            <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <h4 className="font-bold text-amber-800">Attenzione</h4>
+                                                <p className="text-sm text-amber-700 mt-1">
+                                                    Questa azione resetterà la password per <strong>tutti i clienti</strong> che hanno ancora la password di default o non ne hanno una.
+                                                    <br /><br />
+                                                    I clienti che hanno già impostato una password personale <strong>NON</strong> verranno modificati.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Nuova Password Per Tutti</label>
+                                            <div className="relative">
+                                                <Key className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                                <input
+                                                    type="text"
+                                                    value={bulkResetPassword}
+                                                    onChange={(e) => setBulkResetPassword(e.target.value)}
+                                                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
+                                                    placeholder="Es. Baraka2025!"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
+                                        <button
+                                            onClick={() => setShowBulkResetModal(false)}
+                                            className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                                        >
+                                            Annulla
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                if (!bulkResetPassword || bulkResetPassword.length < 6) {
+                                                    alert("La password deve essere di almeno 6 caratteri.");
+                                                    return;
+                                                }
+                                                setIsBulkResetting(true);
+                                            }}
+                                            className="px-6 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+                                        >
+                                            Avvia Reset
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <BulkResetAnimation
+                                    newPassword={bulkResetPassword}
+                                    accessPassword={process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}
+                                    onComplete={() => {
+                                        setIsBulkResetting(false);
+                                        setShowBulkResetModal(false);
+                                        setBulkResetPassword('');
+                                        // Refresh list logic here if needed, or just reload
+                                        window.location.reload();
+                                    }}
+                                    onCancel={() => {
+                                        setIsBulkResetting(false);
+                                        setShowBulkResetModal(false);
+                                    }}
+                                />
+                            )}
                         </motion.div>
                     </motion.div>
                 )}
@@ -1358,15 +1799,15 @@ export default function AddClientPage() {
                                             <button
                                                 type="submit"
                                                 disabled={loading}
-                                                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.01] active:scale-[0.99] shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2 group"
                                             >
                                                 {loading ? (
-                                                    <>
-                                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                                        Aggiunta Cliente...
-                                                    </>
+                                                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                                 ) : (
-                                                    'Aggiungi Cliente'
+                                                    <>
+                                                        <span className="text-lg">Aggiungi Cliente</span>
+                                                        <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                                    </>
                                                 )}
                                             </button>
                                         </motion.form>
@@ -1396,15 +1837,41 @@ export default function AddClientPage() {
                             </button>
 
                             {showClients && (
-                                <button
-                                    onClick={() => setShowUnverifiedModal(true)}
-                                    className="bg-red-50 border border-red-100 text-red-600 font-medium px-6 rounded-xl shadow-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2"
-                                    title="Gestisci Utenti Non Verificati"
-                                >
-                                    <Users className="w-5 h-5" />
-                                    <span className="hidden sm:inline">Non Verificati</span>
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => setShowUnverifiedModal(true)}
+                                        className="bg-red-50 border border-red-100 text-red-600 font-medium px-6 rounded-xl shadow-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                                        title="Gestisci Utenti Non Verificati"
+                                    >
+                                        <Users className="w-5 h-5" />
+                                        <span className="hidden sm:inline">Non Verificati</span>
+                                    </button>
+                                    <button
+                                        onClick={initiateBulkReset}
+                                        className="bg-gray-900 text-white font-medium px-6 rounded-xl shadow-sm hover:bg-gray-800 transition-all flex items-center justify-center gap-2"
+                                        title="Reset Password Massivo (Solo Default/No Password)"
+                                    >
+                                        <Hammer className="w-5 h-5" />
+                                    </button>
+                                </>
                             )}
+                        </div>
+
+                        {/* Legend for Key Icons */}
+                        <div className="mt-6 bg-white p-4 rounded-xl border border-gray-100 flex flex-wrap gap-6 items-center text-sm text-gray-600">
+                            <span className="font-medium text-gray-900">Legenda Password:</span>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                <span>Password Personale (Sicuro)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                                <span>Password Default (Da Cambiare)</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                                <span>Nessuna Password / Errore</span>
+                            </div>
                         </div>
 
                         <AnimatePresence>
@@ -1518,9 +1985,13 @@ export default function AddClientPage() {
                                                             <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto pl-14 sm:pl-0">
                                                                 <div className="flex flex-col items-end gap-1">
                                                                     {client.is_verified ? (
-                                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                                        <button
+                                                                            onClick={() => handleVerificationClick(client)}
+                                                                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors cursor-pointer"
+                                                                            title="Clicca per dettagli verifica"
+                                                                        >
                                                                             <CheckCircle className="w-3 h-3" /> Verificato
-                                                                        </span>
+                                                                        </button>
                                                                     ) : (
                                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                                                             <XCircle className="w-3 h-3" /> Non Verificato
@@ -1528,20 +1999,37 @@ export default function AddClientPage() {
                                                                     )}
                                                                     <span className="text-xs text-gray-400 font-mono">{getTimeAgo(client.created_at)}</span>
                                                                 </div>
-                                                                <button
-                                                                    onClick={() => handleEditClick(client)}
-                                                                    className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                                                    title="Modifica Cliente"
-                                                                >
-                                                                    <Edit className="w-5 h-5" />
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => confirmDelete(client)}
-                                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                                    title="Elimina Cliente"
-                                                                >
-                                                                    <Trash2 className="w-5 h-5" />
-                                                                </button>
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setClientToSetPassword(client);
+                                                                            setNewPassword('');
+                                                                        }}
+                                                                        className={`p-2 rounded-lg transition-colors ${!client.auth_id
+                                                                            ? 'text-red-600 hover:bg-red-50' // No auth (Red)
+                                                                            : (client.user_metadata?.force_password_change === false || client.user_metadata?.force_password_change === 'false')
+                                                                                ? 'text-green-600 hover:bg-green-50' // Explicitly false -> Custom password (Green)
+                                                                                : 'text-amber-600 hover:bg-amber-50' // True or Missing -> Default/Unknown (Yellow)
+                                                                            }`}
+                                                                        title="Imposta Password"
+                                                                    >
+                                                                        <Key className="w-5 h-5" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleEditClick(client)}
+                                                                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                                        title="Modifica Cliente"
+                                                                    >
+                                                                        <Edit className="w-5 h-5" />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => confirmDelete(client)}
+                                                                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                                        title="Elimina Cliente"
+                                                                    >
+                                                                        <Trash2 className="w-5 h-5" />
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </motion.div>
                                                     ))}
@@ -1583,7 +2071,7 @@ export default function AddClientPage() {
             </footer>
 
             {/* Maintenance Modal */}
-            {/* <AnimatePresence>
+            <AnimatePresence>
                 {showMaintenance && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -1610,7 +2098,7 @@ export default function AddClientPage() {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence> */}
+            </AnimatePresence>
 
             {/* Floating Download Button */}
             <motion.button

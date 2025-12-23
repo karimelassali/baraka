@@ -9,25 +9,38 @@ export async function GET(request) {
   const cookieStore = await cookies();
   const supabase = await createClient(cookieStore);
 
-  // Verify admin access
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const { searchParams } = new URL(request.url);
+  const accessPassword = searchParams.get('accessPassword') || request.headers.get('x-access-password');
+  const envPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+
+  console.log(`[API Customers] Auth check. AccessPassword provided: ${!!accessPassword}, Matches Env: ${accessPassword === envPassword}`);
+
+  // Verify access: Either via Supabase Admin User OR via Shared Password
+  let isAuthorized = false;
+
+  // 1. Check Shared Password
+  if (accessPassword && accessPassword === envPassword) {
+    isAuthorized = true;
+  } else {
+    // 2. Check Supabase Auth (Admin User)
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .eq('is_active', true)
+        .single();
+
+      if (!adminError && adminData) {
+        isAuthorized = true;
+      }
+    }
+  }
+
+  if (!isAuthorized) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  // Check if the user is an admin
-  const { data: adminData, error: adminError } = await supabase
-    .from('admin_users')
-    .select('id')
-    .eq('auth_id', user.id)
-    .eq('is_active', true)
-    .single();
-
-  if (adminError || !adminData) {
-    return NextResponse.json({ error: 'Access denied: Admin role required' }, { status: 403 });
-  }
-
-  const { searchParams } = new URL(request.url);
 
   const search = searchParams.get('search');
   const name = searchParams.get('name');
@@ -69,12 +82,22 @@ export async function GET(request) {
     query = query.ilike('residence', `%${residence}%`);
   }
 
+  console.log(`[API Customers] Request params: limit=${limit}, offset=${offset}, skip_auth=${searchParams.get('skip_auth')}`);
+
   const { data: customers, count, error: customerError } = await query;
 
   if (customerError) {
     console.error('Error fetching customers:', customerError);
     return NextResponse.json({ error: customerError.message }, { status: 500 });
   }
+
+  console.log(`[API Customers] Found ${customers?.length || 0} customers (Total: ${count})`);
+
+  // --- ENHANCEMENT: Fetch Auth Data for these customers ---
+  // We need to get the actual Auth User object to check 'user_metadata' and 'email_confirmed_at'
+  // accurately, as the database view might be out of sync or missing protected metadata.
+
+  const skipAuth = searchParams.get('skip_auth') === 'true';
 
   // --- ENHANCEMENT: Fetch Auth Data for these customers ---
   // We need to get the actual Auth User object to check 'user_metadata' and 'email_confirmed_at'
@@ -83,7 +106,7 @@ export async function GET(request) {
   // Extract auth_ids from the fetched customers
   const authIds = customers.map(c => c.auth_id).filter(id => id);
 
-  if (authIds.length > 0) {
+  if (!skipAuth && authIds.length > 0) {
     // Unfortunately, listUsers doesn't support "in" filter for IDs directly in a simple way without iterating
     // But for a page of 20-50 users, we can fetch them. 
     // Actually, 'listUsers' is for ALL users. 'getUserById' is one by one.

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit, Hammer, Key, Lock, ShieldCheck, Loader2, CheckCircle2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit, Hammer, Key, Lock, ShieldCheck, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
 import { getAvatarUrl } from '@/lib/avatar';
 import CountdownTimer from '@/components/CountdownTimer';
@@ -16,18 +16,33 @@ function BulkResetAnimation({ newPassword, accessPassword, onComplete, onCancel 
     const [error, setError] = useState(null);
     const scrollRef = useRef(null);
     const [isResetting, setIsResetting] = useState(false);
+    const [resetStats, setResetStats] = useState(null);
 
     useEffect(() => {
         if (isResetting) return;
 
         const startReset = async () => {
+            const passwordToUse = accessPassword || process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+            console.log("Starting reset with accessPassword:", passwordToUse ? "***" : "MISSING");
+
             setIsResetting(true);
             try {
                 // 1. Fetch all users first to populate the list
-                const res = await fetch('/api/admin/customers?limit=1000');
+                // Restore limit to 1000 and skip_auth for performance
+                // Pass accessPassword via Header for better security/reliability
+                const res = await fetch(`/api/admin/customers?limit=1000&skip_auth=true`, {
+                    headers: {
+                        'x-access-password': passwordToUse
+                    }
+                });
                 const data = await res.json();
 
+                if (!res.ok) {
+                    throw new Error(data.error || "Errore nel recupero dei clienti.");
+                }
+
                 if (!data.customers || data.customers.length === 0) {
+                    console.error("No customers found:", data);
                     throw new Error("Nessun cliente trovato.");
                 }
 
@@ -38,8 +53,8 @@ function BulkResetAnimation({ newPassword, accessPassword, onComplete, onCancel 
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        password: newPassword,
-                        accessPassword: accessPassword
+                        newPassword: newPassword, // Ensure key matches API expectation (newPassword vs password)
+                        accessPassword: passwordToUse
                     })
                 });
 
@@ -47,6 +62,9 @@ function BulkResetAnimation({ newPassword, accessPassword, onComplete, onCancel 
                     const errorData = await resetRes.json();
                     throw new Error(errorData.error || "Errore durante il reset.");
                 }
+
+                const resultData = await resetRes.json();
+                setResetStats(resultData);
 
             } catch (err) {
                 console.error("Reset failed:", err);
@@ -109,7 +127,9 @@ function BulkResetAnimation({ newPassword, accessPassword, onComplete, onCancel 
                 <div>
                     <h2 className="text-2xl font-bold mb-2 text-green-600">Reset Completato!</h2>
                     <p className="text-gray-500">
-                        Password aggiornata con successo per {users.length} clienti.
+                        {resetStats?.stats
+                            ? `Operazione completata su ${resetStats.stats.total} clienti (Aggiornati: ${resetStats.stats.updated}, Creati: ${resetStats.stats.created}).`
+                            : (resetStats?.message || `Password aggiornata con successo per ${users.length} clienti.`)}
                     </p>
                 </div>
                 <button
@@ -123,72 +143,30 @@ function BulkResetAnimation({ newPassword, accessPassword, onComplete, onCancel 
     }
 
     return (
-        <div className="flex flex-col h-[600px]">
-            {/* Header Status */}
-            <div className="p-6 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="relative w-12 h-12">
-                        <motion.div
-                            className="w-full h-full border-2 border-indigo-100 rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <Lock className="h-5 w-5 text-indigo-600" />
-                        </div>
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-gray-800">Aggiornamento in corso...</h3>
-                        <p className="text-xs text-gray-500">Elaborazione {currentIdx + 1} di {users.length}</p>
-                    </div>
-                </div>
-                <div className="text-xs bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full font-bold">
-                    {users.length > 0 ? Math.round(((currentIdx + 1) / users.length) * 100) : 0}%
+        <div className="flex flex-col items-center justify-center p-12 space-y-8">
+            <div className="relative w-24 h-24">
+                <motion.div
+                    className="w-full h-full border-4 border-indigo-100 border-t-indigo-600 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <Lock className="h-8 w-8 text-indigo-600" />
                 </div>
             </div>
 
-            {/* List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50/50" ref={scrollRef}>
-                {users.map((user, idx) => {
-                    const status = idx < currentIdx ? 'done' : idx === currentIdx ? 'processing' : 'pending';
-                    return (
-                        <motion.div
-                            key={user.id}
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{
-                                opacity: 1,
-                                x: 0,
-                                scale: status === 'processing' ? 1.02 : 1,
-                                backgroundColor: status === 'processing' ? '#fff' : 'transparent'
-                            }}
-                            className={`p-3 rounded-xl border transition-all flex items-center gap-3 ${status === 'done'
-                                ? 'border-green-200 bg-green-50/50 opacity-50'
-                                : status === 'processing'
-                                    ? 'border-indigo-500 shadow-md'
-                                    : 'border-transparent opacity-40'
-                                }`}
-                        >
-                            <div className="relative shrink-0">
-                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                                    <img src={getAvatarUrl(user.first_name)} alt={user.first_name} className="w-full h-full" />
-                                </div>
-                                {status === 'done' && (
-                                    <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-0.5 border border-white">
-                                        <CheckCircle2 className="h-2 w-2 text-white" />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate text-sm text-gray-900">{user.first_name} {user.last_name}</div>
-                            </div>
-                            <div className="text-xs font-medium whitespace-nowrap">
-                                {status === 'done' && <span className="text-green-600">Fatto</span>}
-                                {status === 'processing' && <span className="text-indigo-600 flex items-center gap-1">In corso <Loader2 className="h-3 w-3 animate-spin" /></span>}
-                                {status === 'pending' && <span className="text-gray-400">In attesa</span>}
-                            </div>
-                        </motion.div>
-                    );
-                })}
+            <div className="text-center space-y-2">
+                <h3 className="text-xl font-bold text-gray-800">Elaborazione in corso...</h3>
+                <p className="text-gray-500">L'operazione potrebbe richiedere alcuni secondi.</p>
+            </div>
+
+            <div className="w-full max-w-xs bg-gray-100 rounded-full h-2 overflow-hidden">
+                <motion.div
+                    className="h-full bg-indigo-600"
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 20, ease: "linear" }} // Fake progress since it's a batch request
+                />
             </div>
         </div>
     );
@@ -274,6 +252,10 @@ export default function AddClientPage() {
     const [bulkResetPassword, setBulkResetPassword] = useState('');
     const [isBulkResetting, setIsBulkResetting] = useState(false);
 
+    // Bulk Unverify State
+    const [showBulkUnverifyModal, setShowBulkUnverifyModal] = useState(false);
+    const [isBulkUnverifying, setIsBulkUnverifying] = useState(false);
+
     const handleVerificationClick = (client) => {
         let msg = "Stato Verifica: VERIFICATO ✅\n";
 
@@ -293,6 +275,31 @@ export default function AddClientPage() {
 
     const initiateBulkReset = () => {
         setShowBulkResetModal(true);
+    };
+
+    const handleBulkUnverify = async () => {
+        setIsBulkUnverifying(true);
+        try {
+            const res = await fetch('/api/admin/bulk-unverify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                })
+            });
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Errore durante l\'operazione');
+
+            alert(data.message);
+            setShowBulkUnverifyModal(false);
+            window.location.reload();
+        } catch (err) {
+            console.error('Unverify failed:', err);
+            alert('Errore: ' + err.message);
+        } finally {
+            setIsBulkUnverifying(false);
+        }
     };
 
     useEffect(() => {
@@ -1232,6 +1239,60 @@ export default function AddClientPage() {
                 )}
             </AnimatePresence>
 
+            {/* Bulk Unverify Modal */}
+            <AnimatePresence>
+                {showBulkUnverifyModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0.95 }}
+                            className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden"
+                        >
+                            <div className="p-6 border-b border-gray-100">
+                                <div className="flex items-center gap-3 text-amber-600 mb-2">
+                                    <ShieldAlert className="w-8 h-8" />
+                                    <h3 className="text-xl font-bold">Rimuovi Verifica a Tutti</h3>
+                                </div>
+                                <p className="text-gray-500 text-sm">
+                                    Stai per rimuovere lo stato "Verificato" a <strong>TUTTI</strong> i clienti.
+                                    Questa azione è irreversibile e richiederà una nuova verifica (email/telefono) per tutti gli utenti.
+                                </p>
+                            </div>
+
+                            <div className="p-6 bg-gray-50 flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowBulkUnverifyModal(false)}
+                                    className="px-6 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                                    disabled={isBulkUnverifying}
+                                >
+                                    Annulla
+                                </button>
+                                <button
+                                    onClick={handleBulkUnverify}
+                                    className="px-6 py-3 rounded-xl bg-amber-600 text-white font-bold hover:bg-amber-700 transition-colors shadow-lg shadow-amber-200 flex items-center gap-2"
+                                    disabled={isBulkUnverifying}
+                                >
+                                    {isBulkUnverifying ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            Elaborazione...
+                                        </>
+                                    ) : (
+                                        <>Conferma Rimozione</>
+                                    )}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Domain Alert Modal */}
             <AnimatePresence>
                 {showDomainAlert && (
@@ -1853,6 +1914,13 @@ export default function AddClientPage() {
                                     >
                                         <Hammer className="w-5 h-5" />
                                     </button>
+                                    <button
+                                        onClick={() => setShowBulkUnverifyModal(true)}
+                                        className="bg-amber-100 text-amber-700 border border-amber-200 font-medium px-6 rounded-xl shadow-sm hover:bg-amber-200 transition-all flex items-center justify-center gap-2"
+                                        title="Rimuovi Verifica a Tutti"
+                                    >
+                                        <ShieldAlert className="w-5 h-5" />
+                                    </button>
                                 </>
                             )}
                         </div>
@@ -2071,7 +2139,7 @@ export default function AddClientPage() {
             </footer>
 
             {/* Maintenance Modal */}
-            <AnimatePresence>
+            {/* <AnimatePresence>
                 {showMaintenance && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -2098,7 +2166,7 @@ export default function AddClientPage() {
                         </motion.div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence> */}
 
             {/* Floating Download Button */}
             <motion.button

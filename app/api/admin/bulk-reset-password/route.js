@@ -125,7 +125,7 @@ export async function POST(request) {
                         authId,
                         {
                             password: newPassword,
-                            email_confirm: true,
+                            // email_confirm: true, // REMOVED: Do not auto-verify on password reset
                             user_metadata: { force_password_change: true }
                         }
                     );
@@ -147,7 +147,7 @@ export async function POST(request) {
                     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
                         email: customer.email,
                         password: newPassword,
-                        email_confirm: true,
+                        // email_confirm: true, // REMOVED: Do not auto-verify on password reset
                         user_metadata: {
                             first_name: customer.first_name,
                             last_name: customer.last_name,
@@ -194,7 +194,14 @@ export async function POST(request) {
 
         return NextResponse.json({
             success: true,
-            message: `Operation complete. Updated: ${usersToUpdate.length}, Created: ${usersToCreate.length}. Success: ${successCount}, Failed: ${failCount}`
+            message: `Operation complete. Updated: ${usersToUpdate.length}, Created: ${usersToCreate.length}. Success: ${successCount}, Failed: ${failCount}`,
+            stats: {
+                updated: usersToUpdate.length,
+                created: usersToCreate.length,
+                success: successCount,
+                failed: failCount,
+                total: usersToUpdate.length + usersToCreate.length
+            }
         });
 
     } catch (error) {

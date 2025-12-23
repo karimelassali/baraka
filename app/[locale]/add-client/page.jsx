@@ -539,13 +539,12 @@ export default function AddClientPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: formData.email,
-                    password: 'TempPassword123!', // Temporary password
+                    password: 'TempPassword123!', // Temporary default password
                     firstName: formData.firstName,
                     lastName: formData.lastName,
                     phoneNumber: formData.phoneNumber,
                     countryOfOrigin: formData.countryOfOrigin,
                     residence: formData.residence,
-                    password: formData.password, // Send the custom password
                     accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
                 })
             });
@@ -561,10 +560,12 @@ export default function AddClientPage() {
 
             setSuccess(true);
             setFormData({
+                firstName: '',
+                lastName: '',
+                email: '',
                 phoneNumber: '',
                 countryOfOrigin: '',
-                residence: '',
-                password: ''
+                residence: ''
             });
             // Refresh client list if open
             if (showClients) fetchClients(1, false);
@@ -1195,6 +1196,10 @@ export default function AddClientPage() {
                                                 />
                                             </div>
                                         </div>
+
+                                        <p className="text-red-600 text-xs italic bg-red-50 p-2 rounded-lg border border-red-200">
+                                            ⚠️ Attenzione: Questa operazione utilizza molte risorse del database. Usare con cautela e solo quando necessario.
+                                        </p>
                                     </div>
                                     <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                                         <button
@@ -1262,6 +1267,9 @@ export default function AddClientPage() {
                                 <p className="text-gray-500 text-sm">
                                     Stai per rimuovere lo stato "Verificato" a <strong>TUTTI</strong> i clienti.
                                     Questa azione è irreversibile e richiederà una nuova verifica (email/telefono) per tutti gli utenti.
+                                </p>
+                                <p className="text-amber-600 text-xs mt-3 italic bg-amber-50 p-2 rounded-lg border border-amber-200">
+                                    ⚠️ Attenzione: Questa operazione utilizza molte risorse del database. Usare con cautela e solo quando necessario.
                                 </p>
                             </div>
 

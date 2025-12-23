@@ -36,16 +36,33 @@ export async function GET(request) {
         if (customersError) throw customersError;
 
         // Map the view data to match the expected frontend structure
-        const enrichedCustomers = customers.map(customer => {
+        const enrichedCustomers = await Promise.all(customers.map(async (customer) => {
             const isDummyEmail = customer.auth_email?.endsWith('@noemail.baraka');
-            const isVerified = !!customer.email_confirmed_at && !isDummyEmail;
+            let isVerified = !!customer.email_confirmed_at && !isDummyEmail;
+            let userMetadata = customer.user_metadata || {};
+
+            // Fetch auth data to get accurate user_metadata (including force_password_change)
+            if (customer.auth_id) {
+                try {
+                    const { data: { user }, error } = await supabaseAdmin.auth.admin.getUserById(customer.auth_id);
+                    if (user && !error) {
+                        // Update verification status from auth
+                        isVerified = !!(user.email_confirmed_at || user.phone_confirmed_at);
+                        // Merge user_metadata
+                        userMetadata = user.user_metadata || {};
+                    }
+                } catch (err) {
+                    console.error(`Error fetching auth for user ${customer.auth_id}:`, err);
+                }
+            }
 
             return {
                 ...customer,
                 is_verified: isVerified,
-                email_confirmed_at: customer.email_confirmed_at
+                email_confirmed_at: customer.email_confirmed_at,
+                user_metadata: userMetadata
             };
-        });
+        }));
 
         return NextResponse.json({
             clients: enrichedCustomers,

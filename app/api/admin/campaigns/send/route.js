@@ -5,7 +5,38 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getCurrentUser } from '../../../../../lib/auth/server';
-import { sendBulkMessages } from '../../../../../lib/services/twilioService';
+
+// Twilio credentials
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_SMS_NUMBER || process.env.TWILIO_PHONE_NUMBER;
+
+// Function to send SMS via Twilio API
+async function sendSms(to, body) {
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+
+  const formData = new URLSearchParams();
+  formData.append('Body', body);
+  formData.append('To', to);
+  formData.append('From', TWILIO_PHONE_NUMBER);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Basic ' + Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64'),
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: formData.toString()
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result.message || 'Failed to send SMS');
+  }
+
+  return result;
+}
 
 export async function POST(request) {
   const cookieStore = await cookies();
@@ -21,6 +52,13 @@ export async function POST(request) {
   // Validate message
   if (!message || message.trim().length === 0) {
     return NextResponse.json({ error: 'Message is required' }, { status: 400 });
+  }
+
+  // Check Twilio configuration
+  if (!TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+    return NextResponse.json({
+      error: 'SMS service not configured. Please set TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER environment variables.'
+    }, { status: 500 });
   }
 
   // Use admin client to bypass RLS and ensure access to views
@@ -55,70 +93,69 @@ export async function POST(request) {
     return NextResponse.json({ error: 'No customers found matching the criteria' }, { status: 400 });
   }
 
-  // Prepare recipients for bulk sending
-  // For WhatsApp compliance, we use template messages by default
-  const recipients = customers.map(customer => ({
-    phoneNumber: customer.phone_number,
-    message: message, // This will be ignored if using template
-    variables: {
-      "1": customer.first_name || "Customer",
-      "2": message // Use the message as one of the template variables
-    },
-    customerId: customer.id
-  }));
+  // Send SMS to each customer
+  const results = {
+    total: customers.length,
+    success: 0,
+    failed: 0,
+    details: []
+  };
 
-  let twilioResults = null;
-  let twilioError = null;
-
-  // Try to send via Twilio using template (true) or custom message (false)
-  // WhatsApp requires approved templates, so we use template by default
-  try {
-    twilioResults = await sendBulkMessages(recipients, true); // Use template
-  } catch (error) {
-    console.error('Twilio bulk send error:', error);
-    twilioError = error.message;
+  for (const customer of customers) {
+    try {
+      await sendSms(customer.phone_number, message);
+      results.success++;
+      results.details.push({
+        customerId: customer.id,
+        phone: customer.phone_number,
+        success: true
+      });
+    } catch (error) {
+      results.failed++;
+      results.details.push({
+        customerId: customer.id,
+        phone: customer.phone_number,
+        success: false,
+        error: error.message
+      });
+      console.error(`Failed to send SMS to ${customer.phone_number}:`, error.message);
+    }
   }
 
-  // Store campaign in database regardless of Twilio success
+  // Store campaign in database
   const messagesToInsert = customers.map((customer, index) => {
-    const twilioDetail = twilioResults?.details?.[index];
-
+    const detail = results.details[index];
     return {
       customer_id: customer.id,
       message_content: message,
-      template_name: 'TEST',
-      message_type: 'PROMOTIONAL',
-      status: twilioDetail?.success ? 'sent' : 'failed',
-      error_message: twilioDetail?.error || twilioError || null
+      template_name: null,
+      message_type: 'SMS',
+      status: detail?.success ? 'sent' : 'failed',
+      error_message: detail?.error || null
     };
   });
 
   if (messagesToInsert.length > 0) {
+    // Try to insert into sms_messages table, fallback to whatsapp_messages if not exists
     const { error: insertError } = await supabase
-      .from('whatsapp_messages')
+      .from('sms_messages')
       .insert(messagesToInsert);
 
     if (insertError) {
-      console.error('Error saving messages:', insertError);
-      return NextResponse.json({ error: insertError.message }, { status: 500 });
-    }
-  }
+      // If sms_messages table doesn't exist, try whatsapp_messages
+      const { error: fallbackError } = await supabase
+        .from('whatsapp_messages')
+        .insert(messagesToInsert);
 
-  // Prepare response message
-  let responseMessage = '';
-  if (twilioResults) {
-    responseMessage = `Campaign processed: ${twilioResults.success} sent successfully, ${twilioResults.failed} failed out of ${twilioResults.total} total`;
-  } else {
-    responseMessage = `Campaign saved to database for ${customers.length} customers, but WhatsApp delivery failed: ${twilioError}`;
+      if (fallbackError) {
+        console.error('Error saving messages:', fallbackError);
+        // Don't return error as SMS was already sent
+      }
+    }
   }
 
   return NextResponse.json({
-    message: responseMessage,
-    results: {
-      total: customers.length,
-      success: twilioResults?.success || 0,
-      failed: twilioResults?.failed || customers.length,
-      twilioError: twilioError
-    }
+    message: `SMS Campaign completed: ${results.success} sent successfully, ${results.failed} failed out of ${results.total} total`,
+    results
   });
 }

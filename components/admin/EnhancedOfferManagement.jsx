@@ -22,7 +22,10 @@ import {
   Edit,
   Trash2,
   Maximize2,
-  Star
+  Star,
+  Link as LinkIcon,
+  MessageSquare,
+  Copy
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -540,6 +543,17 @@ export default function EnhancedOfferManagement() {
     }
   };
 
+  const handleCopyLink = (offer) => {
+    const link = `${window.location.origin}/offers/${offer.id}`;
+    navigator.clipboard.writeText(link);
+    alert('Link copied to clipboard!');
+  };
+
+  const handleSendSms = (offer) => {
+    // Navigate to campaigns page
+    window.location.href = '/admin/campaigns';
+  };
+
   return (
     <motion.div
       className="space-y-6"
@@ -680,6 +694,32 @@ export default function EnhancedOfferManagement() {
                             className="h-8 w-8 p-0"
                           >
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDelete(offer.id)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleCopyLink(offer)}
+                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            title="Copy Public Link"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleSendSms(offer)}
+                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            title="Send as SMS Campaign"
+                          >
+                            <MessageSquare className="h-4 w-4" />
                           </Button>
                           <Button
                             size="sm"

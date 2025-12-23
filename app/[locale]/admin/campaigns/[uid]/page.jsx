@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -8,9 +8,10 @@ import {
     Loader2,
     Send,
     ArrowLeft,
-    MessageCircle,
-    Smartphone,
-    User
+    MessageSquare,
+    User,
+    XCircle,
+    AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
@@ -22,50 +23,116 @@ export default function CampaignExecutionPage() {
     const [campaign, setCampaign] = useState(null);
     const [currentIdx, setCurrentIdx] = useState(-1);
     const [completed, setCompleted] = useState(false);
+    const [results, setResults] = useState([]); // Track individual results
+    const [stats, setStats] = useState({ sent: 0, failed: 0 });
+    const [isSending, setIsSending] = useState(false);
     const scrollRef = useRef(null);
+    const sendingRef = useRef(false); // Prevent double-sending
 
     useEffect(() => {
         // Load campaign data
         const data = sessionStorage.getItem(`campaign_${params.uid}`);
         if (data) {
-            setCampaign(JSON.parse(data));
+            const parsed = JSON.parse(data);
+            setCampaign(parsed);
+            // Initialize results array
+            setResults(parsed.users.map(u => ({ id: u.id, status: 'pending' })));
         } else {
             // If no data found, redirect back
-            // router.push('/admin/campaigns');
+            router.push('/admin/campaigns');
         }
-    }, [params.uid]);
+    }, [params.uid, router]);
 
+    // Function to send SMS to a single user
+    const sendSmsToUser = useCallback(async (user, message) => {
+        try {
+            const response = await fetch('/api/admin/campaigns/send-one', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phoneNumber: user.phone_number,
+                    message: message,
+                    customerId: user.id,
+                    customerName: `${user.first_name} ${user.last_name}`
+                }),
+            });
+
+            const result = await response.json();
+            return { success: result.success, error: result.error || null };
+        } catch (error) {
+            console.error(`Error sending to ${user.phone_number}:`, error);
+            return { success: false, error: error.message };
+        }
+    }, []);
+
+    // Start sending when campaign is loaded
     useEffect(() => {
-        if (!campaign || completed) return;
+        if (!campaign || isSending || sendingRef.current) return;
 
-        const interval = setInterval(() => {
-            setCurrentIdx(prev => {
-                const next = prev + 1;
-                if (next >= campaign.users.length) {
-                    clearInterval(interval);
-                    setCompleted(true);
-                    return prev;
-                }
+        const startSending = async () => {
+            if (sendingRef.current) return;
+            sendingRef.current = true;
+            setIsSending(true);
+
+            for (let i = 0; i < campaign.users.length; i++) {
+                const user = campaign.users[i];
+
+                // Update current index to show "sending" state
+                setCurrentIdx(i);
 
                 // Auto scroll to keep active user in view
-                if (scrollRef.current) {
-                    const activeElement = scrollRef.current.children[next];
-                    if (activeElement) {
-                        activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+                if (scrollRef.current && scrollRef.current.children[i]) {
+                    scrollRef.current.children[i].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
                 }
 
-                return next;
-            });
-        }, 1500); // 1.5s per user
+                // Actually send the SMS
+                const result = await sendSmsToUser(user, campaign.message);
 
-        return () => clearInterval(interval);
-    }, [campaign, completed]);
+                // Update results with error message if failed
+                setResults(prev => {
+                    const updated = [...prev];
+                    updated[i] = {
+                        id: user.id,
+                        status: result.success ? 'sent' : 'failed',
+                        error: result.error
+                    };
+                    return updated;
+                });
+
+                // Update stats
+                setStats(prev => ({
+                    sent: result.success ? prev.sent + 1 : prev.sent,
+                    failed: result.success ? prev.failed : prev.failed + 1
+                }));
+
+                // Small delay before next to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            setCompleted(true);
+            setIsSending(false);
+
+            // Clean up sessionStorage
+            sessionStorage.removeItem(`campaign_${params.uid}`);
+        };
+
+        startSending();
+    }, [campaign, isSending, sendSmsToUser, params.uid]);
+
+    // Get status for a user
+    const getUserStatus = (idx) => {
+        if (idx < currentIdx) return results[idx]?.status || 'pending';
+        if (idx === currentIdx && !completed) return 'sending';
+        return 'pending';
+    };
 
     if (!campaign) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
-                <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             </div>
         );
     }
@@ -76,11 +143,12 @@ export default function CampaignExecutionPage() {
             <div className="flex items-center justify-between">
                 <Button
                     variant="ghost"
-                    onClick={() => router.back()}
+                    onClick={() => router.push('/admin/campaigns')}
                     className="gap-2"
+                    disabled={isSending}
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    Back to Campaigns
+                    {isSending ? 'Sending in progress...' : 'Back to Campaigns'}
                 </Button>
                 <div className="text-sm text-muted-foreground font-mono">
                     ID: {params.uid}
@@ -111,14 +179,24 @@ export default function CampaignExecutionPage() {
                                             animate={{ scale: [1, 1.1, 1] }}
                                             transition={{ repeat: Infinity, duration: 2 }}
                                         >
-                                            <Send className="h-8 w-8 text-indigo-600" />
+                                            <Send className="h-8 w-8 text-blue-600" />
                                         </motion.div>
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-bold mb-2">Sending Campaign...</h2>
+                                        <h2 className="text-2xl font-bold mb-2">📱 Sending SMS...</h2>
                                         <p className="text-muted-foreground">
-                                            Processing recipient {currentIdx + 1} of {campaign.users.length}
+                                            Sending to recipient {currentIdx + 1} of {campaign.users.length}
                                         </p>
+                                        <div className="mt-4 flex justify-center gap-4 text-sm">
+                                            <span className="text-green-600 flex items-center gap-1">
+                                                <CheckCircle2 className="h-4 w-4" /> {stats.sent} sent
+                                            </span>
+                                            {stats.failed > 0 && (
+                                                <span className="text-red-600 flex items-center gap-1">
+                                                    <XCircle className="h-4 w-4" /> {stats.failed} failed
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </motion.div>
                             ) : (
@@ -128,18 +206,25 @@ export default function CampaignExecutionPage() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     className="space-y-6"
                                 >
-                                    <div className="w-32 h-32 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                                        <CheckCircle2 className="h-16 w-16 text-green-600 dark:text-green-400" />
+                                    <div className={`w-32 h-32 ${stats.failed === 0 ? 'bg-green-100 dark:bg-green-900/30' : 'bg-amber-100 dark:bg-amber-900/30'} rounded-full flex items-center justify-center mx-auto mb-6`}>
+                                        {stats.failed === 0 ? (
+                                            <CheckCircle2 className="h-16 w-16 text-green-600 dark:text-green-400" />
+                                        ) : (
+                                            <AlertTriangle className="h-16 w-16 text-amber-600 dark:text-amber-400" />
+                                        )}
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-bold mb-2 text-green-600 dark:text-green-400">Campaign Completed!</h2>
+                                        <h2 className={`text-2xl font-bold mb-2 ${stats.failed === 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                            Campaign Completed!
+                                        </h2>
                                         <p className="text-muted-foreground">
-                                            Successfully sent to {campaign.users.length} recipients.
+                                            ✅ {stats.sent} sent successfully
+                                            {stats.failed > 0 && <>, ❌ {stats.failed} failed</>}
                                         </p>
                                     </div>
                                     <Button
                                         onClick={() => router.push('/admin/campaigns')}
-                                        className="bg-green-600 hover:bg-green-700 text-white"
+                                        className="bg-blue-600 hover:bg-blue-700 text-white"
                                     >
                                         Start New Campaign
                                     </Button>
@@ -151,10 +236,10 @@ export default function CampaignExecutionPage() {
                     {/* Message Preview */}
                     <GlassCard className="p-6">
                         <h3 className="font-semibold mb-4 flex items-center gap-2">
-                            <MessageCircle className="h-4 w-4 text-indigo-600" />
-                            Message Content
+                            <MessageSquare className="h-4 w-4 text-blue-600" />
+                            SMS Message
                         </h3>
-                        <div className="bg-muted/30 p-4 rounded-xl text-sm whitespace-pre-wrap border border-border/50">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl text-sm whitespace-pre-wrap border border-blue-200 dark:border-blue-800">
                             {campaign.message}
                         </div>
                     </GlassCard>
@@ -168,14 +253,15 @@ export default function CampaignExecutionPage() {
                                 <User className="h-4 w-4" />
                                 Recipients Queue
                             </h3>
-                            <span className="text-xs bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-1 rounded-full font-medium">
+                            <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full font-medium">
                                 {Math.round(((currentIdx + 1) / campaign.users.length) * 100)}%
                             </span>
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-4 space-y-3" ref={scrollRef}>
                             {campaign.users.map((user, idx) => {
-                                const status = idx < currentIdx ? 'sent' : idx === currentIdx ? 'sending' : 'pending';
+                                const status = getUserStatus(idx);
+                                const errorReason = results[idx]?.error;
 
                                 return (
                                     <motion.div
@@ -185,13 +271,14 @@ export default function CampaignExecutionPage() {
                                             opacity: 1,
                                             x: 0,
                                             scale: status === 'sending' ? 1.02 : 1,
-                                            backgroundColor: status === 'sending' ? 'rgba(var(--primary), 0.05)' : 'transparent'
                                         }}
                                         className={`p-3 rounded-xl border transition-all flex items-center gap-3 ${status === 'sent'
                                             ? 'border-green-200 bg-green-50/50 dark:border-green-900/30 dark:bg-green-900/10'
-                                            : status === 'sending'
-                                                ? 'border-indigo-500 shadow-md bg-indigo-50 dark:bg-indigo-900/20'
-                                                : 'border-border/50 bg-muted/10 opacity-60'
+                                            : status === 'failed'
+                                                ? 'border-red-200 bg-red-50/50 dark:border-red-900/30 dark:bg-red-900/10'
+                                                : status === 'sending'
+                                                    ? 'border-blue-500 shadow-md bg-blue-50 dark:bg-blue-900/20'
+                                                    : 'border-border/50 bg-muted/10 opacity-60'
                                             }`}
                                     >
                                         <div className="relative">
@@ -207,6 +294,11 @@ export default function CampaignExecutionPage() {
                                                     <CheckCircle2 className="h-3 w-3 text-white" />
                                                 </div>
                                             )}
+                                            {status === 'failed' && (
+                                                <div className="absolute -bottom-1 -right-1 bg-red-500 rounded-full p-0.5 border-2 border-white dark:border-gray-900">
+                                                    <XCircle className="h-3 w-3 text-white" />
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
@@ -216,6 +308,11 @@ export default function CampaignExecutionPage() {
                                             <div className="text-xs text-muted-foreground truncate">
                                                 {user.phone_number}
                                             </div>
+                                            {status === 'failed' && errorReason && (
+                                                <div className="text-xs text-red-500 truncate mt-0.5" title={errorReason}>
+                                                    ⚠️ {errorReason.length > 50 ? errorReason.substring(0, 50) + '...' : errorReason}
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="text-xs font-medium whitespace-nowrap">
@@ -224,8 +321,13 @@ export default function CampaignExecutionPage() {
                                                     Sent <CheckCircle2 className="h-3 w-3" />
                                                 </span>
                                             )}
+                                            {status === 'failed' && (
+                                                <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
+                                                    Failed <XCircle className="h-3 w-3" />
+                                                </span>
+                                            )}
                                             {status === 'sending' && (
-                                                <span className="text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                                                <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1">
                                                     Sending <Loader2 className="h-3 w-3 animate-spin" />
                                                 </span>
                                             )}

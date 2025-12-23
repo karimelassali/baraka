@@ -33,6 +33,28 @@
     "privacy_policy": "Privacy Policy",
     "terms_of_service": "Terms of Service"
   },
+  "GlobalSourcing": {
+    "title": "Sourced Globally, Delivered Locally",
+    "description": "We bring you the finest authentic products from around the world, ensuring premium quality for your home.",
+    "countries": {
+      "morocco": {
+        "name": "Morocco",
+        "product": "Spices & Oils"
+      },
+      "italy": {
+        "name": "Italy",
+        "product": "Pasta & Sauces"
+      },
+      "saudi_arabia": {
+        "name": "Saudi Arabia",
+        "product": "Premium Dates"
+      },
+      "turkey": {
+        "name": "Turkey",
+        "product": "Delights & Tea"
+      }
+    }
+  },
   "PaymentMethods": {
     "title": "Accepted Payment Methods",
     "cash": {

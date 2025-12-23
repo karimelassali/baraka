@@ -33,6 +33,28 @@
     "privacy_policy": "Informativa sulla Privacy",
     "terms_of_service": "Termini di Servizio"
   },
+  "GlobalSourcing": {
+    "title": "Eccellenze dal Mondo, Vicino a Te",
+    "description": "Ti portiamo i migliori prodotti autentici da tutto il mondo, garantendo una qualità superiore per la tua casa.",
+    "countries": {
+      "morocco": {
+        "name": "Marocco",
+        "product": "Spezie e Oli"
+      },
+      "italy": {
+        "name": "Italia",
+        "product": "Pasta e Sughi"
+      },
+      "saudi_arabia": {
+        "name": "Arabia Saudita",
+        "product": "Datteri Premium"
+      },
+      "turkey": {
+        "name": "Turchia",
+        "product": "Delizie e Tè"
+      }
+    }
+  },
   "PaymentMethods": {
     "title": "Metodi di Pagamento Accettati",
     "cash": {

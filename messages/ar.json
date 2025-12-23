@@ -33,6 +33,28 @@
     "privacy_policy": "سياسة الخصوصية",
     "terms_of_service": "شروط الخدمة"
   },
+  "GlobalSourcing": {
+    "title": "مصادر عالمية، تسليم محلي",
+    "description": "نقدم لك أجود المنتجات الأصلية من جميع أنحاء العالم، لضمان جودة ممتازة لمنزلك.",
+    "countries": {
+      "morocco": {
+        "name": "المغرب",
+        "product": "توابل وزيوت"
+      },
+      "italy": {
+        "name": "إيطاليا",
+        "product": "مكرونة وصلصات"
+      },
+      "saudi_arabia": {
+        "name": "السعودية",
+        "product": "تمور فاخرة"
+      },
+      "turkey": {
+        "name": "تركيا",
+        "product": "حلقوم وشاي"
+      }
+    }
+  },
   "PaymentMethods": {
     "title": "طرق الدفع المقبولة",
     "cash": {

@@ -4,6 +4,44 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { useTranslations } from 'next-intl';
+import { Marquee } from "@/components/ui/marquee";
+
+const ReviewCard = ({ review }) => {
+    return (
+        <div
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 relative w-[350px] mx-4 h-full flex flex-col justify-between"
+        >
+            <Quote className="absolute top-6 right-6 w-8 h-8 text-red-100" />
+
+            <div>
+                <div className="flex items-center mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                        {review.name.charAt(0)}
+                    </div>
+                    <div className="ml-4">
+                        <h4 className="font-bold text-black">{review.name}</h4>
+                        <div className="flex text-yellow-400">
+                            {[...Array(5)].map((_, i) => (
+                                <Star
+                                    key={i}
+                                    className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-gray-200"}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <p className="text-gray-600 italic mb-4 line-clamp-4">
+                    &quot;{review.comment}&quot;
+                </p>
+            </div>
+
+            <p className="text-gray-400 text-xs font-medium mt-auto">
+                {review.date}
+            </p>
+        </div>
+    );
+};
 
 export default function ReviewsSection() {
     const [reviews, setReviews] = useState([]);
@@ -53,55 +91,26 @@ export default function ReviewsSection() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background py-4 sm:py-20 md:py-20 xl:py-20">
                     {loading ? (
-                        [...Array(3)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-xl h-48 animate-pulse shadow-sm" />
-                        ))
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                            {[...Array(3)].map((_, i) => (
+                                <div key={i} className="bg-white rounded-xl h-48 animate-pulse shadow-sm" />
+                            ))}
+                        </div>
                     ) : reviews.length > 0 ? (
-                        reviews.map((review, index) => (
-                            <motion.div
-                                key={review.id}
-                                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 relative"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                whileHover={{ y: -5, boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)" }}
-                            >
-                                <Quote className="absolute top-6 right-6 w-8 h-8 text-red-100" />
-
-                                <div className="flex items-center mb-6">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
-                                        {review.name.charAt(0)}
-                                    </div>
-                                    <div className="ml-4">
-                                        <h4 className="font-bold text-black">{review.name}</h4>
-                                        <div className="flex text-yellow-400">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    className={`w-4 h-4 ${i < review.rating ? "fill-current" : "text-gray-200"}`}
-                                                />
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <p className="text-gray-600 italic mb-4 line-clamp-4">
-                                    &quot;{review.comment}&quot;
-                                </p>
-
-                                <p className="text-gray-400 text-xs font-medium">
-                                    {review.date}
-                                </p>
-                            </motion.div>
-                        ))
+                        <Marquee pauseOnHover className="[--duration:20s]">
+                            {reviews.map((review) => (
+                                <ReviewCard key={review.id} review={review} />
+                            ))}
+                        </Marquee>
                     ) : (
                         <div className="col-span-full text-center py-12 text-gray-500">
                             {t('no_reviews')}
                         </div>
                     )}
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-white dark:from-background"></div>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-white dark:from-background"></div>
                 </div>
             </div>
         </section>

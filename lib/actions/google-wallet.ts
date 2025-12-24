@@ -3,6 +3,13 @@
 import jwt from "jsonwebtoken";
 import { createClient } from "@/lib/supabase/server";
 
+// --- Configuration Constants ---
+// You can easily swap these URLs later
+const BRAND_COLOR = "#E63946"; // Default vibrant red/pink or use user's #0096ff
+const LOGO_IMAGE_URL = "https://www.googleusercontent.com/eff/w1920-h1080/logo.png"; // Placeholder: Ensure this is a valid publicly accessible URL
+const HERO_IMAGE_URL = "https://www.googleusercontent.com/eff/w1920-h1080/hero.png"; // Placeholder: Ensure this is a valid publicly accessible URL
+// ------------------------------
+
 export async function generateGoogleWalletLink(userId: string) {
     try {
         const supabase = await createClient();
@@ -13,7 +20,7 @@ export async function generateGoogleWalletLink(userId: string) {
         // 1. Fetch User Data
         const { data: customer, error: customerError } = await supabase
             .from("customers")
-            .select("id, first_name, last_name")
+            .select("id, first_name, last_name, phone_number")
             .eq("auth_id", userId)
             .single();
 
@@ -93,15 +100,40 @@ export async function generateGoogleWalletLink(userId: string) {
             classId: classId,
             state: "ACTIVE",
             accountId: customer.id,
+            hexBackgroundColor: BRAND_COLOR,
+
+            // Branding Images (Optional: Requires valid URLs hosted on Google or public HTTPS)
+            // heroImage: {
+            //     sourceUri: { uri: HERO_IMAGE_URL }
+            // },
+            // logo: {
+            //     sourceUri: { uri: LOGO_IMAGE_URL }
+            // },
+
             barcode: {
-                type: "QR_CODE",
+                type: "CODE_128", // Changed from QR_CODE
                 value: customer.id,
                 alternateText: customer.id,
             },
             textModulesData: [
-                { header: "النقاط", body: totalPoints.toString() },
-                { header: "الاسم", body: `${customer.first_name} ${customer.last_name}` },
+                { header: "Punti", body: totalPoints.toString() },
+                { header: "Nome", body: `${customer.first_name} ${customer.last_name}` },
+                { header: "ID Socio", body: customer.id.substring(0, 8).toUpperCase() } // Shortened ID for display
             ],
+            linksModuleData: {
+                uris: [
+                    {
+                        uri: "https://elassali.netlify.app",
+                        description: "Visita il sito",
+                        id: "link_website"
+                    },
+                    {
+                        uri: "tel:+391234567890", // Could use customer.phone_number if needed
+                        description: "Chiama Baraka",
+                        id: "link_phone"
+                    }
+                ]
+            }
             // Check if reviewStatus is needed? usually "underReview" is default for drafts
             // but for a created class it should be fine.
         };

@@ -27,11 +27,18 @@ export default function ScanPage() {
 
         try {
             // 1. Fetch Customer Details
-            // The scanned ID is the customer UUID (id)
+            // The scanned ID is the first 12 chars of the UUID (no dashes, uppercase)
+            // We need to search by prefix matching
+            const scannedCode = decodedText.toLowerCase(); // Convert back to lowercase for matching
+
+            // Construct the UUID prefix pattern for LIKE query
+            // UUID format: xxxxxxxx-xxxx-... so first 12 chars without dashes = first 8 + first 4 of second segment
+            const uuidPrefix = scannedCode.slice(0, 8) + '-' + scannedCode.slice(8, 12);
+
             const { data: customerData, error: customerError } = await supabase
                 .from("customers")
                 .select("id, first_name, last_name, email")
-                .eq("id", decodedText)
+                .ilike("id", `${uuidPrefix}%`)
                 .single();
 
             if (customerError || !customerData) {

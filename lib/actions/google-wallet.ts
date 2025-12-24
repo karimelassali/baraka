@@ -111,8 +111,8 @@ export async function generateGoogleWalletLink(userId: string) {
             // },
 
             barcode: {
-                type: "CODE_128", // Changed from QR_CODE
-                value: customer.id,
+                type: "CODE_128",
+                value: customer.id.replace(/-/g, '').substring(0, 12).toUpperCase(), // Short ID for scanning
                 alternateText: customer.id,
             },
             textModulesData: [

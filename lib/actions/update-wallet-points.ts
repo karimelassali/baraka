@@ -105,10 +105,10 @@ export async function updateGoogleWalletPoints(userId: string, newPoints: number
         // 7. PATCH the Object
         const patchBody: any = {
             textModulesData: updatedTextModules,
-            // Force update barcode to CODE_128
+            // Force update barcode to CODE_128 with short ID
             barcode: {
                 type: "CODE_128",
-                value: customer.id,
+                value: customer.id.replace(/-/g, '').substring(0, 12).toUpperCase(), // Short ID for scanning
                 alternateText: customer.id,
             },
             // Branding & Links

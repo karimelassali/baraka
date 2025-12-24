@@ -1,93 +1,91 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
-import { Button } from "@/components/ui/button";
+import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from "html5-qrcode";
 
 const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
-    const [isScanning, setIsScanning] = useState(false);
     const scannerRef = useRef(null);
-    const readerId = "reader-custom";
-
-    const startScanning = async () => {
-        try {
-            const html5QrCode = new Html5Qrcode(readerId);
-            scannerRef.current = html5QrCode;
-
-            const config = {
-                fps: 10,
-                qrbox: { width: 300, height: 150 },
-                aspectRatio: 1.0
-            };
-
-            await html5QrCode.start(
-                { facingMode: "environment" }, // Prefer back camera
-                config,
-                (decodedText, decodedResult) => {
-                    onScanSuccess(decodedText, decodedResult);
-                    stopScanning();
-                },
-                (errorMessage) => {
-                    // connection errors etc.
-                    if (onScanFailure) onScanFailure(errorMessage);
-                }
-            );
-            setIsScanning(true);
-        } catch (err) {
-            console.error("Error starting scanner", err);
-            if (onScanFailure) onScanFailure(err);
-        }
-    };
-
-    const stopScanning = async () => {
-        if (scannerRef.current) {
-            try {
-                await scannerRef.current.stop();
-            } catch (err) {
-                console.warn("Failed to stop scanner (might not be running)", err);
-            }
-            try {
-                scannerRef.current.clear();
-            } catch (err) {
-                console.warn("Failed to clear scanner", err);
-            }
-            setIsScanning(false);
-            scannerRef.current = null;
-        }
-    };
+    const [scanError, setScanError] = useState(null);
 
     useEffect(() => {
-        // Cleanup on unmount
+        // Prevent multiple initializations
+        if (scannerRef.current) return;
+
+        const scannerId = "reader";
+
+        // Initialize scanner only if element exists
+        const element = document.getElementById(scannerId);
+        if (element && !scannerRef.current) {
+            try {
+                const scanner = new Html5QrcodeScanner(
+                    scannerId,
+                    {
+                        fps: 10,
+                        qrbox: { width: 300, height: 150 },
+                        aspectRatio: 1.0,
+                        showTorchButtonIfSupported: true,
+                        // Important: explicit formats
+                        formatsToSupport: [
+                            Html5QrcodeSupportedFormats.CODE_128,
+                            Html5QrcodeSupportedFormats.QR_CODE
+                        ]
+                    },
+                    /* verbose= */ false
+                );
+
+                scanner.render(
+                    (decodedText, decodedResult) => {
+                        scanner.clear(); // Stop automatically on success
+                        onScanSuccess(decodedText, decodedResult);
+                    },
+                    (error) => {
+                        // Suppress console logs for common failures
+                        // if (onScanFailure) onScanFailure(error);
+                    }
+                );
+
+                scannerRef.current = scanner;
+            } catch (err) {
+                console.error("Scanner init error:", err);
+                setScanError(err.message);
+            }
+        }
+
+        // Cleanup
         return () => {
             if (scannerRef.current) {
-                scannerRef.current.stop().catch(() => { }).finally(() => {
-                    try { scannerRef.current.clear(); } catch (e) { }
-                });
+                try {
+                    scannerRef.current.clear().catch(e => console.error(e));
+                } catch (e) { }
+                scannerRef.current = null;
             }
         };
-    }, []);
-
+    }, [onScanSuccess, onScanFailure]);
 
     return (
-        <div className="w-full max-w-md mx-auto flex flex-col items-center gap-4">
-            <div id={readerId} className="w-full h-[300px] bg-black rounded-lg overflow-hidden relative">
-                {!isScanning && (
-                    <div className="absolute inset-0 flex items-center justify-center text-white/50">
-                        Camera Off
-                    </div>
-                )}
-            </div>
+        <div className="w-full max-w-md mx-auto">
+            {/* Custom Styles to hide the ugly header/footer of the library */}
+            <style jsx global>{`
+                #reader__dashboard_section_csr span, 
+                #reader__status_span { 
+                    display: none !important; 
+                }
+                #reader__dashboard_section_swaplink {
+                    display: none !important;
+                }
+             `}</style>
 
-            {!isScanning && (
-                <Button onClick={startScanning} className="w-full">
-                    Start Camera Scan
-                </Button>
+            {scanError && (
+                <div className="p-4 bg-red-100 text-red-700 rounded mb-4">
+                    Error starting camera: {scanError}
+                </div>
             )}
-            {isScanning && (
-                <Button variant="destructive" onClick={stopScanning} className="w-full">
-                    Stop Camera
-                </Button>
-            )}
+
+            <div id="reader" className="w-full bg-gray-100 rounded-lg overflow-hidden"></div>
+
+            <p className="text-center text-sm text-gray-500 mt-2">
+                Point camera at the customer&apos;s barcode
+            </p>
         </div>
     );
 };

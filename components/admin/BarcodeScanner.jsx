@@ -9,7 +9,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
     return (
 
         <div className="w-full max-w-md mx-auto relative flex flex-col gap-6">
-            <div className="rounded-xl overflow-hidden shadow-lg bg-gray-100 relative min-h-[300px]">
+            <div className="relative w-full"> {/* Removed overflow-hidden and bg color */}
                 <QrReader
                     onResult={(result, error) => {
                         if (!!result) {

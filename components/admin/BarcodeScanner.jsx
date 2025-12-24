@@ -6,7 +6,7 @@ import { toast } from 'sonner'; // Assuming you use sonner or similar for toasts
 
 
 
-const RobustScanner = (onScanSuccess) => {
+const RobustScanner = ({ onScanSuccess }) => {
     const [manualCode, setManualCode] = useState("");
     const [isPaused, setIsPaused] = useState(false);
     const [error, setError] = useState(null);
@@ -20,7 +20,7 @@ const RobustScanner = (onScanSuccess) => {
                 setIsPaused(true);
                 // نشغل الصوت إذا أردت
                 // const audio = new Audio('/beep.mp3'); audio.play().catch(() => {});
-                
+
                 console.log("تم المسح بنجاح:", code);
                 onScanSuccess(code);
             }
@@ -47,7 +47,7 @@ const RobustScanner = (onScanSuccess) => {
 
     return (
         <div className="w-full max-w-md mx-auto flex flex-col gap-6">
-            
+
             {/* منطقة الكاميرا */}
             <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-black aspect-square border-4 border-black/10">
                 {!isPaused ? (
@@ -55,14 +55,14 @@ const RobustScanner = (onScanSuccess) => {
                         onScan={handleScan}
                         onError={handleError}
                         // إعدادات الكاميرا الخلفية وتنسيقات الباركود
-                        constraints={{ 
+                        constraints={{
                             facingMode: 'environment',
                             aspectRatio: 1.0 // مربع
                         }}
                         formats={[
-                            'qr_code', 
-                            'code_128', 
-                            'ean_13', 
+                            'qr_code',
+                            'code_128',
+                            'ean_13',
                             'code_39'
                         ]}
                         // إخفاء العناصر الزائدة
@@ -82,7 +82,7 @@ const RobustScanner = (onScanSuccess) => {
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900 text-white">
                         <div className="text-green-400 text-5xl mb-4">✓</div>
                         <p>تم المسح بنجاح</p>
-                        <button 
+                        <button
                             onClick={() => setIsPaused(false)}
                             className="mt-4 px-4 py-2 bg-white text-black rounded-full text-sm font-bold"
                         >
@@ -97,7 +97,7 @@ const RobustScanner = (onScanSuccess) => {
                         <div>
                             <p className="text-red-400 font-bold mb-2">تنبيه</p>
                             <p className="text-sm">{error}</p>
-                            <button 
+                            <button
                                 onClick={() => window.location.reload()}
                                 className="mt-4 px-4 py-2 bg-gray-700 rounded text-xs"
                             >
@@ -115,7 +115,7 @@ const RobustScanner = (onScanSuccess) => {
             {/* الإدخال اليدوي (Fallback) */}
             <form onSubmit={handleManualSubmit} className="flex flex-col gap-3 p-5 bg-white rounded-xl shadow-sm border border-gray-100">
                 <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="6" x="7" y="9" rx="2"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2" /><path d="M17 3h2a2 2 0 0 1 2 2v2" /><path d="M21 17v2a2 2 0 0 1-2 2h-2" /><path d="M7 21H5a2 2 0 0 1-2-2v-2" /><rect width="10" height="6" x="7" y="9" rx="2" /></svg>
                     Inserimento Manuale (ID Cliente)
                 </label>
                 <div className="flex gap-2">

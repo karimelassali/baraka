@@ -206,6 +206,7 @@
       "submit": "إكمال التسجيل",
       "processing": "جاري المعالجة...",
       "already_registered": "مسجل بالفعل؟",
+      "already_account": "هل لديك حساب بالفعل؟",
       "login_link": "سجل الدخول هنا",
       "steps": {
         "1": {

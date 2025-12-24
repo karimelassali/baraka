@@ -37,6 +37,15 @@ export default function GlobalSourcing() {
                     </motion.p>
                 </div>
 
+                <motion.div
+                    className="absolute top-10 right-0 w-64 h-64 opacity-10 pointer-events-none md:opacity-20"
+                    initial={{ opacity: 0, x: 100 }}
+                    whileInView={{ opacity: 0.1, x: 0 }}
+                    viewport={{ once: true }}
+                >
+                    <img src="/illus/undraw_around-the-world_vgcy.svg" alt="Global Sourcing" className="w-full h-full" />
+                </motion.div>
+
                 <div className="relative w-full h-[400px] md:h-[600px] flex items-center justify-center">
                     <DottedMap
                         markers={markers}

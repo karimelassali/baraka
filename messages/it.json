@@ -206,6 +206,7 @@
       "submit": "Completa Registrazione",
       "processing": "Elaborazione...",
       "already_registered": "Già registrato?",
+      "already_account": "Hai già un account?",
       "login_link": "Accedi qui",
       "steps": {
         "1": {

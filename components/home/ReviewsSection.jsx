@@ -89,6 +89,14 @@ export default function ReviewsSection() {
                             {t('subtitle')}
                         </motion.p>
                     </div>
+                    <motion.div
+                        className="hidden md:block w-48 h-48 opacity-80"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 0.8, scale: 1 }}
+                        viewport={{ once: true }}
+                    >
+                        <img src="/illus/undraw_online-review_08y6.svg" alt="Reviews" className="w-full h-full object-contain" />
+                    </motion.div>
                 </div>
 
                 <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-background py-4 sm:py-20 md:py-20 xl:py-20">

@@ -76,11 +76,11 @@ export default function Hero() {
                         >
                             {/* Placeholder for a hero image - using a nice gradient/pattern instead of empty box */}
                             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black to-transparent"></div>
-                            <img
+                                <img
                                 src="/logo.jpeg"
                                 alt="Baraka Store Logo"
                                 className="object-cover w-full h-full"
-                            />
+                                />
                         </motion.div>
 
                         <motion.div

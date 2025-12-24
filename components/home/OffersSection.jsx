@@ -102,6 +102,14 @@ export default function OffersSection() {
                         viewport={{ once: true }}
                         transition={{ delay: 0.2, duration: 0.5 }}
                     />
+                    <motion.div
+                        className="absolute right-0 top-0 hidden lg:block w-48 opacity-50"
+                        initial={{ x: 100, opacity: 0 }}
+                        whileInView={{ x: 0, opacity: 0.5 }}
+                        transition={{ duration: 0.8 }}
+                    >
+                        <img src="/illus/undraw_gift-joy_kqz4.svg" alt="Gift Joy" />
+                    </motion.div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

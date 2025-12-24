@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CountryFlag from "react-country-flag";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 // Step components
 const Step1 = ({ formData, updateForm, errors, t }) => (
@@ -156,51 +157,84 @@ const Step4 = ({ formData, updateForm, errors, t }) => (
     </motion.div>
 );
 
-const Step5 = ({ formData, updateForm, errors, t }) => (
-    <motion.div
-        initial={{ x: "100%", opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={{ x: "-100%", opacity: 0 }}
-        className="space-y-6"
-    >
-        <h2 className="text-2xl font-bold text-gray-900">{t('steps.5.title')}</h2>
-        <p className="text-gray-600">{t('steps.5.subtitle')}</p>
 
-        <div className="space-y-4">
-            <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">{t('steps.5.password')} *</label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => updateForm({ password: e.target.value })}
-                    placeholder={t('steps.5.password_placeholder')}
-                    className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.password ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                )}
-            </div>
 
-            <div>
-                <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-1">{t('steps.5.confirm_password')} *</label>
-                <input
-                    id="password_confirmation"
-                    name="password_confirmation"
-                    type="password"
-                    value={formData.password_confirmation}
-                    onChange={(e) => updateForm({ password_confirmation: e.target.value })}
-                    placeholder={t('steps.5.confirm_placeholder')}
-                    className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.password_confirmation ? "border-red-500" : "border-gray-300"}`}
-                />
-                {errors.password_confirmation && (
-                    <p className="text-red-500 text-sm mt-1">{errors.password_confirmation}</p>
-                )}
+const Step5 = ({ formData, updateForm, errors, t }) => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    return (
+        <motion.div
+            initial={{ x: "100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "-100%", opacity: 0 }}
+            className="space-y-6"
+        >
+            <h2 className="text-2xl font-bold text-gray-900">{t('steps.5.title')}</h2>
+            <p className="text-gray-600">{t('steps.5.subtitle')}</p>
+
+            <div className="space-y-4">
+                <div>
+                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">{t('steps.5.password')} *</label>
+                    <div className="relative">
+                        <input
+                            id="password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={(e) => updateForm({ password: e.target.value })}
+                            placeholder={t('steps.5.password_placeholder')}
+                            className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.password ? "border-red-500" : "border-gray-300"}`}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                        >
+                            {showPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
+                    </div>
+                    {errors.password && (
+                        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                    )}
+                </div>
+
+                <div>
+                    <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-1">{t('steps.5.confirm_password')} *</label>
+                    <div className="relative">
+                        <input
+                            id="password_confirmation"
+                            name="password_confirmation"
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.password_confirmation}
+                            onChange={(e) => updateForm({ password_confirmation: e.target.value })}
+                            placeholder={t('steps.5.confirm_placeholder')}
+                            className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.password_confirmation ? "border-red-500" : "border-gray-300"}`}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                        >
+                            {showConfirmPassword ? (
+                                <EyeOff className="h-5 w-5" />
+                            ) : (
+                                <Eye className="h-5 w-5" />
+                            )}
+                        </button>
+                    </div>
+                    {errors.password_confirmation && (
+                        <p className="text-red-500 text-sm mt-1">{errors.password_confirmation}</p>
+                    )}
+                </div>
             </div>
-        </div>
-    </motion.div>
-);
+        </motion.div>
+    );
+};
 
 const Step6 = ({ formData, updateForm, errors, t }) => (
     <motion.div
@@ -719,98 +753,139 @@ export default function RegistrationWizard() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center  p-6">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
             <motion.div
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35 }}
-                className="w-full max-w-3xl"
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-6xl bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row relative z-10"
             >
-                <div className="bg-white rounded-2xl shadow-2xl border border-black overflow-hidden">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-                        {/* Left visual panel */}
-                        <div className="hidden md:flex flex-col justify-center items-center gap-4 p-8 bg-gradient-to-br from-red-900 to-red-500 text-white">
-                            <div className="w-28 h-28 rounded-full bg-white/10 flex items-center justify-center">
-                                <img className="rounded-full w-full h-full" src="/logo.jpeg" alt="" />
-                            </div>
-                            <h2 className="text-2xl font-semibold">{t('join_community')}</h2>
-                            <p className="text-sm text-white/90 text-center px-2">
-                                {t('join_desc')}
-                            </p>
-                        </div>
+                {/* Left visual panel */}
+                <div className="hidden md:flex md:w-5/12 bg-red-600 relative flex-col justify-center items-center p-12 text-center text-white overflow-hidden">
+                    {/* Abstract background pattern */}
+                    <div className="absolute inset-0 opacity-10 pointer-events-none">
+                        <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <defs>
+                                <pattern id="grid-reg" width="10" height="10" patternUnits="userSpaceOnUse">
+                                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
+                                </pattern>
+                            </defs>
+                            <rect width="100" height="100" fill="url(#grid-reg)" />
+                        </svg>
+                    </div>
 
-                        {/* Form */}
-                        <div className="p-6 md:p-10">
-                            <header className="mb-4">
-                                <h1 className="text-2xl md:text-3xl font-bold text-red-600">
-                                    {t('title')}
-                                </h1>
-                                <p className="text-sm text-gray-600">{t('subtitle')}</p>
-                            </header>
+                    <div className="relative z-10">
+                        <motion.img
+                            src="/illus/undraw_online-profile_v9c1.svg"
+                            alt="Join Us"
+                            className="w-full max-w-sm mb-8 drop-shadow-md"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                        />
+                        <h2 className="text-3xl font-bold mb-4">{t('join_community')}</h2>
+                        <p className="text-red-100 text-lg">
+                            {t('join_desc')}
+                        </p>
+                    </div>
+                </div>
 
-                            {status.message && (
-                                <div
-                                    role="status"
-                                    className={`mb-4 px-4 py-3 rounded-md text-sm ${status.type === "success"
-                                        ? "bg-green-50 text-green-800"
-                                        : "bg-red-50 text-red-800"
-                                        }`}
-                                >
-                                    {status.message}
-                                </div>
-                            )}
+                {/* Form Panel */}
+                <div className="flex-1 p-8 md:p-12 lg:p-16 bg-white overflow-y-auto max-h-[90vh]">
+                    <div className="max-w-xl mx-auto">
+                        <header className="mb-8 text-center md:text-left">
+                            <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
+                                {t('title')}
+                            </h1>
+                            <p className="text-gray-500">{t('subtitle')}</p>
+                        </header>
 
-                            <ProgressBar currentStep={currentStep} totalSteps={totalSteps} t={t} />
+                        {status.message && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                role="status"
+                                className={`mb-6 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 ${status.type === "success"
+                                    ? "bg-green-50 text-green-700 border border-green-200"
+                                    : "bg-red-50 text-red-700 border border-red-200"
+                                    }`}
+                            >
+                                {status.type === "success" ? (
+                                    <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                ) : (
+                                    <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                )}
+                                {status.message}
+                            </motion.div>
+                        )}
 
+                        <ProgressBar currentStep={currentStep} totalSteps={totalSteps} t={t} />
+
+                        <div className="min-h-[300px] mt-8">
                             <AnimatePresence mode="wait">
                                 {renderCurrentStep()}
                             </AnimatePresence>
+                        </div>
 
-                            {/* Navigation buttons */}
-                            <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                        {/* Navigation buttons */}
+                        <div className="flex justify-between mt-10 pt-6 border-t border-gray-100">
+                            <button
+                                type="button"
+                                onClick={prevStep}
+                                disabled={currentStep === 1}
+                                className={`px-6 py-3 rounded-xl font-medium transition-colors ${currentStep === 1
+                                    ? "opacity-0 cursor-default"
+                                    : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                                    }`}
+                            >
+                                {t('back')}
+                            </button>
+
+                            {currentStep < totalSteps ? (
                                 <button
                                     type="button"
-                                    onClick={prevStep}
-                                    disabled={currentStep === 1}
-                                    className={`px-4 py-2 rounded-lg border ${currentStep === 1
-                                        ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400 border-gray-200"
-                                        : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                                    onClick={nextStep}
+                                    className="px-8 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                                >
+                                    {t('next')}
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={handleSubmit}
+                                    disabled={loading}
+                                    className={`px-8 py-3 rounded-xl font-medium shadow-md transition-all flex items-center gap-2 ${loading
+                                        ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                                        : "bg-red-600 hover:bg-red-700 text-white hover:shadow-lg"
                                         }`}
                                 >
-                                    {t('back')}
+                                    {loading ? (
+                                        <>
+                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            {t('processing')}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {t('submit')}
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </>
+                                    )}
                                 </button>
+                            )}
+                        </div>
 
-                                {currentStep < totalSteps ? (
-                                    <button
-                                        type="button"
-                                        onClick={nextStep}
-                                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                                    >
-                                        {t('next')}
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        onClick={handleSubmit}
-                                        disabled={loading}
-                                        className={`px-4 py-2 rounded-lg ${loading
-                                            ? "bg-gray-400 cursor-not-allowed"
-                                            : "bg-red-600 hover:bg-red-700 text-white"
-                                            }`}
-                                    >
-                                        {loading ? t('processing') : t('submit')}
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* micro footer */}
-                            <footer className="mt-4 text-xs text-gray-500">
-                                {t('already_registered')}{" "}
-                                <Link href="/auth/login" className="text-red-600 underline">{t('login_link')}</Link>
-                                <span className="block mt-1">
-                                    &copy; {new Date().getFullYear()} Baraka.
-                                </span>
-                            </footer>
+                        <div className="mt-8 text-center">
+                            <p className="text-sm text-gray-500">
+                                {t('already_account')} <Link href="/auth/login" className="text-red-600 font-medium hover:underline">{t('login_link')}</Link>
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -49,6 +49,17 @@ export default function About() {
                     </motion.p>
                 </div>
 
+                <div className="flex justify-center mb-12">
+                    <motion.img
+                        src="/illus/undraw_team-collaboration_phnf.svg"
+                        alt="Team Collaboration"
+                        className="h-48 md:h-64 object-contain"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5 }}
+                    />
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
                     {features.map((feature, index) => (
                         <motion.div

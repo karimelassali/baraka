@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { AddToGoogleWallet } from '@/components/wallet/AddToGoogleWallet';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -33,7 +34,7 @@ function Skeleton({ compact }) {
   );
 }
 
-export default function LoyaltyWallet({ compact = false }) {
+export default function LoyaltyWallet({ compact = false, user }) {
   const t = useTranslations('Dashboard.Wallet');
   const [points, setPoints] = useState(0);
   const [availablePoints, setAvailablePoints] = useState(0);
@@ -190,6 +191,12 @@ export default function LoyaltyWallet({ compact = false }) {
           </div>
         </div>
 
+        {user?.id && (
+          <div className="flex justify-center">
+            <AddToGoogleWallet userId={user.id} />
+          </div>
+        )}
+
         <div>
           <h4 className="text-sm font-semibold text-gray-900 mb-3 flex items-center justify-between">
             {t('recent_activity')}
@@ -247,6 +254,11 @@ export default function LoyaltyWallet({ compact = false }) {
               }}
               className="w-32 px-2 py-1 text-sm border border-gray-300 rounded-md"
             />
+          )}
+          {user?.id && (
+            <div className="h-[40px] flex items-center">
+              <AddToGoogleWallet userId={user.id} />
+            </div>
           )}
           <button
             onClick={handleDownloadStatement}

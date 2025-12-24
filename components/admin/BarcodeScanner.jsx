@@ -10,6 +10,9 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
 
     useEffect(() => {
         let stream = null;
+        let animationFrameId = null;
+        let barcodeDetector = null;
+        let scanning = true;
 
         const startCamera = async () => {
             try {
@@ -20,6 +23,12 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
                     setCameraActive(true);
+
+                    // Check if BarcodeDetector is supported (Chrome/Android)
+                    if ('BarcodeDetector' in window) {
+                        barcodeDetector = new window.BarcodeDetector({ formats: ['code_128', 'qr_code'] });
+                        detectBarcode();
+                    }
                 }
             } catch (err) {
                 console.error("Camera error:", err);
@@ -27,15 +36,45 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
             }
         };
 
+        const detectBarcode = async () => {
+            if (!videoRef.current || !barcodeDetector || !scanning) return;
+
+            try {
+                const barcodes = await barcodeDetector.detect(videoRef.current);
+                if (barcodes.length > 0 && scanning) {
+                    const code = barcodes[0].rawValue;
+                    console.log("Barcode detected:", code);
+                    scanning = false;
+                    // Stop camera and return result
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                    onScanSuccess(code, barcodes[0]);
+                    return;
+                }
+            } catch (err) {
+                // Ignore detection errors
+            }
+
+            // Keep scanning
+            if (scanning) {
+                animationFrameId = requestAnimationFrame(detectBarcode);
+            }
+        };
+
         startCamera();
 
         // Cleanup
         return () => {
+            scanning = false;
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
         };
-    }, []);
+    }, [onScanSuccess]);
 
     const handleManualSubmit = () => {
         if (manualCode.trim()) {
@@ -68,7 +107,7 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
             </div>
 
             <p className="text-center text-xs text-gray-400">
-                La scansione automatica non è disponibile. Usa l'inserimento manuale.
+                Punta la fotocamera verso il codice a barre.
             </p>
 
             {/* Manual Input */}

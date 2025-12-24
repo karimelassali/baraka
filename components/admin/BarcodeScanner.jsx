@@ -7,20 +7,18 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
     const [data, setData] = useState("No result");
 
     return (
-        <div className="w-full max-w-md mx-auto">
-            <div className="rounded-xl overflow-hidden shadow-lg bg-black">
+        <div className="w-full max-w-md mx-auto relative">
+            <div className="rounded-xl overflow-hidden shadow-lg bg-gray-100 relative min-h-[300px]">
                 <QrReader
                     onResult={(result, error) => {
                         if (!!result) {
                             setData(result?.text);
                             onScanSuccess(result?.text, result);
                         }
-
-                        if (!!error) {
-                            // console.info(error);
-                        }
                     }}
                     style={{ width: '100%' }}
+                    videoContainerStyle={{ paddingTop: '100%' }}
+                    videoStyle={{ objectFit: 'cover', position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
                     constraints={{ facingMode: 'environment' }}
                 />
             </div>

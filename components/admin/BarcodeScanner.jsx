@@ -60,10 +60,17 @@ const RobustScanner = ({ onScanSuccess }) => {
                             aspectRatio: 1.0 // مربع
                         }}
                         formats={[
-                            'qr_code',
                             'code_128',
+                            'code_39',
+                            'code_93',
+                            'codabar',
                             'ean_13',
-                            'code_39'
+                            'ean_8',
+                            'upc_a',
+                            'upc_e',
+                            'qr_code',
+                            'data_matrix',
+                            'itf'
                         ]}
                         // إخفاء العناصر الزائدة
                         components={{

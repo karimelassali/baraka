@@ -40,30 +40,33 @@ const BarcodeScanner = ({ onScanSuccess, onScanFailure }) => {
     };
 
     const stopScanning = async () => {
-        if (scannerRef.current && isScanning) {
+        if (scannerRef.current) {
             try {
                 await scannerRef.current.stop();
-                scannerRef.current.clear();
-                setIsScanning(false);
             } catch (err) {
-                console.error("Failed to stop scanner", err);
+                console.warn("Failed to stop scanner (might not be running)", err);
             }
+            try {
+                scannerRef.current.clear();
+            } catch (err) {
+                console.warn("Failed to clear scanner", err);
+            }
+            setIsScanning(false);
+            scannerRef.current = null;
         }
     };
 
     useEffect(() => {
+        // Cleanup on unmount
         return () => {
             if (scannerRef.current) {
-                // Cleanup unmount
-                try {
-                    if (scannerRef.current.isScanning) {
-                        scannerRef.current.stop().catch(e => console.error(e));
-                    }
-                    scannerRef.current.clear();
-                } catch (e) { /* ignore */ }
+                scannerRef.current.stop().catch(() => { }).finally(() => {
+                    try { scannerRef.current.clear(); } catch (e) { }
+                });
             }
         };
     }, []);
+
 
     return (
         <div className="w-full max-w-md mx-auto flex flex-col items-center gap-4">

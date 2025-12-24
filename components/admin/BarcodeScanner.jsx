@@ -19,7 +19,7 @@ const RobustScanner = ({ onScanSuccess }) => {
                 // نوقف المسح فوراً لتجنب التكرار
                 setIsPaused(true);
                 // نشغل الصوت إذا أردت
-                // const audio = new Audio('/beep.mp3'); audio.play().catch(() => {});
+                const audio = new Audio('/sounds/beep.mp3'); audio.play().catch(() => { });
 
                 console.log("تم المسح بنجاح:", code);
                 onScanSuccess(code);
@@ -60,17 +60,8 @@ const RobustScanner = ({ onScanSuccess }) => {
                             aspectRatio: 1.0 // مربع
                         }}
                         formats={[
-                            'code_128',
-                            'code_39',
-                            'code_93',
-                            'codabar',
-                            'ean_13',
-                            'ean_8',
-                            'upc_a',
-                            'upc_e',
-                            'qr_code',
-                            'data_matrix',
-                            'itf'
+                            'linear_codes',
+                            'matrix_codes'
                         ]}
                         // إخفاء العناصر الزائدة
                         components={{

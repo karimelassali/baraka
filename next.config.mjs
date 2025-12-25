@@ -5,9 +5,28 @@ const withNextIntl = createNextIntlPlugin('./i18n.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    experimental: {
-        reactCompiler: true,
-    },
+  experimental: {
+    reactCompiler: true,
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'api.dicebear.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wylwtwzontsevpgrjusa.supabase.co',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.meatupvegas.com',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default withSentryConfig(withNextIntl(nextConfig), {

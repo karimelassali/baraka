@@ -91,6 +91,13 @@
     "contact_us": "Contact Us",
     "quote": "We take pride in quality and customer satisfaction.",
     "team": "Baraka Team",
+    "quotes": {
+      "quote_1": "Quality is our top priority.",
+      "quote_2": "Satisfying our customers is our daily mission.",
+      "quote_3": "Fresh and genuine products, every day.",
+      "quote_4": "The taste of tradition, directly to your home.",
+      "quote_5": "Baraka: where quality meets convenience."
+    },
     "flip_words": [
       "Baraka",
       "Premium Quality",

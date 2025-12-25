@@ -91,6 +91,13 @@
     "contact_us": "Contattaci",
     "quote": "Siamo orgogliosi della qualità e della soddisfazione del cliente.",
     "team": "Team Baraka",
+    "quotes": {
+      "quote_1": "La qualità è la nostra priorità assoluta.",
+      "quote_2": "Soddisfare i nostri clienti è la nostra missione quotidiana.",
+      "quote_3": "Prodotti freschi e genuini, ogni giorno.",
+      "quote_4": "Il sapore della tradizione, direttamente a casa tua.",
+      "quote_5": "Baraka: dove la qualità incontra la convenienza."
+    },
     "flip_words": [
       "Baraka",
       "Qualità Premium",
@@ -547,10 +554,6 @@
           "description": "Recensioni in attesa di moderazione"
         }
       }
-    },
-    "Sidebar": {
-      "eid": "Eid al Adha",
-      "qr_codes": "Codici QR"
     },
     "Payments": {
       "title": "Gestione Pagamenti",
@@ -1060,6 +1063,8 @@
       }
     },
     "Sidebar": {
+      "eid": "Eid al Adha",
+      "qr_codes": "Codici QR",
       "admins": "Amministratori",
       "cat_overview": "Panoramica",
       "cat_users_orders": "Utenti e Ordini",

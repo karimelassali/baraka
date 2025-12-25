@@ -116,17 +116,19 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
     <>
       <div className={cn("h-20 flex items-center border-b border-border/50 bg-sidebar-accent/5 relative group transition-all duration-300", isCollapsed && !mobile ? "justify-center px-2" : "justify-center px-4")}>
         <motion.div
-          className="flex items-center space-x-3"
+          className="flex items-center space-x-3 cursor-pointer"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-primary/20 bg-background overflow-hidden shrink-0">
-            <img src="/images/logo.png" alt="Baraka Logo" className="w-full h-full object-contain" />
-          </div>
-          {(!isCollapsed || mobile) && (
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 tracking-tight whitespace-nowrap overflow-hidden">Baraka</span>
-          )}
+          <Link href="/" className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-primary/20 bg-background overflow-hidden shrink-0">
+              <img src="/images/logo.png" alt="Baraka Logo" className="w-full h-full object-contain" />
+            </div>
+            {(!isCollapsed || mobile) && (
+              <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 tracking-tight whitespace-nowrap overflow-hidden">Baraka</span>
+            )}
+          </Link>
         </motion.div>
 
         {/* Quick Customize Button */}

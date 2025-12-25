@@ -6,10 +6,10 @@ export default function ContactOptions() {
   return (
     <div className="text-lg text-gray-700 space-y-4">
       <p>
-        <strong>{t('email')}:</strong> <a href="mailto:contact@baraka.com" className="text-red-600 hover:underline">contact@baraka.com</a>
+        <strong>{t('email')}:</strong> <a href="mailto:baraka.csg@gmail.com" className="text-red-600 hover:underline">baraka.csg@gmail.com</a>
       </p>
       <p>
-        <strong>{t('phone')}:</strong> <a href="tel:+1234567890" className="text-red-600 hover:underline">+1234567890</a>
+        <strong>{t('phone')}:</strong> <a href="tel:+393245668944" className="text-red-600 hover:underline">+39 324 566 8944</a>
       </p>
     </div>
   );

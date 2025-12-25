@@ -52,8 +52,11 @@ export default function UserSidebar({
         <div id="dashboard-sidebar" className="hidden lg:flex flex-col h-screen sticky top-0 bg-white border-r border-gray-200 shadow-sm relative z-50 w-[280px] transition-all duration-300">
             {/* Logo Area */}
             <div className="h-24 flex items-center px-8 border-b border-gray-100 shrink-0">
-                <div className="flex items-center space-x-4">
-                    <div className="relative group cursor-pointer">
+                <div
+                    className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => router.push('/')}
+                >
+                    <div className="relative group">
                         <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                         <img
                             src="/logo.jpeg"

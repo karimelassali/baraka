@@ -1,11 +1,31 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations } from 'next-intl';
 import { FlipWords } from "@/components/ui/flip-words";
+import { useState, useEffect } from "react";
+import { quotes } from "@/lib/data/quotes";
+import Image from "next/image";
 
 export default function Hero() {
     const t = useTranslations('Hero');
+    const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+        const interval = setInterval(() => {
+            setCurrentQuoteIndex((prev) => {
+                let newIndex;
+                do {
+                    newIndex = Math.floor(Math.random() * quotes.length);
+                } while (newIndex === prev && quotes.length > 1);
+                return newIndex;
+            });
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <section className="relative bg-gradient-to-r from-red-50 to-white overflow-hidden">
@@ -32,7 +52,7 @@ export default function Hero() {
                         {t('description')}
                     </motion.p>
                     <motion.div
-                        className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
+                        className="flex flex-col sm:flex-row gap-4"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5, duration: 0.5 }}
@@ -76,25 +96,41 @@ export default function Hero() {
                         >
                             {/* Placeholder for a hero image - using a nice gradient/pattern instead of empty box */}
                             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-black to-transparent"></div>
-                                <img
+                            <Image
                                 src="/logo.jpeg"
                                 alt="Baraka Store Logo"
+                                fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                priority
                                 className="object-cover w-full h-full"
-                                />
+                            />
                         </motion.div>
 
                         <motion.div
-                            className="absolute -bottom-6 -right-6 bg-white p-6 rounded-xl shadow-xl w-3/4 border border-gray-100"
+                            className="absolute -bottom-6 ltr:-right-6 rtl:-left-6 bg-white p-6 rounded-xl shadow-xl w-3/4 border border-gray-100"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.8, duration: 0.5 }}
                             whileHover={{ y: -5 }}
                         >
-                            <p className="text-gray-700 italic font-medium">
-                                &quot;{t('quote')}&quot;
-                            </p>
+                            <div className="min-h-[60px] flex items-center">
+                                <AnimatePresence mode="wait">
+                                    {isMounted && (
+                                        <motion.p
+                                            key={currentQuoteIndex}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.5 }}
+                                            className="text-gray-700 italic font-medium"
+                                        >
+                                            &quot;{t(`quotes.${quotes[currentQuoteIndex]}`)}&quot;
+                                        </motion.p>
+                                    )}
+                                </AnimatePresence>
+                            </div>
                             <div className="flex items-center mt-4">
-                                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 font-bold text-xs mr-2">B</div>
+                                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 font-bold text-xs ltr:mr-2 rtl:ml-2">B</div>
                                 <p className="text-sm text-gray-500 font-semibold">{t('team')}</p>
                             </div>
                         </motion.div>

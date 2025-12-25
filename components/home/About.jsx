@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Award, Heart, ShieldCheck } from "lucide-react";
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 export default function About() {
     const t = useTranslations('About');
@@ -50,14 +51,19 @@ export default function About() {
                 </div>
 
                 <div className="flex justify-center mb-12">
-                    <motion.img
-                        src="/illus/undraw_team-collaboration_phnf.svg"
-                        alt="Team Collaboration"
-                        className="h-48 md:h-64 object-contain"
+                    <motion.div
+                        className="relative h-48 md:h-64 w-full max-w-md"
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.5 }}
-                    />
+                    >
+                        <Image
+                            src="/illus/undraw_team-collaboration_phnf.svg"
+                            alt="Team Collaboration"
+                            fill
+                            className="object-contain"
+                        />
+                    </motion.div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">

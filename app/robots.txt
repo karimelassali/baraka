@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://baraka-loyalty.vercel.app/sitemap.xml

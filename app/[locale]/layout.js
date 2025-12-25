@@ -34,13 +34,15 @@ export default async function RootLayout({ children, params }) {
 
   return (
     <>
-      <NextIntlClientProvider messages={messages}>
-        <Suspense fallback={null}>
-          <QRTracker />
-        </Suspense>
-        {children}
-        <Toaster />
-      </NextIntlClientProvider>
+      <div dir={direction} className="min-h-screen" suppressHydrationWarning>
+        <NextIntlClientProvider messages={messages}>
+          <Suspense fallback={null}>
+            <QRTracker />
+          </Suspense>
+          {children}
+          <Toaster />
+        </NextIntlClientProvider>
+      </div>
       <SpeedInsights />
       <Analytics />
     </>

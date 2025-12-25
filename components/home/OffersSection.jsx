@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Tag, ShoppingBag, ArrowRight } from "lucide-react";
 import { useTranslations } from 'next-intl';
+import Image from "next/image";
 
 export default function OffersSection() {
     const [offers, setOffers] = useState([]);
@@ -47,14 +48,20 @@ export default function OffersSection() {
             >
                 <div className="bg-gray-100 rounded-xl w-full sm:w-32 h-32 flex-shrink-0 overflow-hidden relative">
                     {offer.image_url ? (
-                        <img src={offer.image_url} alt={title} className="w-full h-full object-cover" />
+                        <Image
+                            src={offer.image_url}
+                            alt={title}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 640px) 100vw, 128px"
+                        />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
                             <Tag className="w-8 h-8" />
                         </div>
                     )}
                     {offer.badge_text && (
-                        <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                        <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded z-10">
                             {offer.badge_text}
                         </div>
                     )}
@@ -108,7 +115,13 @@ export default function OffersSection() {
                         whileInView={{ x: 0, opacity: 0.5 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <img src="/illus/undraw_gift-joy_kqz4.svg" alt="Gift Joy" />
+                        <Image
+                            src="/illus/undraw_gift-joy_kqz4.svg"
+                            alt="Gift Joy"
+                            width={192}
+                            height={150}
+                            className="w-full h-auto"
+                        />
                     </motion.div>
                 </div>
 

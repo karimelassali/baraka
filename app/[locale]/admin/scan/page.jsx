@@ -55,13 +55,19 @@ export default function ScanPage() {
                 const uuidPrefix = scannedCode.slice(0, 8) + '-' + scannedCode.slice(8, 12);
 
                 console.log("Trying prefix match with:", uuidPrefix);
+
+                // Use filter with text cast for UUID column
                 const result = await supabase
                     .from("customers")
                     .select("id, first_name, last_name, email")
-                    .ilike("id", `${uuidPrefix}%`)
-                    .single();
-                customerData = result.data;
-                customerError = result.error;
+                    .filter('id', 'ilike', `${uuidPrefix}%`)
+                    .limit(1);
+
+                if (result.data && result.data.length > 0) {
+                    customerData = result.data[0];
+                } else {
+                    customerError = result.error || { message: "No match found" };
+                }
             }
 
             if (customerError || !customerData) {

@@ -25,6 +25,11 @@ const nextConfig = {
         hostname: 'www.meatupvegas.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        pathname: '/**',
+      },
     ],
   },
 };

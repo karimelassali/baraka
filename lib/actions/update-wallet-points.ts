@@ -82,7 +82,39 @@ export async function updateGoogleWalletPoints(userId: string, newPoints: number
             throw new Error("Loyalty Object not found or has no text modules");
         }
 
-        // 6. Update Points & Header Labels (Migration to Italian)
+        // 6. Determine Tier Config based on newPoints
+        const getTierConfig = (points: number) => {
+            if (points >= 750) {
+                return {
+                    tierName: "Legend Member",
+                    hexBackgroundColor: "#881337", // rose-900
+                    heroImageUri: "https://placehold.co/1032x336/881337/FFFFFF/png?text=LEGEND+MEMBER", // Replace with real hosted image
+                };
+            } else if (points >= 500) {
+                return {
+                    tierName: "Gold Member",
+                    hexBackgroundColor: "#CA8A04", // yellow-600
+                    heroImageUri: "https://placehold.co/1032x336/CA8A04/FFFFFF/png?text=GOLD+MEMBER",
+                };
+            } else if (points >= 100) {
+                return {
+                    tierName: "Silver Member",
+                    hexBackgroundColor: "#64748B", // slate-500
+                    heroImageUri: "https://placehold.co/1032x336/64748B/FFFFFF/png?text=SILVER+MEMBER",
+                };
+            } else {
+                return {
+                    tierName: "Bronze Member",
+                    hexBackgroundColor: "#44403C", // stone-700
+                    heroImageUri: "https://placehold.co/1032x336/44403C/FFFFFF/png?text=BRONZE+MEMBER",
+                };
+            }
+        };
+
+        const tierConfig = getTierConfig(newPoints);
+        console.log(`Setting Wallet Tier to: ${tierConfig.tierName} (${tierConfig.hexBackgroundColor})`);
+
+        // 7. Update Points & Header Labels (Migration to Italian)
         const updatedTextModules = existingObject.textModulesData.map((module: any) => {
             // Update Points Label & Value
             if (["النقاط", "Points", "Punti"].includes(module.header)) {
@@ -99,10 +131,18 @@ export async function updateGoogleWalletPoints(userId: string, newPoints: number
                     header: "Nome" // Force rename to Italian
                 };
             }
+            // Update Tier Label (if exists, or we might need to add it logic separately but let's assume it's one of the modules)
+            if (["Tier", "Livello", "Stato"].includes(module.header)) {
+                return {
+                    ...module,
+                    header: "Livello",
+                    body: tierConfig.tierName
+                };
+            }
             return module;
         });
 
-        // 7. PATCH the Object
+        // 8. PATCH the Object
         const patchBody: any = {
             textModulesData: updatedTextModules,
             // Force update barcode to CODE_128 with short ID
@@ -111,8 +151,19 @@ export async function updateGoogleWalletPoints(userId: string, newPoints: number
                 value: customer.id.replace(/-/g, '').substring(0, 12).toUpperCase(), // Short ID for scanning
                 alternateText: customer.id,
             },
-            // Branding & Links
-            hexBackgroundColor: "#E63946", // Use BRAND_COLOR from config
+            // Dynamic Branding based on Tier
+            hexBackgroundColor: tierConfig.hexBackgroundColor,
+            heroImage: {
+                sourceUri: {
+                    uri: tierConfig.heroImageUri
+                },
+                contentDescription: {
+                    defaultValue: {
+                        language: "en-US",
+                        value: `${tierConfig.tierName} Banner`
+                    }
+                }
+            },
             linksModuleData: {
                 uris: [
                     {

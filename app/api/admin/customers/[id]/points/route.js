@@ -140,6 +140,12 @@ export async function PUT(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Update last_scan_date for the customer (Activity Tracking)
+  await supabaseAdmin
+    .from('customers')
+    .update({ last_scan_date: new Date().toISOString() })
+    .eq('id', cleanId);
+
   // Fetch customer name for notification
   const { data: customer } = await supabaseAdmin
     .from('customers')

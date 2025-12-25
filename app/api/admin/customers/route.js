@@ -48,8 +48,8 @@ export async function GET(request) {
   const residence = searchParams.get('residence');
   const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')) : 20;
   const offset = searchParams.get('offset') ? parseInt(searchParams.get('offset')) : 0;
-  const sortBy = searchParams.get('sort_by') || 'first_name'; // Default sort by first name
-  const sortOrder = searchParams.get('sort_order') || 'asc'; // Default sort ascending
+  const sortBy = searchParams.get('sort_by') || 'created_at'; // Default sort by newest
+  const sortOrder = searchParams.get('sort_order') || 'desc'; // Default sort descending
 
   // Initialize Service Role Client for fetching data (bypasses RLS for the View)
   const supabaseAdmin = createServiceClient(

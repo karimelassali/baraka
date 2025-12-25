@@ -1,11 +1,11 @@
 // components/forms/RegistrationWizard.jsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CountryFlag from "react-country-flag";
-import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Link, useRouter, usePathname } from "@/navigation";
 import { Eye, EyeOff } from "lucide-react";
 
 // Step components
@@ -596,6 +596,27 @@ const ProgressBar = ({ currentStep, totalSteps, t }) => (
     </div>
 );
 
+// Minimal Language Switcher Component
+function LanguageSwitcherTrigger() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const locale = useLocale();
+
+    const switchLocale = (newLocale) => {
+        router.replace(pathname, { locale: newLocale });
+    };
+
+    return (
+        <div className="flex gap-2 text-sm font-medium text-gray-400">
+            <button onClick={() => switchLocale('en')} className={locale === 'en' ? 'text-red-600' : 'hover:text-gray-600'}>EN</button>
+            <span className="text-gray-300">|</span>
+            <button onClick={() => switchLocale('it')} className={locale === 'it' ? 'text-red-600' : 'hover:text-gray-600'}>IT</button>
+            <span className="text-gray-300">|</span>
+            <button onClick={() => switchLocale('ar')} className={locale === 'ar' ? 'text-red-600' : 'hover:text-gray-600'}>AR</button>
+        </div>
+    );
+}
+
 export default function RegistrationWizard() {
     const t = useTranslations('Auth.Register');
     const [currentStep, setCurrentStep] = useState(1);
@@ -624,7 +645,122 @@ export default function RegistrationWizard() {
     const [errorModalMessage, setErrorModalMessage] = useState("");
     const [registeredEmail, setRegisteredEmail] = useState("");
 
+    // OTP State
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otpCode, setOtpCode] = useState("");
+    const [otpLoading, setOtpLoading] = useState(false);
+    const [otpError, setOtpError] = useState("");
+    const [resendCountdown, setResendCountdown] = useState(60);
+
     const router = useRouter();
+
+    const STORAGE_KEY = 'registrationWizardState';
+
+    // Restore state from localStorage on mount
+    useEffect(() => {
+        // First check for OTP pending state (takes priority)
+        const pending = localStorage.getItem('pendingRegistration');
+        if (pending) {
+            try {
+                const { phone, email, timestamp } = JSON.parse(pending);
+                setFormData(prev => ({ ...prev, phone_number: phone, email: email }));
+                setOtpCode("");
+                setShowOtpModal(true);
+                return; // Don't restore regular state if OTP is pending
+            } catch (e) {
+                console.error("Failed to parse pending registration", e);
+                localStorage.removeItem('pendingRegistration');
+            }
+        }
+
+        // Restore wizard state
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState) {
+            try {
+                const { formData: savedFormData, currentStep: savedStep, timestamp } = JSON.parse(savedState);
+
+                // Check if state is less than 24 hours old
+                const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000;
+                if (isExpired) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    return;
+                }
+
+                // Restore state (but not passwords for security)
+                setFormData(prev => ({
+                    ...prev,
+                    ...savedFormData,
+                    password: "",
+                    password_confirmation: ""
+                }));
+                setCurrentStep(savedStep || 1);
+                console.log('[RegistrationWizard] Restored from step', savedStep);
+            } catch (e) {
+                console.error("Failed to restore registration state", e);
+                localStorage.removeItem(STORAGE_KEY);
+            }
+        }
+    }, []);
+
+    // Save state to localStorage whenever formData or currentStep changes
+    useEffect(() => {
+        // Don't save if on first step with empty data (user just started)
+        if (currentStep === 1 && !formData.first_name && !formData.last_name) {
+            return;
+        }
+
+        // Don't save passwords
+        const stateToSave = {
+            formData: {
+                ...formData,
+                password: "",
+                password_confirmation: ""
+            },
+            currentStep,
+            timestamp: Date.now()
+        };
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+    }, [formData, currentStep]);
+
+    // Function to clear saved state (call on successful completion)
+    const clearSavedState = () => {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem('pendingRegistration');
+    };
+
+    // Countdown timer for resend button
+    useEffect(() => {
+        let timer;
+        if (showOtpModal && resendCountdown > 0) {
+            timer = setInterval(() => {
+                setResendCountdown(prev => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [showOtpModal, resendCountdown]);
+
+    const handleResendOtp = async () => {
+        if (resendCountdown > 0 || !formData.phone_number) return;
+
+        setOtpError("");
+        try {
+            const res = await fetch("/api/auth/otp/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone_number: formData.phone_number })
+            });
+
+            if (!res.ok) {
+                throw new Error("Invio fallito. Riprova.");
+            }
+
+            setResendCountdown(60); // Reset countdown
+            setOtpCode(""); // Clear old code
+        } catch (err) {
+            setOtpError(err.message);
+        }
+    };
 
     const updateForm = (newData) => {
         setFormData(prev => ({ ...prev, ...newData }));
@@ -663,12 +799,26 @@ export default function RegistrationWizard() {
 
         try {
             // Assemble payload for registration API
+            // Client-side Normalization
+            let cleanPhone = formData.phone_number.trim().replace(/[^\d+]/g, '');
+            // Auto-add +39 rule
+            if (!cleanPhone.startsWith('+')) {
+                if (cleanPhone.length >= 9 && cleanPhone.length <= 10) {
+                    cleanPhone = '+39' + cleanPhone;
+                } else if (cleanPhone.startsWith('00')) {
+                    cleanPhone = '+' + cleanPhone.substring(2);
+                }
+            }
+
+            // Update formData phone for consistency in OTP step if needed
+            formData.phone_number = cleanPhone;
+
             const payload = {
                 first_name: formData.first_name.trim(),
                 last_name: formData.last_name.trim(),
-                date_of_birth: formData.date_of_birth, // ISO date string from <input type="date">
+                date_of_birth: formData.date_of_birth,
                 residence: formData.residence.trim(),
-                phone_number: formData.phone_number.trim(),
+                phone_number: cleanPhone,
                 email: formData.email.trim().toLowerCase(),
                 country_of_origin: formData.country_of_origin.trim(),
                 gdpr_consent: true,
@@ -690,8 +840,12 @@ export default function RegistrationWizard() {
             if (!response.ok) {
                 let errorMessage = result.error || result.message || "Registration failed";
 
+                // Check for duplicate phone error
+                if (result.error === "Phone number already exists" || result.details?.[0]?.includes("phone number")) {
+                    errorMessage = t('errors.phone_registered') || "This phone number is already registered. Please log in.";
+                }
                 // Check for duplicate email error in details
-                if (result.details && Array.isArray(result.details)) {
+                else if (result.details && Array.isArray(result.details)) {
                     const duplicateError = result.details.find(msg => msg.includes('customers_email_key'));
                     if (duplicateError) {
                         errorMessage = t('errors.email_registered') || "This email address is already registered. Please log in.";
@@ -708,8 +862,34 @@ export default function RegistrationWizard() {
             // Store the registered email to show in the modal
             setRegisteredEmail(formData.email);
 
-            // Show confirmation modal instead of redirecting immediately
-            setShowConfirmationModal(true);
+            // Start OTP Flow
+            try {
+                const otpResponse = await fetch("/api/auth/otp/send", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone_number: formData.phone_number })
+                });
+
+                if (!otpResponse.ok) {
+                    throw new Error("Failed to send verification SMS");
+                }
+
+                // SAVE STATE TO LOCAL STORAGE for persistence
+                localStorage.setItem('pendingRegistration', JSON.stringify({
+                    phone: formData.phone_number,
+                    email: formData.email,
+                    timestamp: Date.now()
+                }));
+
+                setShowOtpModal(true);
+            } catch (otpErr) {
+                console.error("OTP Send Error:", otpErr);
+                // If SMS fails, we can't really verify them. 
+                // Show error modal instead of failing silently?
+                // Or maybe they typed wrong number?
+                setErrorModalMessage("Failed to send SMS code. Please check your number.");
+                setShowErrorModal(true);
+            }
 
         } catch (err) {
             console.error("Registration error:", err);
@@ -717,6 +897,52 @@ export default function RegistrationWizard() {
             setShowErrorModal(true);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleVerifyOtp = async () => {
+        if (!otpCode || otpCode.length < 6) {
+            setOtpError("Please enter the valid 6-digit code");
+            return;
+        }
+
+        setOtpLoading(true);
+        setOtpError("");
+
+        try {
+            const verifyResponse = await fetch("/api/auth/otp/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    phone_number: formData.phone_number,
+                    code: otpCode
+                })
+            });
+
+            const verifyResult = await verifyResponse.json();
+
+            if (!verifyResponse.ok) {
+                throw new Error(verifyResult.error || "Verification failed");
+            }
+
+            // Clear ALL persistent state on success
+            clearSavedState();
+
+            // Success! 
+            setShowOtpModal(false);
+
+            // User is now verified - redirect to dashboard
+            // The user should already have a session from registration, 
+            // and now their email is confirmed so they can access the app
+            console.log('[Registration] OTP verified, redirecting to dashboard...');
+
+            // Use window.location for full page refresh to ensure session is picked up
+            window.location.href = "/dashboard";
+
+        } catch (err) {
+            setOtpError(err.message);
+        } finally {
+            setOtpLoading(false);
         }
     };
 
@@ -791,7 +1017,10 @@ export default function RegistrationWizard() {
                 </div>
 
                 {/* Form Panel */}
-                <div className="flex-1 p-8 md:p-12 lg:p-16 bg-white overflow-y-auto max-h-[90vh]">
+                <div className="flex-1 p-8 md:p-12 lg:p-16 bg-white overflow-y-auto max-h-[90vh] relative">
+                    <div className="absolute top-6 right-6 z-20">
+                        <LanguageSwitcherTrigger />
+                    </div>
                     <div className="max-w-xl mx-auto">
                         <header className="mb-8 text-center md:text-left">
                             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">
@@ -952,6 +1181,84 @@ export default function RegistrationWizard() {
                     </motion.div>
                 </div>
             )}
+
+            {/* OTP Verification Modal */}
+            {showOtpModal && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+                    <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden"
+                    >
+                        <div className="bg-white p-8 text-center">
+                            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">Verify Phone</h3>
+                            <p className="text-gray-500 mb-6 text-sm">
+                                We sent a code to <span className="font-semibold text-gray-900">{formData.phone_number}</span>. Enter it below.
+                            </p>
+
+                            <input
+                                type="text"
+                                maxLength={6}
+                                value={otpCode}
+                                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                                placeholder="000000"
+                                className="w-full text-center text-3xl tracking-[0.5em] font-mono font-bold py-4 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-50 outline-none transition-all mb-4"
+                                autoFocus
+                            />
+
+                            {otpError && (
+                                <p className="text-red-500 text-sm mb-4 font-medium bg-red-50 py-2 px-3 rounded-lg border border-red-100">
+                                    {otpError}
+                                </p>
+                            )}
+
+                            <button
+                                onClick={handleVerifyOtp}
+                                disabled={otpLoading}
+                                className="w-full py-4 bg-red-600 text-white rounded-xl font-bold text-lg hover:bg-red-700 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-red-200"
+                            >
+                                {otpLoading ? 'Verifying...' : 'Verify Successfully'}
+                            </button>
+
+                            {/* Resend Button with Countdown */}
+                            <button
+                                onClick={handleResendOtp}
+                                disabled={resendCountdown > 0}
+                                className={`mt-3 w-full py-3 rounded-xl font-medium text-sm transition-all ${resendCountdown > 0
+                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                    }`}
+                            >
+                                {resendCountdown > 0
+                                    ? `Reinvia codice (${resendCountdown}s)`
+                                    : 'Reinvia codice'}
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    // Cancel verification -> Clear storage & Return to home
+                                    localStorage.removeItem('pendingRegistration');
+                                    setShowOtpModal(false);
+                                    setResendCountdown(60); // Reset countdown
+                                    router.push("/");
+                                }}
+                                className="mt-4 text-sm text-gray-400 hover:text-gray-600"
+                            >
+                                Cancel Verification (Logout)
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
+
 }
+
+

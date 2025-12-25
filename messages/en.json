@@ -167,7 +167,11 @@
       "success": "Login successful! Redirecting...",
       "magic_link_sent": "Magic link sent! Check your email.",
       "forgot_password": "Forgot Password?",
-      "error_generic": "An unexpected error occurred. Please try again."
+      "error_generic": "An unexpected error occurred. Please try again.",
+      "phone_not_found": "No account found with this number.",
+      "invalid_credentials": "Invalid credentials. Please try again.",
+      "phone_label": "Phone Number",
+      "phone_placeholder": "+1 234..."
     },
     "ResetPassword": {
       "title": "Reset Password",
@@ -277,7 +281,8 @@
         "password_mismatch": "Passwords do not match",
         "privacy_policy": "You must agree to the Privacy Policy",
         "terms": "You must accept the Terms & Conditions",
-        "email_registered": "This email address is already registered. Please log in."
+        "email_registered": "This email address is already registered. Please log in.",
+        "phone_registered": "This phone number is already registered. Please log in."
       }
     }
   },

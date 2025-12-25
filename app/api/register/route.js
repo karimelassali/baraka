@@ -1,5 +1,7 @@
+import { createClient } from "@supabase/supabase-js";
 import { registerCustomer } from "../../../lib/auth/register";
 import { createNotification } from "../../../lib/notifications";
+import { normalizePhone, findUserByPhone } from "../../../lib/phone-utils";
 
 export async function POST(request) {
   try {
@@ -62,13 +64,50 @@ export async function POST(request) {
       );
     }
 
+    // Normalize phone number (remove spaces/dashes/parens, keeping only +, digits)
+    const cleanedPhone = normalizePhone(phone_number);
+    console.log('[Register] Original phone:', phone_number, '-> Cleaned:', cleanedPhone);
+
+    // Check for existing phone if provided
+    if (cleanedPhone) {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        }
+      );
+
+      // Use helper to check for existing user with ANY format of this phone
+      console.log('[Register] Checking if phone exists...');
+      const { data: existingCustomer, error: lookupError } = await findUserByPhone(supabaseAdmin, phone_number, 'customers', 'id');
+
+      console.log('[Register] Phone check result:', { found: !!existingCustomer, error: lookupError });
+
+      if (existingCustomer) {
+        return new Response(
+          JSON.stringify({
+            error: "Phone number already exists",
+            details: ["This phone number is already registered. Please login."]
+          }),
+          {
+            status: 409, // Conflict
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+      }
+    }
+
     // Prepare customer data for registration
     const customerData = {
       first_name,
       last_name,
       date_of_birth,
       residence,
-      phone_number,
+      phone_number: cleanedPhone, // Use cleaned phone number
       email,
       country_of_origin,
       gdpr_consent: true,
@@ -77,9 +116,12 @@ export async function POST(request) {
     };
 
     // Register customer using register function
+    // Pass raw phone_number too if needed by internal logic, but we already cleaned it in customerData
     const registrationResult = await registerCustomer({
       ...customerData,
-      password
+      password,
+      // Pass raw phone too if `auth/register` needs to do its own checks or dual-save
+      raw_phone: phone_number
     });
 
     if (!registrationResult.success) {

@@ -167,7 +167,11 @@
       "success": "Accesso riuscito! Reindirizzamento...",
       "magic_link_sent": "Magic link inviato! Controlla la tua email.",
       "forgot_password": "Password dimenticata?",
-      "error_generic": "Si è verificato un errore imprevisto. Riprova."
+      "error_generic": "Si è verificato un errore imprevisto. Riprova.",
+      "phone_not_found": "Nessun account trovato con questo numero.",
+      "invalid_credentials": "Credenziali non valide. Riprova.",
+      "phone_label": "Numero di Telefono",
+      "phone_placeholder": "+39 ..."
     },
     "ResetPassword": {
       "title": "Reimposta Password",
@@ -277,7 +281,8 @@
         "password_mismatch": "Le password non corrispondono",
         "privacy_policy": "Devi accettare la Privacy Policy",
         "terms": "Devi accettare i Termini & Condizioni",
-        "email_registered": "Questo indirizzo email è già registrato. Per favorire accedi."
+        "email_registered": "Questo indirizzo email è già registrato. Per favorire accedi.",
+        "phone_registered": "Questo numero di telefono è già registrato. Per favore accedi."
       }
     }
   },

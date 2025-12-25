@@ -2,258 +2,336 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/navigation";
-import { ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Link, useRouter, usePathname } from "@/navigation";
+import { useLocale } from "next-intl";
+import { Mail, Lock, Loader2, ArrowRight, ArrowLeft, Phone, Eye, EyeOff } from "lucide-react";
 import { motion } from "framer-motion";
+
+import Input from "@/components/ui/input";
 
 export default function LoginForm() {
   const t = useTranslations('Auth.Login');
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loginMethod, setLoginMethod] = useState("email"); // "email" or "phone"
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [supabase, setSupabase] = useState(null);
   const router = useRouter();
+
+  // OTP State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [unverifiedPhone, setUnverifiedPhone] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(60);
 
   useEffect(() => {
     setSupabase(createClient());
   }, []);
 
+  // Countdown timer for resend button
+  useEffect(() => {
+    let timer;
+    if (showOtpModal && resendCountdown > 0) {
+      timer = setInterval(() => {
+        setResendCountdown(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [showOtpModal, resendCountdown]);
+
+  const handleResendOtp = async () => {
+    if (resendCountdown > 0 || !unverifiedPhone) return;
+
+    setOtpError("");
+    try {
+      const res = await fetch("/api/auth/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone_number: unverifiedPhone })
+      });
+
+      if (!res.ok) {
+        throw new Error("Invio fallito. Riprova.");
+      }
+
+      setResendCountdown(60); // Reset countdown
+      setOtpCode(""); // Clear old code
+    } catch (err) {
+      setOtpError(err.message);
+    }
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
-    setSuccess(null); // Clear any previous success message
-    setIsSubmitting(true);
+    setSuccess(null);
 
     if (!supabase) {
       setError("Supabase client not initialized");
-      setIsSubmitting(false);
+      setLoading(false);
       return;
     }
 
     try {
-      // Use the client-side Supabase auth directly for better session handling
+      let loginEmail = email;
+      let cleanPhone = null; // Declare in outer scope for OTP handling
+
+      if (loginMethod === 'phone') {
+        // Client-side Normalization
+        cleanPhone = phone.replace(/[^\d+]/g, '');
+        if (!cleanPhone.startsWith('+')) {
+          if (cleanPhone.length >= 9 && cleanPhone.length <= 10) {
+            cleanPhone = '+39' + cleanPhone;
+          } else if (cleanPhone.startsWith('00')) {
+            cleanPhone = '+' + cleanPhone.substring(2);
+          }
+        }
+
+        const res = await fetch("/api/auth/lookup-user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: cleanPhone })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || t('phone_not_found'));
+        }
+        loginEmail = data.email;
+      }
+
       const { error, data } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginEmail,
         password
       });
 
       if (error) {
-        setError(error.message);
-      } else {
-        // Set a temporary success message
-        setSuccess(t('success'));
+        // Check if error is "Email not confirmed" and user is logging in with phone
+        const isEmailNotConfirmed = error.message?.toLowerCase().includes('email not confirmed');
 
-        // Wait for the session to be properly established, then check user status before redirect
-        const checkSessionAndRedirect = async () => {
-          if (!supabase) {
-            setError("Supabase client not available. Please try again.");
-            setIsSubmitting(false);
+        if (isEmailNotConfirmed && loginMethod === 'phone' && cleanPhone) {
+          // User is logging in with phone but email is not confirmed
+          // Trigger phone OTP verification instead
+          console.log('[Login] Email not confirmed, triggering phone OTP for:', cleanPhone);
+          setUnverifiedPhone(cleanPhone);
+          try {
+            await fetch("/api/auth/otp/send", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ phone_number: cleanPhone })
+            });
+            setShowOtpModal(true);
+            setLoading(false);
             return;
+          } catch (otpErr) {
+            console.error("Failed to send OTP:", otpErr);
+            setError("Non siamo riusciti a inviare il codice di verifica. Riprova.");
           }
-
-          // Check if user is authenticated with multiple attempts
-          for (let i = 0; i < 5; i++) { // Try up to 5 times
+        } else {
+          setError(error.message === "Invalid login credentials"
+            ? t('invalid_credentials')
+            : error.message);
+        }
+      } else {
+        setSuccess(t('success'));
+        const checkSessionAndRedirect = async () => {
+          if (!supabase) return;
+          for (let i = 0; i < 5; i++) {
             try {
               const { data: { user }, error } = await supabase.auth.getUser();
-
               if (user && !error) {
-                // Check if user is an admin
-                const { data: adminData } = await supabase
-                  .from('admin_users')
-                  .select('role')
-                  .eq('auth_id', user.id)
-                  .single();
-
-                if (adminData) {
-                  window.location.href = "/admin";
+                const { data: adminData } = await supabase.from('admin_users').select('role').eq('auth_id', user.id).single();
+                if (adminData) { window.location.href = "/admin"; return; }
+                const { data: customerData } = await supabase.from('customers').select('is_verified, phone_number').eq('auth_id', user.id).single();
+                if (customerData && customerData.is_verified === false) {
+                  setUnverifiedPhone(customerData.phone_number);
+                  await fetch("/api/auth/otp/send", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ phone_number: customerData.phone_number })
+                  });
+                  setShowOtpModal(true);
+                  setLoading(false);
                   return;
                 }
-
-                // Check for redirect URL in query parameters
                 const urlParams = new URLSearchParams(window.location.search);
                 const redirectUrl = urlParams.get('redirect');
-
-                // Redirect to dashboard by default, or to the requested page if available
-                if (redirectUrl) {
-                  window.location.href = decodeURIComponent(redirectUrl);
-                } else {
-                  window.location.href = "/dashboard";
-                }
-                return; // Exit after successful redirect
+                window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : "/dashboard";
+                return;
               }
-
-              // Wait 200ms before next check
               await new Promise(resolve => setTimeout(resolve, 200));
-            } catch (err) {
-              console.error("Session check error:", err);
-            }
+            } catch (err) { console.error("Session check error:", err); }
           }
-
-          // If we can't verify the session after multiple attempts, show an error
-          setError("Login verification took too long. Please try again.");
-          setIsSubmitting(false);
+          setError("Login verification took too long.");
+          setLoading(false);
         };
-
-        // Start the session verification process
         checkSessionAndRedirect();
       }
     } catch (err) {
       setError(err.message || t('error_generic'));
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
 
   const handleMagicLink = async () => {
     setError(null);
     setSuccess(null);
-    if (!supabase) {
-      setError("Supabase client not initialized");
-      return;
-    }
-
+    if (!supabase) return;
     try {
-      // Check for redirect URL in query parameters for magic link
       const urlParams = new URLSearchParams(window.location.search);
       const redirectUrl = urlParams.get('redirect');
-      const redirectTo = redirectUrl
-        ? `${window.location.origin}${decodeURIComponent(redirectUrl)}`
-        : `${window.location.origin}/dashboard`;
+      const redirectTo = redirectUrl ? `${window.location.origin}${decodeURIComponent(redirectUrl)}` : `${window.location.origin}/dashboard`;
+      const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } });
+      if (error) setError(error.message);
+      else setSuccess(t('magic_link_sent'));
+    } catch (err) { setError(err.message || t('error_generic')); }
+  };
 
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: redirectTo
-        }
+  const handleVerifyOtp = async () => {
+    if (!otpCode || otpCode.length < 6) { setOtpError("Please enter valid code"); return; }
+    setOtpLoading(true); setOtpError("");
+    try {
+      const res = await fetch("/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone_number: unverifiedPhone, code: otpCode })
       });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        // For magic link, we don't want to redirect, just show success message
-        setSuccess(t('magic_link_sent'));
-      }
-    } catch (err) {
-      setError(err.message || t('error_generic'));
-    }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setShowOtpModal(false);
+      window.location.href = "/dashboard";
+    } catch (err) { setOtpError(err.message); } finally { setOtpLoading(false); }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Left side - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-red-600 items-center justify-center p-12 overflow-hidden">
-        {/* Abstract background pattern */}
         <div className="absolute inset-0 opacity-10">
           <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" />
-              </pattern>
-            </defs>
+            <defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" strokeWidth="0.5" /></pattern></defs>
             <rect width="100" height="100" fill="url(#grid)" />
           </svg>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 w-full max-w-lg"
-        >
+        <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="relative z-10 w-full max-w-lg">
           <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
-            <img
-              src="/illus/undraw_access-account_aydp.svg"
-              alt="Login Illustration"
-              className="w-full h-auto drop-shadow-xl mb-8"
-            />
+            <img src="/illus/undraw_access-account_aydp.svg" alt="Login" className="w-full h-auto drop-shadow-xl mb-8" />
             <div className="text-white text-center">
-              <h2 className="text-3xl font-bold mb-4">Welcome Back!</h2>
-              <p className="text-red-100 text-lg">Manage your business with ease and security. Access your customized dashboard now.</p>
+              <h2 className="text-3xl font-bold mb-4">{t('title')}</h2>
+              <p className="text-red-100 text-lg">{t('subtitle')}</p>
             </div>
           </div>
         </motion.div>
       </div>
 
       {/* Right side - Form */}
-      <div className="flex-1 flex items-center justify-center p-4 sm:p-12 lg:w-1/2 bg-white">
+      <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-12 lg:w-1/2 bg-white relative">
+        <div className="absolute top-8 right-8">
+          <LanguageSwitcherTrigger />
+        </div>
+
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <Link href="/" className="inline-block mb-8">
-              {/* Replace with your actual Logo component if available, or just the text */}
-              <span className="text-2xl font-black text-red-600 tracking-tighter uppercase">Baraka</span>
-            </Link>
-            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-              {t('title')}
-            </h2>
-            <p className="mt-2 text-sm text-gray-600">
-              {t('subtitle')}
-            </p>
+            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">{t('title')}</h2>
+            <p className="mt-2 text-sm text-gray-600">{t('subtitle')}</p>
+          </div>
+
+          {/* Login Method Toggle */}
+          <div className="flex p-1 bg-gray-100 rounded-xl">
+            <button
+              onClick={() => setLoginMethod('email')}
+              className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === 'email' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Email
+            </button>
+            <button
+              onClick={() => setLoginMethod('phone')}
+              className={`flex-1 flex items-center justify-center py-2 text-sm font-medium rounded-lg transition-all ${loginMethod === 'phone' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              <Phone className="w-4 h-4 mr-2" />
+              {t('phone_label')}
+            </button>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-5">
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('email_label')}
-                </label>
-                <div className="relative rounded-xl shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+            <div className="space-y-4">
+              {loginMethod === 'email' ? (
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">{t('email_label')}</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder={t('email_placeholder')}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                    />
                   </div>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 placeholder-gray-400 bg-gray-50 transition-all"
-                    placeholder={t('email_placeholder')}
-                  />
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">{t('phone_label')}</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      required
+                      placeholder={t('phone_placeholder')}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              )}
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('password_label')}
-                </label>
-                <div className="relative rounded-xl shadow-sm">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">{t('password_label')}</label>
+                <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    <Lock className="h-5 w-5 text-gray-400" />
                   </div>
                   <input
                     id="password"
-                    name="password"
                     type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-900 placeholder-gray-400 bg-gray-50 transition-all"
+                    required
                     placeholder={t('password_placeholder')}
+                    className="block w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center z-10 text-gray-400 hover:text-gray-600 focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" aria-hidden="true" />
-                    ) : (
-                      <Eye className="h-5 w-5" aria-hidden="true" />
-                    )}
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
-                <div className="flex items-center justify-end mt-2">
-                  <Link href="/auth/reset-password" className="text-sm font-medium text-red-600 hover:text-red-500">
-                    {t('forgot_password')}
-                  </Link>
-                </div>
               </div>
+            </div>
+
+            <div className="flex items-center justify-end">
+              <Link href="/auth/reset-password" className="text-sm font-medium text-red-600 hover:text-red-500">{t('forgot_password')}</Link>
             </div>
 
             {/* Feedback Messages */}
@@ -314,39 +392,135 @@ export default function LoginForm() {
                 {!isSubmitting && <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />}
               </button>
             </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1">
-              <button
-                type="button"
-                onClick={handleMagicLink}
-                className="w-full inline-flex justify-center items-center px-4 py-3 border border-gray-200 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
-              >
-                <span className="sr-only">Sign in with Magic Link</span>
-                <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                {t('magic_link')}
-              </button>
-            </div>
-
-            <p className="mt-6 text-center text-sm text-gray-600">
-              {t('no_account')}{' '}
-              <Link href="/auth/register" className="font-medium text-red-600 hover:text-red-500 transition-colors">
-                {t('register_link')}
-              </Link>
-            </p>
           </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1">
+            <button
+              type="button"
+              onClick={handleMagicLink}
+              className="w-full inline-flex justify-center items-center px-4 py-3 border border-gray-200 shadow-sm text-sm font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+            >
+              <span className="sr-only">Sign in with Magic Link</span>
+              <svg className="w-5 h-5 text-gray-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              {t('magic_link')}
+            </button>
+          </div>
+
+          <p className="mt-6 text-center text-sm text-gray-600">
+            {t('no_account')}{' '}
+            <Link href="/auth/register" className="font-medium text-red-600 hover:text-red-500 transition-colors">
+              {t('register_link')}
+            </Link>
+          </p>
         </div>
+
+        {/* OTP Verification Modal */}
+        {showOtpModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden"
+            >
+              <div className="bg-white p-8 text-center">
+                <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Verify Phone</h3>
+                <p className="text-gray-500 mb-6 text-sm">
+                  Verification required. We sent a code to <span className="font-semibold text-gray-900">{unverifiedPhone}</span>.
+                </p>
+
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className="w-full text-center text-3xl tracking-[0.5em] font-mono font-bold py-4 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-4 focus:ring-red-50 outline-none transition-all mb-4"
+                  autoFocus
+                />
+
+                {otpError && (
+                  <p className="text-red-500 text-sm mb-4 font-medium bg-red-50 py-2 px-3 rounded-lg border border-red-100">
+                    {otpError}
+                  </p>
+                )}
+
+                <button
+                  onClick={handleVerifyOtp}
+                  disabled={otpLoading}
+                  className="w-full py-4 bg-red-600 text-white rounded-xl font-bold text-lg hover:bg-red-700 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg hover:shadow-red-200"
+                >
+                  {otpLoading ? 'Verifying...' : 'Verify & Login'}
+                </button>
+
+                {/* Resend Button with Countdown */}
+                <button
+                  onClick={handleResendOtp}
+                  disabled={resendCountdown > 0}
+                  className={`mt-3 w-full py-3 rounded-xl font-medium text-sm transition-all ${resendCountdown > 0
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  {resendCountdown > 0
+                    ? `Reinvia codice (${resendCountdown}s)`
+                    : 'Reinvia codice'}
+                </button>
+
+                <button
+                  onClick={() => {
+                    supabase.auth.signOut().then(() => {
+                      setShowOtpModal(false);
+                      setIsSubmitting(false); // Reset submitting state
+                      setResendCountdown(60); // Reset countdown
+                    });
+                  }}
+                  className="mt-4 text-sm text-gray-400 hover:text-gray-600"
+                >
+                  Cancel & Logout
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </div>
+    </div>
+  );
+}
+
+// Minimal Language Switcher Component
+function LanguageSwitcherTrigger() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = useLocale();
+
+  const switchLocale = (newLocale) => {
+    router.replace(pathname, { locale: newLocale });
+  };
+
+  return (
+    <div className="flex gap-2 text-sm font-medium text-gray-400">
+      <button onClick={() => switchLocale('en')} className={locale === 'en' ? 'text-red-600' : 'hover:text-gray-600'}>EN</button>
+      <span className="text-gray-300">|</span>
+      <button onClick={() => switchLocale('it')} className={locale === 'it' ? 'text-red-600' : 'hover:text-gray-600'}>IT</button>
+      <span className="text-gray-300">|</span>
+      <button onClick={() => switchLocale('ar')} className={locale === 'ar' ? 'text-red-600' : 'hover:text-gray-600'}>AR</button>
     </div>
   );
 }

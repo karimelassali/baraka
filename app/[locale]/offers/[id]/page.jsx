@@ -1,13 +1,20 @@
 import { notFound } from 'next/navigation';
 import OfferDetailView from '@/components/offers/OfferDetailView';
 
+// Helper to determine base URL
+const getBaseUrl = () => {
+    if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    return 'http://localhost:3000';
+};
+
 // Function to generate metadata for rich link previews
 export async function generateMetadata({ params }) {
     const { id, locale } = await params;
 
     try {
         // Fetch offer data internally
-        const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/offers/${id}?locale=${locale}`);
+        const response = await fetch(`${getBaseUrl()}/api/offers/${id}?locale=${locale}`);
         const data = await response.json();
 
         if (!data.offer) return { title: 'Offer Not Found' };
@@ -36,14 +43,22 @@ export async function generateMetadata({ params }) {
 }
 
 async function getOffer(id, locale) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/offers/${id}?locale=${locale}`, {
-        cache: 'no-store' // Ensure fresh data
-    });
+    const url = `${getBaseUrl()}/api/offers/${id}?locale=${locale}`;
+    console.log("Fetching Offer from:", url);
 
-    if (!res.ok) return null;
+    try {
+        const res = await fetch(url, {
+            cache: 'no-store' // Ensure fresh data
+        });
 
-    const data = await res.json();
-    return data.offer;
+        if (!res.ok) return null;
+
+        const data = await res.json();
+        return data.offer;
+    } catch (error) {
+        console.error("Error fetching offer:", error);
+        return null;
+    }
 }
 
 export default async function OfferPage({ params }) {

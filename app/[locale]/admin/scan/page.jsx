@@ -8,14 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, CheckCircle2, QrCode, Search, Gift, MinusCircle, PlusCircle, AlertCircle, Ticket, Lock, Unlock } from "lucide-react";
+import { Loader2, CheckCircle2, QrCode, Search, Gift, MinusCircle, PlusCircle, AlertCircle, Ticket, Lock, Unlock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ScanPage() {
     const [scannedId, setScannedId] = useState(null);
     const [customer, setCustomer] = useState(null);
     const [voucher, setVoucher] = useState(null);
-    const [offers, setOffers] = useState([]); // New Offers State
+    const [customPoints, setCustomPoints] = useState(""); // Manual Input State
 
     // Action States
     const [pointsToAdd, setPointsToAdd] = useState("");
@@ -29,22 +29,6 @@ export default function ScanPage() {
     const [tabValue, setTabValue] = useState("add");
 
     const supabase = createClient();
-
-    // Fetch Offers on Load
-    useEffect(() => {
-        const fetchOffers = async () => {
-            try {
-                const response = await fetch('/api/admin/offers');
-                if (response.ok) {
-                    const data = await response.json();
-                    setOffers(data.filter(o => o.is_active));
-                }
-            } catch (err) {
-                console.error("Failed to fetch offers", err);
-            }
-        };
-        fetchOffers();
-    }, []);
 
     // Realtime Points Update
     useEffect(() => {
@@ -250,25 +234,29 @@ export default function ScanPage() {
         }
     };
 
-    const handleCreateVoucher = async (offer, cost) => {
-        if (!offer || !cost) {
-            toast.info("Seleziona un'offerta valida");
+    const handleCreateVoucher = async (pointsToConvert, isFullBalance = false) => {
+        if (!pointsToConvert || pointsToConvert <= 0) {
+            toast.error("Quantità punti non valida");
             return;
         }
-        if (customer.total_points < cost) {
+        if (customer.total_points < pointsToConvert) {
             toast.error("Punti insufficienti");
             return;
         }
 
         setUpdateStatus("updating");
         try {
+            const description = isFullBalance
+                ? `Voucher Totale (Conversione saldo)`
+                : `Voucher Manuale (${pointsToConvert} punti)`;
+
             const response = await fetch('/api/admin/vouchers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     customer_id: customer.id,
-                    points_to_convert: cost,
-                    description: `Voucher: ${typeof offer.title === 'string' ? offer.title : (offer.title.it || offer.title.en || 'Offerta')}`
+                    points_to_convert: pointsToConvert,
+                    description: description
                 })
             });
 
@@ -280,10 +268,10 @@ export default function ScanPage() {
             setUpdateStatus("success");
             toast.success("Voucher Creato con Successo!", { description: `Codice: ${data.voucher.code}` });
 
-            // Optimistically update points immediately (Realtime will also trigger)
+            // Optimistically update points immediately
             setCustomer(prev => ({
                 ...prev,
-                total_points: prev.total_points - cost
+                total_points: prev.total_points - pointsToConvert
             }));
 
         } catch (error) {
@@ -325,14 +313,17 @@ export default function ScanPage() {
         setVoucher(null);
         setPointsToAdd("");
         setPointsToDeduct("");
+        setCustomPoints("");
         setUpdateStatus("idle");
         setScanning(true);
     };
 
-    // DiceBear Avatar URL
     const getAvatarUrl = (email) => {
         return `https://api.dicebear.com/9.x/avataaars/svg?seed=${email || 'user'}&backgroundColor=c0aede,b6e3f4`;
     };
+
+    // Helper for manual points value preview
+    const getEstimatedValue = (pt) => (pt / 10).toFixed(2);
 
     return (
         <div className="min-h-screen bg-gray-50/50 p-4 md:p-6 pb-20">
@@ -575,7 +566,7 @@ export default function ScanPage() {
                                         </Button>
                                     </TabsContent>
 
-                                    {/* CREATE VOUCHER TAB */}
+                                    {/* CREATE VOUCHER TAB - SIMPLIFIED */}
                                     <TabsContent value="voucher" className="space-y-4 focus:outline-none">
                                         <div className="text-center mb-4">
                                             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-purple-100 text-purple-600 mb-2">
@@ -585,59 +576,54 @@ export default function ScanPage() {
                                             <p className="text-xs text-gray-500">Converti punti in premio</p>
                                         </div>
 
-                                        <div className="p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
-                                            <p className="text-sm text-purple-800 mb-4 font-medium">Seleziona un'offerta:</p>
+                                        <div className="flex flex-col gap-4">
+                                            {/* Option 1: Convert ALL */}
+                                            <Button
+                                                size="lg"
+                                                variant="outline"
+                                                className="w-full h-auto py-4 border-2 border-purple-100 hover:border-purple-300 bg-purple-50/50 hover:bg-purple-100 text-left flex flex-col items-start gap-1 group"
+                                                onClick={() => handleCreateVoucher(customer.total_points, true)}
+                                                disabled={customer.total_points <= 0 || updateStatus === 'updating'}
+                                            >
+                                                <div className="flex items-center justify-between w-full">
+                                                    <span className="font-bold text-purple-900 text-lg group-hover:text-purple-700">Usa Tutto Il Saldo</span>
+                                                    <Sparkles className="w-5 h-5 text-purple-400 group-hover:text-purple-600" />
+                                                </div>
+                                                <div className="text-sm text-purple-600/80">
+                                                    Converti <span className="font-bold">{customer.total_points} Punti</span> in <span className="font-bold">€{getEstimatedValue(customer.total_points)}</span>
+                                                </div>
+                                            </Button>
 
-                                            <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                                                {/* Hardcoded defaults if no offers fetched */}
-                                                {!offers.length && (
-                                                    <>
-                                                        <Button variant="outline" className={`w-full justify-between h-auto py-3 border-purple-200 hover:bg-purple-100 hover:text-purple-900 ${customer.total_points < 500 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                            onClick={() => handleCreateVoucher({ title: 'Sconto €5' }, 500)}
-                                                            disabled={customer.total_points < 500 || updateStatus === 'updating'}
-                                                        >
-                                                            <span>Sconto €5</span>
-                                                            <div className="flex items-center gap-1">
-                                                                <span className="font-bold text-purple-600">500 Pt</span>
-                                                                {customer.total_points < 500 && <Lock className="w-4 h-4 text-gray-400" />}
-                                                            </div>
-                                                        </Button>
-                                                        <Button variant="outline" className={`w-full justify-between h-auto py-3 border-purple-200 hover:bg-purple-100 hover:text-purple-900 ${customer.total_points < 1000 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                            onClick={() => handleCreateVoucher({ title: 'Sconto €10' }, 1000)}
-                                                            disabled={customer.total_points < 1000 || updateStatus === 'updating'}
-                                                        >
-                                                            <span>Sconto €10</span>
-                                                            <div className="flex items-center gap-1">
-                                                                <span className="font-bold text-purple-600">1000 Pt</span>
-                                                                {customer.total_points < 1000 && <Lock className="w-4 h-4 text-gray-400" />}
-                                                            </div>
-                                                        </Button>
-                                                    </>
+                                            <div className="relative">
+                                                <div className="absolute inset-0 flex items-center">
+                                                    <span className="w-full border-t border-gray-200" />
+                                                </div>
+                                                <div className="relative flex justify-center text-xs uppercase">
+                                                    <span className="bg-white px-2 text-gray-400 font-medium">Oppure Manuale</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Option 2: Manual */}
+                                            <div className="space-y-2">
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Inserisci punti (es. 100)"
+                                                    className="h-12 text-center text-lg font-bold"
+                                                    value={customPoints}
+                                                    onChange={(e) => setCustomPoints(e.target.value)}
+                                                />
+                                                {customPoints && !isNaN(customPoints) && (
+                                                    <div className="text-center text-sm text-gray-500 bg-gray-50 py-1 rounded-lg">
+                                                        Valore stimato: <span className="font-bold text-gray-900">€{getEstimatedValue(customPoints)}</span>
+                                                    </div>
                                                 )}
-
-                                                {/* Dynamic Offers from API (Assuming fetched offers don't match hardcoded placeholders, or purely dynamic) */}
-                                                {offers.map(offer => {
-                                                    // Determine cost. If not present, fallback to 500 for demo, or don't show.
-                                                    // Since we don't know the schema, we assume offer.points_cost or fallback to 500
-                                                    const cost = offer.points_cost || 500;
-                                                    const title = typeof offer.title === 'string' ? offer.title : (offer.title.it || offer.title.en || 'Offerta Speciale');
-
-                                                    return (
-                                                        <Button
-                                                            key={offer.id}
-                                                            variant="outline"
-                                                            className={`w-full justify-between h-auto py-3 border-purple-200 hover:bg-purple-100 hover:text-purple-900 ${customer.total_points < cost ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                            onClick={() => handleCreateVoucher(offer, cost)}
-                                                            disabled={customer.total_points < cost || updateStatus === 'updating'}
-                                                        >
-                                                            <span className="truncate max-w-[150px]">{title}</span>
-                                                            <div className="flex items-center gap-1">
-                                                                <span className="font-bold text-purple-600">{cost} Pt</span>
-                                                                {customer.total_points < cost && <Lock className="w-4 h-4 text-gray-400" />}
-                                                            </div>
-                                                        </Button>
-                                                    );
-                                                })}
+                                                <Button
+                                                    className="w-full h-12 font-bold bg-gray-900 text-white hover:bg-gray-800"
+                                                    onClick={() => handleCreateVoucher(parseInt(customPoints))}
+                                                    disabled={!customPoints || parseInt(customPoints) <= 0 || parseInt(customPoints) > customer.total_points || updateStatus === 'updating'}
+                                                >
+                                                    Crea Voucher Manuale
+                                                </Button>
                                             </div>
                                         </div>
                                     </TabsContent>

@@ -2,36 +2,42 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendSms } from '@/lib/sms';
 
-export const dynamic = 'force-dynamic'; // Prevent caching
-export const maxDuration = 60; // Allow 1 minute timeout for cron
+export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 export async function GET(request) {
-    // 1. Verify CRON_SECRET for security
-    const authHeader = request.headers.get('authorization');
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        return new NextResponse('Unauthorized', { status: 401 });
-    }
-
-    // 2. Setup Supabase Service Role (Bypass RLS)
-    const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-    );
-
-    // 3. Define the threshold (15 days ago)
-    const thresholdDate = new Date();
-    thresholdDate.setDate(thresholdDate.getDate() - 15);
-    const isoThreshold = thresholdDate.toISOString();
-
     try {
-        // 4. Find Target Users
-        // Criteria:
-        // - Gold or Legend (Assume > 100 points is decent, or specific tiers)
-        // - Last scan was more than 15 days ago
-        // - Hasn't been retargeted in the last 15 days (prevent spam loop)
-        // - Has a phone number
+        // 1. Verify CRON_SECRET for security
+        const { searchParams } = new URL(request.url);
+        const force = searchParams.get('force') === 'true';
 
-        // Fetch users who haven't scanned recently
+        const authHeader = request.headers.get('authorization');
+        const isDev = process.env.NODE_ENV === 'development';
+
+        if (!force || !isDev) {
+            if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+                return new Response('Unauthorized', { status: 401 });
+            }
+        }
+
+        // 2. Setup Supabase Service Role
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        // Fallback to the user's variable name (although public prefix is not recommended for service keys)
+        const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+
+        if (!supabaseUrl || !supabaseKey) {
+            throw new Error("Missing Supabase Environment Variables (Service Role)");
+        }
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // 3. Define the threshold (15 days ago)
+        const thresholdDate = new Date();
+        thresholdDate.setDate(thresholdDate.getDate() - 15);
+        const isoThreshold = thresholdDate.toISOString();
+
+        // 4. Find Target Users (Step 1: Get Candidates by Date)
+        // Removing the inner join on view to avoid relationship errors
         const { data: users, error } = await supabase
             .from('customers')
             .select(`
@@ -39,23 +45,45 @@ export async function GET(request) {
                 first_name,
                 phone_number,
                 last_scan_date,
-                last_retarget_date,
-                customer_points_balance!inner(total_points)
+                last_retarget_date
             `)
             .lt('last_scan_date', isoThreshold)  // Scan older than 15 days
             .or(`last_retarget_date.is.null,last_retarget_date.lt.${isoThreshold}`) // Not retargeted recently
-            .not('phone_number', 'is', null) // Must have phone
-            .gt('customer_points_balance.total_points', 100); // Only "Silver" or above (>100 pts)
+            .not('phone_number', 'is', null);
 
         if (error) throw error;
 
-        console.log(`Found ${users.length} users to retarget.`);
+        console.log(`Found ${users.length} date-eligible candidates.`);
         const report = [];
 
-        // 5. Process Each User
+        // 5. Process Each User (Filter by Points & Send)
         for (const user of users) {
+
+            // Check Points Balance (Step 2)
+            const { data: balance } = await supabase
+                .from('customer_points_balance')
+                .select('total_points')
+                .eq('customer_id', user.id)
+                .single();
+
+            const currentPoints = balance?.total_points || 0;
+
+            if (currentPoints < 100) {
+                // Skip users with low points
+                continue;
+            }
+
             const pointsToAdd = 20;
-            const phone = user.phone_number; // Ensure format +39...
+            let phone = user.phone_number;
+
+            // Format phone number: Ensure it starts with +, default to +39 (Italy) if not
+            if (phone) {
+                // Remove spaces/dashes
+                phone = phone.replace(/[\s\-\(\)]/g, '');
+                if (!phone.startsWith('+')) {
+                    phone = '+39' + phone;
+                }
+            }
 
             // Send SMS
             const smsResult = await sendSms(
@@ -79,12 +107,14 @@ export async function GET(request) {
 
                 report.push({
                     user: user.first_name,
-                    status: 'Sent & Points Added'
+                    status: 'Sent & Points Added',
+                    phone: phone
                 });
             } else {
+                console.error("SMS Failed for", user.first_name, smsResult.error);
                 report.push({
                     user: user.first_name,
-                    status: 'Failed',
+                    status: 'SMS Failed',
                     error: smsResult.error
                 });
             }
@@ -92,12 +122,16 @@ export async function GET(request) {
 
         return NextResponse.json({
             success: true,
-            processed: users.length,
+            processed_candidates: users.length,
+            actions_taken: report.length,
             details: report
         });
 
     } catch (err) {
         console.error("Cron Job Failed:", err);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+        return NextResponse.json({
+            error: err.message,
+            stack: err.stack
+        }, { status: 500 });
     }
 }

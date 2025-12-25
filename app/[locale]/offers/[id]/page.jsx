@@ -27,14 +27,14 @@ export async function generateMetadata({ params }) {
             openGraph: {
                 title: offer.title,
                 description: offer.description.substring(0, 160),
-                images: [offer.image_url || '/illus/undraw_gift-joy_kqz4.svg'],
+                images: ['/logo.jpeg'], // Always use logo for branding
                 type: 'website',
             },
             twitter: {
                 card: 'summary_large_image',
                 title: offer.title,
                 description: offer.description.substring(0, 160),
-                images: [offer.image_url || '/illus/undraw_gift-joy_kqz4.svg'],
+                images: ['/logo.jpeg'], // Always use logo for branding
             },
         };
     } catch (error) {

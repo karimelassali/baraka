@@ -160,7 +160,10 @@ export default function OfferDetailView({ offer, locale }) {
 
                         {/* CTA Section */}
                         <div className="pt-6 border-t border-gray-100 dark:border-neutral-800 space-y-4">
-                            <Button className="w-full h-16 text-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/20 hover:shadow-red-600/40 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]">
+                            <Button
+                                onClick={() => window.open(`https://wa.me/393245668944?text=Ciao Baraka! Sono interessato all'offerta: ${offer?.title}`, '_blank')}
+                                className="w-full h-16 text-xl font-bold bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-600/20 hover:shadow-red-600/40 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            >
                                 <ShoppingBag className="mr-2 h-6 w-6" />
                                 Claim Offer Now
                             </Button>

@@ -56,17 +56,21 @@ export default function ScanPage() {
 
                 console.log("Trying prefix match with:", uuidPrefix);
 
-                // Use filter with text cast for UUID column
+                // Supabase doesn't support ILIKE on UUID, so fetch and filter client-side
                 const result = await supabase
                     .from("customers")
-                    .select("id, first_name, last_name, email")
-                    .filter('id', 'ilike', `${uuidPrefix}%`)
-                    .limit(1);
+                    .select("id, first_name, last_name, email");
 
-                if (result.data && result.data.length > 0) {
-                    customerData = result.data[0];
+                if (result.data) {
+                    // Find customer whose ID starts with the prefix
+                    const matched = result.data.find(c => c.id.toLowerCase().startsWith(uuidPrefix));
+                    if (matched) {
+                        customerData = matched;
+                    } else {
+                        customerError = { message: `No customer found with prefix: ${uuidPrefix}` };
+                    }
                 } else {
-                    customerError = result.error || { message: "No match found" };
+                    customerError = result.error;
                 }
             }
 

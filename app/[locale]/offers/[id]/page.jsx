@@ -27,14 +27,14 @@ export async function generateMetadata({ params }) {
             openGraph: {
                 title: offer.title,
                 description: offer.description.substring(0, 160),
-                images: ['/logo.jpeg'], // Always use logo for branding
+                images: [new URL('/logo.jpeg', getBaseUrl()).toString()], // Absolute URL for robust preview
                 type: 'website',
             },
             twitter: {
                 card: 'summary_large_image',
                 title: offer.title,
                 description: offer.description.substring(0, 160),
-                images: ['/logo.jpeg'], // Always use logo for branding
+                images: [new URL('/logo.jpeg', getBaseUrl()).toString()],
             },
         };
     } catch (error) {

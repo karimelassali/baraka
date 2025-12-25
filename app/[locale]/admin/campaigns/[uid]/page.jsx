@@ -34,6 +34,14 @@ export default function CampaignExecutionPage() {
         const data = sessionStorage.getItem(`campaign_${params.uid}`);
         if (data) {
             const parsed = JSON.parse(data);
+
+            // Safety Check: Ensure users array exists (handles corrupted session data)
+            if (!parsed.users || !Array.isArray(parsed.users)) {
+                console.error("Campaign data missing users:", parsed);
+                router.push('/admin/campaigns');
+                return;
+            }
+
             setCampaign(parsed);
             // Initialize results array
             setResults(parsed.users.map(u => ({ id: u.id, status: 'pending' })));
@@ -44,7 +52,7 @@ export default function CampaignExecutionPage() {
     }, [params.uid, router]);
 
     // Function to send SMS to a single user
-    const sendSmsToUser = useCallback(async (user, message) => {
+    const sendSmsToUser = useCallback(async (user, message, imageUrl) => {
         try {
             const response = await fetch('/api/admin/campaigns/send-one', {
                 method: 'POST',
@@ -53,7 +61,8 @@ export default function CampaignExecutionPage() {
                     phoneNumber: user.phone_number,
                     message: message,
                     customerId: user.id,
-                    customerName: `${user.first_name} ${user.last_name}`
+                    customerName: `${user.first_name} ${user.last_name}`,
+                    imageUrl: imageUrl // Pass Optional Image
                 }),
             });
 
@@ -89,7 +98,7 @@ export default function CampaignExecutionPage() {
                 }
 
                 // Actually send the SMS
-                const result = await sendSmsToUser(user, campaign.message);
+                const result = await sendSmsToUser(user, campaign.message, campaign.imageUrl);
 
                 // Update results with error message if failed
                 setResults(prev => {

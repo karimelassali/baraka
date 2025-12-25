@@ -10,7 +10,8 @@ export async function GET(request) {
         const { searchParams } = new URL(request.url);
         const force = searchParams.get('force') === 'true';
         const targetPhone = searchParams.get('phone');
-        const offerId = searchParams.get('offer_id'); // Optional: Append offer link
+        const offerId = searchParams.get('offer_id');
+        const imageUrl = searchParams.get('image_url'); // Optional: MMS Image
 
         const authHeader = request.headers.get('authorization');
         const isDev = process.env.NODE_ENV === 'development';
@@ -83,12 +84,12 @@ export async function GET(request) {
             const greeting = user.first_name ? `Ciao ${user.first_name}!` : `Ciao!`;
             let msgBody = `${greeting} Ci manchi! Ecco ${pointsToAdd} punti per te se vieni nel weekend!`;
 
-            // Append Short Offer Link if provided
             if (offerId) {
                 msgBody += ` Vedi offerta: ${shortLinkBase}/${offerId}`;
             }
 
-            const smsResult = await sendSms(phone, msgBody);
+            // Send SMS (with optional image)
+            const smsResult = await sendSms(phone, msgBody, imageUrl);
 
             if (smsResult.success) {
                 if (user.id) {

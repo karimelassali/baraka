@@ -12,6 +12,8 @@ export async function GET(request, { params }) {
         return NextResponse.json({ error: 'Offer ID is required' }, { status: 400 });
     }
 
+    console.log(`[API] Fetching offer with ID: ${id}`);
+
     const { data: offer, error } = await supabase
         .from('offers')
         .select(`
@@ -22,7 +24,13 @@ export async function GET(request, { params }) {
         .single();
 
     if (error) {
+        console.error(`[API] Supabase error for offer ${id}:`, error);
         return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    if (!offer) {
+        console.error(`[API] No offer found for ID: ${id}`);
+        return NextResponse.json({ error: 'Offer not found' }, { status: 404 });
     }
 
     // Transform offer to use the requested locale

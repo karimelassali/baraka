@@ -8,62 +8,85 @@ const getBaseUrl = () => {
     return 'http://localhost:3000';
 };
 
-// Function to generate metadata for rich link previews
-export async function generateMetadata({ params }) {
-    const { id, locale } = await params;
+import { createAdminClient } from '@/lib/supabase/admin';
 
-    try {
-        // Fetch offer data internally
-        const response = await fetch(`${getBaseUrl()}/api/offers/${id}?locale=${locale}`);
-        const data = await response.json();
+// Helper to fetch offer directly from DB
+async function getOfferDirect(id, locale) {
+    const supabase = createAdminClient();
 
-        if (!data.offer) return { title: 'Offer Not Found' };
-
-        const offer = data.offer;
-
-        return {
-            title: `${offer.title} | Baraka Store`,
-            description: offer.description.substring(0, 160),
-            openGraph: {
-                title: offer.title,
-                description: offer.description.substring(0, 160),
-                images: [new URL('/logo.jpeg', getBaseUrl()).toString()], // Absolute URL for robust preview
-                type: 'website',
-            },
-            twitter: {
-                card: 'summary_large_image',
-                title: offer.title,
-                description: offer.description.substring(0, 160),
-                images: [new URL('/logo.jpeg', getBaseUrl()).toString()],
-            },
-        };
-    } catch (error) {
-        return { title: 'Baraka Store Offer' };
+    // Validate UUID format to prevent DB errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+        console.error("Invalid UUID format for offer:", id);
+        return null;
     }
-}
-
-async function getOffer(id, locale) {
-    const url = `${getBaseUrl()}/api/offers/${id}?locale=${locale}`;
-    console.log("Fetching Offer from:", url);
 
     try {
-        const res = await fetch(url, {
-            cache: 'no-store' // Ensure fresh data
-        });
+        const { data: offer, error } = await supabase
+            .from('offers')
+            .select(`
+                *,
+                category:offer_categories(*)
+            `)
+            .eq('id', id)
+            .single();
 
-        if (!res.ok) return null;
+        if (error || !offer) {
+            console.error("Error fetching offer directly:", error || "No offer found");
+            return null;
+        }
 
-        const data = await res.json();
-        return data.offer;
-    } catch (error) {
-        console.error("Error fetching offer:", error);
+        // Transform offer to use the requested locale (replicating API logic)
+        return {
+            id: offer.id,
+            title: offer.title?.[locale] || offer.title?.en || 'Untitled Offer',
+            description: offer.description?.[locale] || offer.description?.en || '',
+            image_url: offer.image_url,
+            offer_type: offer.offer_type,
+            start_date: offer.start_date,
+            end_date: offer.end_date,
+            created_at: offer.created_at,
+            is_popup: offer.is_popup,
+            category_id: offer.category_id,
+            category_name: offer.category?.name?.[locale] || offer.category?.name?.en,
+            badge_text: offer.badge_text,
+            is_active: offer.is_active
+        };
+    } catch (err) {
+        console.error("Exception fetching offer:", err);
         return null;
     }
 }
 
+// Function to generate metadata for rich link previews
+export async function generateMetadata({ params }) {
+    const { id, locale } = await params;
+
+    const offer = await getOfferDirect(id, locale);
+
+    if (!offer) return { title: 'Offer Not Found' };
+
+    return {
+        title: `${offer.title} | Baraka Store`,
+        description: offer.description.substring(0, 160),
+        openGraph: {
+            title: offer.title,
+            description: offer.description.substring(0, 160),
+            images: [new URL('/logo.jpeg', getBaseUrl()).toString()],
+            type: 'website',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: offer.title,
+            description: offer.description.substring(0, 160),
+            images: [new URL('/logo.jpeg', getBaseUrl()).toString()],
+        },
+    };
+}
+
 export default async function OfferPage({ params }) {
     const { id, locale } = await params;
-    const offer = await getOffer(id, locale);
+    const offer = await getOfferDirect(id, locale);
 
     if (!offer) {
         notFound();

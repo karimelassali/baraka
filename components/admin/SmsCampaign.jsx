@@ -19,9 +19,20 @@ import {
     UserCheck,
     Link as LinkIcon,
     Image as ImageIcon,
-    X
+    X,
+    Sparkles,
+    Languages,
+    Phone
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuLabel,
+    DropdownMenuSeparator
+} from '../../components/ui/dropdown-menu';
 
 import { CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import GlassCard from '../../components/ui/GlassCard';
@@ -39,13 +50,40 @@ export default function SmsCampaign() {
         targetGroup: 'all',
         nationality: '',
         pointsThreshold: 0,
-        selectedCustomerIds: []
+        selectedCustomerIds: [],
+        targetGroup: 'all',
+        nationality: '',
+        pointsThreshold: 0,
+        selectedCustomerIds: [],
+        manualNumbers: '', // New field for manual numbers
+        imageUrl: ''
     });
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState({ type: '', message: '' });
     const [loading, setLoading] = useState(false);
     const [recipientCount, setRecipientCount] = useState(null);
+
     const [loadingPreview, setLoadingPreview] = useState(false);
+    const [translating, setTranslating] = useState(false);
+    const [animatedMessage, setAnimatedMessage] = useState('');
+
+    // Animation effect for translation
+    const animateText = (text) => {
+        let currentText = '';
+        const chars = text.split('');
+        let i = 0;
+
+        const interval = setInterval(() => {
+            if (i >= chars.length) {
+                clearInterval(interval);
+                return;
+            }
+            currentText += chars[i];
+            setAnimatedMessage(currentText);
+            setFormData(prev => ({ ...prev, message: currentText }));
+            i++;
+        }, 15); // Speed of typing effect
+    };
 
     // Offer Selection State
     const [showOfferPicker, setShowOfferPicker] = useState(false);
@@ -72,11 +110,54 @@ export default function SmsCampaign() {
 
     const handleAddOfferLink = (offer) => {
         const offerLink = `${window.location.origin}/offers/${offer.id}`;
-        const newMessage = formData.message ? `${formData.message}\n\nCheck this out: ${offerLink}` : `Check out our special offer: ${offer.title}\n${offerLink}`;
 
-        setFormData(prev => ({ ...prev, message: newMessage }));
+        // Handle localized title (JSONB) or string
+        let title = offer.title;
+        if (typeof title === 'object' && title !== null) {
+            title = title.en || title.it || Object.values(title)[0] || 'Special Offer';
+        }
+
+        const newMessage = formData.message ? `${formData.message}\n\nCheck this out: ${offerLink}` : `Check out our special offer: ${title}\n${offerLink}`;
+
+        setFormData(prev => ({
+            ...prev,
+            message: newMessage,
+            imageUrl: offer.image_url || prev.imageUrl // Auto-fill image if available
+        }));
         setSelectedOffer(offer);
         setShowOfferPicker(false);
+
+    };
+
+    const handleTranslate = async (targetLanguage) => {
+        if (!formData.message) return;
+        setTranslating(true);
+        setStatus({ type: '', message: '' });
+
+        try {
+            const response = await fetch('/api/ai/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: formData.message,
+                    targetLanguage
+                }),
+            });
+            const data = await response.json();
+
+            if (response.ok && data.translatedText) {
+                // setFormData(prev => ({ ...prev, message: data.translatedText }));
+                animateText(data.translatedText);
+            } else {
+                console.error('Translation failed:', data.error);
+                setStatus({ type: 'error', message: 'Translation failed: ' + (data.error || 'Unknown error') });
+            }
+        } catch (error) {
+            console.error('Translation error:', error);
+            setStatus({ type: 'error', message: 'Translation error' });
+        } finally {
+            setTranslating(false);
+        }
     };
 
     const validate = () => {
@@ -95,6 +176,15 @@ export default function SmsCampaign() {
         }
         if (formData.targetGroup === 'specific' && formData.selectedCustomerIds.length === 0) {
             newErrors.selectedCustomerIds = 'Please select at least one customer';
+        }
+        if (formData.targetGroup === 'manual') {
+            if (!formData.manualNumbers.trim()) {
+                newErrors.manualNumbers = 'Please enter at least one phone number';
+            } else {
+                // Basic validation for comma/newline separated numbers
+                const numbers = formData.manualNumbers.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
+                if (numbers.length === 0) newErrors.manualNumbers = 'Please enter valid phone numbers';
+            }
         }
         return newErrors;
     };
@@ -118,6 +208,11 @@ export default function SmsCampaign() {
     const loadRecipientPreview = async () => {
         if (formData.targetGroup === 'specific') {
             setRecipientCount(formData.selectedCustomerIds.length);
+            return;
+        }
+        if (formData.targetGroup === 'manual') {
+            const numbers = formData.manualNumbers.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
+            setRecipientCount(numbers.length);
             return;
         }
 
@@ -176,6 +271,17 @@ export default function SmsCampaign() {
                 const response = await fetch('/api/admin/customers?limit=1000');
                 const data = await response.json();
                 users = data.customers.filter(c => formData.selectedCustomerIds.includes(c.id));
+            } else if (formData.targetGroup === 'manual') {
+                // Create temporary user objects for manual numbers
+                users = formData.manualNumbers.split(/[\n,]+/)
+                    .map(n => n.trim())
+                    .filter(Boolean)
+                    .map(phone => ({
+                        id: 'manual_' + phone,
+                        phone_number: phone,
+                        first_name: 'Guest',
+                        last_name: ''
+                    }));
             } else {
                 const response = await fetch('/api/admin/campaigns/preview?returnUsers=true', {
                     method: 'POST',
@@ -210,7 +316,8 @@ export default function SmsCampaign() {
                 users: users,
                 createdAt: new Date().toISOString(),
                 status: 'running',
-                type: 'sms'
+                type: 'sms',
+                imageUrl: formData.imageUrl
             }));
 
             // Redirect to animation page which will send real SMS one by one
@@ -285,16 +392,21 @@ export default function SmsCampaign() {
                                                 { id: 'all', icon: Users, label: 'All Customers' },
                                                 { id: 'nationality', icon: Globe, label: 'By Nationality' },
                                                 { id: 'points', icon: Award, label: 'By Points' },
-                                                { id: 'specific', icon: UserCheck, label: 'Select Clients' }
+                                                { id: 'points', icon: Award, label: 'By Points' },
+                                                { id: 'specific', icon: UserCheck, label: 'Select Clients' },
+                                                { id: 'manual', icon: Phone, label: 'Manual Numbers' }
                                             ].map((type) => (
                                                 <div
                                                     key={type.id}
                                                     onClick={() => {
                                                         setFormData(prev => ({ ...prev, targetGroup: type.id }));
-                                                        if (type.id !== 'specific') {
+                                                        if (type.id !== 'specific' && type.id !== 'manual') {
                                                             setRecipientCount(null);
-                                                        } else {
+                                                        } else if (type.id === 'specific') {
                                                             setRecipientCount(formData.selectedCustomerIds.length);
+                                                        } else {
+                                                            const nums = formData.manualNumbers.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
+                                                            setRecipientCount(nums.length || null);
                                                         }
                                                     }}
                                                     className={`cursor-pointer p-4 rounded-xl border-2 transition-all ${formData.targetGroup === type.id
@@ -365,8 +477,30 @@ export default function SmsCampaign() {
                                                 </div>
                                             )}
 
+                                            {formData.targetGroup === 'manual' && (
+                                                <div className="space-y-2">
+                                                    <label className="text-sm font-medium">Enter Phone Numbers</label>
+                                                    <textarea
+                                                        name="manualNumbers"
+                                                        value={formData.manualNumbers}
+                                                        onChange={(e) => {
+                                                            handleChange(e);
+                                                            const nums = e.target.value.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
+                                                            setRecipientCount(nums.length || null);
+                                                        }}
+                                                        placeholder="Enter phone numbers separated by commas or new lines...&#10;+1234567890&#10;+9876543210"
+                                                        rows={4}
+                                                        className="w-full px-4 py-3 rounded-lg border bg-background focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                                                    />
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Enter numbers in international format (e.g., +1234567890).
+                                                    </p>
+                                                    {errors.manualNumbers && <p className="text-sm text-red-500">{errors.manualNumbers}</p>}
+                                                </div>
+                                            )}
+
                                             {/* Recipient Count */}
-                                            {formData.targetGroup !== 'specific' && (
+                                            {formData.targetGroup !== 'specific' && formData.targetGroup !== 'manual' && (
                                                 <div className="mt-4 flex items-center justify-between pt-4 border-t border-border/50">
                                                     <div className="text-sm">
                                                         {recipientCount !== null ? (
@@ -407,23 +541,79 @@ export default function SmsCampaign() {
                                                     name="message"
                                                     value={formData.message}
                                                     onChange={handleChange}
-                                                    placeholder="Type your SMS message here... Keep it concise! 📱"
-                                                    rows={4}
-                                                    className="w-full px-4 py-3 rounded-xl border bg-background focus:ring-2 focus:ring-blue-500 resize-none pr-12"
+                                                    placeholder="Enter your message here..."
+                                                    rows={5}
+                                                    className="w-full px-4 py-3 rounded-xl border bg-background focus:ring-2 focus:ring-blue-500 resize-none pr-12 transition-all"
                                                 />
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => {
-                                                        setShowOfferPicker(true);
-                                                        fetchOffers();
-                                                    }}
-                                                    className="absolute right-2 top-2 text-blue-600 hover:bg-blue-50"
-                                                    title="Insert Offer Link"
-                                                >
-                                                    <LinkIcon className="h-4 w-4" />
-                                                </Button>
+                                                <AnimatePresence>
+                                                    {translating && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            exit={{ opacity: 0 }}
+                                                            className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none z-20"
+                                                        >
+                                                            <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                                                                <div className="relative">
+                                                                    <div className="absolute inset-0 blur-xl bg-blue-500/30 animate-pulse rounded-full" />
+                                                                    <Sparkles className="h-8 w-8 text-blue-600 animate-spin-slow relative z-10" />
+                                                                </div>
+                                                                <motion.p
+                                                                    initial={{ opacity: 0, y: 5 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    className="text-sm font-medium text-blue-600 mt-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600"
+                                                                >
+                                                                    AI Translating...
+                                                                </motion.p>
+                                                            </div>
+                                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500/10 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]" />
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+
+                                                <div className="absolute right-2 top-2 flex flex-col gap-1 z-30">
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="text-amber-500 hover:bg-amber-50"
+                                                                title="AI Translate"
+                                                                disabled={translating || !formData.message}
+                                                            >
+                                                                {translating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="max-h-[300px] overflow-y-auto">
+                                                            <DropdownMenuLabel>AI Translate to...</DropdownMenuLabel>
+                                                            <DropdownMenuSeparator />
+                                                            {countries.map((country) => (
+                                                                <DropdownMenuItem
+                                                                    key={country.code}
+                                                                    onClick={() => handleTranslate(country.name)}
+                                                                >
+                                                                    <span className="mr-2">{country.flag}</span>
+                                                                    {country.name}
+                                                                </DropdownMenuItem>
+                                                            ))}
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => {
+                                                            setShowOfferPicker(true);
+                                                            fetchOffers();
+                                                        }}
+                                                        className="text-blue-600 hover:bg-blue-50"
+                                                        title="Insert Offer Link"
+                                                    >
+                                                        <LinkIcon className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
                                             </div>
 
                                             {selectedOffer && (
@@ -452,9 +642,24 @@ export default function SmsCampaign() {
                                             )}
 
                                             {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
-                                            <p className="text-xs text-muted-foreground">
-                                                💡 Tip: Standard SMS is 160 characters. Longer messages may be split into multiple segments.
+                                            <p className="text-xs text-muted-foreground mt-2">
+                                                Note: Standard SMS is 160 characters. Longer messages may be split into multiple segments.
                                             </p>
+
+                                            {/* MMS Image Input */}
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium flex items-center gap-2">
+                                                    <ImageIcon className="h-4 w-4 text-blue-600" />
+                                                    Attach Image URL (MMS) <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
+                                                </label>
+                                                <Input
+                                                    name="imageUrl"
+                                                    value={formData.imageUrl}
+                                                    onChange={handleChange}
+                                                    placeholder="https://example.com/image.jpg"
+                                                    className="bg-background"
+                                                />
+                                            </div>
                                         </div>
 
                                         <Button
@@ -502,6 +707,11 @@ export default function SmsCampaign() {
                                                     <p className="text-sm whitespace-pre-wrap">
                                                         {formData.message}
                                                     </p>
+                                                    {formData.imageUrl && (
+                                                        <div className="mt-2 rounded-lg overflow-hidden border border-white/20">
+                                                            <img src={formData.imageUrl} alt="MMS Preview" className="w-full h-auto object-cover" />
+                                                        </div>
+                                                    )}
                                                     <div className="text-[10px] text-white/70 text-right mt-1 flex items-center justify-end gap-1">
                                                         {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         <CheckCircle2 className="h-3 w-3" />

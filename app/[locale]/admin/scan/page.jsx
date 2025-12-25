@@ -27,23 +27,46 @@ export default function ScanPage() {
 
         try {
             // 1. Fetch Customer Details
-            // The scanned ID is the first 12 chars of the UUID (no dashes, uppercase)
-            // We need to search by prefix matching
-            const scannedCode = decodedText.toLowerCase(); // Convert back to lowercase for matching
+            // Handle BOTH old (full UUID) and new (12-char short) barcode formats
+            let customerData = null;
+            let customerError = null;
 
-            // Construct the UUID prefix pattern for LIKE query
-            // UUID format: xxxxxxxx-xxxx-... so first 12 chars without dashes = first 8 + first 4 of second segment
-            const uuidPrefix = scannedCode.slice(0, 8) + '-' + scannedCode.slice(8, 12);
+            console.log("Scanned value:", decodedText, "Length:", decodedText.length);
 
-            const { data: customerData, error: customerError } = await supabase
-                .from("customers")
-                .select("id, first_name, last_name, email")
-                .ilike("id", `${uuidPrefix}%`)
-                .single();
+            // Check if it's a full UUID (contains dashes or is 36 chars)
+            if (decodedText.includes('-') || decodedText.length >= 32) {
+                // OLD FORMAT: Full UUID - exact match
+                console.log("Trying exact UUID match...");
+                const result = await supabase
+                    .from("customers")
+                    .select("id, first_name, last_name, email")
+                    .eq("id", decodedText)
+                    .single();
+                customerData = result.data;
+                customerError = result.error;
+            }
+
+            // If not found or it's the new short format, try prefix match
+            if (!customerData) {
+                // NEW FORMAT: First 12 chars without dashes, uppercase
+                const scannedCode = decodedText.toLowerCase().replace(/-/g, '');
+
+                // Construct UUID prefix: xxxxxxxx-xxxx
+                const uuidPrefix = scannedCode.slice(0, 8) + '-' + scannedCode.slice(8, 12);
+
+                console.log("Trying prefix match with:", uuidPrefix);
+                const result = await supabase
+                    .from("customers")
+                    .select("id, first_name, last_name, email")
+                    .ilike("id", `${uuidPrefix}%`)
+                    .single();
+                customerData = result.data;
+                customerError = result.error;
+            }
 
             if (customerError || !customerData) {
                 console.error("Customer fetch error:", customerError);
-                toast.error("Utente non trovato!");
+                toast.error(`Utente non trovato! (Scanned: ${decodedText})`);
                 setScanning(true); // Restart scanning
                 setLoading(false);
                 return;

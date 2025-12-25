@@ -46,32 +46,22 @@ export default function ScanPage() {
                 customerError = result.error;
             }
 
-            // If not found or it's the new short format, try prefix match
+            // If not found, use the indexed barcode_value column (efficient for large datasets)
             if (!customerData) {
-                // NEW FORMAT: First 12 chars without dashes, uppercase
-                const scannedCode = decodedText.toLowerCase().replace(/-/g, '');
+                // Convert scanned code to uppercase (barcode_value is stored uppercase)
+                const barcodeValue = decodedText.toUpperCase().replace(/-/g, '').substring(0, 12);
 
-                // Construct UUID prefix: xxxxxxxx-xxxx
-                const uuidPrefix = scannedCode.slice(0, 8) + '-' + scannedCode.slice(8, 12);
+                console.log("Looking up by barcode_value:", barcodeValue);
 
-                console.log("Trying prefix match with:", uuidPrefix);
-
-                // Supabase doesn't support ILIKE on UUID, so fetch and filter client-side
+                // Fast indexed lookup - O(1) even with 600k customers
                 const result = await supabase
                     .from("customers")
-                    .select("id, first_name, last_name, email");
+                    .select("id, first_name, last_name, email")
+                    .eq("barcode_value", barcodeValue)
+                    .single();
 
-                if (result.data) {
-                    // Find customer whose ID starts with the prefix
-                    const matched = result.data.find(c => c.id.toLowerCase().startsWith(uuidPrefix));
-                    if (matched) {
-                        customerData = matched;
-                    } else {
-                        customerError = { message: `No customer found with prefix: ${uuidPrefix}` };
-                    }
-                } else {
-                    customerError = result.error;
-                }
+                customerData = result.data;
+                customerError = result.error;
             }
 
             if (customerError || !customerData) {

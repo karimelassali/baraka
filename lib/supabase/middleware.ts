@@ -95,9 +95,13 @@ export async function updateSession(request: NextRequest, response?: NextRespons
 
     // Protected routes logic
     const isAdminRoute = cleanPath.startsWith('/admin');
+    const isApiAdminRoute = cleanPath.startsWith('/api/admin');
 
-    if (isAdminRoute) {
+    if (isAdminRoute || isApiAdminRoute) {
         if (!user) {
+            if (isApiAdminRoute) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+            }
             url.pathname = '/auth/login'
             url.search = `?redirect=${encodeURIComponent(request.nextUrl.pathname)}`
             return NextResponse.redirect(url)
@@ -112,6 +116,9 @@ export async function updateSession(request: NextRequest, response?: NextRespons
             .single()
 
         if (!adminData) {
+            if (isApiAdminRoute) {
+                return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+            }
             url.pathname = '/unauthorized'
             return NextResponse.redirect(url)
         }

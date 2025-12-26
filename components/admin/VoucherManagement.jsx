@@ -31,6 +31,7 @@ import { countries } from '../../lib/constants/countries';
 import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { formatDistanceToNow } from 'date-fns';
+import ActiveFilterSummary from './ActiveFilterSummary';
 
 // --- Sub-components ---
 
@@ -191,7 +192,7 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500/20 shrink-0">
                 <img
-                  src={getAvatarUrl(customer.first_name)}
+                  src={getAvatarUrl(customer.email || customer.first_name)}
                   alt={customer.first_name}
                   className="w-full h-full object-cover"
                 />
@@ -517,6 +518,7 @@ const CustomerVoucherCard = ({ customer, onClick }) => {
 export default function VoucherManagement() {
   const t = useTranslations('Admin.Vouchers');
   const [customers, setCustomers] = useState([]);
+  const [totalCustomers, setTotalCustomers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -530,6 +532,8 @@ export default function VoucherManagement() {
   const [locationFilter, setLocationFilter] = useState('');
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [minPoints, setMinPoints] = useState('');
+  const [maxPoints, setMaxPoints] = useState('');
 
   const LIMIT = 10;
 
@@ -555,11 +559,15 @@ export default function VoucherManagement() {
         url += `&country=${encodeURIComponent(locationFilter)}`;
       }
 
+      if (minPoints) url += `&min_points=${minPoints}`;
+      if (maxPoints) url += `&max_points=${maxPoints}`;
+
       const response = await fetch(url);
       const data = await response.json();
 
       if (response.ok) {
         const newCustomers = data.customers || data;
+        setTotalCustomers(data.total || 0);
         if (reset) {
           setCustomers(newCustomers);
         } else {
@@ -591,7 +599,7 @@ export default function VoucherManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, [searchTerm, sortField, sortDirection, locationFilter]);
+  }, [searchTerm, sortField, sortDirection, locationFilter, minPoints, maxPoints]);
 
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -702,6 +710,26 @@ export default function VoucherManagement() {
               </div>
 
               <div className="space-y-2">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Points Range</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minPoints}
+                    onChange={(e) => setMinPoints(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxPoints}
+                    onChange={(e) => setMaxPoints(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filters.sort_by')}</label>
                 <div className="relative">
                   <select
@@ -719,11 +747,20 @@ export default function VoucherManagement() {
                     <option value="first_name-desc">{t('filters.name_desc')}</option>
                     <option value="country_of_origin-asc">{t('filters.nationality_asc')}</option>
                     <option value="country_of_origin-desc">{t('filters.nationality_desc')}</option>
+                    <option value="total_points-desc">Points (High to Low)</option>
+                    <option value="total_points-asc">Points (Low to High)</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
                 </div>
               </div>
             </div>
+
+            {/* Active Filter Summary */}
+            <ActiveFilterSummary
+              total={totalCustomers}
+              customers={customers}
+              isLoading={loading && customers.length === 0}
+            />
 
             {/* Content Grid */}
             {loading && customers.length === 0 ? (

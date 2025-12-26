@@ -89,7 +89,7 @@ export default function CustomerSearch({ onSelect, selectedCustomer }) {
                         >
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-red-100 flex-shrink-0 border border-red-200">
                                 <img
-                                    src={getAvatarUrl(customer.first_name)}
+                                    src={getAvatarUrl(customer.email || customer.first_name)}
                                     alt="Avatar"
                                     className="w-full h-full object-cover"
                                 />

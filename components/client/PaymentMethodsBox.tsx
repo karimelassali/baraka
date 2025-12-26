@@ -48,7 +48,10 @@ export default function PaymentMethodsBox() {
         <h3 className="text-2xl font-bold text-gray-900">
           {t('title')}
         </h3>
-        <div className="w-20 h-1 bg-red-600 rounded-full mt-2"></div>
+        <p className="text-gray-500 mt-2 font-medium">
+          {t('description')}
+        </p>
+        <div className="w-20 h-1 bg-red-600 rounded-full mt-4"></div>
       </div>
 
       <div className="p-8 grid gap-10 md:grid-cols-2 lg:grid-cols-4">

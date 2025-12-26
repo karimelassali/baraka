@@ -62,7 +62,7 @@ export default function NoteCard({ note, currentUser, onEdit, onDelete, onPin, d
                     <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center overflow-hidden border">
                             <img
-                                src={getAvatarUrl(note.author?.full_name || 'User')}
+                                src={getAvatarUrl(note.author?.email || note.author?.full_name || 'User')}
                                 alt={note.author?.full_name}
                                 className="w-full h-full object-cover"
                             />

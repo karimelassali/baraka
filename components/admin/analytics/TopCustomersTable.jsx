@@ -52,7 +52,7 @@ export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }
                                                     index === 2 ? 'border-orange-300' :
                                                         'border-transparent'}`}>
                                             <img
-                                                src={getAvatarUrl(item.customer.first_name)}
+                                                src={getAvatarUrl(item.customer.email || item.customer.first_name)}
                                                 alt={item.customer.first_name}
                                                 className="w-full h-full object-cover"
                                             />

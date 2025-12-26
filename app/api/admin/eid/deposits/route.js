@@ -46,7 +46,8 @@ export async function POST(request) {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        // Notify Admins
+        // Notify Admins & Prepare Log Data
+        let customerName = 'Unknown Customer';
         try {
             // Fetch reservation details for context
             const { data: reservation } = await supabase
@@ -58,9 +59,9 @@ export async function POST(request) {
                 .eq('id', reservation_id)
                 .single();
 
-            const customerName = reservation?.customers
-                ? `${reservation.customers.first_name} ${reservation.customers.last_name}`
-                : 'Unknown Customer';
+            if (reservation?.customers) {
+                customerName = `${reservation.customers.first_name} ${reservation.customers.last_name}`;
+            }
 
             await notifySuperAdmins({
                 subject: `Nuovo Acconto Eid: €${amount} per ${customerName}`,

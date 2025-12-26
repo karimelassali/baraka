@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, CheckCircle2, QrCode, Search, Gift, MinusCircle, PlusCircle, AlertCircle, Ticket, Lock, Unlock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { getAvatarUrl } from "@/lib/avatar";
 
 export default function ScanPage() {
     const [scannedId, setScannedId] = useState(null);
@@ -318,9 +319,7 @@ export default function ScanPage() {
         setScanning(true);
     };
 
-    const getAvatarUrl = (email) => {
-        return `https://api.dicebear.com/9.x/avataaars/svg?seed=${email || 'user'}&backgroundColor=c0aede,b6e3f4`;
-    };
+
 
     // Helper for manual points value preview
     const getEstimatedValue = (pt) => (pt / 10).toFixed(2);
@@ -330,13 +329,13 @@ export default function ScanPage() {
             <div className="max-w-xl mx-auto space-y-6">
 
                 {/* Header */}
-                <div className="flex justify-between items-center px-2">
-                    <div>
+                <div className="flex flex-col sm:flex-row justify-between items-center px-2 gap-4">
+                    <div className="text-center sm:text-left">
                         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Baraka Scan</h1>
                         <p className="text-sm text-gray-500">Punti & Voucher</p>
                     </div>
                     {/* Scan Mode Toggle */}
-                    <div className="flex bg-gray-200/50 p-1 rounded-lg">
+                    <div className="flex bg-gray-200/50 p-1 rounded-lg shrink-0">
                         <button
                             onClick={() => setScanMode('customer')}
                             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${scanMode === 'customer' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'}`}
@@ -363,12 +362,12 @@ export default function ScanPage() {
                             transition={{ duration: 0.3 }}
                             className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
                         >
-                            <div className="p-4 bg-gray-900 text-white text-center pb-8 pt-6">
-                                <QrCode className="w-8 h-8 mx-auto mb-2 text-primary" />
+                            <div className="p-4 bg-red-600 text-white text-center pb-8 pt-6">
+                                <QrCode className="w-8 h-8 mx-auto mb-2 text-white/90" />
                                 <h3 className="font-bold text-lg">
                                     {scanMode === 'customer' ? 'Inquadra Carta Cliente' : 'Inquadra Voucher QR'}
                                 </h3>
-                                <p className="text-white/60 text-sm">Posiziona il codice al centro</p>
+                                <p className="text-white/80 text-sm">Posiziona il codice al centro</p>
                             </div>
                             <div className="p-4 -mt-4">
                                 <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">

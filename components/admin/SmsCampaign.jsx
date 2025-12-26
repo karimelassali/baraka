@@ -51,10 +51,6 @@ export default function SmsCampaign() {
         nationality: '',
         pointsThreshold: 0,
         selectedCustomerIds: [],
-        targetGroup: 'all',
-        nationality: '',
-        pointsThreshold: 0,
-        selectedCustomerIds: [],
         manualNumbers: '', // New field for manual numbers
         imageUrl: ''
     });
@@ -391,7 +387,6 @@ export default function SmsCampaign() {
                                             {[
                                                 { id: 'all', icon: Users, label: 'All Customers' },
                                                 { id: 'nationality', icon: Globe, label: 'By Nationality' },
-                                                { id: 'points', icon: Award, label: 'By Points' },
                                                 { id: 'points', icon: Award, label: 'By Points' },
                                                 { id: 'specific', icon: UserCheck, label: 'Select Clients' },
                                                 { id: 'manual', icon: Phone, label: 'Manual Numbers' }

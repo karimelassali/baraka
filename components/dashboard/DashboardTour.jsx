@@ -50,6 +50,15 @@ export default function DashboardTour({ activeTab, enabled = true }) {
                         side: "top",
                         align: 'start'
                     }
+                },
+                {
+                    element: '#floating-barcode-btn',
+                    popover: {
+                        title: t('barcode_title'),
+                        description: t('barcode_desc'),
+                        side: "left",
+                        align: 'end'
+                    }
                 }
             ],
             wallet: [

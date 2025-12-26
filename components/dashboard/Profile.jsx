@@ -59,6 +59,12 @@ export default function Profile({ compact = false, user }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  // Phone Verification State
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [verifyingPhone, setVerifyingPhone] = useState(false);
+  const [pendingPhone, setPendingPhone] = useState('');
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -96,11 +102,27 @@ export default function Profile({ compact = false, user }) {
       return;
     }
 
+    // Check if phone number changed
+    const currentPhone = profile.phone_number;
+    const newPhone = formData.phone_number;
+
+    if (newPhone && newPhone !== currentPhone) {
+      // Initiate Verification Flow
+      setPendingPhone(newPhone);
+      await initiatePhoneUpdate(newPhone);
+      return;
+    }
+
+    // Standard Update (No Phone Change)
+    await submitProfileUpdate(formData);
+  };
+
+  const submitProfileUpdate = async (dataToSubmit) => {
     try {
       const response = await fetch('/api/customer/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSubmit),
       });
 
       const result = await response.json();
@@ -115,6 +137,75 @@ export default function Profile({ compact = false, user }) {
       }
     } catch (error) {
       setStatus({ type: 'error', message: t('error_generic') });
+    }
+  };
+
+  const initiatePhoneUpdate = async (phone) => {
+    setVerifyingPhone(true);
+    setStatus({ type: '', message: '' }); // Clear prev status
+
+    try {
+      const response = await fetch('/api/customer/phone/request-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_number: phone }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setShowOtpModal(true);
+      } else {
+        console.error(result.error);
+        setStatus({ type: 'error', message: result.error || 'Failed to send verification code.' });
+        setVerifyingPhone(false);
+      }
+    } catch (error) {
+      setStatus({ type: 'error', message: 'Network error sending verification code.' });
+      setVerifyingPhone(false);
+    }
+  };
+
+  const handleVerifyPhone = async () => {
+    if (!otpCode || otpCode.length !== 6) {
+      return; // Add UI feedback if needed
+    }
+
+    setLoading(true); // Re-use loading state or create separate one
+    try {
+      const response = await fetch('/api/customer/phone/confirm-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone_number: pendingPhone, code: otpCode }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setShowOtpModal(false);
+        setOtpCode('');
+        setVerifyingPhone(false);
+
+        // Now update the rest of the profile if needed, or just refresh
+        // Ideally we submit the REST of the form data too, but phone is already done.
+        // Let's just update the local profile state and submit any other changes.
+
+        // Update formData phone to match pending (it should already match)
+        const updatedData = { ...formData, phone_number: pendingPhone };
+        await submitProfileUpdate(updatedData);
+
+        setStatus({ type: 'success', message: 'Phone number updated and verified successfully!' });
+
+      } else {
+        // Show error in modal or main status?
+        // For simplicity, let's close modal and show error on main page OR keep modal open.
+        // Better: Show error in modal. But I need error state for modal.
+        alert(result.error); // Fallback for now, purely functional
+      }
+    } catch (error) {
+      alert('Verification failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -196,6 +287,73 @@ export default function Profile({ compact = false, user }) {
     </AnimatePresence>
   );
 
+  const OtpModal = () => (
+    <AnimatePresence>
+      {showOtpModal && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            onClick={() => setShowOtpModal(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 z-[101] border border-gray-100"
+          >
+            <div className="flex flex-col items-center text-center space-y-4">
+              <div className="bg-red-50 p-3 rounded-full">
+                <Lock className="w-8 h-8 text-red-600" />
+              </div>
+
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Verify Phone Number</h3>
+                <p className="text-gray-500 text-sm mt-1">
+                  We sent a 6-digit code to <span className="font-semibold text-gray-900">{pendingPhone}</span>
+                </p>
+              </div>
+
+              <div className="w-full">
+                <input
+                  type="text"
+                  maxLength="6"
+                  placeholder="000000"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value.replace(/[^0-9]/g, ''))}
+                  className="w-full text-center text-3xl font-bold tracking-widest py-3 border-2 border-gray-200 rounded-xl focus:border-red-500 focus:ring-0 outline-none transition-all placeholder:text-gray-200"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-3 w-full pt-2">
+                <button
+                  onClick={() => setShowOtpModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleVerifyPhone}
+                  disabled={otpCode.length !== 6}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Verify
+                </button>
+              </div>
+
+              <p className="text-xs text-gray-400">
+                Didn't receive code? <button onClick={() => initiatePhoneUpdate(pendingPhone)} className="text-red-600 hover:underline">Resend</button>
+              </p>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+
   if (loading) {
     return <Skeleton compact={compact} />;
   }
@@ -259,6 +417,7 @@ export default function Profile({ compact = false, user }) {
       className="w-full max-w-5xl mx-auto space-y-6"
     >
       <LogoutModal />
+      <OtpModal />
       <DeleteAccountModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}

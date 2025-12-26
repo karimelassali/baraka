@@ -26,7 +26,9 @@
     "reviews_content_title": "Invia e Traccia",
     "reviews_content_desc": "Controlla la tua idoneità e invia nuove recensioni qui.",
     "reviews_sidebar_title": "Cronologia e Consigli",
-    "reviews_sidebar_desc": "Visualizza la tua ultima recensione e ricevi consigli utili."
+    "reviews_sidebar_desc": "Visualizza la tua ultima recensione e ricevi consigli utili.",
+    "barcode_title": "Carta Fedeltà",
+    "barcode_desc": "Clicca qui per mostrare il tuo codice a barre alla cassa."
   },
   "Home": {
     "rights_reserved": "Tutti i diritti riservati.",
@@ -56,7 +58,8 @@
     }
   },
   "PaymentMethods": {
-    "title": "Metodi di Pagamento Accettati",
+    "title": "Metodi di Pagamento in Negozio",
+    "description": "Accettiamo questi metodi di pagamento nel nostro punto vendita. Non vendiamo online.",
     "cash": {
       "title": "Contanti",
       "standard": "Pagamenti standard in contanti"
@@ -436,7 +439,13 @@
       "no_activity": "Nessuna attività recente",
       "passwords_mismatch": "Le password non corrispondono",
       "password_too_short": "La password deve essere di almeno 6 caratteri",
-      "password_updated": "Password aggiornata con successo"
+      "password_updated": "Password aggiornata con successo",
+      "scan_at_register": "Scansiona codice a barre in cassa",
+      "member": "Membro"
+    },
+    "FloatingCard": {
+      "scan_at_register": "Scansiona codice a barre in cassa",
+      "member": "Membro"
     },
     "HowToUse": {
       "User": {
@@ -597,6 +606,7 @@
       },
       "modal": {
         "title": "Aggiungi Nuovo Pagamento",
+        "details_title": "Dettagli Pagamento",
         "add_title": "Aggiungi Nuovo Pagamento",
         "customer": "Cliente",
         "amount": "Importo (€)",
@@ -1084,6 +1094,7 @@
       "logs": "Log",
       "profile": "Profilo",
       "logout": "Esci",
+      "sign_out": "Esci",
       "default_user": "Utente Admin",
       "mobile_title": "Baraka Admin",
       "revenue": "Entrate",
@@ -1659,6 +1670,9 @@
   },
   "Wishlist": {
     "Title": "Esprimi un Desiderio",
+    "NoDescription": "Nessuna descrizione fornita",
+    "Approve": "Approva",
+    "Reject": "Rifiuta",
     "Subtitle": "Non trovi quello che cerchi? Faccelo sapere e proveremo a portarlo in negozio apposta per te.",
     "NewRequest": "Nuova Richiesta",
     "ProductName": "Nome Prodotto",

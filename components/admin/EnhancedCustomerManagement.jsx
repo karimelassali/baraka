@@ -38,6 +38,7 @@ import { countries } from '../../lib/constants/countries';
 import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { formatDistanceToNow } from 'date-fns';
+import ActiveFilterSummary from './ActiveFilterSummary';
 
 // --- Components ---
 
@@ -480,7 +481,7 @@ const CustomerGridCard = ({ customer, onEdit }) => {
         <CardContent className="p-6 flex flex-col items-center text-center pt-8 flex-1">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-inner relative overflow-visible border-2 border-primary/10">
             <img
-              src={getAvatarUrl(customer.first_name)}
+              src={getAvatarUrl(customer.email || customer.first_name)}
               alt={customer.first_name}
               className="w-full h-full object-cover rounded-full overflow-hidden"
             />
@@ -588,7 +589,7 @@ function DataQualityModal({ issues, isOpen, onClose, onEdit }) {
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                     <img
-                      src={getAvatarUrl(issue.first_name || 'unknown')}
+                      src={getAvatarUrl(issue.email || issue.first_name || 'unknown')}
                       alt="avatar"
                       className="w-full h-full object-cover"
                     />
@@ -700,7 +701,7 @@ function DeleteCustomerModal({ customer, isOpen, onClose, onDelete }) {
           <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-border/50">
             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
               <img
-                src={getAvatarUrl(customer.first_name)}
+                src={getAvatarUrl(customer.email || customer.first_name)}
                 alt={customer.first_name}
                 className="w-full h-full object-cover"
               />
@@ -798,6 +799,7 @@ function DeleteCustomerModal({ customer, isOpen, onClose, onDelete }) {
 export default function EnhancedCustomerManagement() {
   const t = useTranslations('Admin.Customers');
   const [customers, setCustomers] = useState([]);
+  const [totalCustomers, setTotalCustomers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -875,6 +877,7 @@ export default function EnhancedCustomerManagement() {
 
       if (response.ok) {
         const newCustomers = data.customers || [];
+        setTotalCustomers(data.total || 0);
         if (reset) {
           setCustomers(newCustomers);
         } else {
@@ -1088,6 +1091,13 @@ export default function EnhancedCustomerManagement() {
           </div>
         </CardHeader>
       </GlassCard>
+
+      {/* Active Filter Summary */}
+      <ActiveFilterSummary
+        total={totalCustomers}
+        customers={customers}
+        isLoading={loading && customers.length === 0}
+      />
 
       {/* Customer Grid */}
       {loading && customers.length === 0 ? (

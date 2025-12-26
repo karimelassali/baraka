@@ -18,6 +18,7 @@ import {
 import { useRouter } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getAvatarUrl } from '@/lib/avatar';
+import Image from 'next/image';
 
 export default function UserSidebar({
     activeTab,
@@ -56,12 +57,13 @@ export default function UserSidebar({
                     className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => router.push('/')}
                 >
-                    <div className="relative group">
+                    <div className="relative group w-10 h-10">
                         <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                        <img
+                        <Image
                             src="/logo.jpeg"
                             alt="Baraka Logo"
-                            className="relative w-10 h-10 object-contain rounded-full"
+                            fill
+                            className="relative object-contain rounded-full"
                         />
                     </div>
                     <div className="flex flex-col">
@@ -115,11 +117,12 @@ export default function UserSidebar({
                         onClick={() => setActiveTab('profile')}
                     >
                         <div className="relative">
-                            <div className="w-10 h-10 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
-                                <img
+                            <div className="w-10 h-10 relative rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
+                                <Image
                                     src={getAvatarUrl(user.email)}
                                     alt="User Avatar"
-                                    className="w-full h-full rounded-full bg-white"
+                                    fill
+                                    className="rounded-full bg-white object-cover p-0.5"
                                 />
                             </div>
                             <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>

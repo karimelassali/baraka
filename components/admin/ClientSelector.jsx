@@ -21,7 +21,7 @@ import { getAvatarUrl } from '@/lib/avatar';
 
 export default function ClientSelector({ onSelectionChange, selectedIds = [] }) {
     const [customers, setCustomers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [countryFilter, setCountryFilter] = useState('');
 
@@ -33,19 +33,28 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
     }, [selectedIds]);
 
     useEffect(() => {
-        fetchCustomers();
-    }, []);
+        const timer = setTimeout(() => {
+            fetchCustomers();
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [searchTerm, countryFilter]);
 
     const fetchCustomers = async () => {
         setLoading(true);
         try {
-            // Fetch all customers (or a reasonable limit for selection)
-            // For a real production app with thousands of users, we'd need server-side search/pagination
-            // But for this selector, we'll fetch a larger batch and filter client-side for responsiveness
-            const response = await fetch('/api/admin/customers?limit=100');
+            const params = new URLSearchParams({
+                limit: '50', // Fetch 50 results per search
+                search: searchTerm,
+                country: countryFilter
+            });
+
+            const response = await fetch(`/api/admin/customers?${params.toString()}`);
             if (response.ok) {
                 const data = await response.json();
-                setCustomers(data.customers || []);
+                // Only show customers with phone numbers for SMS campaigns
+                const validCustomers = (data.customers || []).filter(c => c.phone_number);
+                setCustomers(validCustomers);
             }
         } catch (error) {
             console.error('Error fetching customers:', error);
@@ -53,21 +62,6 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
             setLoading(false);
         }
     };
-
-    const filteredCustomers = customers.filter(c => {
-        const matchesSearch =
-            c.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            c.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            c.phone_number?.includes(searchTerm) ||
-            c.email?.toLowerCase().includes(searchTerm.toLowerCase());
-
-        const matchesCountry = countryFilter ? c.country_of_origin === countryFilter : true;
-
-        // Only show customers with phone numbers for WhatsApp campaigns
-        const hasPhone = !!c.phone_number;
-
-        return matchesSearch && matchesCountry && hasPhone;
-    });
 
     const toggleSelection = (id) => {
         const newSelection = new Set(localSelected);
@@ -81,16 +75,16 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
     };
 
     const selectAll = () => {
-        if (localSelected.size === filteredCustomers.length) {
+        if (localSelected.size === customers.length && customers.length > 0) {
             // Deselect all visible
             const newSelection = new Set(localSelected);
-            filteredCustomers.forEach(c => newSelection.delete(c.id));
+            customers.forEach(c => newSelection.delete(c.id));
             setLocalSelected(newSelection);
             onSelectionChange(Array.from(newSelection));
         } else {
             // Select all visible
             const newSelection = new Set(localSelected);
-            filteredCustomers.forEach(c => newSelection.add(c.id));
+            customers.forEach(c => newSelection.add(c.id));
             setLocalSelected(newSelection);
             onSelectionChange(Array.from(newSelection));
         }
@@ -133,7 +127,7 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                     onClick={selectAll}
                     className="h-8"
                 >
-                    {localSelected.size > 0 && localSelected.size === filteredCustomers.length ? 'Deselect All' : 'Select All Visible'}
+                    {(customers.every(c => localSelected.has(c.id)) && customers.length > 0) ? 'Deselect All Visible' : 'Select All Visible'}
                 </Button>
             </div>
 
@@ -142,14 +136,14 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                     <div className="flex justify-center items-center h-40">
                         <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
-                ) : filteredCustomers.length === 0 ? (
+                ) : customers.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
                         <User className="h-8 w-8 mb-2 opacity-20" />
-                        <p>No customers found</p>
+                        <p>No customers found matching "{searchTerm}"</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-border/50">
-                        {filteredCustomers.map((customer) => {
+                        {customers.map((customer) => {
                             const isSelected = localSelected.has(customer.id);
                             return (
                                 <div
@@ -167,7 +161,7 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
 
                                     <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                                         <img
-                                            src={getAvatarUrl(customer.first_name)}
+                                            src={getAvatarUrl(customer.email || customer.first_name)}
                                             alt={customer.first_name}
                                             className="w-full h-full"
                                         />

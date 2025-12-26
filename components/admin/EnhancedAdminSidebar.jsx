@@ -6,8 +6,10 @@ import {
   Menu,
   X,
   ChevronRight,
-  Edit3
+  Edit3,
+  LogOut
 } from 'lucide-react';
+import { useRouter } from '@/navigation';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import NotificationCenter from './NotificationCenter';
@@ -17,10 +19,12 @@ import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { DEFAULT_NAV_CATEGORIES, COLOR_THEMES } from '@/lib/constants/admin-sidebar';
+import Image from 'next/image';
 
 export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
   const t = useTranslations('Admin.Sidebar');
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
@@ -112,6 +116,12 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleSignOut = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push('/auth/login');
+  };
+
   const SidebarContent = ({ mobile = false }) => (
     <>
       <div className={cn("h-20 flex items-center border-b border-border/50 bg-sidebar-accent/5 relative group transition-all duration-300", isCollapsed && !mobile ? "justify-center px-2" : "justify-center px-4")}>
@@ -122,8 +132,8 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
           transition={{ duration: 0.5 }}
         >
           <Link href="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-primary/20 bg-background overflow-hidden shrink-0">
-              <img src="/images/logo.png" alt="Baraka Logo" className="w-full h-full object-contain" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg border border-primary/20 bg-background overflow-hidden shrink-0 relative">
+              <Image src="/logo.jpeg" alt="Baraka Logo" fill className="object-contain" />
             </div>
             {(!isCollapsed || mobile) && (
               <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 tracking-tight whitespace-nowrap overflow-hidden">Baraka</span>
@@ -209,11 +219,12 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
             onClick={() => setIsMobileMenuOpen(false)}
             title={isCollapsed && !mobile ? (currentUser?.full_name || t('default_user')) : ''}
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0 overflow-hidden border border-border bg-background">
-              <img
-                src={getAvatarUrl(currentUser?.full_name || 'User')}
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0 overflow-hidden border border-border bg-background relative">
+              <Image
+                src={getAvatarUrl(currentUser?.email || currentUser?.full_name || 'User')}
                 alt="Profile"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
             {(!isCollapsed || mobile) && (
@@ -227,7 +238,18 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
               </div>
             )}
           </Link>
-          {(!isCollapsed || mobile) && <NotificationCenter />}
+          {(!isCollapsed || mobile) && (
+            <div className="flex gap-1">
+              <NotificationCenter />
+              <button
+                onClick={handleSignOut}
+                className="p-2 hover:bg-red-50 text-muted-foreground hover:text-red-500 rounded-xl transition-colors"
+                title={t('sign_out')}
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
@@ -247,8 +269,8 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
           </motion.button>
           <span className="font-bold text-lg">{t('mobile_title')}</span>
         </div>
-        <div className="w-8 h-8 rounded-full overflow-hidden border border-border">
-          <img src="/images/logo.png" alt="Logo" className="w-full h-full object-contain" />
+        <div className="w-8 h-8 rounded-full overflow-hidden border border-border relative">
+          <Image src="/logo.jpeg" alt="Logo" fill className="object-contain" />
         </div>
       </div>
 

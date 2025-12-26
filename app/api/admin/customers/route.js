@@ -71,7 +71,7 @@ export async function GET(request) {
     .order(sortBy, { ascending: sortOrder === 'asc' });
 
   if (search) {
-    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
+    query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,phone_number.ilike.%${search}%`);
   } else if (name) {
     query = query.or(`first_name.ilike.%${name}%,last_name.ilike.%${name}%`);
   }
@@ -80,6 +80,16 @@ export async function GET(request) {
   }
   if (residence) {
     query = query.ilike('residence', `%${residence}%`);
+  }
+
+  const minPoints = searchParams.get('min_points');
+  const maxPoints = searchParams.get('max_points');
+
+  if (minPoints && !isNaN(parseInt(minPoints))) {
+    query = query.gte('total_points', parseInt(minPoints));
+  }
+  if (maxPoints && !isNaN(parseInt(maxPoints))) {
+    query = query.lte('total_points', parseInt(maxPoints));
   }
 
   console.log(`[API Customers] Request params: limit=${limit}, offset=${offset}, skip_auth=${searchParams.get('skip_auth')}`);

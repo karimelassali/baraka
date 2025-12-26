@@ -4,7 +4,7 @@ import { format, parseISO } from 'date-fns';
 import { useTranslations } from 'next-intl';
 
 export default function PaymentDetailsModal({ payment, isOpen, onClose, onMarkAsPaid, onDelete }) {
-    const t = useTranslations('Payments');
+    const t = useTranslations('Admin.Payments');
     if (!isOpen || !payment) return null;
 
     return (

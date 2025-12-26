@@ -156,7 +156,7 @@ export default function Navbar() {
                     </motion.h1>
                 </div>
 
-                <nav className="hidden md:flex space-x-8 rtl:space-x-reverse">
+                <nav className="hidden md:flex gap-8">
                     {["about", "gallery", "offers", "reviews", "contact"].map(
                         (item) => (
                             <motion.a
@@ -172,7 +172,7 @@ export default function Navbar() {
                     )}
                 </nav>
 
-                <div className="flex items-center space-x-2 md:space-x-4 rtl:space-x-reverse">
+                <div className="flex items-center gap-2 md:gap-4">
                     <div className="ltr:mr-2 rtl:ml-2">
                         <LanguageSwitcher />
                     </div>

@@ -29,9 +29,15 @@ import PaymentMethodsBox from '@/components/client/PaymentMethodsBox';
 import DashboardTour from '@/components/dashboard/DashboardTour';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { getAvatarUrl } from '@/lib/avatar';
+import Image from 'next/image';
 
 import LanguageSelectionModal from '@/components/dashboard/LanguageSelectionModal';
 import { useLocale } from 'next-intl';
+import dynamic from 'next/dynamic';
+
+const FloatingProfileCard = dynamic(() => import('@/components/dashboard/FloatingProfileCard'), {
+  ssr: false,
+});
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard');
@@ -89,7 +95,7 @@ export default function DashboardPage() {
         // Fetch profile data
         const { data: profileData } = await supabase
           .from('customers')
-          .select('first_name, last_name')
+          .select('first_name, last_name, barcode_value')
           .eq('auth_id', data.user.id)
           .single();
 
@@ -262,22 +268,23 @@ export default function DashboardPage() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-50/50 pb-20 lg:pb-0">
         {/* Mobile Header */}
         <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm z-40 relative">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-md">
-              <span className="text-white font-bold text-lg">B</span>
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => router.push('/')}>
+            <div className="w-8 h-8 relative rounded-full overflow-hidden shadow-md">
+              <Image src="/logo.jpeg" alt="Baraka" fill className="object-cover" />
             </div>
             <span className="font-bold text-gray-900 text-lg">Baraka</span>
           </div>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <div
-              className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform"
+              className="w-9 h-9 relative rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform"
               onClick={() => setActiveTab('profile')}
             >
-              <img
+              <Image
                 src={getAvatarUrl(user.email)}
                 alt="User Avatar"
-                className="w-full h-full rounded-full bg-white"
+                fill
+                className="rounded-full bg-white object-cover p-0.5"
               />
             </div>
           </div>
@@ -303,13 +310,14 @@ export default function DashboardPage() {
               <div className="hidden lg:flex items-center gap-4">
                 <LanguageSwitcher />
                 <div
-                  className="w-10 h-10 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform shadow-sm"
+                  className="w-10 h-10 relative rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform shadow-sm"
                   onClick={() => setActiveTab('profile')}
                 >
-                  <img
+                  <Image
                     src={getAvatarUrl(user.email)}
                     alt="User Avatar"
-                    className="w-full h-full rounded-full bg-white"
+                    fill
+                    className="rounded-full bg-white object-cover p-0.5"
                   />
                 </div>
               </div>
@@ -323,6 +331,14 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <FloatingProfileCard
+        user={user}
+        profile={profile}
+        labels={{
+          member: t('FloatingCard.member'),
+          scanAtRegister: t('FloatingCard.scan_at_register')
+        }}
+      />
     </div>
   );
 }

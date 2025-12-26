@@ -26,6 +26,7 @@ import { countries } from '../../lib/constants/countries';
 import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { formatDistanceToNow } from 'date-fns';
+import ActiveFilterSummary from './ActiveFilterSummary';
 
 // --- Sub-components ---
 
@@ -139,7 +140,7 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-yellow-500/20 shrink-0">
                 <img
-                  src={getAvatarUrl(customer.first_name)}
+                  src={getAvatarUrl(customer.email || customer.first_name)}
                   alt={customer.first_name}
                   className="w-full h-full object-cover"
                 />
@@ -337,6 +338,7 @@ const CustomerCard = ({ customer, onClick, t }) => {
 export default function PointsManagement() {
   const t = useTranslations('Admin.Points');
   const [customers, setCustomers] = useState([]);
+  const [totalCustomers, setTotalCustomers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -348,6 +350,8 @@ export default function PointsManagement() {
   const [locationFilter, setLocationFilter] = useState('');
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
+  const [minPoints, setMinPoints] = useState('');
+  const [maxPoints, setMaxPoints] = useState('');
 
   const LIMIT = 10;
 
@@ -373,11 +377,15 @@ export default function PointsManagement() {
         url += `&country=${encodeURIComponent(locationFilter)}`;
       }
 
+      if (minPoints) url += `&min_points=${minPoints}`;
+      if (maxPoints) url += `&max_points=${maxPoints}`;
+
       const response = await fetch(url);
       const data = await response.json();
 
       if (response.ok) {
         const newCustomers = data.customers || data;
+        setTotalCustomers(data.total || 0);
         if (reset) {
           setCustomers(newCustomers);
         } else {
@@ -399,7 +407,7 @@ export default function PointsManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, [searchTerm, sortField, sortDirection, locationFilter]);
+  }, [searchTerm, sortField, sortDirection, locationFilter, minPoints, maxPoints]);
 
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -459,6 +467,26 @@ export default function PointsManagement() {
           </div>
 
           <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Points Range</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Min"
+                value={minPoints}
+                onChange={(e) => setMinPoints(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all text-sm"
+              />
+              <input
+                type="number"
+                placeholder="Max"
+                value={maxPoints}
+                onChange={(e) => setMaxPoints(e.target.value)}
+                className="w-full px-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500/20 focus:border-yellow-500 transition-all text-sm"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('sort_by')}</label>
             <div className="relative">
               <select
@@ -476,6 +504,8 @@ export default function PointsManagement() {
                 <option value="first_name-desc">{t('sort.name_desc')}</option>
                 <option value="country_of_origin-asc">{t('sort.nat_asc')}</option>
                 <option value="country_of_origin-desc">{t('sort.nat_desc')}</option>
+                <option value="total_points-desc">Points (High to Low)</option>
+                <option value="total_points-asc">Points (Low to High)</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 pointer-events-none" />
             </div>
@@ -483,56 +513,66 @@ export default function PointsManagement() {
         </div>
       </div>
 
-      {/* Content Grid */}
-      {loading && customers.length === 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-64 rounded-2xl bg-muted/20 animate-pulse" />
-          ))}
-        </div>
-      ) : customers.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <AnimatePresence>
-              {customers.map((customer) => (
-                <CustomerCard
-                  key={customer.id}
-                  customer={customer}
-                  onClick={setSelectedCustomer}
-                  t={t}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
 
-          {hasMore && (
-            <div className="flex justify-center mt-8">
-              <Button
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="bg-yellow-500 hover:bg-yellow-600 text-white min-w-[200px]"
-              >
-                {loadingMore ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('loading')}
-                  </>
-                ) : (
-                  t('load_more')
-                )}
-              </Button>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
-          <div className="bg-muted/30 p-6 rounded-full mb-4">
-            <User className="h-10 w-10 opacity-50" />
+      {/* Active Filter Summary */}
+      <ActiveFilterSummary
+        total={totalCustomers}
+        customers={customers}
+        isLoading={loading && customers.length === 0}
+      />
+
+      {/* Content Grid */}
+      {
+        loading && customers.length === 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="h-64 rounded-2xl bg-muted/20 animate-pulse" />
+            ))}
           </div>
-          <p className="text-lg font-medium">{t('no_customers')}</p>
-          <p className="text-sm">{t('try_adjusting')}</p>
-        </div>
-      )}
+        ) : customers.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <AnimatePresence>
+                {customers.map((customer) => (
+                  <CustomerCard
+                    key={customer.id}
+                    customer={customer}
+                    onClick={setSelectedCustomer}
+                    t={t}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {hasMore && (
+              <div className="flex justify-center mt-8">
+                <Button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white min-w-[200px]"
+                >
+                  {loadingMore ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t('loading')}
+                    </>
+                  ) : (
+                    t('load_more')
+                  )}
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <div className="bg-muted/30 p-6 rounded-full mb-4">
+              <User className="h-10 w-10 opacity-50" />
+            </div>
+            <p className="text-lg font-medium">{t('no_customers')}</p>
+            <p className="text-sm">{t('try_adjusting')}</p>
+          </div>
+        )
+      }
 
       <PointsConsole
         customer={selectedCustomer}
@@ -540,6 +580,6 @@ export default function PointsManagement() {
         onClose={() => setSelectedCustomer(null)}
         onSave={() => loadCustomers(true)}
       />
-    </motion.div>
+    </motion.div >
   );
 }

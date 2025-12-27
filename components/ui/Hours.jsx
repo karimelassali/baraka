@@ -7,15 +7,15 @@ export default function Hours() {
     <ul className="text-lg text-gray-700 space-y-4">
       <li className="flex justify-between border-b border-gray-200 pb-2">
         <span>{t('weekdays')}:</span>
-        <span className="font-semibold">9am - 5pm</span>
+        <span className="font-semibold">9am - 8pm</span>
       </li>
       <li className="flex justify-between border-b border-gray-200 pb-2">
         <span>{t('saturday')}:</span>
-        <span className="font-semibold">10am - 3pm</span>
+        <span className="font-semibold">9am - 8pm</span>
       </li>
       <li className="flex justify-between">
         <span>{t('sunday')}:</span>
-        <span className="font-semibold text-red-600">{t('closed')}</span>
+        <span className="font-semibold">9am - 8pm</span>
       </li>
     </ul>
   );

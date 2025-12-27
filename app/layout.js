@@ -16,8 +16,8 @@ export const metadata = {
   title: "Baraka Loyalty",
   description: "Sistema di fedeltà e gestione clienti Baraka",
   icons: {
-    icon: "/logo.jpeg",
-    apple: "/logo.jpeg",
+    icon: [{ url: '/logo.jpeg', type: 'image/jpeg' }],
+    apple: [{ url: '/logo.jpeg', type: 'image/jpeg' }],
   },
 };
 

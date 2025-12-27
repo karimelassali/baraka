@@ -2,7 +2,7 @@ export default function JsonLd() {
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
-        name: 'Baraka S.R.L.',
+        name: 'Baraka',
         image: 'https://www.barakasrl.it/logo.jpeg',
         '@id': 'https://www.barakasrl.it',
         url: 'https://www.barakasrl.it',

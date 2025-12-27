@@ -11,8 +11,8 @@ export default function sitemap() {
         sitemapEntries.push({
             url: `${baseUrl}${route}`,
             lastModified: new Date(),
-            changeFrequency: 'weekly',
-            priority: route === '' ? 1 : 0.8,
+            changeFrequency: 'daily',
+            priority: route === '' ? 1.0 : 0.8,
         });
     });
 
@@ -28,8 +28,8 @@ export default function sitemap() {
             sitemapEntries.push({
                 url: `${baseUrl}/${locale}${route}`,
                 lastModified: new Date(),
-                changeFrequency: 'weekly',
-                priority: route === '' ? 1 : 0.8,
+                changeFrequency: 'daily',
+                priority: route === '' ? 1.0 : 0.8,
             });
         });
     });

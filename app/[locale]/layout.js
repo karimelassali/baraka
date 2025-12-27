@@ -22,34 +22,34 @@ const geistMono = Geist_Mono({
 export const metadata = {
   metadataBase: new URL('https://www.barakasrl.it'),
   title: {
-    default: "Baraka Loyalty | Piattaforma Fedeltà Clienti",
-    template: "%s | Baraka Loyalty"
+    default: "Baraka | Macelleria Halal & Alimentari dal Mondo - Castel San Giovanni",
+    template: "%s | Baraka Store"
   },
-  description: "Sistema di fedeltà e gestione clienti Baraka. Unisciti per premi esclusivi, sconti e offerte speciali.",
-  keywords: ["Baraka", "Loyalty", "Fedeltà", "Clienti", "Macelleria", "Halal", "Premi", "Sconti"],
-  authors: [{ name: "Baraka S.R.L." }],
-  creator: "Baraka S.R.L.",
-  publisher: "Baraka S.R.L.",
+  description: "Benvenuti da Baraka a Castel San Giovanni. Scopri la nostra macelleria Halal di prima scelta e prodotti alimentari internazionali. Qualità, freschezza e un programma fedeltà esclusivo.",
+  keywords: ["Baraka", "Macelleria Halal", "Supermercato", "Alimentari", "Castel San Giovanni", "Piacenza", "Carne Fresca", "Prodotti Internazionali", "Fedeltà"],
+  authors: [{ name: "Baraka" }],
+  creator: "Baraka",
+  publisher: "Baraka",
   openGraph: {
-    title: "Baraka Loyalty",
-    description: "La tua piattaforma di fiducia per la fedeltà e le offerte esclusive.",
+    title: "Baraka | Il Tuo Negozio di Fiducia a Castel San Giovanni",
+    description: "Macelleria Halal, alimentari internazionali e qualità superiore. Vieni a trovarci in Via Borgonovo 1.",
     url: 'https://www.barakasrl.it',
-    siteName: 'Baraka Loyalty',
+    siteName: 'Baraka C.S.G.',
     images: [
       {
-        url: '/logo.jpeg', // Make sure this image is high quality
+        url: '/logo.jpeg',
         width: 800,
-        height: 600,
-        alt: 'Baraka Logo',
+        height: 800,
+        alt: 'Baraka Logo Ufficiale',
       },
     ],
     locale: 'it_IT',
-    type: 'website',
+    type: 'business.business', // More specific OG type if supported, otherwise 'website' is safe
   },
   twitter: {
     card: 'summary_large_image',
-    title: "Baraka Loyalty",
-    description: "Sistema di fedeltà e gestione clienti Baraka",
+    title: "Baraka Store | Qualità e Tradizione",
+    description: "Macelleria Halal e prodotti dal mondo a Castel San Giovanni.",
     images: ['/logo.jpeg'],
   },
   icons: {

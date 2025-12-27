@@ -29,6 +29,7 @@ import TopCustomersTable from './TopCustomersTable';
 import TopCountriesList from './TopCountriesList';
 import InventoryAlerts from './InventoryAlerts';
 import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function AnalyticsDashboard() {
     const t = useTranslations('Admin.Analytics');
@@ -126,11 +127,18 @@ export default function AnalyticsDashboard() {
         }
     };
 
+    const formatTrend = (value) => {
+        if (value === undefined || value === null) return "0.0%";
+        const num = Number(value);
+        if (isNaN(num)) return "0.0%";
+        return `${num > 0 ? '+' : ''}${num.toFixed(1)}%`;
+    };
+
     const handleCardClick = (type) => {
         const calculations = {
             totalRevenue: {
                 title: t('total_revenue'),
-                explanation: "Estimated revenue based on the total value of all vouchers created within the selected time period."
+                explanation: "Total revenue calculated from Daily Revenue entries within the selected time period."
             },
             totalProducts: {
                 title: t('total_products'),
@@ -160,7 +168,7 @@ export default function AnalyticsDashboard() {
         }
     };
 
-    if (loading && !overview) {
+    if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[600px]">
                 <div className="flex flex-col items-center gap-4">
@@ -197,16 +205,16 @@ export default function AnalyticsDashboard() {
                     title={t('total_clients')}
                     value={overview?.totalCustomers}
                     icon={Users}
-                    trend="+12.0%"
-                    trendUp={true}
+                    trend={formatTrend(overview?.trends?.customers)}
+                    trendUp={(overview?.trends?.customers || 0) >= 0}
                     color="blue"
                 />
                 <ModernStatsCard
                     title={t('total_revenue')}
-                    value={`€${overview?.totalVoucherValue?.toFixed(0) || '0'}`}
+                    value={`€${overview?.totalVoucherValue?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}`}
                     icon={CreditCard}
-                    trend="+8.0%"
-                    trendUp={true}
+                    trend={formatTrend(overview?.trends?.revenue)}
+                    trendUp={(overview?.trends?.revenue || 0) >= 0}
                     color="emerald"
                     onClick={() => handleCardClick('totalRevenue')}
                 />
@@ -222,8 +230,8 @@ export default function AnalyticsDashboard() {
                     title={t('engagement')}
                     value={overview?.totalMessages}
                     icon={MessageCircle}
-                    trend="+24.0%"
-                    trendUp={true}
+                    trend={formatTrend(overview?.trends?.messages)}
+                    trendUp={(overview?.trends?.messages || 0) >= 0}
                     color="rose"
                 />
             </div>
@@ -529,11 +537,11 @@ export default function AnalyticsDashboard() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {(usersListModal.count > 10 ? usersListModal.users.slice(0, 5) : usersListModal.users).map((user, i) => (
                                         <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors border border-border/50">
-                                            <div className="w-10 h-10 rounded-full border border-background overflow-hidden flex-shrink-0">
-                                                <img
-                                                    src={getAvatarUrl(user.email || user.first_name)}
-                                                    alt={user.first_name}
-                                                    className="w-full h-full object-cover"
+                                            <div className="flex-shrink-0">
+                                                <UserAvatar
+                                                    name={`${user.first_name} ${user.last_name}`}
+                                                    email={user.email}
+                                                    size={40}
                                                 />
                                             </div>
                                             <div className="min-w-0">

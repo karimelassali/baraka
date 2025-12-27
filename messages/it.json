@@ -1633,7 +1633,7 @@
       "title": "Dashboard Analitica",
       "subtitle": "Approfondimenti in tempo reale sulle prestazioni della tua attività.",
       "total_clients": "Clienti Totali",
-      "total_revenue": "Entrate Totali (Stimate)",
+      "total_revenue": "Entrate Totali",
       "active_offers": "Offerte Attive",
       "engagement": "Coinvolgimento",
       "client_growth": "Crescita Clienti",
@@ -1672,6 +1672,8 @@
       "tab_entry": "Inserimento Dati",
       "tab_reports": "Report",
       "add_new_record": "Aggiungi Nuovo Record",
+      "new_record": "Nuovo Record",
+      "no_records": "Nessun record trovato.",
       "supplier": "Fornitore",
       "select_supplier": "Seleziona Fornitore...",
       "add_new_supplier": "Aggiungi Nuovo Fornitore",
@@ -1708,10 +1710,18 @@
       "final_total": "Totale Finale",
       "metric": "Metrica",
       "value": "Valore",
-      "title": "Macellazione",
+      "title": "Report Macellazione",
       "description": "Gestisci i record di macellazione, fornitori e costi.",
       "search": "Cerca",
-      "search_placeholder": "Cerca fornitore..."
+      "search_placeholder": "Cerca fornitore...",
+      "table": {
+        "date": "Data",
+        "tag": "Numero Tag",
+        "type": "Tipo",
+        "weight": "Peso (kg)",
+        "notes": "Note",
+        "actions": "Azioni"
+      }
     }
   },
   "Common": {
@@ -1719,7 +1729,13 @@
     "add": "Aggiungi",
     "save": "Salva",
     "delete": "Elimina",
-    "edit": "Modifica"
+    "edit": "Modifica",
+    "actions": "Azioni",
+    "delete_confirm": "Sei sicuro di voler eliminare questo record?",
+    "delete_success": "Record eliminato con successo",
+    "delete_error": "Impossibile eliminare il record",
+    "error_load": "Impossibile caricare i record",
+    "save_success": "Salvato con successo"
   },
   "Wishlist": {
     "Title": "Esprimi un Desiderio",

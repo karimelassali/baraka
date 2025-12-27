@@ -18,7 +18,7 @@ const ROLES = [
         icon: '⚡',
         color: 'from-blue-500 to-cyan-600'
     },
-        {
+    {
         id: 'viewer',
         label: 'Viewer',
         description: 'Read-only access',
@@ -51,6 +51,8 @@ const PERMISSIONS = [
     { id: 'manage_vouchers', label: 'Vouchers' },
     { id: 'manage_gallery', label: 'Gallery' },
     { id: 'manage_admins', label: 'Admins' },
+    { id: 'manage_eid', label: 'Eid Reservation' },
+    { id: 'manage_scan', label: 'Scanner' },
     { id: 'view_logs', label: 'Logs' },
     { id: 'manage_settings', label: 'Settings' }
 ];

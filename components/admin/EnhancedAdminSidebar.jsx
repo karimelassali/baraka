@@ -91,16 +91,22 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
         const existingIds = new Set(rehydrated.flatMap(c => c.items.map(i => i.id)));
 
         DEFAULT_NAV_CATEGORIES.forEach(defCat => {
-          defCat.items.forEach(defItem => {
-            if (!existingIds.has(defItem.id)) {
-              // Find corresponding category in stored config
-              const catIndex = rehydrated.findIndex(c => c.id === defCat.id);
-              if (catIndex >= 0) {
+          const catIndex = rehydrated.findIndex(c => c.id === defCat.id);
+
+          if (catIndex === -1) {
+            // Category doesn't exist in stored config, add the whole category
+            rehydrated.push(defCat);
+            hasChanges = true;
+          } else {
+            // Category exists, check for missing items
+            defCat.items.forEach(defItem => {
+              if (!existingIds.has(defItem.id)) {
                 rehydrated[catIndex].items.push(defItem);
                 hasChanges = true;
+                existingIds.add(defItem.id); // Add to set to prevent duplicates if processed again
               }
-            }
-          });
+            });
+          }
         });
 
         setNavCategories(rehydrated);

@@ -98,7 +98,7 @@ export default function SidebarCustomizer({ isOpen, onClose, onSave, initialOrde
                             // Mobile Styles (Bottom Sheet)
                             "inset-x-0 bottom-0 top-auto h-[85vh] rounded-t-[2rem] border-t",
                             // Desktop Styles (Centered Modal)
-                            "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[900px] md:h-[600px] md:rounded-3xl md:border md:flex-row md:h-auto md:min-h-[600px]"
+                            "md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[900px] md:h-[85vh] md:max-h-[800px] md:rounded-3xl md:border md:flex-row"
                         )}
                         onClick={e => e.stopPropagation()}
                     >

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Plus, Search, Shield, Trash2, Edit2 } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
 import AdminModal from './AdminModal';
+import UserAvatar from '../ui/UserAvatar';
 
 import { createClient } from '@/lib/supabase/client';
 import { getAvatarUrl } from '@/lib/avatar';
@@ -157,9 +158,9 @@ export default function AdminManagement() {
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20">
-                                                    <img
-                                                        src={getAvatarUrl(admin.email || admin.full_name)}
-                                                        alt={admin.full_name}
+                                                    <UserAvatar
+                                                        name={admin.email || admin.full_name}
+                                                        size={40}
                                                         className="w-full h-full object-cover"
                                                     />
                                                 </div>

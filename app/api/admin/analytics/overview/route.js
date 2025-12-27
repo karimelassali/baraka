@@ -26,34 +26,86 @@ export async function GET(request) {
     }
 
     try {
-        // 1. Total Customers (Absolute count)
+        // Calculate comparison date range
+        const startTime = start ? new Date(start).getTime() : new Date().setMonth(new Date().getMonth() - 1); // Default 30d back
+        const endTime = end ? new Date(end).getTime() : new Date().getTime();
+        const duration = endTime - startTime;
+
+        const previousStart = new Date(startTime - duration).toISOString();
+        const previousEnd = new Date(startTime).toISOString();
+
+        // 1. Customers
+        // Total customers (Absolute)
         const { count: totalCustomers } = await supabase
             .from('customers')
             .select('*', { count: 'exact', head: true });
 
-        // 2. Active Offers
+        // New customers in current period
+        const { count: newCustomersCurrent } = await supabase
+            .from('customers')
+            .select('*', { count: 'exact', head: true })
+            .gte('created_at', start || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+            .lte('created_at', end || new Date().toISOString());
+
+        // New customers in previous period
+        const { count: newCustomersPrevious } = await supabase
+            .from('customers')
+            .select('*', { count: 'exact', head: true })
+            .gte('created_at', previousStart)
+            .lt('created_at', previousEnd);
+
+        // 2. Active Offers (Absolute)
         const { count: activeOffers } = await supabase
             .from('offers')
             .select('*', { count: 'exact', head: true })
             .eq('is_active', true);
 
-        // 3. Total Voucher Value (Revenue) & Counts - Filtered by date
-        let revenueQuery = supabase.from('vouchers').select('value, is_used');
-        if (start) revenueQuery = revenueQuery.gte('created_at', start);
-        if (end) revenueQuery = revenueQuery.lte('created_at', end);
-
+        // 3. Revenue
+        // Current Period Revenue
+        let revenueQuery = supabase.from('daily_revenue')
+            .select('total_revenue');
+        if (start) revenueQuery = revenueQuery.gte('date', start);
+        if (end) revenueQuery = revenueQuery.lte('date', end);
         const { data: revenueData } = await revenueQuery;
+        const revenue = revenueData?.reduce((sum, r) => sum + (Number(r.total_revenue) || 0), 0) || 0;
 
-        const revenue = revenueData?.reduce((sum, v) => sum + (v.value || 0), 0) || 0;
-        const voucherCount = revenueData?.length || 0;
-        const redeemedCount = revenueData?.filter(v => v.is_used).length || 0;
+        // Previous Period Revenue
+        let prevRevenueQuery = supabase.from('daily_revenue')
+            .select('total_revenue')
+            .gte('date', previousStart)
+            .lt('date', previousEnd);
+        const { data: prevRevenueData } = await prevRevenueQuery;
+        const prevRevenue = prevRevenueData?.reduce((sum, r) => sum + (Number(r.total_revenue) || 0), 0) || 0;
 
-        // 4. Engagement (Messages) - Filtered by date
+        // 4. Voucher Stats
+        const { count: voucherCount } = await supabase.from('vouchers').select('*', { count: 'exact', head: true });
+        const { count: redeemedCount } = await supabase.from('vouchers').select('*', { count: 'exact', head: true }).eq('is_used', true);
+
+        // 5. Engagement (Messages)
+        // Current Period - use sent_at since that's the timestamp column for messages
         let msgQuery = supabase.from('whatsapp_messages').select('*', { count: 'exact', head: true });
-        if (start) msgQuery = msgQuery.gte('created_at', start);
-        if (end) msgQuery = msgQuery.lte('created_at', end);
-
+        if (start) msgQuery = msgQuery.gte('sent_at', start);
+        if (end) msgQuery = msgQuery.lte('sent_at', end);
         const { count: totalMessages } = await msgQuery;
+
+        // Previous Period
+        const { count: prevMessages } = await supabase.from('whatsapp_messages')
+            .select('*', { count: 'exact', head: true })
+            .gte('sent_at', previousStart)
+            .lt('sent_at', previousEnd);
+
+        // Calculate Trends
+        const calculateTrend = (current, previous) => {
+            if (!previous) return current > 0 ? 100 : 0;
+            return ((current - previous) / previous) * 100;
+        };
+
+        const trends = {
+            customers: calculateTrend(newCustomersCurrent || 0, newCustomersPrevious || 0),
+            revenue: calculateTrend(revenue, prevRevenue),
+            messages: calculateTrend(totalMessages || 0, prevMessages || 0),
+            offers: 0 // Stable for now
+        };
 
         return NextResponse.json({
             totalCustomers: totalCustomers || 0,
@@ -61,7 +113,8 @@ export async function GET(request) {
             totalVouchers: voucherCount,
             redeemedVouchers: redeemedCount,
             totalVoucherValue: revenue,
-            totalMessages: totalMessages || 0
+            totalMessages: totalMessages || 0,
+            trends // Include calculated trends
         });
 
     } catch (error) {

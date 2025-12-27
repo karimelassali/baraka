@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -371,7 +372,7 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
             </form>
 
             {/* New Supplier Modal */}
-            {isNewSupplierOpen && (
+            {isNewSupplierOpen && createPortal(
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <GlassCard className="w-full max-w-md p-0 overflow-hidden border-0 shadow-2xl">
                         <div className="bg-red-600 p-4 flex justify-between items-center text-white">
@@ -417,7 +418,8 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
                             </div>
                         </div>
                     </GlassCard>
-                </div>
+                </div>,
+                document.body
             )}
         </GlassCard>
     );

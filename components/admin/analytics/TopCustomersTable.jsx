@@ -1,6 +1,7 @@
 import React from 'react';
 import { Trophy, Medal, Award, User, AlertCircle } from 'lucide-react';
 import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }) {
     if (!data || data.length === 0) {
@@ -46,15 +47,15 @@ export default function TopCustomersTable({ data, onLoadMore, hasMore, loading }
                                 </td>
                                 <td className="py-3 px-4">
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-full overflow-hidden shadow-sm border-2 
+                                        <div className={`rounded-full shadow-sm border-2 
                                             ${index === 0 ? 'border-yellow-400' :
                                                 index === 1 ? 'border-gray-300' :
                                                     index === 2 ? 'border-orange-300' :
                                                         'border-transparent'}`}>
-                                            <img
-                                                src={getAvatarUrl(item.customer.email || item.customer.first_name)}
-                                                alt={item.customer.first_name}
-                                                className="w-full h-full object-cover"
+                                            <UserAvatar
+                                                name={`${item.customer.first_name} ${item.customer.last_name}`}
+                                                email={item.customer.email}
+                                                size={32}
                                             />
                                         </div>
                                         <div>

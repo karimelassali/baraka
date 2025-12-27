@@ -3,6 +3,7 @@ import { Globe, Users, ChevronRight } from 'lucide-react';
 import { countries } from '../../../lib/constants/countries';
 import { motion } from 'framer-motion';
 import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function TopCountriesList({ data, onCountryClick }) {
     if (!data || data.length === 0) {
@@ -76,11 +77,12 @@ export default function TopCountriesList({ data, onCountryClick }) {
                                 <div className="flex items-center gap-1 mt-2 pl-1">
                                     <div className="flex -space-x-2">
                                         {item.users.slice(0, 5).map((user, i) => (
-                                            <div key={i} className="w-6 h-6 rounded-full border-2 border-background overflow-hidden" title={`${user.first_name} ${user.last_name}`}>
-                                                <img
-                                                    src={getAvatarUrl(user.first_name)}
-                                                    alt={user.first_name}
-                                                    className="w-full h-full object-cover"
+                                            <div key={i} className="rounded-full border-2 border-background overflow-hidden" title={`${user.first_name} ${user.last_name}`}>
+                                                <UserAvatar
+                                                    name={`${user.first_name} ${user.last_name}`}
+                                                    email={user.email}
+                                                    size={24}
+                                                    className="w-full h-full"
                                                 />
                                             </div>
                                         ))}

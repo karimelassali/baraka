@@ -1,14 +1,20 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 import { useTranslations } from 'next-intl';
 import { Download, Filter, TrendingUp, DollarSign, Scale } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
-import { deleteSlaughteringRecord } from '@/lib/actions/slaughtering';
+import { deleteSlaughteringRecord, getSlaughteringRecords } from '@/lib/actions/slaughtering';
+import { getSuppliers } from '@/lib/actions/suppliers';
 import SlaughteringForm from '@/components/admin/slaughtering/SlaughteringForm';
 import { toast } from 'sonner';
 import { Loader2, Calendar, Search, ArrowUpDown, Trash2, Edit2, X } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function SlaughteringReports() {
     const t = useTranslations('Admin.Slaughtering');
@@ -76,6 +82,7 @@ export default function SlaughteringReports() {
             }
         } catch (error) {
             console.error('Error loading records:', error);
+            toast.error(tCommon('error_load') || "Failed to load records");
         } finally {
             setLoading(false);
             setLoadingMore(false);
@@ -207,7 +214,10 @@ export default function SlaughteringReports() {
             pdfText.final_cost
         ];
 
-        const tableRows = records.map(r => [
+        // Sort records oldest to newest for the PDF report
+        const sortedRecords = [...records].sort((a, b) => new Date(a.record_date) - new Date(b.record_date));
+
+        const tableRows = sortedRecords.map(r => [
             new Date(r.record_date).toLocaleDateString('it-IT'),
             r.supplier?.name || '-',
             r.animal_type === 'bovine' ? pdfText.bovine : pdfText.ovine,
@@ -417,7 +427,7 @@ export default function SlaughteringReports() {
                                         € {record.final_total_cost?.toFixed(2)}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="flex justify-end gap-1">
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
@@ -465,7 +475,7 @@ export default function SlaughteringReports() {
             </GlassCard>
 
             {/* Edit Modal */}
-            {editingRecord && (
+            {editingRecord && createPortal(
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
                         <SlaughteringForm
@@ -474,7 +484,8 @@ export default function SlaughteringReports() {
                             onCancel={() => setEditingRecord(null)}
                         />
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

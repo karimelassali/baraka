@@ -6,9 +6,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SlaughteringForm from './SlaughteringForm';
 import SlaughteringReports from './SlaughteringReports';
 import { FileText, PlusCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function SlaughteringManager() {
     const t = useTranslations('Admin.Slaughtering');
+    const tCommon = useTranslations('Common');
     const [activeTab, setActiveTab] = useState('entry');
 
     return (
@@ -34,7 +36,8 @@ export default function SlaughteringManager() {
                 <TabsContent value="entry" className="mt-0">
                     <div className="max-w-4xl mx-auto">
                         <SlaughteringForm onSuccess={() => {
-                            // Optionally switch tab or concise feedback
+                            setActiveTab('reports');
+                            toast.success(tCommon('save_success') || "Added successfully");
                         }} />
                     </div>
                 </TabsContent>

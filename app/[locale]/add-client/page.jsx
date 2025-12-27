@@ -51,7 +51,10 @@ function BulkResetAnimation({ newPassword, accessPassword, onComplete, onCancel 
                 // 2. Start the actual reset process in background
                 const resetRes = await fetch('/api/admin/bulk-reset-password', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-access-password': passwordToUse
+                    },
                     body: JSON.stringify({
                         newPassword: newPassword, // Ensure key matches API expectation (newPassword vs password)
                         accessPassword: passwordToUse
@@ -282,7 +285,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/bulk-unverify', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({
                     accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
                 })
@@ -316,7 +322,9 @@ export default function AddClientPage() {
             if (now - timestamp < 5 * 60 * 60 * 1000) {
                 setIsAuthenticated(true);
                 // Fetch waitlist immediately if authenticated
-                fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`)
+                fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`, {
+                    headers: { 'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD }
+                })
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) setWaitlist(data.data);
@@ -362,7 +370,9 @@ export default function AddClientPage() {
             }));
             setError('');
             // Fetch waitlist after login
-            fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`)
+            fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`, {
+                headers: { 'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD }
+            })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) setWaitlist(data.data);
@@ -411,7 +421,9 @@ export default function AddClientPage() {
 
         try {
             const query = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : '';
-            const res = await fetch(`/api/admin/clients-status?page=${pageNum}&limit=10${query}`);
+            const res = await fetch(`/api/admin/clients-status?page=${pageNum}&limit=10${query}`, {
+                headers: { 'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD }
+            });
             if (!res.ok) throw new Error('Impossibile recuperare i clienti');
             const data = await res.json();
             const newClients = Array.isArray(data.clients) ? data.clients : [];
@@ -458,7 +470,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/delete-client', {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({
                     authId: clientToDelete.auth_id,
                     accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
@@ -499,7 +514,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/update-client', {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({
                     id: clientToEdit.id,
                     ...editFormData,
@@ -536,7 +554,10 @@ export default function AddClientPage() {
             // Use the new API route instead of client-side signUp
             const res = await fetch('/api/admin/create-client', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({
                     email: formData.email,
                     password: 'TempPassword123!', // Temporary default password
@@ -590,7 +611,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/send-bulk-verification', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({ emails: unverifiedEmails })
             });
 
@@ -612,7 +636,9 @@ export default function AddClientPage() {
     const fetchWaitlist = async () => {
         setLoadingWaitlist(true);
         try {
-            const res = await fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`);
+            const res = await fetch(`/api/admin/waitlist?accessPassword=${process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD}`, {
+                headers: { 'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD }
+            });
             const data = await res.json();
             if (data.success) {
                 setWaitlist(data.data);
@@ -637,7 +663,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/waitlist/approve', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({ id, accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD })
             });
 
@@ -661,7 +690,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/waitlist/reject', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({ id, accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD })
             });
 
@@ -685,7 +717,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/waitlist', {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({ id, accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD })
             });
 
@@ -713,7 +748,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/set-client-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({
                     authId: clientToSetPassword.auth_id,
                     newPassword: newPassword,
@@ -752,7 +790,10 @@ export default function AddClientPage() {
         try {
             const res = await fetch('/api/admin/bulk-reset-password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-access-password': process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD
+                },
                 body: JSON.stringify({
                     newPassword: bulkResetPassword,
                     accessPassword: process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD

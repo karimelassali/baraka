@@ -98,6 +98,24 @@ export async function updateSession(request: NextRequest, response?: NextRespons
     const isApiAdminRoute = cleanPath.startsWith('/api/admin');
 
     if (isAdminRoute || isApiAdminRoute) {
+        // Check for bypass header (used by /add-client page and scripts)
+        if (isApiAdminRoute) {
+            const bypassPassword = process.env.NEXT_PUBLIC_ADD_CLIENT_PASSWORD;
+            const requestPassword = request.headers.get('x-access-password');
+
+            // Allow CORS preflight (OPTIONS)
+            if (request.method === 'OPTIONS') {
+                return NextResponse.next();
+            }
+
+            if (bypassPassword && requestPassword === bypassPassword) {
+                // Authorized by specific password
+                return finalResponse;
+            } else {
+                console.log(`[Middleware] Admin API Access Refused. Path: ${cleanPath}. Method: ${request.method}. BypassPwd length: ${bypassPassword?.length}. Header length: ${requestPassword?.length}.`);
+            }
+        }
+
         if (!user) {
             if (isApiAdminRoute) {
                 return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -11,7 +11,7 @@ export default function TermsPage() {
       <PolicyContent>
         <PolicySection title="Introduzione" id="introduction">
           <p>
-            I presenti Termini e Condizioni disciplinano l'uso di questa Applicazione e dei Servizi forniti da <strong>Baraka S.R.L.</strong>.
+            I presenti Termini e Condizioni disciplinano l'uso di questa Applicazione e dei Servizi forniti da <strong>Service Food</strong>.
             L'Utente è pregato di leggere attentamente questo documento prima di utilizzare l'Applicazione.
           </p>
           <p className="mt-2">
@@ -22,10 +22,10 @@ export default function TermsPage() {
 
         <PolicySection title="Definizioni" id="definitions">
           <ul className="list-disc pl-6 space-y-2">
-            <li><strong>Applicazione:</strong> il sito web, l'app e i servizi correlati forniti da Baraka S.R.L.</li>
+            <li><strong>Applicazione:</strong> il sito web, l'app e i servizi correlati forniti da Service Food</li>
             <li><strong>Utente:</strong> la persona fisica o giuridica che utilizza l'Applicazione.</li>
             <li><strong>Servizio:</strong> il servizio offerto tramite l'Applicazione come descritto nei presenti Termini.</li>
-            <li><strong>Titolare:</strong> Baraka S.R.L., P.IVA 02696700182.</li>
+            <li><strong>Titolare:</strong> Service Food, P.IVA 02696700182.</li>
           </ul>
         </PolicySection>
 
@@ -122,7 +122,7 @@ export default function TermsPage() {
         <PolicySection title="Contatti" id="contact">
           <p>
             Per qualsiasi domanda riguardante i presenti Termini, si prega di contattarci a:<br />
-            <strong>Baraka S.R.L.</strong><br />
+            <strong>Service Food</strong><br />
             Email: baraka.csg@gmail.com<br />
             Indirizzo: Via Borgonovo 1, 29015 Castel San Giovanni PC
           </p>

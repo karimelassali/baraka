@@ -44,7 +44,7 @@ export const metadata = {
       },
     ],
     locale: 'it_IT',
-    type: 'business.business', // More specific OG type if supported, otherwise 'website' is safe
+    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',

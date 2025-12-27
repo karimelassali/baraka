@@ -11,7 +11,7 @@ export default function PrivacyPage() {
       <PolicyContent>
         <PolicySection title="Titolare del Trattamento dei Dati" id="data-controller">
           <p>
-            <strong>Baraka S.R.L.</strong><br />
+            <strong>Service Food</strong><br />
             Partita IVA / Codice Fiscale: 02696700182 <br />
             Indirizzo email del Titolare: baraka.csg@gmail.com<br />
             Indirizzo: Via Borgonovo 1, 29015 Castel San Giovanni PC<br />

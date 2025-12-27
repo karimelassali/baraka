@@ -30,6 +30,7 @@ import DashboardTour from '@/components/dashboard/DashboardTour';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { getAvatarUrl } from '@/lib/avatar';
 import Image from 'next/image';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 import LanguageSelectionModal from '@/components/dashboard/LanguageSelectionModal';
 import { useLocale } from 'next-intl';
@@ -280,11 +281,10 @@ export default function DashboardPage() {
               className="w-9 h-9 relative rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform"
               onClick={() => setActiveTab('profile')}
             >
-              <Image
-                src={getAvatarUrl(user.email)}
-                alt="User Avatar"
-                fill
-                className="rounded-full bg-white object-cover p-0.5"
+              <UserAvatar
+                name={profile?.email || user.email}
+                size={36}
+                className="w-full h-full rounded-full bg-white object-cover p-0.5"
               />
             </div>
           </div>
@@ -313,11 +313,10 @@ export default function DashboardPage() {
                   className="w-10 h-10 relative rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 cursor-pointer hover:scale-105 transition-transform shadow-sm"
                   onClick={() => setActiveTab('profile')}
                 >
-                  <Image
-                    src={getAvatarUrl(user.email)}
-                    alt="User Avatar"
-                    fill
-                    className="rounded-full bg-white object-cover p-0.5"
+                  <UserAvatar
+                    name={profile?.email || user.email}
+                    size={40}
+                    className="w-full h-full rounded-full bg-white object-cover p-0.5"
                   />
                 </div>
               </div>

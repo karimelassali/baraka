@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Users } from 'lucide-react';
 import GlassCard from '@/components/ui/GlassCard';
 import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function ActiveFilterSummary({ total, customers, isLoading, titleOverride }) {
     if (isLoading) {
@@ -58,9 +59,9 @@ export default function ActiveFilterSummary({ total, customers, isLoading, title
                             className="relative w-12 h-12 rounded-full border-2 border-background overflow-hidden hover:scale-110 hover:-translate-y-1 hover:z-10 transition-all duration-300 cursor-pointer shadow-md group"
                             title={`${customer.first_name || ''} ${customer.last_name || ''}`}
                         >
-                            <img
-                                src={getAvatarUrl(customer.email || customer.first_name)}
-                                alt={customer.first_name || 'User'}
+                            <UserAvatar
+                                name={customer.email || customer.first_name || 'User'}
+                                size={48}
                                 className="w-full h-full object-cover"
                             />
                             {/* Tooltip effect */}

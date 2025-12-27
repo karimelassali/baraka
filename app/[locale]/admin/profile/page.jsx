@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import GlassCard from '@/components/ui/GlassCard';
 import SidebarCustomizer from '@/components/admin/SidebarCustomizer';
+import UserAvatar from '@/components/ui/UserAvatar';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NotificationList from '@/components/admin/NotificationList';
@@ -150,9 +151,9 @@ export default function AdminProfilePage() {
             {/* Simplified Header - Cleaner Look */}
             <div className="bg-card border border-border rounded-3xl p-8 shadow-sm flex flex-col md:flex-row items-center gap-8">
                 <div className="w-32 h-32 rounded-full border-4 border-background shadow-xl overflow-hidden shrink-0">
-                    <img
-                        src={getAvatarUrl(user.full_name)}
-                        alt={user.full_name}
+                    <UserAvatar
+                        name={user.full_name}
+                        size={128}
                         className="w-full h-full object-cover"
                     />
                 </div>

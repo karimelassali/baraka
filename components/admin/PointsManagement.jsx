@@ -27,6 +27,7 @@ import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import ActiveFilterSummary from './ActiveFilterSummary';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 // --- Sub-components ---
 
@@ -139,9 +140,9 @@ function PointsConsole({ customer, isOpen, onClose, onSave }) {
 
             <div className="flex items-center gap-4 mb-6">
               <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-yellow-500/20 shrink-0">
-                <img
-                  src={getAvatarUrl(customer.email || customer.first_name)}
-                  alt={customer.first_name}
+                <UserAvatar
+                  name={customer.email || customer.first_name}
+                  size={64}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -293,9 +294,9 @@ const CustomerCard = ({ customer, onClick, t }) => {
 
         <CardContent className="p-6 flex flex-col items-center text-center pt-8">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-50 dark:from-yellow-900/40 dark:to-yellow-900/10 flex items-center justify-center mb-4 shadow-inner overflow-visible border-2 border-yellow-500/20 relative">
-            <img
-              src={getAvatarUrl(customer.first_name)}
-              alt={customer.first_name}
+            <UserAvatar
+              name={customer.email || customer.first_name}
+              size={80}
               className="w-full h-full object-cover rounded-full overflow-hidden"
             />
             {(() => {

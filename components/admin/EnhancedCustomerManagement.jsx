@@ -39,6 +39,7 @@ import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import ActiveFilterSummary from './ActiveFilterSummary';
+import UserAvatar from '../../components/ui/UserAvatar';
 
 // --- Components ---
 
@@ -480,9 +481,9 @@ const CustomerGridCard = ({ customer, onEdit }) => {
 
         <CardContent className="p-6 flex flex-col items-center text-center pt-8 flex-1">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mb-4 shadow-inner relative overflow-visible border-2 border-primary/10">
-            <img
-              src={getAvatarUrl(customer.email || customer.first_name)}
-              alt={customer.first_name}
+            <UserAvatar
+              name={customer.email || customer.first_name}
+              size={80}
               className="w-full h-full object-cover rounded-full overflow-hidden"
             />
             {customer.email_confirmed && (
@@ -588,9 +589,9 @@ function DataQualityModal({ issues, isOpen, onClose, onEdit }) {
               <div key={issue.id} className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50 hover:border-primary/30 transition-colors">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                    <img
-                      src={getAvatarUrl(issue.email || issue.first_name || 'unknown')}
-                      alt="avatar"
+                    <UserAvatar
+                      name={issue.email || issue.first_name || 'unknown'}
+                      size={40}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -700,9 +701,9 @@ function DeleteCustomerModal({ customer, isOpen, onClose, onDelete }) {
         <div className="p-6 space-y-6">
           <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-border/50">
             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
-              <img
-                src={getAvatarUrl(customer.email || customer.first_name)}
-                alt={customer.first_name}
+              <UserAvatar
+                name={customer.email || customer.first_name}
+                size={48}
                 className="w-full h-full object-cover"
               />
             </div>

@@ -18,6 +18,7 @@ import { Badge } from '../ui/badge';
 import GlassCard from '../ui/GlassCard';
 import { countries } from '../../lib/constants/countries';
 import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function ClientSelector({ onSelectionChange, selectedIds = [] }) {
     const [customers, setCustomers] = useState([]);
@@ -160,9 +161,9 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                                     </div>
 
                                     <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                                        <img
-                                            src={getAvatarUrl(customer.email || customer.first_name)}
-                                            alt={customer.first_name}
+                                        <UserAvatar
+                                            name={customer.email || customer.first_name}
+                                            size={32}
                                             className="w-full h-full"
                                         />
                                     </div>

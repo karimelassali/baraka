@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { ChevronDown, ChevronUp, CheckCircle, XCircle, User, Phone, Mail, Trash2, AlertTriangle, Send, Users, MapPin, Globe, Search, Info, Edit, Hammer, Key, Lock, ShieldCheck, ShieldAlert, Loader2, CheckCircle2 } from 'lucide-react';
 import { countries } from '@/lib/constants/countries';
 import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
 import CountdownTimer from '@/components/CountdownTimer';
 
 // Bulk Reset Animation Component
@@ -1647,9 +1648,9 @@ export default function AddClientPage() {
                                                     <td className="p-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="w-8 h-8 rounded-full bg-gray-100 overflow-visible shrink-0 border border-gray-200 relative">
-                                                                <img
-                                                                    src={getAvatarUrl(item.email || item.first_name)}
-                                                                    alt="Avatar"
+                                                                <UserAvatar
+                                                                    name={item.email || item.first_name}
+                                                                    size={32}
                                                                     className="w-full h-full object-cover rounded-full overflow-hidden"
                                                                 />
                                                                 {(() => {
@@ -2055,9 +2056,9 @@ export default function AddClientPage() {
                                                         >
                                                             <div className="flex items-start gap-4">
                                                                 <div className="w-10 h-10 rounded-full bg-gray-100 overflow-visible shrink-0 border border-gray-200 relative">
-                                                                    <img
-                                                                        src={getAvatarUrl(client.email || client.first_name)}
-                                                                        alt="Avatar"
+                                                                    <UserAvatar
+                                                                        name={client.email || client.first_name}
+                                                                        size={40}
                                                                         className="w-full h-full object-cover rounded-full overflow-hidden"
                                                                     />
                                                                     {(() => {

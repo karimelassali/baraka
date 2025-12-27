@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { User, LogOut } from "lucide-react";
 import { getAvatarUrl } from "@/lib/avatar";
 import Image from "next/image";
+import UserAvatar from "../ui/UserAvatar";
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -184,11 +185,9 @@ export default function Navbar() {
                             whileTap={{ scale: 0.95 }}
                             aria-label="User Profile"
                         >
-                            <Image
-                                src={getUserAvatar()}
-                                alt="Profile"
-                                width={40}
-                                height={40}
+                            <UserAvatar
+                                name={profile?.email || user?.email || 'default'}
+                                size={40}
                                 className="w-full h-full object-cover"
                             />
                         </motion.button>
@@ -223,11 +222,9 @@ export default function Navbar() {
                                 whileTap={{ scale: 0.98 }}
                                 aria-label="User Profile"
                             >
-                                <Image
-                                    src={getUserAvatar()}
-                                    alt="Profile"
-                                    width={24}
-                                    height={24}
+                                <UserAvatar
+                                    name={profile?.email || user?.email || 'default'}
+                                    size={24}
                                     className="rounded-full object-cover"
                                 />
                                 <span className="text-sm font-medium text-gray-700">
@@ -292,11 +289,9 @@ export default function Navbar() {
                                             className="flex items-center gap-3 w-full p-2 hover:bg-gray-50 rounded-lg transition-colors text-left"
                                             aria-label="My Profile"
                                         >
-                                            <Image
-                                                src={getUserAvatar()}
-                                                alt="Profile"
-                                                width={32}
-                                                height={32}
+                                            <UserAvatar
+                                                name={profile?.email || user?.email || 'default'}
+                                                size={32}
                                                 className="rounded-full object-cover"
                                             />
                                             <div className="flex flex-col">

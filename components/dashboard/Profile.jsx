@@ -25,6 +25,7 @@ import { useRouter } from '@/navigation';
 import DeleteAccountModal from './DeleteAccountModal';
 import { getAvatarUrl } from '@/lib/avatar';
 import { createClient } from '@/lib/supabase/client';
+import UserAvatar from '../ui/UserAvatar';
 
 function Skeleton({ compact }) {
   if (compact) {
@@ -367,9 +368,9 @@ export default function Profile({ compact = false, user }) {
       >
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500 shadow-sm">
-            <img
-              src={getAvatarUrl(user?.email)}
-              alt="User Avatar"
+            <UserAvatar
+              name={profile?.email || user?.email}
+              size={44}
               className="w-full h-full rounded-full bg-white"
             />
           </div>
@@ -438,9 +439,9 @@ export default function Profile({ compact = false, user }) {
             <div className="relative group">
               <div className="w-32 h-32 rounded-full p-1 bg-white shadow-xl">
                 <div className="w-full h-full rounded-full overflow-hidden bg-gray-100">
-                  <img
-                    src={getAvatarUrl(user?.email)}
-                    alt="User Avatar"
+                  <UserAvatar
+                    name={profile?.email || user?.email}
+                    size={120}
                     className="w-full h-full object-cover"
                   />
                 </div>

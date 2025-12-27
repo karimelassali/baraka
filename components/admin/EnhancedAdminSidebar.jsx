@@ -20,6 +20,7 @@ import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { DEFAULT_NAV_CATEGORIES, COLOR_THEMES } from '@/lib/constants/admin-sidebar';
 import Image from 'next/image';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
   const t = useTranslations('Admin.Sidebar');
@@ -83,7 +84,30 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
     if (storedConfig) {
       try {
         const parsed = JSON.parse(storedConfig);
-        setNavCategories(rehydrateCategories(parsed));
+        const rehydrated = rehydrateCategories(parsed);
+
+        // Auto-merge new default items that might be missing from localStorage
+        let hasChanges = false;
+        const existingIds = new Set(rehydrated.flatMap(c => c.items.map(i => i.id)));
+
+        DEFAULT_NAV_CATEGORIES.forEach(defCat => {
+          defCat.items.forEach(defItem => {
+            if (!existingIds.has(defItem.id)) {
+              // Find corresponding category in stored config
+              const catIndex = rehydrated.findIndex(c => c.id === defCat.id);
+              if (catIndex >= 0) {
+                rehydrated[catIndex].items.push(defItem);
+                hasChanges = true;
+              }
+            }
+          });
+        });
+
+        setNavCategories(rehydrated);
+
+        if (hasChanges) {
+          localStorage.setItem('admin_sidebar_config', JSON.stringify(rehydrated));
+        }
       } catch (e) {
         console.error("Failed to parse sidebar config", e);
       }
@@ -220,11 +244,10 @@ export default function EnhancedAdminSidebar({ isCollapsed, toggleCollapse }) {
             title={isCollapsed && !mobile ? (currentUser?.full_name || t('default_user')) : ''}
           >
             <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow flex-shrink-0 overflow-hidden border border-border bg-background relative">
-              <Image
-                src={getAvatarUrl(currentUser?.email || currentUser?.full_name || 'User')}
-                alt="Profile"
-                fill
-                className="object-cover"
+              <UserAvatar
+                name={currentUser?.email || currentUser?.full_name || 'User'}
+                size={40}
+                className="w-full h-full object-cover"
               />
             </div>
             {(!isCollapsed || mobile) && (

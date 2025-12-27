@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { countries } from '@/lib/constants/countries';
 import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function CustomerSearch({ onSelect, selectedCustomer }) {
     const t = useTranslations('Admin.Eid.CustomerSearch');
@@ -88,9 +89,9 @@ export default function CustomerSearch({ onSelect, selectedCustomer }) {
                             onClick={() => handleSelect(customer)}
                         >
                             <div className="w-8 h-8 rounded-full overflow-hidden bg-red-100 flex-shrink-0 border border-red-200">
-                                <img
-                                    src={getAvatarUrl(customer.email || customer.first_name)}
-                                    alt="Avatar"
+                                <UserAvatar
+                                    name={customer.email || customer.first_name}
+                                    size={32}
                                     className="w-full h-full object-cover"
                                 />
                             </div>

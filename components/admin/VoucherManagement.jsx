@@ -32,6 +32,7 @@ import { useTranslations } from 'next-intl';
 import { getAvatarUrl } from '@/lib/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import ActiveFilterSummary from './ActiveFilterSummary';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 // --- Sub-components ---
 
@@ -191,9 +192,9 @@ function VoucherWallet({ customer, vouchers, isOpen, onClose, onSave }) {
 
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-500/20 shrink-0">
-                <img
-                  src={getAvatarUrl(customer.email || customer.first_name)}
-                  alt={customer.first_name}
+                <UserAvatar
+                  name={customer.email || customer.first_name}
+                  size={64}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -469,9 +470,9 @@ const CustomerVoucherCard = ({ customer, onClick }) => {
 
         <CardContent className="p-6 flex flex-col items-center text-center pt-8">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/40 dark:to-purple-900/10 flex items-center justify-center mb-4 shadow-inner overflow-visible border-2 border-purple-500/20 relative">
-            <img
-              src={getAvatarUrl(customer.first_name)}
-              alt={customer.first_name}
+            <UserAvatar
+              name={customer.email || customer.first_name}
+              size={80}
               className="w-full h-full object-cover rounded-full overflow-hidden"
             />
             {(() => {

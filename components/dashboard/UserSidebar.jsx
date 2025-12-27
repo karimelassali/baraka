@@ -19,6 +19,7 @@ import { useRouter } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getAvatarUrl } from '@/lib/avatar';
 import Image from 'next/image';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function UserSidebar({
     activeTab,
@@ -118,11 +119,10 @@ export default function UserSidebar({
                     >
                         <div className="relative">
                             <div className="w-10 h-10 relative rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
-                                <Image
-                                    src={getAvatarUrl(user.email)}
-                                    alt="User Avatar"
-                                    fill
-                                    className="rounded-full bg-white object-cover p-0.5"
+                                <UserAvatar
+                                    name={user.email || user.user_metadata?.email || 'default'}
+                                    size={36}
+                                    className="rounded-full bg-white p-0.5"
                                 />
                             </div>
                             <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>

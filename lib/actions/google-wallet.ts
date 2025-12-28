@@ -1,6 +1,7 @@
 "use server";
 
 import jwt from "jsonwebtoken";
+import { GoogleAuth } from "google-auth-library";
 import { createClient } from "@/lib/supabase/server";
 
 // --- Configuration Constants ---
@@ -95,11 +96,26 @@ export async function generateGoogleWalletLink(userId: string) {
         });
 
         // 4. Construct Loyalty Object
+        // Create a short, simple ID for manual entry and scanning
+        const shortId = customer.id.replace(/-/g, '').substring(0, 8).toUpperCase();
+
+        // --- CRITICAL UPDATE: Ensure DB has this Short ID for scanning ---
+        const { error: updateError } = await supabase
+            .from("customers")
+            .update({ barcode_value: shortId })
+            .eq("id", customer.id);
+
+        if (updateError) {
+            console.error("Failed to update barcode_value:", updateError);
+            // We continue, as the wallet link is still valid, but scanning might be tricky if not updated.
+        }
+        // ----------------------------------------------------------------
+
         const loyaltyObject = {
             id: loyaltyObjectId,
             classId: classId,
             state: "ACTIVE",
-            accountId: customer.id,
+            accountId: customer.id, // Keep full ID for account linking uniqueness
             hexBackgroundColor: BRAND_COLOR,
 
             // Branding Images (Optional: Requires valid URLs hosted on Google or public HTTPS)
@@ -112,13 +128,13 @@ export async function generateGoogleWalletLink(userId: string) {
 
             barcode: {
                 type: "CODE_128",
-                value: customer.id.replace(/-/g, '').substring(0, 12).toUpperCase(), // Short ID for scanning
-                alternateText: customer.id,
+                value: shortId, // Short ID for barcode
+                alternateText: shortId, // Short ID text displayed under barcode
             },
             textModulesData: [
                 { header: "Punti", body: totalPoints.toString() },
                 { header: "Nome", body: `${customer.first_name} ${customer.last_name}` },
-                { header: "ID Socio", body: customer.id.substring(0, 8).toUpperCase() } // Shortened ID for display
+                { header: "ID Socio", body: shortId }
             ],
             linksModuleData: {
                 uris: [
@@ -146,11 +162,48 @@ export async function generateGoogleWalletLink(userId: string) {
             aud: "google",
             typ: "savetowallet",
             iat: nowSeconds,
-            origins: [], // Needed for strict security, verify if empty works for testing
+            origins: [],
             payload: {
                 loyaltyObjects: [loyaltyObject],
             },
         };
+
+        // --- EXPLICIT PATCH to ensure Barcode Update ---
+        try {
+            const auth = new GoogleAuth({
+                credentials: {
+                    client_email: clientEmail,
+                    private_key: privateKey,
+                },
+                scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
+            });
+
+            const client = await auth.getClient();
+            const baseUrl = "https://walletobjects.googleapis.com/walletobjects/v1";
+            const objectUrl = `${baseUrl}/loyaltyObject/${loyaltyObjectId}`;
+
+            // Try to GET to see if it exists
+            await client.request({
+                url: objectUrl,
+                method: "GET",
+            }).then(async () => {
+                // If it exists, PATCH it with the fresh payload (forces Barcode update)
+                console.log("Object exists. Patching to ensure consistency (Barcode/Points)...");
+                await client.request({
+                    url: objectUrl,
+                    method: "PATCH",
+                    data: loyaltyObject,
+                });
+            }).catch(() => {
+                // Ignore GET error (likely 404), meaning it doesn't exist yet.
+                // The JWT link will create it.
+                console.log("Object does not exist yet. JWT link will create it.");
+            });
+        } catch (patchError) {
+            console.error("Warning: Background Patch failed:", patchError);
+            // We do NOT block the link generation, but we log it.
+        }
+        // -----------------------------------------------
 
         console.log("JWT Payload (Excluding payload for brevity):", {
             iss: claims.iss,

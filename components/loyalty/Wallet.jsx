@@ -192,8 +192,19 @@ export default function LoyaltyWallet({ compact = false, user }) {
         </div>
 
         {user?.id && (
-          <div className="flex justify-center">
-            <AddToGoogleWallet userId={user.id} />
+          <div className="bg-gray-50 rounded-xl p-6 border border-gray-100 flex flex-col items-center text-center space-y-4 transition-all hover:bg-gray-100 hover:border-gray-200 hover:shadow-sm">
+            <div className="p-3 bg-white rounded-full shadow-sm ring-1 ring-gray-100">
+              <Wallet className="w-6 h-6 text-gray-700" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-gray-900">{t('add_to_wallet_title')}</h4>
+              <p className="text-sm text-gray-500 max-w-[260px] mx-auto mt-1 leading-relaxed">
+                {t('add_to_wallet_desc')}
+              </p>
+            </div>
+            <div className="filter drop-shadow-sm transition-transform active:scale-95">
+              <AddToGoogleWallet userId={user.id} />
+            </div>
           </div>
         )}
 
@@ -255,11 +266,7 @@ export default function LoyaltyWallet({ compact = false, user }) {
               className="w-32 px-2 py-1 text-sm border border-gray-300 rounded-md"
             />
           )}
-          {user?.id && (
-            <div className="h-[40px] flex items-center">
-              <AddToGoogleWallet userId={user.id} />
-            </div>
-          )}
+
           <button
             onClick={handleDownloadStatement}
             className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center transition-colors"
@@ -311,6 +318,26 @@ export default function LoyaltyWallet({ compact = false, user }) {
 
         {/* Quick Stats */}
         <div className="space-y-6">
+          {user?.id && (
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="bg-gray-50 rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col items-center text-center space-y-4"
+            >
+              <div className="p-3 bg-white rounded-full shadow-sm ring-1 ring-gray-100">
+                <Wallet className="w-6 h-6 text-gray-700" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">{t('add_to_wallet_title')}</h4>
+                <p className="text-sm text-gray-500 mt-1 leading-relaxed">
+                  {t('add_to_wallet_desc')}
+                </p>
+              </div>
+              <div className="filter drop-shadow-sm transition-transform active:scale-95">
+                <AddToGoogleWallet userId={user.id} />
+              </div>
+            </motion.div>
+          )}
+
           <motion.div
             whileHover={{ y: -2 }}
             className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm"

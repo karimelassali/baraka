@@ -199,8 +199,8 @@ export async function PUT(request, { params }) {
     // We run this without awaiting strictly to return response faster, 
     // BUT for debugging now let's await to see errors in logs if any.
     const msg = points > 0
-      ? `You earned ${points} points!`
-      : `Your balance was updated.`;
+      ? `🎉 Hai guadagnato ${points} punti! Il tuo nuovo saldo è ${newTotal}`
+      : `Il tuo saldo punti è stato aggiornato. Nuovo saldo: ${newTotal}`;
 
     await updateGoogleWalletPoints(customerWithAuth.auth_id, newTotal, msg)
       .catch(err => console.error("Failed to update Google Wallet:", err));

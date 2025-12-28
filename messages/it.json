@@ -382,7 +382,9 @@
         "silver_desc": "Sblocca vantaggi argento (100+ punti)",
         "gold_desc": "Status premium e premi (500+ punti)",
         "legend_desc": "Status d'élite e accesso esclusivo (750+ punti)"
-      }
+      },
+      "add_to_wallet_title": "Aggiungi a Google Wallet",
+      "add_to_wallet_desc": "Porta la tua carta sempre con te e ricevi notifiche sui punti in tempo reale."
     },
     "Statistics": {
       "total_points": "Punti Totali",

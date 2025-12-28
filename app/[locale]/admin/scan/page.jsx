@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, CheckCircle2, QrCode, Search, Gift, MinusCircle, PlusCircle, AlertCircle, Ticket, Lock, Unlock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { getAvatarUrl } from "@/lib/avatar";
+import UserAvatar from "@/components/ui/UserAvatar";
 
 export default function ScanPage() {
     const [scannedId, setScannedId] = useState(null);
@@ -127,51 +128,23 @@ export default function ScanPage() {
                 return;
             }
 
-            // 1. Fetch Customer Details
-            let customerData = null;
-            let customerError = null;
+            // 1. Fetch Customer Details using Server-Side Lookup (handles Partial UUIDs & Barcodes)
+            const response = await fetch('/api/admin/scan/user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: decodedText })
+            });
 
-            // Check if it's a full UUID
-            if (decodedText.includes('-') || decodedText.length >= 32) {
-                const result = await supabase
-                    .from("customers")
-                    .select("id, first_name, last_name, email, phone_number")
-                    .eq("id", decodedText)
-                    .single();
-                customerData = result.data;
-                customerError = result.error;
-            }
+            const data = await response.json();
 
-            // If not found, use indexed barcode_value
-            if (!customerData) {
-                const barcodeValue = decodedText.toUpperCase().replace(/-/g, '').substring(0, 12);
-                const result = await supabase
-                    .from("customers")
-                    .select("id, first_name, last_name, email, phone_number")
-                    .eq("barcode_value", barcodeValue)
-                    .single();
-                customerData = result.data;
-                customerError = result.error;
-            }
-
-            if (customerError || !customerData) {
+            if (!response.ok || !data.customer) {
                 toast.error(`Utente non trovato!`, { description: decodedText });
                 setScanning(true);
                 setLoading(false);
                 return;
             }
 
-            // 2. Fetch Points
-            const { data: pointsData } = await supabase
-                .from("customer_points_balance")
-                .select("total_points")
-                .eq("customer_id", customerData.id)
-                .single();
-
-            setCustomer({
-                ...customerData,
-                total_points: pointsData?.total_points || 0,
-            });
+            setCustomer(data.customer);
 
         } catch (err) {
             console.error(err);
@@ -417,7 +390,11 @@ export default function ScanPage() {
 
                                 <div className="flex items-center justify-center gap-3 mb-8 bg-gray-50 p-3 rounded-xl">
                                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                                        <img src={getAvatarUrl(customer?.email)} alt="User" />
+                                        <UserAvatar
+                                            name={customer?.email || customer?.id}
+                                            size={40}
+                                            className="w-full h-full"
+                                        />
                                     </div>
                                     <div className="text-left">
                                         <div className="text-sm font-bold text-gray-900">{customer?.first_name} {customer?.last_name}</div>
@@ -455,10 +432,10 @@ export default function ScanPage() {
                                 {/* Avatar */}
                                 <div className="relative">
                                     <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-white">
-                                        <img
-                                            src={getAvatarUrl(customer.email)}
-                                            alt="Avatar"
-                                            className="w-full h-full object-cover"
+                                        <UserAvatar
+                                            name={customer.email || customer.id}
+                                            size={96}
+                                            className="w-full h-full"
                                         />
                                     </div>
                                     <div className="absolute bottom-0 right-0 w-8 h-8 bg-green-500 rounded-full border-2 border-white flex items-center justify-center">

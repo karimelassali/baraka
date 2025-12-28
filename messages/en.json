@@ -382,7 +382,9 @@
         "silver_desc": "Unlock silver benefits (100+ points)",
         "gold_desc": "Premium status & rewards (500+ points)",
         "legend_desc": "Elite status & exclusive access (750+ points)"
-      }
+      },
+      "add_to_wallet_title": "Add to Google Wallet",
+      "add_to_wallet_desc": "Keep your card with you and get real-time point updates."
     },
     "Statistics": {
       "total_points": "Total Points",

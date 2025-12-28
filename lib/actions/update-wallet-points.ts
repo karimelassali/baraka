@@ -186,7 +186,7 @@ export async function updateGoogleWalletPoints(userId: string, newPoints: number
             patchBody.messages = [{
                 header: "Baraka Update", // Title of the notification
                 body: customMessage,
-                id: "msg_update", // Fixed ID to overwrite previous messages (prevents stacking)
+                id: "msg_last_update", // Fixed ID to overwrite previous messages (prevents stacking)
                 kind: "walletobjects#walletObjectMessage",
                 messageType: "TEXT"
             }];

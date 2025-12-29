@@ -105,7 +105,7 @@ export default function FloatingProfileCard({ user, profile, labels }) {
             </div>
 
             {/* Floating Action Button */}
-            <div id="floating-barcode-btn" className="fixed bottom-24 md:bottom-6 right-8 md:right-6 z-[70] flex flex-col items-end gap-4 pointer-events-auto">
+            <div id="floating-barcode-btn" className="fixed bottom-24 lg:bottom-6 right-8 md:right-6 z-[70] flex flex-col items-end gap-4 pointer-events-auto">
                 <motion.button
                     layout
                     whileHover={{ scale: 1.05 }}

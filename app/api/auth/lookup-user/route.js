@@ -32,7 +32,8 @@ export async function POST(request) {
 
         if (error) {
             console.error('Lookup DB Error:', error);
-            return NextResponse.json({ error: 'System error' }, { status: 500 });
+            const errorMessage = typeof error === 'object' && error?.message ? error.message : String(error);
+            return NextResponse.json({ error: errorMessage }, { status: 500 });
         }
 
         if (!user) {
@@ -47,6 +48,7 @@ export async function POST(request) {
 
     } catch (error) {
         console.error('Lookup Error:', error);
-        return NextResponse.json({ error: 'System error' }, { status: 500 });
+        const errorMessage = typeof error === 'object' && error?.message ? error.message : String(error);
+        return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }

@@ -7,6 +7,8 @@ import CountryFlag from "react-country-flag";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter, usePathname } from "@/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import PhoneInputWithCountry from "@/components/ui/PhoneInputWithCountry";
+import { countryCodes } from "@/lib/country-codes";
 
 // Step components
 const Step1 = ({ formData, updateForm, errors, t }) => (
@@ -124,14 +126,13 @@ const Step4 = ({ formData, updateForm, errors, t }) => (
         <div className="space-y-4">
             <div>
                 <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">{t('steps.4.phone')} *</label>
-                <input
+                <PhoneInputWithCountry
                     id="phone_number"
                     name="phone_number"
                     value={formData.phone_number}
-                    onChange={(e) => updateForm({ phone_number: e.target.value })}
-                    placeholder="+39 123 456 789"
-                    inputMode="tel"
-                    className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-400 ${errors.phone_number ? "border-red-500" : "border-gray-300"}`}
+                    onChange={(val) => updateForm({ phone_number: val })}
+                    placeholder="333 123 4567"
+                    className={errors.phone_number ? "border-red-500" : "border-gray-300"}
                 />
                 {errors.phone_number && (
                     <p className="text-red-500 text-sm mt-1">{errors.phone_number}</p>
@@ -270,31 +271,9 @@ const Step6 = ({ formData, updateForm, errors, t }) => (
                     />
                 </div>
                 <datalist id="countries-list">
-                    <option>Italy</option>
-                    <option>France</option>
-                    <option>Spain</option>
-                    <option>United States</option>
-                    <option>United Kingdom</option>
-                    <option>Germany</option>
-                    <option>Algeria</option>
-                    <option>Angola</option>
-                    <option>Argentina</option>
-                    <option>Australia</option>
-                    <option>Austria</option>
-                    <option>Belgium</option>
-                    <option>Brazil</option>
-                    <option>Canada</option>
-                    <option>China</option>
-                    <option>Egypt</option>
-                    <option>India</option>
-                    <option>Japan</option>
-                    <option>Mexico</option>
-                    <option>Morocco</option>
-                    <option>Nigeria</option>
-                    <option>Russia</option>
-                    <option>Saudi Arabia</option>
-                    <option>South Africa</option>
-                    <option>Turkey</option>
+                    {countryCodes.map((country) => (
+                        <option key={country.code} value={country.name} />
+                    ))}
                 </datalist>
                 {errors.country_of_origin && (
                     <p className="text-red-500 text-sm mt-1">{errors.country_of_origin}</p>
@@ -458,58 +437,11 @@ const Step10 = ({ formData, errors, handleSubmit, loading, t }) => (
 );
 
 // Country code mapping function
+// Country code mapping function
 const getCountryCode = (countryName) => {
-    const countryMap = {
-        'Italy': 'IT',
-        'France': 'FR',
-        'Spain': 'ES',
-        'United States': 'US',
-        'United Kingdom': 'GB',
-        'Germany': 'DE',
-        'Algeria': 'DZ',
-        'Angola': 'AO',
-        'Argentina': 'AR',
-        'Australia': 'AU',
-        'Austria': 'AT',
-        'Belgium': 'BE',
-        'Brazil': 'BR',
-        'Canada': 'CA',
-        'China': 'CN',
-        'Egypt': 'EG',
-        'India': 'IN',
-        'Japan': 'JP',
-        'Mexico': 'MX',
-        'Morocco': 'MA',
-        'Nigeria': 'NG',
-        'Russia': 'RU',
-        'Saudi Arabia': 'SA',
-        'South Africa': 'ZA',
-        'Turkey': 'TR',
-        'Libya': 'LY',
-        'Mali': 'ML',
-        'Mauritania': 'MR',
-        'Niger': 'NE',
-        'Tunisia': 'TN',
-        'Lebanon': 'LB',
-        'Jordan': 'JO',
-        'Iraq': 'IQ',
-        'Syria': 'SY',
-        'Yemen': 'YE',
-        'Oman': 'OM',
-        'UAE': 'AE',
-        'Kuwait': 'KW',
-        'Qatar': 'QA',
-        'Bahrain': 'BH',
-        'Iran': 'IR'
-    };
-
-    // Handle special cases and normalize input
-    if (countryName.toLowerCase().includes('united states')) return 'US';
-    if (countryName.toLowerCase().includes('united kingdom')) return 'GB';
-    if (countryName.toLowerCase().includes('south africa')) return 'ZA';
-    if (countryName.toLowerCase().includes('saudi arabia')) return 'SA';
-
-    return countryMap[countryName] || 'UN'; // Use 'UN' for unknown countries
+    if (!countryName) return 'UN';
+    const found = countryCodes.find(c => c.name.toLowerCase() === countryName.toLowerCase());
+    return found ? found.code : 'UN';
 };
 
 // Validation functions

@@ -335,7 +335,7 @@ export default function ScanPage() {
                             transition={{ duration: 0.3 }}
                             className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
                         >
-                            <div className="p-4 bg-red-600 text-white text-center pb-8 pt-6">
+                            <div className={`p-4 text-white text-center pb-8 pt-6 transition-colors duration-300 ${scanMode === 'voucher' ? 'bg-purple-600' : 'bg-red-600'}`}>
                                 <QrCode className="w-8 h-8 mx-auto mb-2 text-white/90" />
                                 <h3 className="font-bold text-lg">
                                     {scanMode === 'customer' ? 'Inquadra Carta Cliente' : 'Inquadra Voucher QR'}
@@ -347,6 +347,7 @@ export default function ScanPage() {
                                     <BarcodeScanner
                                         onScanSuccess={handleScanSuccess}
                                         onScanFailure={(err) => console.log(err)}
+                                        scanMode={scanMode}
                                     />
                                 </div>
                             </div>

@@ -12,7 +12,8 @@ import {
   ChevronRight,
   Sparkles,
   MessageSquare,
-  AlertTriangle
+  AlertTriangle,
+  ShieldCheck
 } from 'lucide-react';
 import { Link } from '@/navigation';
 import LoyaltyWallet from '@/components/loyalty/Wallet';
@@ -50,6 +51,7 @@ export default function DashboardPage() {
   const [hasSeenTour, setHasSeenTour] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [isLanguageConfirmed, setIsLanguageConfirmed] = useState(false);
+  const [showAdminRedirectModal, setShowAdminRedirectModal] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -93,6 +95,19 @@ export default function DashboardPage() {
         router.push('/auth/login');
       } else {
         setUser(data.user);
+
+        // Check if user is also an admin
+        const { data: adminData } = await supabase
+          .from('admin_users')
+          .select('id')
+          .eq('auth_id', data.user.id)
+          .eq('is_active', true)
+          .single();
+
+        if (adminData) {
+          setShowAdminRedirectModal(true);
+        }
+
         // Fetch profile data
         const { data: profileData } = await supabase
           .from('customers')
@@ -338,6 +353,32 @@ export default function DashboardPage() {
           scanAtRegister: t('FloatingCard.scan_at_register')
         }}
       />
+
+      {/* Admin Redirect Modal - Always in Italian */}
+      {showAdminRedirectModal && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ShieldCheck className="w-8 h-8 text-red-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">
+                Sei un Amministratore!
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Sembra che tu abbia effettuato l'accesso come amministratore.
+                Questa pagina è dedicata ai clienti.
+              </p>
+              <button
+                onClick={() => router.push('/admin')}
+                className="w-full bg-red-600 text-white rounded-xl py-3 font-semibold hover:bg-red-700 transition-colors shadow-lg shadow-red-500/30"
+              >
+                Vai alla Dashboard Admin
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

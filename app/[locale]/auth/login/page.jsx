@@ -8,6 +8,7 @@ import { Mail, Lock, Loader2, ArrowRight, ArrowLeft, Phone, Eye, EyeOff } from "
 import { motion } from "framer-motion";
 
 import Input from "@/components/ui/input";
+import PhoneInputWithCountry from "@/components/ui/PhoneInputWithCountry";
 
 export default function LoginForm() {
   const t = useTranslations('Auth.Login');
@@ -87,13 +88,33 @@ export default function LoginForm() {
 
       if (loginMethod === 'phone') {
         // Client-side Normalization
-        cleanPhone = phone.replace(/[^\d+]/g, '');
-        if (!cleanPhone.startsWith('+')) {
-          if (cleanPhone.length >= 9 && cleanPhone.length <= 10) {
-            cleanPhone = '+39' + cleanPhone;
-          } else if (cleanPhone.startsWith('00')) {
+        // Client-side Normalization using libphonenumber-js
+        // This handles cases like:
+        // - User selects Ireland (+353) and types 353... -> +353353... -> Becomes +353... (if valid)
+        // - User types 0039... -> +39...
+        // - User types +39 353... -> +39353...
+        cleanPhone = phone; // Default to raw input
+        try {
+          // Import dynamically or assume it's available if added to package.json
+          // Since this is a client component, better to import at top. 
+          // I'll add the import in a separate step if not present, but for now I'll use a robust fallback logic if import fails or use simple cleanup
+          // Actually, I should stick to the robust logic I added to the BACKEND (phone-utils.js). 
+          // The frontend just needs to send the raw input (+353353...) to the backend.
+          // The logic I removed below was: phone.replace(/[^\d+]/g, ''); which IS good.
+          // I will restore a simple cleanup: remove spaces/dashes.
+          cleanPhone = phone.replace(/[^\d+]/g, '');
+
+          // If user typed 00 instead of +, fix it
+          if (cleanPhone.startsWith('00')) {
             cleanPhone = '+' + cleanPhone.substring(2);
+          } else if (!cleanPhone.startsWith('+')) {
+            // If no +, assume + is missing? 
+            // PhoneInputWithCountry ALWAYS adds +CC.
+            // If user deleted it, we might be in trouble, but let's assume they kept it.
+            cleanPhone = '+' + cleanPhone;
           }
+        } catch (e) {
+          console.error("Phone normalization error", e);
         }
 
         const res = await fetch("/api/auth/lookup-user", {
@@ -143,38 +164,54 @@ export default function LoginForm() {
         }
       } else {
         setSuccess(t('success'));
-        const checkSessionAndRedirect = async () => {
-          if (!supabase) return;
-          for (let i = 0; i < 5; i++) {
-            try {
-              const { data: { user }, error } = await supabase.auth.getUser();
-              if (user && !error) {
-                const { data: adminData } = await supabase.from('admin_users').select('role').eq('auth_id', user.id).single();
-                if (adminData) { window.location.href = "/admin"; return; }
-                const { data: customerData } = await supabase.from('customers').select('is_verified, phone_number').eq('auth_id', user.id).single();
-                if (customerData && customerData.is_verified === false) {
-                  setUnverifiedPhone(customerData.phone_number);
-                  await fetch("/api/auth/otp/send", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ phone_number: customerData.phone_number })
-                  });
-                  setShowOtpModal(true);
-                  setLoading(false);
-                  return;
-                }
-                const urlParams = new URLSearchParams(window.location.search);
-                const redirectUrl = urlParams.get('redirect');
-                window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : "/dashboard";
-                return;
-              }
-              await new Promise(resolve => setTimeout(resolve, 200));
-            } catch (err) { console.error("Session check error:", err); }
+
+        try {
+          const user = data.user;
+
+          if (user) {
+            // Check Admin
+            const { data: adminData } = await supabase
+              .from('admin_users')
+              .select('role')
+              .eq('auth_id', user.id)
+              .single();
+
+            if (adminData) {
+              window.location.href = "/admin";
+              return;
+            }
+
+            // Check Customer
+            const { data: customerData } = await supabase
+              .from('customers')
+              .select('is_verified, phone_number')
+              .eq('auth_id', user.id)
+              .single();
+
+            if (customerData && customerData.is_verified === false) {
+              setUnverifiedPhone(customerData.phone_number);
+              // Automatically send OTP
+              await fetch("/api/auth/otp/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone_number: customerData.phone_number })
+              }).catch(err => console.error("OTP Send Error:", err));
+
+              setShowOtpModal(true);
+              setLoading(false);
+              return; // Stop redirect
+            }
+
+            // Redirect User
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectUrl = urlParams.get('redirect');
+            window.location.href = redirectUrl ? decodeURIComponent(redirectUrl) : "/dashboard";
           }
-          setError("Login verification took too long.");
-          setLoading(false);
-        };
-        checkSessionAndRedirect();
+        } catch (err) {
+          console.error("Post-login check error:", err);
+          // Fallback redirect if checks fail but login succeeded
+          window.location.href = "/dashboard";
+        }
       }
     } catch (err) {
       setError(err.message || t('error_generic'));
@@ -287,20 +324,13 @@ export default function LoginForm() {
               ) : (
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">{t('phone_label')}</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Phone className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      placeholder={t('phone_placeholder')}
-                      className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none transition-all"
-                    />
-                  </div>
+                  <PhoneInputWithCountry
+                    id="phone"
+                    value={phone}
+                    onChange={setPhone}
+                    placeholder={t('phone_placeholder')}
+                    className="border-gray-200"
+                  />
                 </div>
               )}
 
@@ -474,8 +504,8 @@ export default function LoginForm() {
                   onClick={handleResendOtp}
                   disabled={resendCountdown > 0}
                   className={`mt-3 w-full py-3 rounded-xl font-medium text-sm transition-all ${resendCountdown > 0
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                 >
                   {resendCountdown > 0

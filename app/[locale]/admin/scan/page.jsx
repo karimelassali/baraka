@@ -1,17 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import BarcodeScanner from "@/components/admin/BarcodeScanner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, CheckCircle2, QrCode, Search, Gift, MinusCircle, PlusCircle, AlertCircle, Ticket, Lock, Unlock, Sparkles } from "lucide-react";
+import { Loader2, CheckCircle2, Search, Gift, MinusCircle, PlusCircle, AlertCircle, Ticket, Sparkles, ScanLine, Keyboard } from "lucide-react";
 import { toast } from "sonner";
-import { getAvatarUrl } from "@/lib/avatar";
 import UserAvatar from "@/components/ui/UserAvatar";
+import Image from "next/image";
 
 export default function ScanPage() {
     const [scannedId, setScannedId] = useState(null);
@@ -25,12 +23,51 @@ export default function ScanPage() {
 
     const [loading, setLoading] = useState(false);
     const [scanning, setScanning] = useState(true);
-    const [scanMode, setScanMode] = useState("customer");
+    const [scanMode, setScanMode] = useState("customer"); // 'customer' | 'voucher'
     const [updateStatus, setUpdateStatus] = useState("idle");
-
     const [tabValue, setTabValue] = useState("add");
 
+    // Physical Scanner / Manual Input State
+    const [manualCode, setManualCode] = useState("");
+    const [isManualMode, setIsManualMode] = useState(false);
+    const inputRef = useRef(null);
+
     const supabase = createClient();
+
+    // 1. Auto-Focus Logic for Physical Scanner
+    useEffect(() => {
+        const focusInput = () => {
+            // Prevent stealing focus if user is interactions with other inputs
+            if (document.activeElement && (
+                document.activeElement.tagName === 'BUTTON' ||
+                document.activeElement.tagName === 'A' ||
+                (document.activeElement.tagName === 'INPUT' && document.activeElement !== inputRef.current) ||
+                document.activeElement.getAttribute('role') === 'button'
+            )) {
+                return;
+            }
+            if (scanning && !loading && updateStatus === 'idle') {
+                inputRef.current?.focus();
+            }
+        };
+
+        const timer = setInterval(focusInput, 1000); // Check focus every second
+        const focusTimeout = setTimeout(focusInput, 100); // Initial focus
+
+        const handleDocumentClick = (e) => {
+            if (scanning && !loading && inputRef.current && !inputRef.current.contains(e.target)) {
+                focusInput();
+            }
+        };
+
+        document.addEventListener("click", handleDocumentClick);
+
+        return () => {
+            clearInterval(timer);
+            clearTimeout(focusTimeout);
+            document.removeEventListener("click", handleDocumentClick);
+        };
+    }, [scanning, loading, updateStatus]);
 
     // Realtime Points Update
     useEffect(() => {
@@ -42,14 +79,12 @@ export default function ScanPage() {
             .on(
                 'postgres_changes',
                 {
-                    event: '*', // Listen to INSERT/UPDATE/DELETE
+                    event: '*',
                     schema: 'public',
                     table: 'loyalty_points',
                     filter: `customer_id=eq.${customer.id}`
                 },
                 async (payload) => {
-                    console.log("Realtime Event:", payload);
-                    // Fetch new total points
                     const { data: pointsData } = await supabase
                         .from("customer_points_balance")
                         .select("total_points")
@@ -71,7 +106,6 @@ export default function ScanPage() {
             supabase.removeChannel(channel);
         };
     }, [customer?.id, supabase]);
-
 
     // Auto-reset after success
     useEffect(() => {
@@ -97,10 +131,19 @@ export default function ScanPage() {
 
     const warnings = customer ? getWarnings(customer) : [];
 
+    const handleScanSubmit = async (e) => {
+        e?.preventDefault();
+        const codeToProcess = manualCode.trim();
+        if (!codeToProcess) return;
+
+        handleScanSuccess(codeToProcess);
+        setManualCode(""); // Clear input
+    };
+
     const handleScanSuccess = async (decodedText) => {
         if (loading || !scanning) return;
 
-        console.log("Scanned:", decodedText);
+        console.log("Processing Scan:", decodedText);
         setScannedId(decodedText);
         setScanning(false);
         setLoading(true);
@@ -117,8 +160,9 @@ export default function ScanPage() {
 
                 if (!response.ok) {
                     toast.error(data.error || "Voucher non valido");
-                    setScanning(true);
+                    setScanning(true); // Reset to allow retry
                     setLoading(false);
+                    // Retain text in manual mode if it failed? No, clear it usually.
                     return;
                 }
 
@@ -128,7 +172,7 @@ export default function ScanPage() {
                 return;
             }
 
-            // 1. Fetch Customer Details using Server-Side Lookup (handles Partial UUIDs & Barcodes)
+            // Customer Mode
             const response = await fetch('/api/admin/scan/user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -174,7 +218,6 @@ export default function ScanPage() {
                 setUpdateStatus("idle");
                 return;
             }
-            // Negative for deduction
             pointsValue = -Math.abs(parseInt(pointsToDeduct, 10));
             description = "Points redeemed/deducted (Admin)";
         }
@@ -195,7 +238,6 @@ export default function ScanPage() {
             const msg = actionType === 'add' ? `Aggiunti ${pointsValue} punti` : `Dedotti ${Math.abs(pointsValue)} punti`;
             toast.success("Aggiornamento riuscito!", { description: msg });
 
-            // Optimistic Update
             setCustomer(prev => ({
                 ...prev,
                 total_points: (prev.total_points || 0) + pointsValue
@@ -242,7 +284,6 @@ export default function ScanPage() {
             setUpdateStatus("success");
             toast.success("Voucher Creato con Successo!", { description: `Codice: ${data.voucher.code}` });
 
-            // Optimistically update points immediately
             setCustomer(prev => ({
                 ...prev,
                 total_points: prev.total_points - pointsToConvert
@@ -288,13 +329,13 @@ export default function ScanPage() {
         setPointsToAdd("");
         setPointsToDeduct("");
         setCustomPoints("");
+        setManualCode("");
+        setIsManualMode(false);
         setUpdateStatus("idle");
         setScanning(true);
+        // Focus will be handled by useEffect
     };
 
-
-
-    // Helper for manual points value preview
     const getEstimatedValue = (pt) => (pt / 10).toFixed(2);
 
     return (
@@ -307,25 +348,10 @@ export default function ScanPage() {
                         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Baraka Scan</h1>
                         <p className="text-sm text-gray-500">Punti & Voucher</p>
                     </div>
-                    {/* Scan Mode Toggle */}
-                    <div className="flex bg-gray-200/50 p-1 rounded-lg shrink-0">
-                        <button
-                            onClick={() => setScanMode('customer')}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${scanMode === 'customer' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'}`}
-                        >
-                            Cliente
-                        </button>
-                        <button
-                            onClick={() => setScanMode('voucher')}
-                            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${scanMode === 'voucher' ? 'bg-white shadow-sm text-black' : 'text-gray-500 hover:text-gray-700'}`}
-                        >
-                            Voucher
-                        </button>
-                    </div>
                 </div>
 
                 <AnimatePresence mode="wait">
-                    {/* 1. Scanner View */}
+                    {/* 1. Scanner View (New Layout) */}
                     {scanning && (
                         <motion.div
                             key="scanner"
@@ -333,24 +359,91 @@ export default function ScanPage() {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.3 }}
-                            className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100"
+                            className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col items-center justify-center p-8 text-center min-h-[500px]"
                         >
-                            <div className={`p-4 text-white text-center pb-8 pt-6 transition-colors duration-300 ${scanMode === 'voucher' ? 'bg-purple-600' : 'bg-red-600'}`}>
-                                <QrCode className="w-8 h-8 mx-auto mb-2 text-white/90" />
-                                <h3 className="font-bold text-lg">
-                                    {scanMode === 'customer' ? 'Inquadra Carta Cliente' : 'Inquadra Voucher QR'}
-                                </h3>
-                                <p className="text-white/80 text-sm">Posiziona il codice al centro</p>
+                            {/* SVG Illustration */}
+                            <div className="relative w-64 h-64 mb-8">
+                                <Image
+                                    src="/illus/Barcode-rafiki.svg"
+                                    alt="Scan Barcode"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
                             </div>
-                            <div className="p-4 -mt-4">
-                                <div className="rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
-                                    <BarcodeScanner
-                                        onScanSuccess={handleScanSuccess}
-                                        onScanFailure={(err) => console.log(err)}
-                                        scanMode={scanMode}
-                                    />
+
+                            <div className="max-w-xs w-full space-y-6">
+
+                                {/* Scan Mode Toggle */}
+                                <div className="flex bg-gray-100 p-1 rounded-xl mx-auto w-full">
+                                    <button
+                                        onClick={() => setScanMode('customer')}
+                                        className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${scanMode === 'customer' ? 'bg-white shadow text-red-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        <ScanLine className="w-4 h-4" />
+                                        Cliente
+                                    </button>
+                                    <button
+                                        onClick={() => setScanMode('voucher')}
+                                        className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${scanMode === 'voucher' ? 'bg-white shadow text-purple-600' : 'text-gray-500 hover:text-gray-700'}`}
+                                    >
+                                        <Ticket className="w-4 h-4" />
+                                        Voucher
+                                    </button>
                                 </div>
+
+                                {/* Hidden / Visible Input */}
+                                <form onSubmit={handleScanSubmit} className="relative w-full">
+                                    <Input
+                                        ref={inputRef}
+                                        type="text"
+                                        inputMode={isManualMode ? "text" : "none"} // "none" prevents virtual keyboard on mobile unless manual
+                                        placeholder={isManualMode ? "Inserisci codice manuale..." : "Scansione..."}
+                                        value={manualCode}
+                                        onChange={(e) => setManualCode(e.target.value)}
+                                        autoComplete="off"
+                                        className={`
+                                            transition-all duration-300
+                                            ${isManualMode
+                                                ? "w-full h-12 text-center text-lg font-bold border-gray-300 opacity-100 relative"
+                                                : "w-0 h-0 opacity-0 absolute overflow-hidden p-0 border-0"
+                                            }
+                                        `}
+                                    />
+
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => {
+                                            setIsManualMode(!isManualMode);
+                                            setTimeout(() => inputRef.current?.focus(), 50);
+                                        }}
+                                        className="text-gray-400 hover:text-red-600 hover:bg-transparent mt-2 transition-colors flex items-center gap-2 mx-auto"
+                                    >
+                                        {isManualMode ? (
+                                            <>Nascondi Manuale</>
+                                        ) : (
+                                            <>
+                                                <Keyboard className="w-5 h-5" />
+                                                Ingresso Manuale
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    {isManualMode && (
+                                        <Button type="submit" className="w-full mt-4 bg-gray-900 text-white font-bold h-12 rounded-xl">
+                                            Conferma Codice
+                                        </Button>
+                                    )}
+                                </form>
+
+                                {!isManualMode && (
+                                    <p className="text-gray-400 text-sm animate-pulse">
+                                        In attesa di scansione...
+                                    </p>
+                                )}
                             </div>
+
                         </motion.div>
                     )}
 
@@ -361,9 +454,9 @@ export default function ScanPage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-col items-center justify-center p-12 space-y-4 bg-white rounded-3xl shadow-sm border border-gray-100"
+                            className="flex flex-col items-center justify-center p-12 space-y-4 bg-white rounded-3xl shadow-sm border border-gray-100 min-h-[400px]"
                         >
-                            <div className="w-16 h-16 border-4 border-gray-200 border-t-primary rounded-full animate-spin" />
+                            <div className="w-16 h-16 border-4 border-gray-200 border-t-red-600 rounded-full animate-spin" />
                             <p className="text-gray-500 font-medium animate-pulse">Ricerca in corso...</p>
                         </motion.div>
                     )}
@@ -429,7 +522,7 @@ export default function ScanPage() {
                             className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100"
                         >
                             {/* Improved Profile Header */}
-                            <div className="relative bg-gradient-to-b from-primary/10 to-transparent p-6 pb-0 flex flex-col items-center">
+                            <div className="relative bg-gradient-to-b from-red-600/10 to-transparent p-6 pb-0 flex flex-col items-center">
                                 {/* Avatar */}
                                 <div className="relative">
                                     <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg bg-white">
@@ -467,7 +560,7 @@ export default function ScanPage() {
                                 <div className="flex gap-4 w-full justify-center">
                                     <div className="bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 text-center min-w-[120px]">
                                         <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">SALDO</div>
-                                        <div className="text-3xl font-black text-primary">{customer.total_points}</div>
+                                        <div className="text-3xl font-black text-red-600">{customer.total_points}</div>
                                     </div>
                                 </div>
                             </div>
@@ -476,7 +569,7 @@ export default function ScanPage() {
                             <div className="p-6">
                                 <Tabs value={tabValue} onValueChange={setTabValue} className="w-full">
                                     <TabsList className="grid w-full grid-cols-3 bg-gray-100 p-1 mb-6 rounded-xl h-auto">
-                                        <TabsTrigger value="add" className="rounded-lg py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm">Aggiungi</TabsTrigger>
+                                        <TabsTrigger value="add" className="rounded-lg py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm">Aggiungi</TabsTrigger>
                                         <TabsTrigger value="redeem" className="rounded-lg py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-red-600 data-[state=active]:shadow-sm">Riscatta</TabsTrigger>
                                         <TabsTrigger value="voucher" className="rounded-lg py-2 text-sm font-medium data-[state=active]:bg-white data-[state=active]:text-purple-600 data-[state=active]:shadow-sm">Voucher</TabsTrigger>
                                     </TabsList>
@@ -484,7 +577,7 @@ export default function ScanPage() {
                                     {/* ADD POINTS TAB */}
                                     <TabsContent value="add" className="space-y-4 focus:outline-none">
                                         <div className="text-center mb-4">
-                                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-2">
+                                            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-red-600/10 text-red-600 mb-2">
                                                 <PlusCircle className="w-6 h-6" />
                                             </div>
                                             <h3 className="font-bold text-gray-900">Aggiungi Punti</h3>
@@ -495,7 +588,7 @@ export default function ScanPage() {
                                             <Input
                                                 type="number"
                                                 placeholder="Quantità"
-                                                className="h-14 text-lg text-center font-bold tracking-widest rounded-xl border-gray-200 focus:border-primary focus:ring-primary/20"
+                                                className="h-14 text-lg text-center font-bold tracking-widest rounded-xl border-gray-200 focus:border-red-600 focus:ring-red-600/20"
                                                 value={pointsToAdd}
                                                 onChange={(e) => setPointsToAdd(e.target.value)}
                                                 autoFocus
@@ -508,7 +601,7 @@ export default function ScanPage() {
                                         </div>
                                         <Button
                                             size="lg"
-                                            className="w-full h-14 rounded-xl font-bold bg-primary hover:bg-primary/90 mt-2 shadow-lg shadow-primary/25"
+                                            className="w-full h-14 rounded-xl font-bold bg-red-600 hover:bg-red-700 mt-2 shadow-lg shadow-red-600/25"
                                             onClick={() => handleUpdatePoints('add')}
                                             disabled={updateStatus === 'updating'}
                                         >

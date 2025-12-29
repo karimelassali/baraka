@@ -816,6 +816,7 @@ export default function EnhancedCustomerManagement() {
 
   // Filter states
   const [locationFilter, setLocationFilter] = useState('');
+  const [residenceFilter, setResidenceFilter] = useState('');
   const [verifiedFilter, setVerifiedFilter] = useState('all');
 
   // Quality Check State
@@ -869,6 +870,10 @@ export default function EnhancedCustomerManagement() {
         url += `&country=${encodeURIComponent(locationFilter)}`;
       }
 
+      if (residenceFilter) {
+        url += `&residence=${encodeURIComponent(residenceFilter)}`;
+      }
+
       // Note: verifiedFilter is not currently supported by the API for filtering, 
       // but we can add it if needed. For now, we'll filter client-side or ignore it.
       // Ideally, the API should support 'is_verified'.
@@ -902,7 +907,7 @@ export default function EnhancedCustomerManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, [searchTerm, sortField, sortDirection, locationFilter]);
+  }, [searchTerm, sortField, sortDirection, locationFilter, residenceFilter]);
 
   useEffect(() => {
     const search = searchParams.get('search');
@@ -1027,7 +1032,22 @@ export default function EnhancedCustomerManagement() {
           </div>
 
           {/* Advanced filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6 pt-6 border-t border-border/50">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mt-6 pt-6 border-t border-border/50">
+            {/* Address Filter - New */}
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Filter by Address</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Enter address..."
+                  value={residenceFilter}
+                  onChange={(e) => setResidenceFilter(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 bg-background/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filter_nationality')}</label>
               <div className="relative">

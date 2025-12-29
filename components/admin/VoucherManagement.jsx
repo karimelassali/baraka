@@ -20,7 +20,8 @@ import {
   AlertCircle,
   Loader2,
   Globe,
-  ChevronDown
+  ChevronDown,
+  MapPin
 } from 'lucide-react';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -531,6 +532,7 @@ export default function VoucherManagement() {
 
   // Filter states
   const [locationFilter, setLocationFilter] = useState('');
+  const [residenceFilter, setResidenceFilter] = useState('');
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [minPoints, setMinPoints] = useState('');
@@ -558,6 +560,10 @@ export default function VoucherManagement() {
 
       if (locationFilter) {
         url += `&country=${encodeURIComponent(locationFilter)}`;
+      }
+
+      if (residenceFilter) {
+        url += `&residence=${encodeURIComponent(residenceFilter)}`;
       }
 
       if (minPoints) url += `&min_points=${minPoints}`;
@@ -600,7 +606,7 @@ export default function VoucherManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, [searchTerm, sortField, sortDirection, locationFilter, minPoints, maxPoints]);
+  }, [searchTerm, sortField, sortDirection, locationFilter, residenceFilter, minPoints, maxPoints]);
 
   const handleSearch = (e) => setSearchTerm(e.target.value);
 
@@ -690,6 +696,20 @@ export default function VoucherManagement() {
           <>
             {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-xl border border-border/50">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">Address</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="Address..."
+                    value={residenceFilter}
+                    onChange={(e) => setResidenceFilter(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all text-sm"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider ml-1">{t('filters.nationality')}</label>
                 <div className="relative">

@@ -17,7 +17,8 @@ import {
     Clock,
     PieChart as PieChartIcon,
     X,
-    Info
+    Info,
+    MapPin
 } from 'lucide-react';
 import GlassCard from '../../ui/GlassCard';
 import DateRangeFilter from './DateRangeFilter';
@@ -27,6 +28,7 @@ import VoucherRedemptionChart from './charts/VoucherRedemptionChart';
 import CategoryDistributionChart from './charts/CategoryDistributionChart';
 import TopCustomersTable from './TopCustomersTable';
 import TopCountriesList from './TopCountriesList';
+import TopAddressesList from './TopAddressesList';
 import InventoryAlerts from './InventoryAlerts';
 import { getAvatarUrl } from '@/lib/avatar';
 import UserAvatar from '@/components/ui/UserAvatar';
@@ -40,6 +42,7 @@ export default function AnalyticsDashboard() {
     const [activityLogs, setActivityLogs] = useState([]);
     const [topCustomers, setTopCustomers] = useState([]);
     const [topCountries, setTopCountries] = useState([]);
+    const [topAddresses, setTopAddresses] = useState([]);
     const [topCustomersOffset, setTopCustomersOffset] = useState(0);
     const [topCustomersHasMore, setTopCustomersHasMore] = useState(true);
     const [loadingMoreCustomers, setLoadingMoreCustomers] = useState(false);
@@ -66,13 +69,14 @@ export default function AnalyticsDashboard() {
                     clientsUrl += query;
                 }
 
-                const [overviewRes, clientsRes, messagesRes, activityRes, topCustomersRes, topCountriesRes, inventoryRes] = await Promise.all([
+                const [overviewRes, clientsRes, messagesRes, activityRes, topCustomersRes, topCountriesRes, topAddressesRes, inventoryRes] = await Promise.all([
                     fetch(overviewUrl),
                     fetch(clientsUrl),
                     fetch('/api/admin/analytics/messages'),
                     fetch('/api/admin/analytics/activity'),
                     fetch('/api/admin/analytics/top-customers?limit=10'),
                     fetch('/api/admin/analytics/top-countries'),
+                    fetch('/api/admin/analytics/top-addresses'),
                     fetch('/api/admin/analytics/inventory')
                 ]);
 
@@ -82,6 +86,7 @@ export default function AnalyticsDashboard() {
                 const activityData = await activityRes.json();
                 const topCustomersData = await topCustomersRes.json();
                 const topCountriesData = await topCountriesRes.json();
+                const topAddressesData = await topAddressesRes.json();
                 const inventoryData = await inventoryRes.json();
 
                 setOverview(overviewData);
@@ -89,6 +94,7 @@ export default function AnalyticsDashboard() {
                 setMessageActivity(messagesData);
                 setActivityLogs(activityData);
                 setTopCountries(Array.isArray(topCountriesData) ? topCountriesData : []);
+                setTopAddresses(Array.isArray(topAddressesData) ? topAddressesData : []);
 
                 // Ensure topCustomersData is always an array
                 const validTopCustomers = Array.isArray(topCustomersData) ? topCustomersData : [];
@@ -311,6 +317,24 @@ export default function AnalyticsDashboard() {
                 <GlassCard className="h-[600px] flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                         <div>
+                            <h3 className="text-xl font-semibold text-foreground">Top Addresses</h3>
+                            <p className="text-sm text-muted-foreground">Most frequent customer locations</p>
+                        </div>
+                        <div className="p-2 bg-pink-500/10 rounded-lg">
+                            <MapPin className="w-5 h-5 text-pink-500" />
+                        </div>
+                    </div>
+                    <div className="flex-1 overflow-hidden">
+                        <TopAddressesList
+                            data={topAddresses}
+                            onAddressClick={(item) => setUsersListModal({ ...item, isAddress: true })}
+                        />
+                    </div>
+                </GlassCard>
+
+                <GlassCard className="h-[600px] flex flex-col">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
                             <h3 className="text-xl font-semibold text-foreground">{t('top_loyal_customers')}</h3>
                             <p className="text-sm text-muted-foreground">{t('top_loyal_customers_desc')}</p>
                         </div>
@@ -520,7 +544,9 @@ export default function AnalyticsDashboard() {
                             <div className="p-6 border-b border-border">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <h3 className="text-xl font-bold">Users from {usersListModal.country}</h3>
+                                        <h3 className="text-xl font-bold">
+                                            {usersListModal.isAddress ? `Users from ${usersListModal.address}` : `Users from ${usersListModal.country}`}
+                                        </h3>
                                         <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full">
                                             {usersListModal.count} Users
                                         </span>

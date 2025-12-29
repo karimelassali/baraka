@@ -148,8 +148,8 @@ export async function updateGoogleWalletPoints(userId: string, newPoints: number
             // Force update barcode to CODE_128 with short ID
             barcode: {
                 type: "CODE_128",
-                value: customer.id.replace(/-/g, '').substring(0, 12).toUpperCase(), // Short ID for scanning
-                alternateText: customer.id,
+                value: customer.id.replace(/-/g, '').substring(0, 8).toUpperCase(), // Short ID for scanning (8 chars)
+                alternateText: customer.id.replace(/-/g, '').substring(0, 8).toUpperCase(), // Display Short ID
             },
             // Dynamic Branding based on Tier
             hexBackgroundColor: tierConfig.hexBackgroundColor,

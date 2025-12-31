@@ -1458,20 +1458,104 @@
       }
     },
     "Campaigns": {
+      "title": "Campagne SMS",
+      "create_new": "Crea Nuova Campagna",
+      "manage_desc": "Gestisci le tue campagne di marketing via SMS",
+      "tabs": {
+        "new": "Nuova Campagna",
+        "history": "Cronologia"
+      },
+      "form": {
+        "title": "Nuova Campagna",
+        "details_title": "Dettagli Campagna SMS",
+        "target_all": "Tutti i Clienti",
+        "target_nationality": "Per Nazionalità",
+        "target_points": "Per Punti",
+        "target_specific": "Seleziona Clienti",
+        "target_manual": "Numeri Manuali",
+        "target_all_desc": "Invio SMS a tutti i clienti registrati con numero di telefono.",
+        "nationality_label": "Seleziona Nazionalità",
+        "nationality_placeholder": "Scegli paese...",
+        "points_label": "Soglia Minima Punti",
+        "points_placeholder": "es. 100",
+        "sms_note": "Nota: Un SMS standard è di 160 caratteri. Messaggi più lunghi potrebbero essere divisi in più segmenti.",
+        "send_button": "Invia Campagna SMS",
+        "sending_button": "Invio in corso...",
+        "message_label": "Contenuto Messaggio",
+        "message_placeholder": "Scrivi qui il tuo messaggio...",
+        "recipients_label": "Destinatari",
+        "manual_numbers": "Numeri Manuali",
+        "manual_placeholder": "Inserisci numeri di telefono separati da virgola o a capo...",
+        "total_recipients": "Destinatari Totali",
+        "send_btn": "Invia Campagna",
+        "sending": "Invio in corso...",
+        "ai_rewrite": "Riscrivi con AI",
+        "insert_link": "Inserisci Link",
+        "estimated_cost": "Costo Stimato",
+        "validation": {
+          "required": "Il messaggio è richiesto e non può essere vuoto",
+          "spaces": "Il messaggio non può contenere solo spazi",
+          "length": "I messaggi SMS dovrebbero essere di 160 caratteri o meno"
+        },
+        "preview": "Anteprima Messaggio",
+        "estimate_recipients": "Stima i destinatari prima di inviare",
+        "calculate_audience": "Calcola Audience",
+        "ai_translate_to": "AI Traduci in..."
+      },
+      "offer_picker": {
+        "title": "Seleziona un'Offerta",
+        "no_offers": "Nessuna offerta attiva trovata.",
+        "select": "Seleziona",
+        "untitled": "Offerta Senza Titolo",
+        "link_attached": "Link allegato"
+      },
+      "preview": {
+        "store_name": "Negozio Baraka",
+        "sms_message": "Messaggio SMS",
+        "placeholder_text": "Anteprima del tuo SMS qui",
+        "type_message": "Scrivi un messaggio...",
+        "title": "Anteprima SMS"
+      },
+      "client_selector": {
+        "search_placeholder": "Cerca per nome, telefono o email...",
+        "all_countries": "Tutti i Paesi",
+        "selected_count": "{count} selezionati",
+        "select_all": "Seleziona Tutti Visibili",
+        "deselect_all": "Deseleziona Tutti Visibili",
+        "no_customers": "Nessun cliente trovato per \"{term}\""
+      },
       "stats": {
-        "total": "Messaggi Totali",
+        "total": "Totale Inviati",
         "success_rate": "Tasso di Successo",
         "failed": "Falliti"
       },
       "filters": {
-        "search": "Cerca messaggi...",
-        "status": "Tutti gli Stati",
-        "reset": "Reimposta Filtri",
+        "status": "Filtra per Stato",
+        "sent": "Inviati",
+        "failed": "Falliti",
+        "reset": "Resetta Filtri",
+        "search": "Cerca messaggi..."
+      },
+      "table": {
+        "no_messages": "Nessun messaggio trovato"
+      },
+      "status": {
+        "pending": "In Attesa",
+        "sending": "Invio...",
         "sent": "Inviato",
         "failed": "Fallito"
       },
-      "table": {
-        "no_messages": "Nessun messaggio trovato con i criteri selezionati"
+      "execution": {
+        "sending_in_progress": "Invio in corso...",
+        "back_to_campaigns": "Torna alle Campagne",
+        "sending_title": "Invio SMS...",
+        "sending_desc": "Invio al destinatario {current} di {total}",
+        "campaign_completed": "Campagna Completata!",
+        "start_new": "Inizia Nuova Campagna",
+        "recipients_queue": "Coda Destinatari",
+        "message_label": "Messaggio SMS",
+        "id": "ID",
+        "sent_successfully": "inviati con successo"
       }
     },
     "Reviews": {

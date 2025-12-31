@@ -24,6 +24,10 @@ export async function GET(request) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const page = parseInt(searchParams.get('page') || '1');
+    const offset = (page - 1) * limit;
+
     let query = supabase
         .from('whatsapp_messages')
         .select(`
@@ -36,9 +40,9 @@ export async function GET(request) {
         last_name,
         phone_number
       )
-    `)
+    `, { count: 'exact' })
         .order('sent_at', { ascending: false })
-        .limit(100);
+        .range(offset, offset + limit - 1);
 
     if (status && status !== 'all') {
         query = query.eq('status', status);

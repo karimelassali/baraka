@@ -1503,20 +1503,104 @@
       }
     },
     "Campaigns": {
+      "title": "حملات الرسائل القصيرة",
+      "create_new": "إنشاء حملة جديدة",
+      "manage_desc": "إدارة حملات التسويق عبر الرسائل القصيرة",
+      "tabs": {
+        "new": "حملة جديدة",
+        "history": "السجل"
+      },
+      "form": {
+        "title": "حملة جديدة",
+        "details_title": "تفاصيل حملة الرسائل القصيرة",
+        "target_all": "جميع العملاء",
+        "target_nationality": "حسب الجنسية",
+        "target_points": "حسب النقاط",
+        "target_specific": "تحديد عملاء",
+        "target_manual": "أرقام يدوية",
+        "target_all_desc": "إرسال رسائل قصيرة لجميع العملاء المسجلين برقم هاتف.",
+        "nationality_label": "اختر الجنسية",
+        "nationality_placeholder": "اختر الدولة...",
+        "points_label": "الحد الأدنى للنقاط",
+        "points_placeholder": "مثال: 100",
+        "sms_note": "ملاحظة: الرسالة القياسية تتكون من 160 حرفًا. قد يتم تقسيم الرسائل الأطول إلى أجزاء متعددة.",
+        "send_button": "إرسال الحملة",
+        "sending_button": "جاري الإرسال...",
+        "message_label": "محتوى الرسالة",
+        "message_placeholder": "اكتب رسالتك هنا...",
+        "recipients_label": "المستلمون",
+        "manual_numbers": "أرقام يدوية",
+        "manual_placeholder": "أدخل أرقام الهواتف مفصولة بفواصل أو في سطور جديدة...",
+        "total_recipients": "إجمالي المستلمين",
+        "send_btn": "إرسال الحملة",
+        "sending": "جاري الإرسال...",
+        "ai_rewrite": "إعادة صياغة بالذكاء الاصطناعي",
+        "insert_link": "إدراج رابط نشاط",
+        "estimated_cost": "التكلفة التقديرة",
+        "validation": {
+          "required": "الرسالة مطلوبة ولا يمكن أن تكون فارغة",
+          "spaces": "لا يمكن أن تكون الرسالة مجرد مسافات",
+          "length": "يجب أن تكون رسائل SMS 160 حرفًا أو أقل"
+        },
+        "preview": "معاينة الرسالة",
+        "estimate_recipients": "قم بتقدير المستلمين قبل الإرسال",
+        "calculate_audience": "حساب الجمهور",
+        "ai_translate_to": "ترجمة AI إلى..."
+      },
+      "offer_picker": {
+        "title": "اختر عرض",
+        "no_offers": "لا توجد عروض نشطة.",
+        "select": "اختر",
+        "untitled": "عرض بدون عنوان",
+        "link_attached": "الرابط مرفق"
+      },
+      "preview": {
+        "store_name": "متجر بركة",
+        "sms_message": "رسالة نصية",
+        "placeholder_text": "معاينة رسالتك هنا",
+        "type_message": "اكتب رسالة...",
+        "title": "معاينة الرسالة"
+      },
+      "client_selector": {
+        "search_placeholder": "بحث بالاسم، الهاتف أو البريد الإلكتروني...",
+        "all_countries": "جميع الدول",
+        "selected_count": "{count} محدد",
+        "select_all": "تحديد الكل الظاهر",
+        "deselect_all": "إلغاء تحديد الكل الظاهر",
+        "no_customers": "لم يتم العثور على عملاء مطابقين لـ \"{term}\""
+      },
       "stats": {
-        "total": "إجمالي الرسائل",
+        "total": "إجمالي المرسلة",
         "success_rate": "معدل النجاح",
         "failed": "فشل"
       },
       "filters": {
-        "search": "البحث في الرسائل...",
-        "status": "كل الحالات",
+        "status": "تصفية حسب الحالة",
+        "sent": "تم الإرسال",
+        "failed": "فشل",
         "reset": "إعادة تعيين المرشحات",
-        "sent": "أرسلت",
-        "failed": "فشلت"
+        "search": "بحث في الرسائل..."
       },
       "table": {
-        "no_messages": "لم يتم العثور على رسائل مطابقة للمعايير الخاصة بك"
+        "no_messages": "لم يتم العثور على رسائل"
+      },
+      "status": {
+        "pending": "قيد الانتظار",
+        "sending": "جاري الإرسال",
+        "sent": "تم الإرسال",
+        "failed": "فشل"
+      },
+      "execution": {
+        "sending_in_progress": "جاري الإرسال...",
+        "back_to_campaigns": "العودة للحملات",
+        "sending_title": "جاري إرسال الرسائل...",
+        "sending_desc": "جاري الإرسال للمستلم {current} من {total}",
+        "campaign_completed": "تم اكتمال الحملة!",
+        "start_new": "بدء حملة جديدة",
+        "recipients_queue": "قائمة الانتظار",
+        "message_label": "رسالة SMS",
+        "id": "المعرف",
+        "sent_successfully": "تم الإرسال بنجاح"
       }
     },
     "Reviews": {

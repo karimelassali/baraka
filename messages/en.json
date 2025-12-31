@@ -1450,20 +1450,104 @@
       }
     },
     "Campaigns": {
+      "title": "SMS Campaigns",
+      "create_new": "Create New Campaign",
+      "manage_desc": "Manage your SMS marketing campaigns",
+      "tabs": {
+        "new": "New Campaign",
+        "history": "History"
+      },
+      "form": {
+        "title": "New Campaign",
+        "details_title": "SMS Campaign Details",
+        "target_all": "All Customers",
+        "target_nationality": "By Nationality",
+        "target_points": "By Points",
+        "target_specific": "Select Clients",
+        "target_manual": "Manual Numbers",
+        "target_all_desc": "Sending SMS to all registered customers with phone numbers.",
+        "nationality_label": "Select Nationality",
+        "nationality_placeholder": "Choose country...",
+        "points_label": "Minimum Points Threshold",
+        "points_placeholder": "e.g. 100",
+        "sms_note": "Note: Standard SMS is 160 characters. Longer messages may be split into multiple segments.",
+        "send_button": "Send SMS Campaign",
+        "sending_button": "Sending...",
+        "message_label": "Message Content",
+        "message_placeholder": "Type your message here...",
+        "recipients_label": "Recipients",
+        "manual_numbers": "Manual Numbers",
+        "manual_placeholder": "Enter phone numbers separated by commas or new lines...",
+        "total_recipients": "Total Recipients",
+        "send_btn": "Send Campaign",
+        "sending": "Sending...",
+        "ai_rewrite": "AI Rewrite",
+        "insert_link": "Insert Activity Link",
+        "estimated_cost": "Estimated Cost",
+        "validation": {
+          "required": "Message is required and cannot be empty",
+          "spaces": "Message cannot be just spaces",
+          "length": "SMS messages should be 160 characters or less"
+        },
+        "preview": "Message Preview",
+        "estimate_recipients": "Estimate recipients before sending",
+        "calculate_audience": "Calculate Audience",
+        "ai_translate_to": "AI Translate to..."
+      },
+      "offer_picker": {
+        "title": "Select an Offer",
+        "no_offers": "No active offers found.",
+        "select": "Select",
+        "untitled": "Untitled Offer",
+        "link_attached": "Link attached"
+      },
+      "preview": {
+        "store_name": "Baraka Store",
+        "sms_message": "SMS Message",
+        "placeholder_text": "Preview your SMS here",
+        "type_message": "Type a message...",
+        "title": "SMS Preview"
+      },
+      "client_selector": {
+        "search_placeholder": "Search by name, phone, or email...",
+        "all_countries": "All Countries",
+        "selected_count": "{count} selected",
+        "select_all": "Select All Visible",
+        "deselect_all": "Deselect All Visible",
+        "no_customers": "No customers found matching \"{term}\""
+      },
       "stats": {
-        "total": "Total Messages",
+        "total": "Total Sent",
         "success_rate": "Success Rate",
         "failed": "Failed"
       },
       "filters": {
-        "search": "Search messages...",
-        "status": "All Status",
+        "status": "Filter by Status",
+        "sent": "Sent",
+        "failed": "Failed",
         "reset": "Reset Filters",
+        "search": "Search messages..."
+      },
+      "table": {
+        "no_messages": "No messages found"
+      },
+      "status": {
+        "pending": "Pending",
+        "sending": "Sending",
         "sent": "Sent",
         "failed": "Failed"
       },
-      "table": {
-        "no_messages": "No messages found matching your criteria"
+      "execution": {
+        "sending_in_progress": "Sending in progress...",
+        "back_to_campaigns": "Back to Campaigns",
+        "sending_title": "Sending SMS...",
+        "sending_desc": "Sending to recipient {current} of {total}",
+        "campaign_completed": "Campaign Completed!",
+        "start_new": "Start New Campaign",
+        "recipients_queue": "Recipients Queue",
+        "message_label": "SMS Message",
+        "id": "ID",
+        "sent_successfully": "sent successfully"
       }
     },
     "Reviews": {

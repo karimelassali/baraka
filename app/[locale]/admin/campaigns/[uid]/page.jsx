@@ -15,9 +15,12 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
-import { getAvatarUrl } from '@/lib/avatar';
+import UserAvatar from '@/components/ui/UserAvatar';
+
+import { useTranslations } from 'next-intl';
 
 export default function CampaignExecutionPage() {
+    const t = useTranslations('Admin.Campaigns');
     const params = useParams();
     const router = useRouter();
     const [campaign, setCampaign] = useState(null);
@@ -133,7 +136,14 @@ export default function CampaignExecutionPage() {
 
     // Get status for a user
     const getUserStatus = (idx) => {
-        if (idx < currentIdx) return results[idx]?.status || 'pending';
+        const resultStatus = results[idx]?.status;
+        // If we have a final status (not pending), return it.
+        // This ensures that once a message is sent/failed, it stays that way,
+        // even if it's still the "current" index or the campaign just finished.
+        if (resultStatus && resultStatus !== 'pending') {
+            return resultStatus;
+        }
+
         if (idx === currentIdx && !completed) return 'sending';
         return 'pending';
     };
@@ -157,10 +167,10 @@ export default function CampaignExecutionPage() {
                     disabled={isSending}
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    {isSending ? 'Sending in progress...' : 'Back to Campaigns'}
+                    {isSending ? t('execution.sending_in_progress') : t('execution.back_to_campaigns')}
                 </Button>
                 <div className="text-sm text-muted-foreground font-mono">
-                    ID: {params.uid}
+                    {t('execution.id')}: {params.uid}
                 </div>
             </div>
 
@@ -192,17 +202,17 @@ export default function CampaignExecutionPage() {
                                         </motion.div>
                                     </div>
                                     <div>
-                                        <h2 className="text-2xl font-bold mb-2">📱 Sending SMS...</h2>
+                                        <h2 className="text-2xl font-bold mb-2">📱 {t('execution.sending_title')}</h2>
                                         <p className="text-muted-foreground">
-                                            Sending to recipient {currentIdx + 1} of {campaign.users.length}
+                                            {t('execution.sending_desc', { current: currentIdx + 1, total: campaign.users.length })}
                                         </p>
                                         <div className="mt-4 flex justify-center gap-4 text-sm">
                                             <span className="text-green-600 flex items-center gap-1">
-                                                <CheckCircle2 className="h-4 w-4" /> {stats.sent} sent
+                                                <CheckCircle2 className="h-4 w-4" /> {stats.sent} {t('status.sent')}
                                             </span>
                                             {stats.failed > 0 && (
                                                 <span className="text-red-600 flex items-center gap-1">
-                                                    <XCircle className="h-4 w-4" /> {stats.failed} failed
+                                                    <XCircle className="h-4 w-4" /> {stats.failed} {t('status.failed')}
                                                 </span>
                                             )}
                                         </div>
@@ -224,18 +234,18 @@ export default function CampaignExecutionPage() {
                                     </div>
                                     <div>
                                         <h2 className={`text-2xl font-bold mb-2 ${stats.failed === 0 ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                            Campaign Completed!
+                                            {t('execution.campaign_completed')}
                                         </h2>
                                         <p className="text-muted-foreground">
-                                            ✅ {stats.sent} sent successfully
-                                            {stats.failed > 0 && <>, ❌ {stats.failed} failed</>}
+                                            ✅ {stats.sent} {t('execution.sent_successfully')}
+                                            {stats.failed > 0 && <>, ❌ {stats.failed} {t('status.failed')}</>}
                                         </p>
                                     </div>
                                     <Button
                                         onClick={() => router.push('/admin/campaigns')}
                                         className="bg-blue-600 hover:bg-blue-700 text-white"
                                     >
-                                        Start New Campaign
+                                        {t('execution.start_new')}
                                     </Button>
                                 </motion.div>
                             )}
@@ -260,7 +270,7 @@ export default function CampaignExecutionPage() {
                         <div className="p-4 border-b border-border/50 bg-muted/20 flex justify-between items-center">
                             <h3 className="font-semibold flex items-center gap-2">
                                 <User className="h-4 w-4" />
-                                Recipients Queue
+                                {t('execution.recipients_queue')}
                             </h3>
                             <span className="text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full font-medium">
                                 {Math.round(((currentIdx + 1) / campaign.users.length) * 100)}%
@@ -292,9 +302,9 @@ export default function CampaignExecutionPage() {
                                     >
                                         <div className="relative">
                                             <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                                                <img
-                                                    src={getAvatarUrl(user.first_name)}
-                                                    alt={user.first_name}
+                                                <UserAvatar
+                                                    name={user.first_name || 'User'}
+                                                    size={40}
                                                     className="w-full h-full"
                                                 />
                                             </div>
@@ -327,21 +337,21 @@ export default function CampaignExecutionPage() {
                                         <div className="text-xs font-medium whitespace-nowrap">
                                             {status === 'sent' && (
                                                 <span className="text-green-600 dark:text-green-400 flex items-center gap-1">
-                                                    Sent <CheckCircle2 className="h-3 w-3" />
+                                                    {t('status.sent')} <CheckCircle2 className="h-3 w-3" />
                                                 </span>
                                             )}
                                             {status === 'failed' && (
                                                 <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
-                                                    Failed <XCircle className="h-3 w-3" />
+                                                    {t('status.failed')} <XCircle className="h-3 w-3" />
                                                 </span>
                                             )}
                                             {status === 'sending' && (
                                                 <span className="text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                                                    Sending <Loader2 className="h-3 w-3 animate-spin" />
+                                                    {t('status.sending')} <Loader2 className="h-3 w-3 animate-spin" />
                                                 </span>
                                             )}
                                             {status === 'pending' && (
-                                                <span className="text-muted-foreground">Pending</span>
+                                                <span className="text-muted-foreground">{t('status.pending')}</span>
                                             )}
                                         </div>
                                     </motion.div>

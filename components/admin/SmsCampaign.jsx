@@ -41,7 +41,10 @@ import { countries } from '../../lib/constants/countries';
 import CampaignHistory from './CampaignHistory';
 import ClientSelector from './ClientSelector';
 
+import { useTranslations } from 'next-intl';
+
 export default function SmsCampaign() {
+    const t = useTranslations('Admin.Campaigns');
     const [activeTab, setActiveTab] = useState('new'); // 'new' or 'history'
 
     // Form State
@@ -159,7 +162,10 @@ export default function SmsCampaign() {
     const validate = () => {
         const newErrors = {};
         if (!formData.message || formData.message.trim().length === 0) {
-            newErrors.message = 'Message is required';
+            newErrors.message = 'Message is required and cannot be empty';
+        }
+        if (formData.message && formData.message.trim().length === 0) {
+            newErrors.message = 'Message cannot be just spaces';
         }
         if (formData.message && formData.message.length > 160) {
             newErrors.message = 'SMS messages should be 160 characters or less';
@@ -338,7 +344,7 @@ export default function SmsCampaign() {
                         }`}
                 >
                     <Plus className="h-4 w-4" />
-                    New Campaign
+                    {t('tabs.new')}
                 </button>
                 <button
                     onClick={() => setActiveTab('history')}
@@ -348,7 +354,7 @@ export default function SmsCampaign() {
                         }`}
                 >
                     <History className="h-4 w-4" />
-                    History
+                    {t('tabs.history')}
                 </button>
             </div>
 
@@ -367,7 +373,7 @@ export default function SmsCampaign() {
                                 <CardHeader className="border-b border-border/50 bg-muted/20">
                                     <CardTitle className="flex items-center gap-2 text-lg">
                                         <MessageSquare className="h-5 w-5 text-blue-600" />
-                                        SMS Campaign Details
+                                        {t('form.details_title')}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="pt-6">
@@ -385,11 +391,11 @@ export default function SmsCampaign() {
                                         {/* Target Group Selection */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                             {[
-                                                { id: 'all', icon: Users, label: 'All Customers' },
-                                                { id: 'nationality', icon: Globe, label: 'By Nationality' },
-                                                { id: 'points', icon: Award, label: 'By Points' },
-                                                { id: 'specific', icon: UserCheck, label: 'Select Clients' },
-                                                { id: 'manual', icon: Phone, label: 'Manual Numbers' }
+                                                { id: 'all', icon: Users, label: t('form.target_all') },
+                                                { id: 'nationality', icon: Globe, label: t('form.target_nationality') },
+                                                { id: 'points', icon: Award, label: t('form.target_points') },
+                                                { id: 'specific', icon: UserCheck, label: t('form.target_specific') },
+                                                { id: 'manual', icon: Phone, label: t('form.target_manual') }
                                             ].map((type) => (
                                                 <div
                                                     key={type.id}
@@ -421,13 +427,13 @@ export default function SmsCampaign() {
                                             {formData.targetGroup === 'all' && (
                                                 <p className="text-sm text-muted-foreground flex items-center gap-2">
                                                     <Users className="h-4 w-4" />
-                                                    Sending SMS to all registered customers with phone numbers.
+                                                    {t('form.target_all_desc')}
                                                 </p>
                                             )}
 
                                             {formData.targetGroup === 'nationality' && (
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Select Nationality</label>
+                                                    <label className="text-sm font-medium">{t('form.nationality_label')}</label>
                                                     <div className="relative">
                                                         <select
                                                             name="nationality"
@@ -435,7 +441,7 @@ export default function SmsCampaign() {
                                                             onChange={handleChange}
                                                             className="w-full px-4 py-2.5 rounded-lg border bg-background appearance-none focus:ring-2 focus:ring-blue-500"
                                                         >
-                                                            <option value="">Choose country...</option>
+                                                            <option value="">{t('form.nationality_placeholder')}</option>
                                                             {countries.map((c) => (
                                                                 <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
                                                             ))}
@@ -448,14 +454,14 @@ export default function SmsCampaign() {
 
                                             {formData.targetGroup === 'points' && (
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Minimum Points Threshold</label>
+                                                    <label className="text-sm font-medium">{t('form.points_label')}</label>
                                                     <Input
                                                         name="pointsThreshold"
                                                         type="number"
                                                         value={formData.pointsThreshold}
                                                         onChange={handleChange}
                                                         className="bg-background"
-                                                        placeholder="e.g. 100"
+                                                        placeholder={t('form.points_placeholder')}
                                                     />
                                                     {errors.pointsThreshold && <p className="text-sm text-red-500">{errors.pointsThreshold}</p>}
                                                 </div>
@@ -463,7 +469,7 @@ export default function SmsCampaign() {
 
                                             {formData.targetGroup === 'specific' && (
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Select Recipients</label>
+                                                    <label className="text-sm font-medium">{t('form.recipients_label')}</label>
                                                     <ClientSelector
                                                         onSelectionChange={handleClientSelection}
                                                         selectedIds={formData.selectedCustomerIds}
@@ -474,7 +480,7 @@ export default function SmsCampaign() {
 
                                             {formData.targetGroup === 'manual' && (
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium">Enter Phone Numbers</label>
+                                                    <label className="text-sm font-medium">{t('form.manual_numbers')}</label>
                                                     <textarea
                                                         name="manualNumbers"
                                                         value={formData.manualNumbers}
@@ -483,7 +489,7 @@ export default function SmsCampaign() {
                                                             const nums = e.target.value.split(/[\n,]+/).map(n => n.trim()).filter(Boolean);
                                                             setRecipientCount(nums.length || null);
                                                         }}
-                                                        placeholder="Enter phone numbers separated by commas or new lines...&#10;+1234567890&#10;+9876543210"
+                                                        placeholder={t('form.manual_placeholder') + "\n+1234567890\n+9876543210"}
                                                         rows={4}
                                                         className="w-full px-4 py-3 rounded-lg border bg-background focus:ring-2 focus:ring-blue-500 font-mono text-sm"
                                                     />
@@ -504,7 +510,7 @@ export default function SmsCampaign() {
                                                                 {recipientCount} recipients found
                                                             </span>
                                                         ) : (
-                                                            <span className="text-muted-foreground">Estimate recipients before sending</span>
+                                                            <span className="text-muted-foreground">{t('form.estimate_recipients')}</span>
                                                         )}
                                                     </div>
                                                     <Button
@@ -515,7 +521,7 @@ export default function SmsCampaign() {
                                                         disabled={loadingPreview}
                                                         className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                                                     >
-                                                        {loadingPreview ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Calculate Audience'}
+                                                        {loadingPreview ? <Loader2 className="h-3 w-3 animate-spin" /> : t('form.calculate_audience')}
                                                     </Button>
                                                 </div>
                                             )}
@@ -524,7 +530,7 @@ export default function SmsCampaign() {
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-end">
                                                 <label className="text-sm font-medium flex justify-between w-full">
-                                                    <span>SMS Message</span>
+                                                    <span>{t('form.message_label')}</span>
                                                     <span className={`text-xs ${formData.message.length > 140 ? 'text-amber-500' : formData.message.length > 160 ? 'text-red-500' : 'text-muted-foreground'}`}>
                                                         {formData.message.length}/160
                                                     </span>
@@ -536,7 +542,7 @@ export default function SmsCampaign() {
                                                     name="message"
                                                     value={formData.message}
                                                     onChange={handleChange}
-                                                    placeholder="Enter your message here..."
+                                                    placeholder={t('form.message_placeholder')}
                                                     rows={5}
                                                     className="w-full px-4 py-3 rounded-xl border bg-background focus:ring-2 focus:ring-blue-500 resize-none pr-12 transition-all"
                                                 />
@@ -581,7 +587,7 @@ export default function SmsCampaign() {
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end" className="max-h-[300px] overflow-y-auto">
-                                                            <DropdownMenuLabel>AI Translate to...</DropdownMenuLabel>
+                                                            <DropdownMenuLabel>{t('form.ai_translate_to')}</DropdownMenuLabel>
                                                             <DropdownMenuSeparator />
                                                             {countries.map((country) => (
                                                                 <DropdownMenuItem
@@ -622,7 +628,7 @@ export default function SmsCampaign() {
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="text-sm font-medium truncate">{selectedOffer.title?.en || selectedOffer.title}</div>
-                                                        <div className="text-xs text-muted-foreground truncate">Link attached</div>
+                                                        <div className="text-xs text-muted-foreground truncate">{t('offer_picker.link_attached')}</div>
                                                     </div>
                                                     <Button
                                                         type="button"
@@ -638,23 +644,10 @@ export default function SmsCampaign() {
 
                                             {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
                                             <p className="text-xs text-muted-foreground mt-2">
-                                                Note: Standard SMS is 160 characters. Longer messages may be split into multiple segments.
+                                                {t('form.sms_note')}
                                             </p>
 
-                                            {/* MMS Image Input */}
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-medium flex items-center gap-2">
-                                                    <ImageIcon className="h-4 w-4 text-blue-600" />
-                                                    Attach Image URL (MMS) <span className="text-xs text-muted-foreground font-normal">(Optional)</span>
-                                                </label>
-                                                <Input
-                                                    name="imageUrl"
-                                                    value={formData.imageUrl}
-                                                    onChange={handleChange}
-                                                    placeholder="https://example.com/image.jpg"
-                                                    className="bg-background"
-                                                />
-                                            </div>
+
                                         </div>
 
                                         <Button
@@ -665,12 +658,12 @@ export default function SmsCampaign() {
                                             {loading ? (
                                                 <>
                                                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                                                    Sending...
+                                                    {t('form.sending_button')}
                                                 </>
                                             ) : (
                                                 <>
                                                     <Send className="h-5 w-5 mr-2" />
-                                                    Send SMS Campaign
+                                                    {t('form.send_button')}
                                                 </>
                                             )}
                                         </Button>
@@ -690,8 +683,8 @@ export default function SmsCampaign() {
                                                 <MessageSquare className="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <div className="font-semibold text-sm">Baraka Store</div>
-                                                <div className="text-[10px] opacity-80">SMS Message</div>
+                                                <div className="font-semibold text-sm">{t('preview.store_name')}</div>
+                                                <div className="text-[10px] opacity-80">{t('preview.sms_message')}</div>
                                             </div>
                                         </div>
 
@@ -714,7 +707,7 @@ export default function SmsCampaign() {
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center justify-center h-full text-gray-400 text-sm italic z-10 relative">
-                                                    Preview your SMS here
+                                                    {t('preview.placeholder_text')}
                                                 </div>
                                             )}
                                         </div>
@@ -722,7 +715,7 @@ export default function SmsCampaign() {
                                         {/* Phone Footer */}
                                         <div className="bg-gray-100 dark:bg-gray-900 p-3 flex items-center gap-2 border-t">
                                             <div className="flex-1 h-10 bg-white dark:bg-gray-800 rounded-full border border-gray-200 dark:border-gray-700 flex items-center px-4">
-                                                <span className="text-xs text-muted-foreground">Type a message...</span>
+                                                <span className="text-xs text-muted-foreground">{t('preview.type_message')}</span>
                                             </div>
                                             <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white">
                                                 <Send className="h-4 w-4" />
@@ -731,7 +724,7 @@ export default function SmsCampaign() {
                                     </div>
                                 </div>
                                 <p className="text-center text-sm text-muted-foreground mt-4">
-                                    📱 SMS Preview
+                                    📱 {t('preview.title')}
                                 </p>
                             </div>
                         </div>
@@ -760,7 +753,7 @@ export default function SmsCampaign() {
                             className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-200 dark:border-gray-800"
                         >
                             <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                                <h3 className="font-semibold text-lg">Select an Offer</h3>
+                                <h3 className="font-semibold text-lg">{t('offer_picker.title')}</h3>
                                 <Button variant="ghost" size="icon" onClick={() => setShowOfferPicker(false)}>
                                     <X className="h-4 w-4" />
                                 </Button>
@@ -789,7 +782,7 @@ export default function SmsCampaign() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="font-medium truncate group-hover:text-blue-600 transition-colors">
-                                                    {offer.title?.en || offer.title || 'Untitled Offer'}
+                                                    {offer.title?.en || offer.title || t('offer_picker.untitled')}
                                                 </div>
                                                 <div className="text-xs text-muted-foreground flex items-center gap-2">
                                                     <span className="capitalize">{offer.offer_type?.toLowerCase()}</span>
@@ -798,13 +791,13 @@ export default function SmsCampaign() {
                                                 </div>
                                             </div>
                                             <Button size="sm" variant="ghost" className="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                Select
+                                                {t('offer_picker.select')}
                                             </Button>
                                         </div>
                                     ))
                                 ) : (
                                     <div className="text-center py-8 text-muted-foreground">
-                                        No active offers found.
+                                        {t('offer_picker.no_offers')}
                                     </div>
                                 )}
                             </div>

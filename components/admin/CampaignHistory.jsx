@@ -12,7 +12,8 @@ import {
     User,
     Filter,
     Calendar,
-    BarChart3
+    BarChart3,
+    Loader2
 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
@@ -26,6 +27,11 @@ export default function CampaignHistory() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Pagination
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
+
     // Filters
     const [statusFilter, setStatusFilter] = useState('all');
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
@@ -34,7 +40,9 @@ export default function CampaignHistory() {
     const [demoCampaigns, setDemoCampaigns] = useState([]);
 
     useEffect(() => {
-        fetchHistory();
+        setPage(1);
+        setHasMore(true);
+        fetchHistory(1, true);
         fetchDemoCampaigns();
     }, [statusFilter, dateRange]);
 
@@ -56,10 +64,12 @@ export default function CampaignHistory() {
         setDemoCampaigns(campaigns);
     };
 
-    const fetchHistory = async () => {
-        setLoading(true);
+    const fetchHistory = async (pageToLoad = 1, isInitial = false) => {
+        if (isInitial) setLoading(true);
+        else setLoadingMore(true);
+
         try {
-            let url = '/api/admin/campaigns/history?';
+            let url = `/api/admin/campaigns/history?page=${pageToLoad}&limit=10`;
             if (statusFilter !== 'all') url += `&status=${statusFilter}`;
             if (dateRange.start) url += `&startDate=${dateRange.start}`;
             if (dateRange.end) url += `&endDate=${dateRange.end}`;
@@ -67,13 +77,29 @@ export default function CampaignHistory() {
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
-                setMessages(data.messages || []);
+                const newMessages = data.messages || [];
+
+                if (newMessages.length < 10) {
+                    setHasMore(false);
+                }
+
+                if (isInitial) {
+                    setMessages(newMessages);
+                } else {
+                    setMessages(prev => [...prev, ...newMessages]);
+                }
+                setPage(pageToLoad);
             }
         } catch (error) {
             console.error('Error fetching history:', error);
         } finally {
             setLoading(false);
+            setLoadingMore(false);
         }
+    };
+
+    const handleLoadMore = () => {
+        fetchHistory(page + 1, false);
     };
 
     const filteredMessages = messages.filter(msg =>
@@ -82,7 +108,8 @@ export default function CampaignHistory() {
         msg.customers?.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Calculate stats
+    // Calculate stats (Note: Currently only based on loaded messages, which might be misleading for pagination. 
+    // Ideally stats should come from an API summary endpoint. For now we keep it client-side based on loaded data as per existing logic)
     const totalSent = messages.length;
     const successCount = messages.filter(m => m.status === 'sent').length;
     const failedCount = messages.filter(m => m.status === 'failed').length;
@@ -124,7 +151,7 @@ export default function CampaignHistory() {
             </div>
 
             {/* Filters & Search */}
-            < div className="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between bg-muted/20 p-4 rounded-xl border border-white/5" >
+            <div className="flex flex-col md:flex-row gap-4 items-end md:items-center justify-between bg-muted/20 p-4 rounded-xl border border-white/5" >
                 <div className="flex flex-wrap gap-3 items-center flex-1">
                     <div className="relative w-full md:w-64">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -223,51 +250,67 @@ export default function CampaignHistory() {
                 {
                     loading ? (
                         <div className="flex justify-center items-center h-64" >
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                            <Loader2 className="animate-spin h-8 w-8 text-green-500" />
                         </div>
                     ) : filteredMessages.length === 0 ? (
                         <div className="text-center py-10 text-muted-foreground">
                             {t('table.no_messages')}
                         </div>
                     ) : (
-                        filteredMessages.map((msg) => (
-                            <GlassCard key={msg.id} className="p-4 hover:bg-white/5 transition-colors">
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Badge variant="outline" className={
-                                                msg.status === 'sent'
-                                                    ? 'bg-green-500/10 text-green-600 border-green-200'
-                                                    : 'bg-red-500/10 text-red-600 border-red-200'
-                                            }>
-                                                {msg.status === 'sent' ? (
-                                                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                ) : (
-                                                    <XCircle className="h-3 w-3 mr-1" />
-                                                )}
-                                                {msg.status}
-                                            </Badge>
-                                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                                <Clock className="h-3 w-3" />
-                                                {format(new Date(msg.sent_at || new Date()), 'MMM d, yyyy HH:mm')}
-                                            </span>
-                                        </div>
+                        <>
+                            {filteredMessages.map((msg) => (
+                                <GlassCard key={msg.id} className="p-4 hover:bg-white/5 transition-colors">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <Badge variant="outline" className={
+                                                    msg.status === 'sent'
+                                                        ? 'bg-green-500/10 text-green-600 border-green-200'
+                                                        : 'bg-red-500/10 text-red-600 border-red-200'
+                                                }>
+                                                    {msg.status === 'sent' ? (
+                                                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                                                    ) : (
+                                                        <XCircle className="h-3 w-3 mr-1" />
+                                                    )}
+                                                    {msg.status}
+                                                </Badge>
+                                                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                                    <Clock className="h-3 w-3" />
+                                                    {format(new Date(msg.sent_at || new Date()), 'MMM d, yyyy HH:mm')}
+                                                </span>
+                                            </div>
 
-                                        <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2">
-                                            {msg.message_content}
-                                        </p>
+                                            <p className="text-sm text-gray-800 dark:text-gray-200 line-clamp-2 mb-2">
+                                                {msg.message_content}
+                                            </p>
 
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <User className="h-3 w-3" />
-                                            <span>
-                                                {msg.customers?.first_name} {msg.customers?.last_name}
-                                                ({msg.customers?.phone_number})
-                                            </span>
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <User className="h-3 w-3" />
+                                                <span>
+                                                    {msg.customers?.first_name} {msg.customers?.last_name}
+                                                    {msg.customers?.phone_number && ` (${msg.customers.phone_number})`}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
+                                </GlassCard>
+                            ))}
+
+                            {hasMore && !searchTerm && (
+                                <div className="flex justify-center pt-4">
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleLoadMore}
+                                        disabled={loadingMore}
+                                        className="gap-2"
+                                    >
+                                        {loadingMore ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                                        {loadingMore ? 'Loading...' : 'Show More'}
+                                    </Button>
                                 </div>
-                            </GlassCard>
-                        ))
+                            )}
+                        </>
                     )
                 }
             </div >

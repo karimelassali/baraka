@@ -19,8 +19,10 @@ import GlassCard from '../ui/GlassCard';
 import { countries } from '../../lib/constants/countries';
 import { getAvatarUrl } from '@/lib/avatar';
 import UserAvatar from '@/components/ui/UserAvatar';
+import { useTranslations } from 'next-intl';
 
 export default function ClientSelector({ onSelectionChange, selectedIds = [] }) {
+    const t = useTranslations('Admin.Campaigns.client_selector');
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -97,7 +99,7 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder="Search by name, phone, or email..."
+                        placeholder={t('search_placeholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-9 bg-background/50"
@@ -109,7 +111,7 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                         onChange={(e) => setCountryFilter(e.target.value)}
                         className="w-full pl-3 pr-8 py-2 bg-background/50 border border-input rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring appearance-none"
                     >
-                        <option value="">All Countries</option>
+                        <option value="">{t('all_countries')}</option>
                         {countries.map((c) => (
                             <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
                         ))}
@@ -120,7 +122,7 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
 
             <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <div>
-                    {localSelected.size} selected
+                    {t('selected_count', { count: localSelected.size })}
                 </div>
                 <Button
                     variant="ghost"
@@ -128,7 +130,7 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                     onClick={selectAll}
                     className="h-8"
                 >
-                    {(customers.every(c => localSelected.has(c.id)) && customers.length > 0) ? 'Deselect All Visible' : 'Select All Visible'}
+                    {(customers.every(c => localSelected.has(c.id)) && customers.length > 0) ? t('deselect_all') : t('select_all')}
                 </Button>
             </div>
 
@@ -140,7 +142,7 @@ export default function ClientSelector({ onSelectionChange, selectedIds = [] }) 
                 ) : customers.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
                         <User className="h-8 w-8 mb-2 opacity-20" />
-                        <p>No customers found matching "{searchTerm}"</p>
+                        <p>{t('no_customers', { term: searchTerm })}</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-border/50">

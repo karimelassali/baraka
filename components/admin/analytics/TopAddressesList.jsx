@@ -15,6 +15,8 @@ export default function TopAddressesList({ data, onAddressClick }) {
         );
     }
 
+    
+
 
     const maxUsers = Math.max(...data.map(item => item.count));
 

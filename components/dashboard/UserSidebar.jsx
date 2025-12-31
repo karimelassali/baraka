@@ -15,30 +15,29 @@ import {
     AlertCircle,
     MessageSquare
 } from 'lucide-react';
-import { useRouter } from '@/navigation';
+import { useRouter, usePathname, Link } from '@/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getAvatarUrl } from '@/lib/avatar';
 import Image from 'next/image';
 import UserAvatar from '@/components/ui/UserAvatar';
 
 export default function UserSidebar({
-    activeTab,
-    setActiveTab,
     user,
     t
 }) {
     const router = useRouter();
+    const pathname = usePathname();
     const supabase = createClient();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     const navItems = [
-        { id: 'overview', label: t('overview'), icon: LayoutDashboard },
-        { id: 'profile', label: t('profile'), icon: User },
-        { id: 'wallet', label: t('wallet'), icon: Wallet },
-        { id: 'offers', label: t('offers'), icon: Gift },
-        { id: 'vouchers', label: t('vouchers'), icon: Ticket },
-        { id: 'reviews', label: t('reviews'), icon: MessageSquare },
-        { id: 'wishlist', label: t('wishlist'), icon: Heart },
+        { id: 'overview', label: t('overview'), icon: LayoutDashboard, href: '/dashboard' },
+        { id: 'profile', label: t('profile'), icon: User, href: '/dashboard/profile' },
+        { id: 'wallet', label: t('wallet'), icon: Wallet, href: '/dashboard/wallet' },
+        { id: 'offers', label: t('offers'), icon: Gift, href: '/dashboard/offers' },
+        { id: 'vouchers', label: t('vouchers'), icon: Ticket, href: '/dashboard/vouchers' },
+        { id: 'reviews', label: t('reviews'), icon: MessageSquare, href: '/dashboard/reviews' },
+        { id: 'wishlist', label: t('wishlist'), icon: Heart, href: '/dashboard/wishlist' },
     ];
 
     const handleSignOutClick = () => {
@@ -50,13 +49,20 @@ export default function UserSidebar({
         router.push('/auth/login');
     };
 
+    const isLinkActive = (href) => {
+        if (href === '/dashboard') {
+            return pathname === '/dashboard';
+        }
+        return pathname.startsWith(href);
+    };
+
     const DesktopSidebar = () => (
         <div id="dashboard-sidebar" className="hidden lg:flex flex-col h-screen sticky top-0 bg-white border-r border-gray-200 shadow-sm relative z-50 w-[280px] transition-all duration-300">
             {/* Logo Area */}
             <div className="h-24 flex items-center px-8 border-b border-gray-100 shrink-0">
-                <div
+                <Link
+                    href="/"
                     className="flex items-center space-x-4 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => router.push('/')}
                 >
                     <div className="relative group w-10 h-10">
                         <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-orange-600 rounded-full blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
@@ -71,7 +77,7 @@ export default function UserSidebar({
                         <span className="text-xl font-bold tracking-tight text-gray-900">Baraka</span>
                         <span className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Loyalty</span>
                     </div>
-                </div>
+                </Link>
             </div>
 
             {/* Navigation */}
@@ -79,11 +85,11 @@ export default function UserSidebar({
                 <p className="px-4 text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Menu</p>
                 {navItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = activeTab === item.id;
+                    const isActive = isLinkActive(item.href);
                     return (
-                        <button
+                        <Link
                             key={item.id}
-                            onClick={() => setActiveTab(item.id)}
+                            href={item.href}
                             className={`w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-300 group relative overflow-hidden ${isActive
                                 ? 'bg-red-50 text-red-700 shadow-sm'
                                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
@@ -103,7 +109,7 @@ export default function UserSidebar({
                             {isActive && (
                                 <ChevronRight className="ml-auto h-4 w-4 text-red-400 relative z-10" />
                             )}
-                        </button>
+                        </Link>
                     );
                 })}
             </nav>
@@ -111,11 +117,9 @@ export default function UserSidebar({
             {/* User Profile Section - Pushed to bottom */}
             <div className="p-4 border-t border-gray-100 bg-gray-50/50 shrink-0 mt-auto">
                 <div className="bg-white rounded-2xl p-4 mb-3 border border-gray-100 shadow-sm">
-
-
-                    <div
+                    <Link
+                        href="/dashboard/profile"
                         className="flex items-center space-x-3 mb-3 cursor-pointer hover:bg-gray-50 p-2 rounded-xl transition-colors"
-                        onClick={() => setActiveTab('profile')}
                     >
                         <div className="relative">
                             <div className="w-10 h-10 relative rounded-full p-0.5 bg-gradient-to-br from-red-500 to-orange-500">
@@ -135,7 +139,7 @@ export default function UserSidebar({
                                 {user.email}
                             </p>
                         </div>
-                    </div>
+                    </Link>
                     <button
                         onClick={handleSignOutClick}
                         className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
@@ -153,11 +157,11 @@ export default function UserSidebar({
             <div className="flex justify-between items-center px-2 py-3 overflow-x-auto no-scrollbar">
                 {navItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = activeTab === item.id;
+                    const isActive = isLinkActive(item.href);
                     return (
-                        <button
+                        <Link
                             key={item.id}
-                            onClick={() => setActiveTab(item.id)}
+                            href={item.href}
                             className="relative flex flex-col items-center justify-center p-2 min-w-[4rem]"
                         >
                             {isActive && (
@@ -173,7 +177,7 @@ export default function UserSidebar({
                                     {item.label}
                                 </span>
                             )}
-                        </button>
+                        </Link>
                     );
                 })}
             </div>
@@ -240,3 +244,5 @@ export default function UserSidebar({
         </>
     );
 }
+
+

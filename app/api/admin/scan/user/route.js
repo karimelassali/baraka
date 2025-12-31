@@ -47,23 +47,47 @@ export async function POST(req) {
 
         // 3. If still not found, handle Short ID (First 8 chars of UUID) via Range Query
         // This effectively simulates 'STARTS WITH' for UUIDs.
+        // 3. If still not found, handle Short ID (First 8 chars of UUID) via Range Query
+        // This effectively simulates 'STARTS WITH' for UUIDs.
         if (!customer && /^[0-9a-f]{8}$/i.test(code)) {
+            const codeLower = code.toLowerCase();
             // UUID Format: 8-4-4-4-12
             // We append the smallest and largest possible suffixes to create a range
-            const minUuid = `${code}-0000-0000-0000-000000000000`;
-            const maxUuid = `${code}-ffff-ffff-ffff-ffffffffffff`;
+            const minUuid = `${codeLower}-0000-0000-0000-000000000000`;
+            const maxUuid = `${codeLower}-ffff-ffff-ffff-ffffffffffff`;
 
             console.log(`[API Scan Lookup] Attempting Range Search: ${minUuid} -> ${maxUuid}`);
 
-            const { data: rangeMatch } = await supabaseAdmin
+            const { data: rangeMatch, error: rangeError } = await supabaseAdmin
                 .from('customers')
                 .select('*')
                 .gte('id', minUuid)
                 .lte('id', maxUuid)
                 .maybeSingle(); // Assuming 8 hex chars (4 billion unique prefixes) is distinct enough
 
+            if (rangeError) {
+                console.error("[API Scan Lookup] Range Search Error (ID):", rangeError);
+            }
+
             if (rangeMatch) {
                 customer = rangeMatch;
+            } else {
+                // FALLBACK: Check auth_id range as well (frontend might be showing auth_id short code)
+                console.log(`[API Scan Lookup] ID not found. Attempting Range Search on auth_id: ${minUuid} -> ${maxUuid}`);
+                const { data: authRangeMatch, error: authRangeError } = await supabaseAdmin
+                    .from('customers')
+                    .select('*')
+                    .gte('auth_id', minUuid)
+                    .lte('auth_id', maxUuid)
+                    .maybeSingle();
+
+                if (authRangeError) {
+                    console.error("[API Scan Lookup] Range Search Error (auth_id):", authRangeError);
+                }
+
+                if (authRangeMatch) {
+                    customer = authRangeMatch;
+                }
             }
         }
 

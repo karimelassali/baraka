@@ -387,6 +387,16 @@ export default function Purchases() {
         });
     };
 
+    const getInitials = (name) => {
+        if (!name) return '??';
+        return name
+            .split(' ')
+            .map(n => n[0])
+            .join('')
+            .substring(0, 2)
+            .toUpperCase();
+    };
+
     // --- Render Views ---
 
     if (viewMode === 'SUPPLIERS') {
@@ -404,11 +414,9 @@ export default function Purchases() {
                                 onClick={() => handleSupplierClick(s)}
                             >
                                 <div className="relative">
-                                    <img
-                                        src={getAvatarUrl(s.name, 'initials')}
-                                        alt={s.name}
-                                        className="w-16 h-16 rounded-full border-2 border-red-100 shadow-sm group-hover:scale-105 transition-transform"
-                                    />
+                                    <div className="w-16 h-16 rounded-full border-2 border-red-100 shadow-sm group-hover:scale-105 transition-transform bg-gray-100 flex items-center justify-center text-xl font-bold text-red-700">
+                                        {getInitials(s.name)}
+                                    </div>
                                 </div>
                                 <div className="text-center">
                                     <h3 className="font-bold text-lg">{s.name}</h3>
@@ -434,11 +442,9 @@ export default function Purchases() {
                     <div className="flex items-center gap-4 w-full sm:w-auto">
                         <Button variant="ghost" onClick={handleBack} className="shrink-0"><ArrowLeft className="mr-2 h-4 w-4" /> {t('batches.back')}</Button>
                         <div className="flex items-center gap-3 overflow-hidden">
-                            <img
-                                src={getAvatarUrl(selectedSupplier?.name, 'initials')}
-                                alt={selectedSupplier?.name}
-                                className="w-10 h-10 rounded-full border border-red-100 shrink-0"
-                            />
+                            <div className="w-10 h-10 rounded-full border border-red-100 shrink-0 bg-gray-100 flex items-center justify-center font-bold text-red-700 text-sm">
+                                {getInitials(selectedSupplier?.name)}
+                            </div>
                             <h2 className="text-xl font-semibold text-red-700 truncate">{t('batches.title', { name: selectedSupplier?.name })}</h2>
                         </div>
                     </div>

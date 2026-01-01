@@ -32,11 +32,15 @@ export async function POST(request) {
             throw new Error(twilioResult.error);
         }
 
+        // Check if customerId is a valid UUID
+        const isValidUuid = (id) => /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+        const dbCustomerId = isValidUuid(customerId) ? customerId : null;
+
         // Log successfully sent SMS to database
         const { error: insertError } = await supabase
             .from('whatsapp_messages')
             .insert({
-                customer_id: customerId,
+                customer_id: dbCustomerId,
                 message_content: message + (imageUrl ? ` [Image: ${imageUrl}]` : ''),
                 template_name: 'SMS_CAMPAIGN',
                 message_type: 'SMS',
@@ -59,11 +63,15 @@ export async function POST(request) {
     } catch (error) {
         console.error(`Failed to send SMS to ${phoneNumber}:`, error.message);
 
+        // Check if customerId is a valid UUID
+        const isValidUuid = (id) => /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id);
+        const dbCustomerId = isValidUuid(customerId) ? customerId : null;
+
         // Log failure to database
         await supabase
             .from('whatsapp_messages')
             .insert({
-                customer_id: customerId,
+                customer_id: dbCustomerId,
                 message_content: message + (imageUrl ? ` [Image: ${imageUrl}]` : ''),
                 template_name: 'SMS_CAMPAIGN',
                 message_type: 'SMS',

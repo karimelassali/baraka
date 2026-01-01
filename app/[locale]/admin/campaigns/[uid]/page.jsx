@@ -77,6 +77,20 @@ export default function CampaignExecutionPage() {
         }
     }, []);
 
+    // Get status for a user
+    const getUserStatus = (idx) => {
+        const resultStatus = results[idx]?.status;
+        // If we have a final status (not pending), return it.
+        if (resultStatus && resultStatus !== 'pending') {
+            return resultStatus;
+        }
+
+        // Check if this user is in the current active batch
+        if (isSending && idx >= currentIdx && idx < currentIdx + 5 && !completed) return 'sending';
+
+        return 'pending';
+    };
+
     // Start sending when campaign is loaded
     useEffect(() => {
         if (!campaign || isSending || sendingRef.current) return;
@@ -86,13 +100,13 @@ export default function CampaignExecutionPage() {
             sendingRef.current = true;
             setIsSending(true);
 
-            for (let i = 0; i < campaign.users.length; i++) {
-                const user = campaign.users[i];
+            const BATCH_SIZE = 5; // Process 5 users at a time
 
-                // Update current index to show "sending" state
+            for (let i = 0; i < campaign.users.length; i += BATCH_SIZE) {
+                // Update current index to show "sending" state for this batch (start index)
                 setCurrentIdx(i);
 
-                // Auto scroll to keep active user in view
+                // Auto scroll to the start of the batch
                 if (scrollRef.current && scrollRef.current.children[i]) {
                     scrollRef.current.children[i].scrollIntoView({
                         behavior: 'smooth',
@@ -100,28 +114,36 @@ export default function CampaignExecutionPage() {
                     });
                 }
 
-                // Actually send the SMS
-                const result = await sendSmsToUser(user, campaign.message, campaign.imageUrl);
+                const batch = campaign.users.slice(i, i + BATCH_SIZE);
 
-                // Update results with error message if failed
-                setResults(prev => {
-                    const updated = [...prev];
-                    updated[i] = {
-                        id: user.id,
-                        status: result.success ? 'sent' : 'failed',
-                        error: result.error
-                    };
-                    return updated;
-                });
+                // Process batch concurrently
+                await Promise.all(batch.map(async (user, batchIndex) => {
+                    const globalIndex = i + batchIndex;
 
-                // Update stats
-                setStats(prev => ({
-                    sent: result.success ? prev.sent + 1 : prev.sent,
-                    failed: result.success ? prev.failed : prev.failed + 1
+                    // Actually send the SMS
+                    const result = await sendSmsToUser(user, campaign.message, campaign.imageUrl);
+
+                    // Update results with error message if failed
+                    setResults(prev => {
+                        const updated = [...prev];
+                        updated[globalIndex] = {
+                            id: user.id,
+                            status: result.success ? 'sent' : 'failed',
+                            error: result.error
+                        };
+                        return updated;
+                    });
+
+                    // Update stats
+                    setStats(prev => ({
+                        sent: result.success ? prev.sent + 1 : prev.sent,
+                        failed: result.success ? prev.failed : prev.failed + 1
+                    }));
                 }));
 
-                // Small delay before next to avoid rate limiting
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Minimal delay between batches to prevent overwhelming the browser/network slightly
+                // much faster than 500ms per user!
+                await new Promise(resolve => setTimeout(resolve, 100));
             }
 
             setCompleted(true);
@@ -133,20 +155,6 @@ export default function CampaignExecutionPage() {
 
         startSending();
     }, [campaign, isSending, sendSmsToUser, params.uid]);
-
-    // Get status for a user
-    const getUserStatus = (idx) => {
-        const resultStatus = results[idx]?.status;
-        // If we have a final status (not pending), return it.
-        // This ensures that once a message is sent/failed, it stays that way,
-        // even if it's still the "current" index or the campaign just finished.
-        if (resultStatus && resultStatus !== 'pending') {
-            return resultStatus;
-        }
-
-        if (idx === currentIdx && !completed) return 'sending';
-        return 'pending';
-    };
 
     if (!campaign) {
         return (

@@ -185,6 +185,27 @@ export default function Reservations() {
         });
     };
 
+    const handleDeleteDeposit = async (depositId) => {
+        if (!confirm(t('confirm_delete'))) return;
+
+        try {
+            const response = await fetch(`/api/admin/eid/deposits/${depositId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                toast.success(t('toast.deleted'));
+                fetchDeposits(selectedReservation.id);
+                fetchReservations();
+            } else {
+                toast.error(t('toast.error_delete'));
+            }
+        } catch (error) {
+            console.error('Error deleting deposit:', error);
+            toast.error(t('toast.error_delete'));
+        }
+    };
+
     const handleAddDeposit = async () => {
         if (!depositForm.amount) return;
 
@@ -558,29 +579,34 @@ export default function Reservations() {
                     </DialogHeader>
 
                     <div className="space-y-4">
-                        <div className="bg-red-50/50 p-4 rounded-lg space-y-2 border border-red-100">
+                        <div className="bg-red-50/50 p-4 rounded-lg space-y-3 border border-red-100">
                             <h4 className="font-medium text-sm text-red-900">{t('deposit_modal.add_new')}</h4>
-                            <div className="flex gap-2">
-                                <Input
-                                    type="number"
-                                    placeholder={t('deposit_modal.amount_placeholder')}
-                                    value={depositForm.amount}
-                                    onChange={(e) => setDepositForm({ ...depositForm, amount: e.target.value })}
-                                    className="w-32 focus-visible:ring-red-500"
-                                />
-                                <Select
-                                    value={depositForm.payment_method}
-                                    onValueChange={(v) => setDepositForm({ ...depositForm, payment_method: v })}
-                                >
-                                    <SelectTrigger className="w-32">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="CASH">{t('payment_methods.cash')}</SelectItem>
-                                        <SelectItem value="CARD">{t('payment_methods.card')}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Button onClick={handleAddDeposit} className="bg-red-600 hover:bg-red-700">{t('deposit_modal.add')}</Button>
+                            <div className="flex flex-col gap-3">
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">€</span>
+                                        <Input
+                                            type="number"
+                                            placeholder="Amount"
+                                            value={depositForm.amount}
+                                            onChange={(e) => setDepositForm({ ...depositForm, amount: e.target.value })}
+                                            className="pl-7 focus-visible:ring-red-500"
+                                        />
+                                    </div>
+                                    <Select
+                                        value={depositForm.payment_method}
+                                        onValueChange={(v) => setDepositForm({ ...depositForm, payment_method: v })}
+                                    >
+                                        <SelectTrigger className="w-[120px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="CASH">CASH</SelectItem>
+                                            <SelectItem value="CARD">CARD</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <Button onClick={handleAddDeposit} className="w-full bg-red-600 hover:bg-red-700">{t('deposit_modal.add')}</Button>
                             </div>
                         </div>
 
@@ -588,14 +614,24 @@ export default function Reservations() {
                             <h4 className="font-medium text-sm">{t('deposit_modal.history')}</h4>
                             <div className="border rounded-md divide-y max-h-[200px] overflow-y-auto">
                                 {depositHistory.map((deposit) => (
-                                    <div key={deposit.id} className="p-3 flex justify-between items-center text-sm hover:bg-muted/50">
+                                    <div key={deposit.id} className="p-3 flex justify-between items-center text-sm hover:bg-muted/50 group">
                                         <div>
                                             <span className="font-bold text-red-700">{deposit.amount}€</span>
                                             <span className="text-muted-foreground ml-2 text-xs">
                                                 {new Date(deposit.created_at).toLocaleDateString()}
                                             </span>
                                         </div>
-                                        <Badge variant="secondary">{deposit.payment_method}</Badge>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="secondary">{deposit.payment_method}</Badge>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 text-muted-foreground hover:text-red-600"
+                                                onClick={() => handleDeleteDeposit(deposit.id)}
+                                            >
+                                                <Trash2 className="h-3 w-3" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                                 {depositHistory.length === 0 && (

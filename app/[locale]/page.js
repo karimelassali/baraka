@@ -10,7 +10,7 @@ import Hero from '@/components/home/Hero';
 
 // Dynamically import components to optimize bundle size
 const About = dynamic(() => import('@/components/home/About'));
-const GlobalSourcing = dynamic(() => import('@/components/home/GlobalSourcing'));
+
 const CategoriesSection = dynamic(() => import('@/components/home/CategoriesSection'));
 const OffersSection = dynamic(() => import('@/components/home/OffersSection'));
 const ReviewsSection = dynamic(() => import('@/components/home/ReviewsSection'));
@@ -42,7 +42,7 @@ export default async function Home() {
         <Hero />
         <About />
         <PaymentMethodsBox />
-        <GlobalSourcing />
+
         {/* <CategoriesSection /> */}
         <OffersSection />
         <GallerySection />

@@ -158,6 +158,8 @@ export default function SlaughteringReports() {
             final_cost: "Totale Finale",
             bovine: "Bovino (Manzo)",
             ovine: "Ovino (Pecora/Capra)",
+            breed: "Razza",
+            yield: "Resa",
             internal_doc: "Documento ad uso interno - Baraka Market"
         };
 
@@ -210,7 +212,9 @@ export default function SlaughteringReports() {
             pdfText.date,
             pdfText.supplier,
             pdfText.type,
+            pdfText.breed,
             pdfText.weight,
+            pdfText.yield,
             pdfText.final_cost
         ];
 
@@ -221,7 +225,9 @@ export default function SlaughteringReports() {
             new Date(r.record_date).toLocaleDateString('it-IT'),
             r.supplier?.name || '-',
             r.animal_type === 'bovine' ? pdfText.bovine : pdfText.ovine,
+            r.breed || '-',
             `${r.slaughtered_weight} kg`,
+            r.live_weight > 0 ? `${((r.slaughtered_weight / r.live_weight) * 100).toFixed(1)}%` : '0%',
             `€ ${r.final_total_cost?.toFixed(2)}`
         ]);
 
@@ -382,8 +388,10 @@ export default function SlaughteringReports() {
                             <TableHead className="font-semibold text-red-900">{t('date')}</TableHead>
                             <TableHead className="font-semibold text-red-900">{t('supplier')}</TableHead>
                             <TableHead className="font-semibold text-red-900">{t('animal_type')}</TableHead>
+                            <TableHead className="font-semibold text-red-900">{t('breed') || 'Razza'}</TableHead>
                             <TableHead className="font-semibold text-red-900">{t('qty')}</TableHead>
                             <TableHead className="font-semibold text-red-900">{t('slaughtered_weight')}</TableHead>
+                            <TableHead className="font-semibold text-red-900">{t('yield') || 'Resa'}</TableHead>
                             <TableHead className="text-right font-semibold text-red-900">{t('final_total')}</TableHead>
                             <TableHead className="text-right font-semibold text-red-900 w-[100px]">{tCommon('actions') || 'Actions'}</TableHead>
                         </TableRow>
@@ -403,7 +411,7 @@ export default function SlaughteringReports() {
                             ))
                         ) : records.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="text-center py-12 text-muted-foreground bg-gray-50/30">
+                                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground bg-gray-50/30">
                                     <div className="flex flex-col items-center justify-center gap-2">
                                         <Filter className="w-8 h-8 text-gray-300" />
                                         <p>{t('no_records')}</p>
@@ -421,8 +429,12 @@ export default function SlaughteringReports() {
                                             {t(record.animal_type)}
                                         </span>
                                     </TableCell>
+                                    <TableCell>{record.breed || '-'}</TableCell>
                                     <TableCell>{record.quantity}</TableCell>
                                     <TableCell className="text-gray-600 font-mono">{record.slaughtered_weight} kg</TableCell>
+                                    <TableCell className="text-gray-600 font-mono">
+                                        {record.live_weight > 0 ? ((record.slaughtered_weight / record.live_weight) * 100).toFixed(1) : 0}%
+                                    </TableCell>
                                     <TableCell className="text-right font-bold text-red-600 font-mono">
                                         € {record.final_total_cost?.toFixed(2)}
                                     </TableCell>

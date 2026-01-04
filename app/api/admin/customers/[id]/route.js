@@ -35,6 +35,11 @@ export async function PUT(request, { params }) {
 
   const updates = await request.json();
 
+  // Sanitize date_of_birth
+  if (updates.date_of_birth === '') {
+    updates.date_of_birth = null;
+  }
+
   // Update the customer record
   const { data: updatedCustomer, error: updateError } = await supabase
     .from('customers')
@@ -105,7 +110,7 @@ export async function DELETE(request, { params }) {
   }
 
   // 2. Delete related records manually using Admin Client to bypass RLS
-  
+
   // Delete loyalty points
   const { error: pointsError } = await supabaseAdmin.from('loyalty_points').delete().eq('customer_id', customerId);
   if (pointsError) console.error('Error deleting loyalty points:', pointsError);
@@ -149,7 +154,7 @@ export async function DELETE(request, { params }) {
   if (customer.auth_id) {
     try {
       const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(customer.auth_id);
-      
+
       if (authDeleteError) {
         console.error('Error deleting auth user:', authDeleteError);
         // We don't return error here because the main customer record is already deleted

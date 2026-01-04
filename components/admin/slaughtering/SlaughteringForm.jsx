@@ -23,6 +23,7 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
         supplier_id: '',
         animal_type: 'bovine',
         quantity: 1,
+        breed: '',
         live_weight: '',
         slaughtered_weight: '',
         live_purchase_price: '',
@@ -32,7 +33,8 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
 
     const [totals, setTotals] = useState({
         total_purchase_cost: 0,
-        final_total_cost: 0
+        final_total_cost: 0,
+        yield_percentage: 0
     });
 
     // New Supplier Modal State
@@ -49,6 +51,7 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
                 supplier_id: initialData.supplier_id || '',
                 animal_type: initialData.animal_type || 'bovine',
                 quantity: initialData.quantity || 1,
+                breed: initialData.breed || '',
                 live_weight: initialData.live_weight || '',
                 slaughtered_weight: initialData.slaughtered_weight || '',
                 live_purchase_price: initialData.live_purchase_price || '',
@@ -80,10 +83,12 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
 
         const totalPurchaseCost = liveWeight * livePrice;
         const finalTotalCost = (finalPrice * slaughteredWeight) + slaughterCost;
+        const yieldPercentage = liveWeight > 0 ? (slaughteredWeight / liveWeight) * 100 : 0;
 
         setTotals({
             total_purchase_cost: totalPurchaseCost,
-            final_total_cost: finalTotalCost
+            final_total_cost: finalTotalCost,
+            yield_percentage: yieldPercentage
         });
     };
 
@@ -115,6 +120,7 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
                     supplier_id: '',
                     animal_type: 'bovine',
                     quantity: 1,
+                    breed: '',
                     live_weight: '',
                     slaughtered_weight: '',
                     live_purchase_price: '',
@@ -219,6 +225,19 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
                                 {t('ovine')}
                             </button>
                         </div>
+                    </div>
+
+                    {/* Breed */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">{t('breed') || 'Razza'}</label>
+                        <input
+                            type="text"
+                            name="breed"
+                            value={formData.breed}
+                            onChange={handleChange}
+                            placeholder={t('breed_placeholder') || 'Ex. Limousine, Charolais...'}
+                            className="w-full p-2.5 rounded-xl border border-gray-200 bg-white/50 focus:ring-2 focus:ring-red-100 focus:border-red-400 transition-all outline-none"
+                        />
                     </div>
 
                     {/* Quantity */}
@@ -344,9 +363,14 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
                                 ({t('final_price')} × {t('slaughtered_weight')}) + {t('slaughtering_cost')}
                             </p>
                         </div>
-                        <span className="text-3xl font-bold text-green-700 tracking-tight">
-                            € {totals.final_total_cost.toFixed(2)}
-                        </span>
+                        <div className="text-right">
+                            <span className="text-3xl font-bold text-green-700 tracking-tight block">
+                                € {totals.final_total_cost.toFixed(2)}
+                            </span>
+                            <span className="text-sm font-medium text-green-600/80 bg-green-100/50 px-2 py-1 rounded-lg">
+                                {t('yield') || 'Resa'}: {totals.yield_percentage.toFixed(1)}%
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -372,55 +396,57 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
             </form>
 
             {/* New Supplier Modal */}
-            {isNewSupplierOpen && createPortal(
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <GlassCard className="w-full max-w-md p-0 overflow-hidden border-0 shadow-2xl">
-                        <div className="bg-red-600 p-4 flex justify-between items-center text-white">
-                            <h4 className="font-bold text-lg flex items-center gap-2">
-                                <PlusCircle className="w-5 h-5" />
-                                {t('add_new_supplier')}
-                            </h4>
-                            <button
-                                onClick={() => setIsNewSupplierOpen(false)}
-                                className="p-1 hover:bg-white/10 rounded-full transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <div className="p-6 bg-white space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700">{t('supplier_name_placeholder')}</label>
-                                <input
-                                    type="text"
-                                    value={newSupplierName}
-                                    onChange={(e) => setNewSupplierName(e.target.value)}
-                                    placeholder={t('supplier_name_placeholder')}
-                                    className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-100 focus:border-red-400 outline-none transition-all"
-                                    autoFocus
-                                />
-                            </div>
-
-                            <div className="flex justify-end gap-3 pt-2">
-                                <Button
-                                    variant="outline"
+            {
+                isNewSupplierOpen && createPortal(
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <GlassCard className="w-full max-w-md p-0 overflow-hidden border-0 shadow-2xl">
+                            <div className="bg-red-600 p-4 flex justify-between items-center text-white">
+                                <h4 className="font-bold text-lg flex items-center gap-2">
+                                    <PlusCircle className="w-5 h-5" />
+                                    {t('add_new_supplier')}
+                                </h4>
+                                <button
                                     onClick={() => setIsNewSupplierOpen(false)}
-                                    className="border-gray-200 hover:bg-gray-50 text-gray-700 h-11 px-6 rounded-xl"
+                                    className="p-1 hover:bg-white/10 rounded-full transition-colors"
                                 >
-                                    {tCommon('cancel')}
-                                </Button>
-                                <Button
-                                    onClick={handleCreateSupplier}
-                                    className="bg-red-600 hover:bg-red-700 text-white h-11 px-6 rounded-xl shadow-lg shadow-red-200"
-                                >
-                                    {tCommon('add')}
-                                </Button>
+                                    <X className="w-5 h-5" />
+                                </button>
                             </div>
-                        </div>
-                    </GlassCard>
-                </div>,
-                document.body
-            )}
-        </GlassCard>
+
+                            <div className="p-6 bg-white space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700">{t('supplier_name_placeholder')}</label>
+                                    <input
+                                        type="text"
+                                        value={newSupplierName}
+                                        onChange={(e) => setNewSupplierName(e.target.value)}
+                                        placeholder={t('supplier_name_placeholder')}
+                                        className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-100 focus:border-red-400 outline-none transition-all"
+                                        autoFocus
+                                    />
+                                </div>
+
+                                <div className="flex justify-end gap-3 pt-2">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsNewSupplierOpen(false)}
+                                        className="border-gray-200 hover:bg-gray-50 text-gray-700 h-11 px-6 rounded-xl"
+                                    >
+                                        {tCommon('cancel')}
+                                    </Button>
+                                    <Button
+                                        onClick={handleCreateSupplier}
+                                        className="bg-red-600 hover:bg-red-700 text-white h-11 px-6 rounded-xl shadow-lg shadow-red-200"
+                                    >
+                                        {tCommon('add')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </GlassCard>
+                    </div>,
+                    document.body
+                )
+            }
+        </GlassCard >
     );
 }

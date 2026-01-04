@@ -31,6 +31,7 @@ export default function PaymentsList({ refreshTrigger }) {
     const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [checkSearch, setCheckSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -44,6 +45,7 @@ export default function PaymentsList({ refreshTrigger }) {
         try {
             let url = `/api/admin/payments?limit=${limit}&offset=${(page - 1) * limit}&sort_by=due_date&sort_order=asc`;
             if (search) url += `&recipient=${search}`;
+            if (checkSearch) url += `&check_number=${checkSearch}`;
             if (statusFilter !== 'all') url += `&status=${statusFilter}`;
 
             const response = await fetch(url);
@@ -62,7 +64,7 @@ export default function PaymentsList({ refreshTrigger }) {
 
     useEffect(() => {
         fetchPayments();
-    }, [page, search, statusFilter, refreshTrigger]);
+    }, [page, search, checkSearch, statusFilter, refreshTrigger]);
 
     const handleMarkAsPaid = async (id) => {
         setActionLoading(id);
@@ -201,6 +203,16 @@ export default function PaymentsList({ refreshTrigger }) {
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                        />
+                    </div>
+                    <div className="relative w-full sm:w-48">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-mono text-xs">#</div>
+                        <input
+                            type="text"
+                            placeholder="Check ID..."
+                            value={checkSearch}
+                            onChange={(e) => setCheckSearch(e.target.value)}
+                            className="w-full pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
                         />
                     </div>
                     <select

@@ -33,6 +33,7 @@ export async function GET(request) {
     const startDate = searchParams.get('start_date');
     const endDate = searchParams.get('end_date');
     const recipient = searchParams.get('recipient');
+    const checkNumber = searchParams.get('check_number');
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')) : 50;
     const offset = searchParams.get('offset') ? parseInt(searchParams.get('offset')) : 0;
     const sortBy = searchParams.get('sort_by') || 'due_date';
@@ -55,6 +56,9 @@ export async function GET(request) {
     }
     if (recipient) {
         query = query.ilike('recipient', `%${recipient}%`);
+    }
+    if (checkNumber) {
+        query = query.ilike('check_number', `%${checkNumber}%`);
     }
 
     const { data: payments, count, error } = await query;

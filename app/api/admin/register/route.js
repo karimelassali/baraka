@@ -1,9 +1,8 @@
-// app/api/admin/register/route.js
-
 import { createClient } from '../../../../lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { registerCustomer } from '../../../../lib/auth/register';
+import { createNotification } from '../../../../lib/notifications';
 
 export async function POST(request) {
   const cookieStore = await cookies();
@@ -45,6 +44,19 @@ export async function POST(request) {
     if (!registrationResult.success) {
       return NextResponse.json({ error: registrationResult.message }, { status: 400 });
     }
+
+    // Create notification for admin (System Notification)
+    await createNotification({
+      type: 'info',
+      title: 'Nuovo Cliente Creato (Admin)',
+      message: `Admin ha creato manualmente il cliente ${firstName} ${lastName}.`,
+      link: `/admin/customers/${registrationResult.profile.id}`,
+      metadata: {
+        customer_id: registrationResult.profile.id,
+        email: email,
+        created_by_admin: user.id
+      }
+    });
 
     return NextResponse.json({ success: true, user: registrationResult.user });
   } catch (error) {

@@ -1,300 +1,477 @@
--- ------------------------------------------------------
--- Customer Loyalty Platform Database Schema (FIXED)
--- ------------------------------------------------------
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
-----------------------------------------------------------
--- TABLE: Customers
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS customers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    auth_id UUID UNIQUE,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    date_of_birth DATE,
-    residence TEXT,
-    phone_number TEXT,
-    email TEXT NOT NULL UNIQUE,
-    country_of_origin TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    gdpr_consent BOOLEAN NOT NULL,
-    gdpr_consent_at TIMESTAMPTZ NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    language_preference TEXT DEFAULT 'en'
+CREATE TABLE public.admin_logs (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  admin_id uuid,
+  action text NOT NULL,
+  resource text NOT NULL,
+  resource_id text,
+  details jsonb,
+  ip_address text,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT admin_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT admin_logs_admin_id_fkey FOREIGN KEY (admin_id) REFERENCES public.admin_users(id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_customers_email ON customers(email);
-CREATE INDEX IF NOT EXISTS idx_customers_auth_id ON customers(auth_id);
-
-----------------------------------------------------------
--- TABLE: Loyalty Points
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS loyalty_points (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-    points INTEGER NOT NULL,
-    transaction_type TEXT NOT NULL CHECK (transaction_type IN ('EARNED', 'REDEEMED', 'ADJUSTED')),
-    reference_id TEXT,
-    description TEXT,
-    points_formula_used TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    admin_id UUID
+CREATE TABLE public.admin_notes (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  title text,
+  message text NOT NULL,
+  author_id uuid NOT NULL,
+  is_pinned boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  images jsonb DEFAULT '[]'::jsonb,
+  drawing text,
+  links jsonb DEFAULT '[]'::jsonb,
+  CONSTRAINT admin_notes_pkey PRIMARY KEY (id),
+  CONSTRAINT admin_notes_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.admin_users(id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_loyalty_points_customer_id ON loyalty_points(customer_id);
-CREATE INDEX IF NOT EXISTS idx_loyalty_points_created_at ON loyalty_points(created_at);
-
-----------------------------------------------------------
--- TABLE: Vouchers
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS vouchers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    code TEXT NOT NULL UNIQUE,
-    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-    points_redeemed INTEGER NOT NULL,
-    value DECIMAL NOT NULL,
-    currency TEXT NOT NULL DEFAULT 'EUR',
-    is_active BOOLEAN DEFAULT TRUE,
-    is_used BOOLEAN DEFAULT FALSE,
-    used_at TIMESTAMPTZ,
-    expires_at TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    admin_id UUID
+CREATE TABLE public.admin_users (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  auth_id uuid,
+  full_name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  role text NOT NULL DEFAULT 'admin'::text,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  last_login_at timestamp with time zone,
+  permissions jsonb DEFAULT '[]'::jsonb,
+  created_by uuid,
+  phone numeric,
+  CONSTRAINT admin_users_pkey PRIMARY KEY (id),
+  CONSTRAINT admin_users_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.admin_users(id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_vouchers_customer_id ON vouchers(customer_id);
-CREATE INDEX IF NOT EXISTS idx_vouchers_code ON vouchers(code);
-CREATE INDEX IF NOT EXISTS idx_vouchers_is_active ON vouchers(is_active);
-
-----------------------------------------------------------
--- TABLE: Offers
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS offers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    title JSONB NOT NULL,
-    description JSONB,
-    image_url TEXT,
-    offer_type TEXT NOT NULL CHECK (offer_type IN ('WEEKLY', 'PERMANENT')),
-    is_active BOOLEAN DEFAULT TRUE,
-    start_date DATE,
-    end_date DATE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    created_by UUID
+CREATE TABLE public.agent_knowledge (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  content text NOT NULL,
+  type text NOT NULL CHECK (type = ANY (ARRAY['general'::text, 'route'::text, 'instruction'::text])),
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT agent_knowledge_pkey PRIMARY KEY (id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_offers_is_active ON offers(is_active);
-CREATE INDEX IF NOT EXISTS idx_offers_dates ON offers(start_date, end_date);
-
-----------------------------------------------------------
--- TABLE: Reviews
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS reviews (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-    review_text TEXT NOT NULL,
-    rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-    is_approved BOOLEAN DEFAULT FALSE,
-    is_featured BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    approved_at TIMESTAMPTZ
+CREATE TABLE public.customers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  auth_id uuid,
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  date_of_birth date,
+  residence text,
+  phone_number text,
+  email text NOT NULL UNIQUE,
+  country_of_origin text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  gdpr_consent boolean NOT NULL,
+  gdpr_consent_at timestamp with time zone NOT NULL,
+  is_active boolean DEFAULT true,
+  language_preference text DEFAULT 'en'::text,
+  barcode_value character varying,
+  last_scan_date timestamp with time zone,
+  last_retarget_date timestamp with time zone,
+  is_verified boolean DEFAULT false,
+  CONSTRAINT customers_pkey PRIMARY KEY (id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_reviews_customer_id ON reviews(customer_id);
-CREATE INDEX IF NOT EXISTS idx_reviews_is_approved ON reviews(is_approved);
-
-----------------------------------------------------------
--- TABLE: Admin Users
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS admin_users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    auth_id UUID UNIQUE,
-    full_name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    role TEXT NOT NULL DEFAULT 'admin' CHECK (role IN ('admin', 'manager')),
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    last_login_at TIMESTAMPTZ
+CREATE TABLE public.daily_revenue (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  date date NOT NULL UNIQUE,
+  total_revenue numeric NOT NULL DEFAULT 0,
+  cash numeric NOT NULL DEFAULT 0,
+  card numeric NOT NULL DEFAULT 0,
+  ticket numeric NOT NULL DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  revenue_annule numeric DEFAULT 0,
+  CONSTRAINT daily_revenue_pkey PRIMARY KEY (id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_admin_users_email ON admin_users(email);
-CREATE INDEX IF NOT EXISTS idx_admin_users_auth_id ON admin_users(auth_id);
-
-----------------------------------------------------------
--- TABLE: Agent Knowledge
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS agent_knowledge (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    title TEXT NOT NULL,
-    content TEXT NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('general', 'route', 'instruction')),
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.eid_cattle_groups (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  group_name text NOT NULL,
+  cattle_weight numeric,
+  total_deposit numeric DEFAULT 0,
+  status text DEFAULT 'PENDING'::text CHECK (status = ANY (ARRAY['PENDING'::text, 'PAID'::text, 'COMPLETED'::text, 'CANCELLED'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  price numeric,
+  tag_number text,
+  CONSTRAINT eid_cattle_groups_pkey PRIMARY KEY (id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_agent_knowledge_type ON agent_knowledge(type);
-CREATE INDEX IF NOT EXISTS idx_agent_knowledge_is_active ON agent_knowledge(is_active);
-
-ALTER TABLE agent_knowledge ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Enable read access for authenticated users" ON agent_knowledge FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Enable insert for authenticated users" ON agent_knowledge FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Enable update for authenticated users" ON agent_knowledge FOR UPDATE TO authenticated USING (true);
-CREATE POLICY "Enable delete for authenticated users" ON agent_knowledge FOR DELETE TO authenticated USING (true);
-
-----------------------------------------------------------
--- TABLE: WhatsApp Messages
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS whatsapp_messages (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    customer_id UUID NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
-    template_name TEXT NOT NULL,
-    message_type TEXT NOT NULL CHECK (message_type IN ('BIRTHDAY', 'PROMOTIONAL', 'TARGETED')),
-    target_audience TEXT,
-    message_content JSONB,
-    status TEXT DEFAULT 'sent' CHECK (status IN ('sent', 'delivered', 'read', 'failed')),
-    sent_at TIMESTAMPTZ DEFAULT NOW(),
-    delivered_at TIMESTAMPTZ,
-    read_at TIMESTAMPTZ,
-    admin_id UUID
+CREATE TABLE public.eid_cattle_members (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  group_id uuid NOT NULL,
+  customer_id uuid,
+  member_number integer CHECK (member_number >= 1 AND member_number <= 15),
+  role text DEFAULT 'MEMBER'::text,
+  deposit_amount numeric DEFAULT 0,
+  is_paid boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT eid_cattle_members_pkey PRIMARY KEY (id),
+  CONSTRAINT eid_cattle_members_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.eid_cattle_groups(id),
+  CONSTRAINT eid_cattle_members_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_whatsapp_messages_customer_id ON whatsapp_messages(customer_id);
-CREATE INDEX IF NOT EXISTS idx_whatsapp_messages_status ON whatsapp_messages(status);
-CREATE INDEX IF NOT EXISTS idx_whatsapp_messages_sent_at ON whatsapp_messages(sent_at);
-
-----------------------------------------------------------
--- TABLE: Settings
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS settings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    setting_key TEXT NOT NULL UNIQUE,
-    setting_value TEXT NOT NULL,
-    description TEXT,
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_by UUID
+CREATE TABLE public.eid_deposits (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  reservation_id uuid NOT NULL,
+  amount numeric NOT NULL,
+  payment_method text,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  CONSTRAINT eid_deposits_pkey PRIMARY KEY (id),
+  CONSTRAINT eid_deposits_reservation_id_fkey FOREIGN KEY (reservation_id) REFERENCES public.eid_reservations(id)
 );
-
-----------------------------------------------------------
--- TABLE: GDPR Logs
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS gdpr_logs (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    customer_id UUID REFERENCES customers(id),
-    action TEXT NOT NULL CHECK (action IN ('EXPORT', 'DELETE', 'CONSENT_UPDATE')),
-    description TEXT,
-    performed_by TEXT,
-    performed_at TIMESTAMPTZ DEFAULT NOW(),
-    data_snapshot JSONB
+CREATE TABLE public.eid_destinations (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL UNIQUE,
+  location text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT eid_destinations_pkey PRIMARY KEY (id)
 );
-
-CREATE INDEX IF NOT EXISTS idx_gdpr_logs_customer_id ON gdpr_logs(customer_id);
-CREATE INDEX IF NOT EXISTS idx_gdpr_logs_action ON gdpr_logs(action);
-
-----------------------------------------------------------
--- VIEW: Customer Points Balance
-----------------------------------------------------------
-CREATE OR REPLACE VIEW customer_points_balance AS
-SELECT
-    customer_id,
-    SUM(points) AS total_points,
-    SUM(points) AS available_points,  -- Available points after all transactions (including redemptions)
-    SUM(CASE WHEN transaction_type = 'PENDING' THEN points ELSE 0 END) AS pending_points
-FROM loyalty_points
-GROUP BY customer_id;
-
-----------------------------------------------------------
--- VIEW: Approved Reviews (FIXED)
-----------------------------------------------------------
-CREATE OR REPLACE VIEW approved_reviews AS
-SELECT
-    r.id AS review_id,
-    c.first_name || ' ' || c.last_name AS customer_name,
-    r.review_text,
-    r.rating,
-    r.created_at
-FROM reviews r
-JOIN customers c ON r.customer_id = c.id
-WHERE r.is_approved = TRUE
-ORDER BY r.created_at DESC
-LIMIT 20;
-
-----------------------------------------------------------
--- FUNCTION: Update updated_at timestamp
-----------------------------------------------------------
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-----------------------------------------------------------
--- TRIGGERS
-----------------------------------------------------------
-CREATE TRIGGER update_customers_updated_at
-    BEFORE UPDATE ON customers
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_offers_updated_at
-    BEFORE UPDATE ON offers
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
-----------------------------------------------------------
--- DEFAULT SETTINGS
-----------------------------------------------------------
-INSERT INTO settings (setting_key, setting_value, description)
-VALUES
-(
-    'points_conversion_formula',
-    '{"rate": 1, "currency": "EUR", "points_per_unit": 1}',
-    'Formula used to convert purchase amount to loyalty points'
-)
-ON CONFLICT (setting_key) DO NOTHING;
-
-----------------------------------------------------------
--- TABLE: Admin Notes (Shared Board)
-----------------------------------------------------------
-CREATE TABLE IF NOT EXISTS admin_notes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    title TEXT,
-    message TEXT NOT NULL,
-    author_id UUID NOT NULL REFERENCES admin_users(id) ON DELETE CASCADE,
-    is_pinned BOOLEAN DEFAULT FALSE,
-    images JSONB DEFAULT '[]'::jsonb,
-    drawing TEXT,
-    links JSONB DEFAULT '[]'::jsonb,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE public.eid_purchase_batches (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  supplier_id uuid,
+  batch_number text NOT NULL,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  is_pinned boolean DEFAULT false,
+  CONSTRAINT eid_purchase_batches_pkey PRIMARY KEY (id),
+  CONSTRAINT eid_purchase_batches_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.eid_suppliers(id)
 );
-
--- Create storage bucket for admin note attachments
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('admin-attachments', 'admin-attachments', true)
-ON CONFLICT (id) DO NOTHING;
-
--- Policy to allow authenticated users to upload to admin-attachments
-CREATE POLICY "Allow authenticated uploads" ON storage.objects
-FOR INSERT TO authenticated
-WITH CHECK (bucket_id = 'admin-attachments');
-
--- Policy to allow authenticated users to view admin-attachments
-CREATE POLICY "Allow authenticated viewing" ON storage.objects
-FOR SELECT TO authenticated
-USING (bucket_id = 'admin-attachments');
-
-CREATE INDEX IF NOT EXISTS idx_admin_notes_author_id ON admin_notes(author_id);
-CREATE INDEX IF NOT EXISTS idx_admin_notes_is_pinned ON admin_notes(is_pinned);
-CREATE INDEX IF NOT EXISTS idx_admin_notes_created_at ON admin_notes(created_at);
-
-CREATE TRIGGER update_admin_notes_updated_at
-    BEFORE UPDATE ON admin_notes
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
+CREATE TABLE public.eid_purchases (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  tag_number text NOT NULL UNIQUE,
+  tag_color text,
+  weight numeric NOT NULL,
+  animal_type text NOT NULL CHECK (animal_type = ANY (ARRAY['SHEEP'::text, 'GOAT'::text, 'CATTLE'::text])),
+  purchase_price numeric,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  supplier text,
+  batch_id uuid,
+  destination text,
+  CONSTRAINT eid_purchases_pkey PRIMARY KEY (id),
+  CONSTRAINT eid_purchases_batch_id_fkey FOREIGN KEY (batch_id) REFERENCES public.eid_purchase_batches(id)
+);
+CREATE TABLE public.eid_reservations (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  order_number integer NOT NULL DEFAULT nextval('eid_reservations_order_number_seq'::regclass),
+  customer_id uuid NOT NULL,
+  animal_type text NOT NULL CHECK (animal_type = ANY (ARRAY['SHEEP'::text, 'GOAT'::text])),
+  requested_weight text NOT NULL,
+  pickup_time text,
+  notes text,
+  final_weight numeric,
+  tag_number text,
+  is_paid boolean DEFAULT false,
+  status text DEFAULT 'PENDING'::text CHECK (status = ANY (ARRAY['PENDING'::text, 'CONFIRMED'::text, 'COLLECTED'::text, 'CANCELLED'::text])),
+  collected_at timestamp with time zone,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  final_price numeric,
+  destination text,
+  CONSTRAINT eid_reservations_pkey PRIMARY KEY (id),
+  CONSTRAINT eid_reservations_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
+);
+CREATE TABLE public.eid_suppliers (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  name text NOT NULL UNIQUE,
+  contact_info text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT eid_suppliers_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.gallery (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  image_url text NOT NULL,
+  category text DEFAULT 'general'::text,
+  created_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  CONSTRAINT gallery_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.gdpr_logs (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  customer_id uuid,
+  action text NOT NULL,
+  description text,
+  performed_by text,
+  performed_at timestamp with time zone DEFAULT now(),
+  data_snapshot jsonb,
+  CONSTRAINT gdpr_logs_pkey PRIMARY KEY (id),
+  CONSTRAINT gdpr_logs_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
+);
+CREATE TABLE public.inventory_products (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  category_id uuid,
+  name text NOT NULL,
+  description text,
+  quantity numeric NOT NULL DEFAULT 0,
+  unit text NOT NULL DEFAULT 'pcs'::text,
+  minimum_stock_level numeric DEFAULT 0,
+  purchase_price numeric,
+  selling_price numeric,
+  currency text DEFAULT 'EUR'::text,
+  supplier_name text,
+  supplier_contact text,
+  sku text,
+  barcode text,
+  location_in_shop text,
+  expiration_date date NOT NULL,
+  batch_number text,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  updated_by uuid,
+  CONSTRAINT inventory_products_pkey PRIMARY KEY (id),
+  CONSTRAINT inventory_products_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.product_categories(id),
+  CONSTRAINT inventory_products_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.admin_users(id),
+  CONSTRAINT inventory_products_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.admin_users(id)
+);
+CREATE TABLE public.loyalty_points (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  customer_id uuid,
+  points integer NOT NULL,
+  transaction_type text NOT NULL,
+  reference_id text,
+  description text,
+  points_formula_used text,
+  created_at timestamp with time zone DEFAULT now(),
+  admin_id uuid,
+  CONSTRAINT loyalty_points_pkey PRIMARY KEY (id),
+  CONSTRAINT loyalty_points_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
+);
+CREATE TABLE public.notifications (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  type text NOT NULL CHECK (type = ANY (ARRAY['info'::text, 'warning'::text, 'success'::text, 'error'::text])),
+  title text NOT NULL,
+  message text NOT NULL,
+  link text,
+  is_read boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  metadata jsonb DEFAULT '{}'::jsonb,
+  CONSTRAINT notifications_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.offer_categories (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name jsonb NOT NULL,
+  slug text NOT NULL UNIQUE,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT offer_categories_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.offers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  title jsonb NOT NULL,
+  description jsonb,
+  image_url text,
+  offer_type text NOT NULL,
+  is_active boolean DEFAULT true,
+  start_date date,
+  end_date date,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  badge_text text,
+  category_id uuid,
+  is_popup boolean DEFAULT false,
+  CONSTRAINT offers_pkey PRIMARY KEY (id),
+  CONSTRAINT offers_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.offer_categories(id)
+);
+CREATE TABLE public.order_items (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  order_id uuid NOT NULL,
+  product_name text NOT NULL,
+  quantity integer NOT NULL DEFAULT 1,
+  notes text,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT order_items_pkey PRIMARY KEY (id),
+  CONSTRAINT order_items_order_id_fkey FOREIGN KEY (order_id) REFERENCES public.orders(id)
+);
+CREATE TABLE public.orders (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  order_number integer NOT NULL DEFAULT nextval('orders_order_number_seq'::regclass),
+  supplier_id uuid,
+  status text NOT NULL DEFAULT 'draft'::text CHECK (status = ANY (ARRAY['draft'::text, 'completed'::text])),
+  internal_note text,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT orders_pkey PRIMARY KEY (id),
+  CONSTRAINT orders_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id)
+);
+CREATE TABLE public.otp_codes (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  phone_number text NOT NULL,
+  code character varying NOT NULL,
+  expires_at timestamp with time zone NOT NULL DEFAULT (now() + '00:10:00'::interval),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT otp_codes_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.payments (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  due_date date NOT NULL,
+  recipient text NOT NULL,
+  amount numeric NOT NULL,
+  payment_type text NOT NULL,
+  check_number text,
+  status text DEFAULT 'Pending'::text CHECK (status = ANY (ARRAY['Pending'::text, 'Paid'::text])),
+  notes text,
+  paid_at timestamp with time zone,
+  paid_by uuid,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT payments_pkey PRIMARY KEY (id),
+  CONSTRAINT payments_paid_by_fkey FOREIGN KEY (paid_by) REFERENCES auth.users(id)
+);
+CREATE TABLE public.product_categories (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  description text,
+  color text DEFAULT '#8B5CF6'::text,
+  icon text DEFAULT 'package'::text,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  updated_by uuid,
+  CONSTRAINT product_categories_pkey PRIMARY KEY (id),
+  CONSTRAINT product_categories_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.admin_users(id),
+  CONSTRAINT product_categories_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public.admin_users(id)
+);
+CREATE TABLE public.qr_codes (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  code text NOT NULL UNIQUE,
+  target_url text NOT NULL DEFAULT '/'::text,
+  description text,
+  created_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  image_url text,
+  CONSTRAINT qr_codes_pkey PRIMARY KEY (id),
+  CONSTRAINT qr_codes_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id)
+);
+CREATE TABLE public.qr_scans (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  qr_code_id uuid,
+  scanned_at timestamp with time zone DEFAULT now(),
+  ip_address text,
+  user_agent text,
+  device_info jsonb,
+  CONSTRAINT qr_scans_pkey PRIMARY KEY (id),
+  CONSTRAINT qr_scans_qr_code_id_fkey FOREIGN KEY (qr_code_id) REFERENCES public.qr_codes(id)
+);
+CREATE TABLE public.reviews (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  customer_id uuid,
+  review_text text NOT NULL,
+  rating integer,
+  is_approved boolean DEFAULT false,
+  is_featured boolean DEFAULT false,
+  created_at timestamp with time zone DEFAULT now(),
+  approved_at timestamp with time zone,
+  reviewer_name text,
+  approved text,
+  CONSTRAINT reviews_pkey PRIMARY KEY (id),
+  CONSTRAINT reviews_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
+);
+CREATE TABLE public.settings (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  setting_key text NOT NULL UNIQUE,
+  setting_value text NOT NULL,
+  description text,
+  updated_at timestamp with time zone DEFAULT now(),
+  updated_by uuid,
+  CONSTRAINT settings_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.slaughtering_records (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  supplier_id uuid,
+  record_date date DEFAULT CURRENT_DATE,
+  animal_type text CHECK (animal_type = ANY (ARRAY['bovine'::text, 'ovine'::text])),
+  quantity integer,
+  breed text,
+  live_weight numeric,
+  slaughtered_weight numeric,
+  live_purchase_price numeric,
+  final_price numeric,
+  slaughtering_cost numeric,
+  total_purchase_cost numeric,
+  final_total_cost numeric,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  created_by uuid,
+  CONSTRAINT slaughtering_records_pkey PRIMARY KEY (id),
+  CONSTRAINT slaughtering_records_supplier_id_fkey FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id)
+);
+CREATE TABLE public.suppliers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  address text,
+  email text,
+  phone text,
+  vat_number text,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT suppliers_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.system_settings (
+  key text NOT NULL,
+  value jsonb NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT system_settings_pkey PRIMARY KEY (key)
+);
+CREATE TABLE public.vouchers (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  code text NOT NULL UNIQUE,
+  customer_id uuid,
+  points_redeemed integer NOT NULL,
+  value numeric NOT NULL,
+  currency text NOT NULL DEFAULT 'EUR'::text,
+  is_active boolean DEFAULT true,
+  is_used boolean DEFAULT false,
+  used_at timestamp with time zone,
+  expires_at timestamp with time zone NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  admin_id uuid,
+  description text,
+  CONSTRAINT vouchers_pkey PRIMARY KEY (id),
+  CONSTRAINT vouchers_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
+);
+CREATE TABLE public.waitlist (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  first_name text NOT NULL,
+  last_name text NOT NULL,
+  phone_number text NOT NULL UNIQUE,
+  email text,
+  country text NOT NULL,
+  city text,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  CONSTRAINT waitlist_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.whatsapp_messages (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  customer_id uuid,
+  template_name text NOT NULL,
+  message_type text NOT NULL,
+  target_audience text,
+  message_content jsonb,
+  status text DEFAULT 'sent'::text,
+  sent_at timestamp with time zone DEFAULT now(),
+  delivered_at timestamp with time zone,
+  read_at timestamp with time zone,
+  admin_id uuid,
+  error_message text,
+  CONSTRAINT whatsapp_messages_pkey PRIMARY KEY (id),
+  CONSTRAINT whatsapp_messages_customer_id_fkey FOREIGN KEY (customer_id) REFERENCES public.customers(id)
+);
+CREATE TABLE public.wishlists (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid,
+  product_name text NOT NULL,
+  description text,
+  status text DEFAULT 'pending'::text CHECK (status = ANY (ARRAY['pending'::text, 'approved'::text, 'rejected'::text])),
+  created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()),
+  CONSTRAINT wishlists_pkey PRIMARY KEY (id),
+  CONSTRAINT wishlists_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);

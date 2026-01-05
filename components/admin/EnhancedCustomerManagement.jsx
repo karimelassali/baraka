@@ -874,9 +874,10 @@ export default function EnhancedCustomerManagement() {
         url += `&residence=${encodeURIComponent(residenceFilter)}`;
       }
 
-      // Note: verifiedFilter is not currently supported by the API for filtering, 
-      // but we can add it if needed. For now, we'll filter client-side or ignore it.
-      // Ideally, the API should support 'is_verified'.
+      // Add status filter
+      if (verifiedFilter && verifiedFilter !== 'all') {
+        url += `&verified=${verifiedFilter}`;
+      }
 
       const response = await fetch(url);
       const data = await response.json();
@@ -907,7 +908,7 @@ export default function EnhancedCustomerManagement() {
 
   useEffect(() => {
     loadCustomers(true);
-  }, [searchTerm, sortField, sortDirection, locationFilter, residenceFilter]);
+  }, [searchTerm, sortField, sortDirection, locationFilter, residenceFilter, verifiedFilter]);
 
   useEffect(() => {
     const search = searchParams.get('search');

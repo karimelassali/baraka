@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { getCurrentUser } from '../../../../../lib/auth/server';
+import { parsePhoneNumber } from 'libphonenumber-js';
 
 // Twilio credentials
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
@@ -101,13 +102,31 @@ export async function POST(request) {
     details: []
   };
 
+
+
   for (const customer of customers) {
     try {
-      await sendSms(customer.phone_number, message);
+      let phone = customer.phone_number;
+
+      // Robust Phone Formatting
+      try {
+        // Default to IT if no country code provided
+        const phoneNumber = parsePhoneNumber(phone, 'IT');
+        if (phoneNumber && phoneNumber.isValid()) {
+          phone = phoneNumber.number; // E.164 format (e.g., +393331234567)
+        } else {
+          // If parsing fails but it's not empty, we might try sending as is, or log warning
+          console.warn(`Invalid phone format for customer ${customer.id}: ${phone}. Trying to send anyway.`);
+        }
+      } catch (e) {
+        console.warn(`Error parsing phone ${phone}: ${e.message}`);
+      }
+
+      await sendSms(phone, message);
       results.success++;
       results.details.push({
         customerId: customer.id,
-        phone: customer.phone_number,
+        phone: phone, // Log the formatted phone
         success: true
       });
     } catch (error) {

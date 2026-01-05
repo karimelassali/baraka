@@ -82,6 +82,18 @@ export async function GET(request) {
     query = query.ilike('residence', `%${residence}%`);
   }
 
+  const verified = searchParams.get('verified');
+  if (verified === 'verified') {
+    // Note: The view currently only exposes 'email_confirmed_at'. 
+    // Phone verification is checked in the post-processing step, so this might miss phone-only verified users in the SQL filter.
+    // To fix this permanently, the 'admin_customers_extended' view needs to include 'phone_confirmed_at'.
+    query = query.not('email_confirmed_at', 'is', null); // Best effort: Show email verified
+  } else if (verified === 'not-verified') {
+    // Show only those with NO email confirmation. 
+    // Some might have phone confirmation, which we'll detect in the post-loop and they will appear as Verified in the UI.
+    query = query.is('email_confirmed_at', null);
+  }
+
   const minPoints = searchParams.get('min_points');
   const maxPoints = searchParams.get('max_points');
 

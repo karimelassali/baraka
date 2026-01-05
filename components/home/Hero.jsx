@@ -107,7 +107,7 @@ export default function Hero() {
                         </motion.div>
 
                         <motion.div
-                            className="absolute -bottom-6 ltr:-right-6 rtl:-left-6 bg-white p-6 rounded-xl shadow-xl w-3/4 border border-gray-100"
+                            className="absolute -bottom-10 md:-bottom-6 right-4 md:-right-6 bg-white p-5 md:p-6 rounded-xl shadow-xl w-auto min-w-[260px] max-w-[320px] border border-gray-100 z-20"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.8, duration: 0.5 }}

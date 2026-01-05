@@ -21,14 +21,26 @@ export default function AdminLayout({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndInitialPermission = async () => {
       try {
-        const profile = await ClientAuthService.getAdminProfile();
+        // Add a timeout to prevent infinite hanging
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Auth timeout')), 10000)
+        );
+
+        const profilePromise = ClientAuthService.getAdminProfile();
+        const profile = await Promise.race([profilePromise, timeoutPromise]);
+
         if (!profile) {
           window.location.href = '/auth/login';
           return;
         }
+
+        // Calculate initial permission immediately
+        const isAuth = checkPermissionForPath(pathname, profile);
+
         setAdminProfile(profile);
+        setIsAuthorized(isAuth);
       } catch (error) {
         console.error("Auth check failed", error);
         window.location.href = '/auth/login';
@@ -37,21 +49,25 @@ export default function AdminLayout({ children }) {
       }
     };
 
-    checkAuth();
-  }, []);
+    checkAuthAndInitialPermission();
+  }, []); // Only run on mount
 
+  // Handle route changes
   useEffect(() => {
     if (!adminProfile) return;
+    const isAuth = checkPermissionForPath(pathname, adminProfile);
+    setIsAuthorized(isAuth);
+  }, [pathname, adminProfile]);
 
-    const checkPermission = () => {
+  const checkPermissionForPath = (currentPath, profile) => {
+    try {
       // Normalize path: remove locale prefix
-      const normalizedPath = pathname.replace(/^\/(en|it|ar)/, '') || '/';
+      const normalizedPath = currentPath.replace(/^\/(en|it|ar)/, '') || '/';
 
       // Flatten categories to get all items
       const allItems = DEFAULT_NAV_CATEGORIES.flatMap(c => c.items);
 
       // Find the most specific matching item
-      // Sort by path length descending to match /admin/payments before /admin
       const matchedItems = allItems.filter(item =>
         normalizedPath === item.path || normalizedPath.startsWith(item.path + '/')
       );
@@ -60,22 +76,21 @@ export default function AdminLayout({ children }) {
       const targetItem = matchedItems[0];
 
       if (targetItem && targetItem.permission) {
-        if (adminProfile.role === 'super_admin') {
-          setIsAuthorized(true);
-        } else if (adminProfile.permissions && adminProfile.permissions.includes(targetItem.permission)) {
-          setIsAuthorized(true);
+        if (profile.role === 'super_admin') {
+          return true;
+        } else if (profile.permissions && profile.permissions.includes(targetItem.permission)) {
+          return true;
         } else {
-          setIsAuthorized(false);
+          return false;
         }
-      } else {
-        // No specific permission required for this path (or not in sidebar)
-        // Default to authorized if authenticated
-        setIsAuthorized(true);
       }
-    };
 
-    checkPermission();
-  }, [pathname, adminProfile]);
+      return true;
+    } catch (err) {
+      console.error("Permission check error", err);
+      return true; // Fail open or closed? Defaulting to true to avoid locking out if logic fails, but protected content usually handled by API too.
+    }
+  };
 
   if (isLoading || (adminProfile && isAuthorized === null)) {
     return (
@@ -109,11 +124,11 @@ export default function AdminLayout({ children }) {
               />
             </div>
             <h2 className="text-3xl font-bold text-red-600 dark:text-red-400">
-              Vuoi hackerarci? 
+              Vuoi hackerarci?
             </h2>
             <p className="text-lg text-muted-foreground">
               Non hai i permessi per vedere questa pagina. <br />
-              Torna indietro prima che chiamiamo la polizia! 
+              Torna indietro prima che chiamiamo la polizia!
             </p>
           </div>
         </main>

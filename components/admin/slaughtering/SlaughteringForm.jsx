@@ -102,20 +102,52 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
         setIsSubmitting(true);
 
         try {
+            // numeric sanitization
+            const liveWeight = parseFloat(formData.live_weight) || 0;
+            const slaughteredWeight = parseFloat(formData.slaughtered_weight) || 0;
+            const livePrice = parseFloat(formData.live_purchase_price) || 0;
+            const finalPrice = parseFloat(formData.final_price) || 0;
+            const slaughterCost = parseFloat(formData.slaughtering_cost) || 0;
+            const qty = parseInt(formData.quantity) || 1;
+
+            // Date validation
+            let recordDate = new Date().toISOString();
+            if (initialData && initialData.record_date) {
+                // Ensure it's a valid date string, not "null" literal
+                if (initialData.record_date !== "null" && new Date(initialData.record_date).toString() !== 'Invalid Date') {
+                    recordDate = initialData.record_date;
+                }
+            }
+
             const record = {
-                ...formData,
-                ...totals,
-                record_date: initialData ? initialData.record_date : new Date().toISOString()
+                supplier_id: formData.supplier_id || null, // UUID or null
+                animal_type: formData.animal_type || 'bovine',
+                quantity: qty,
+                breed: formData.breed || '',
+                live_weight: liveWeight,
+                slaughtered_weight: slaughteredWeight,
+                live_purchase_price: livePrice,
+                final_price: finalPrice,
+                slaughtering_cost: slaughterCost,
+
+                // Totals
+                total_purchase_cost: liveWeight * livePrice,
+                final_total_cost: (finalPrice * slaughteredWeight) + slaughterCost,
+                // yield_percentage is calculated on the fly and doesn't exist in DB
+
+                record_date: recordDate
             };
 
             if (initialData) {
+                // Determine if ID is part of record or passed separately
+                // updateSlaughteringRecord(id, updates)
                 await updateSlaughteringRecord(initialData.id, record);
-                toast.success(tCommon('save') + ' ' + t('record_added_success')); // Or generic success
+                toast.success(tCommon('save') + ' ' + t('record_added_success'));
             } else {
                 await createSlaughteringRecord(record);
                 toast.success(t('record_added_success'));
 
-                // Reset form only if creating
+                // Reset form
                 setFormData({
                     supplier_id: '',
                     animal_type: 'bovine',
@@ -133,7 +165,7 @@ export default function SlaughteringForm({ onSuccess, initialData, onCancel }) {
 
         } catch (error) {
             console.error('Submit error:', error);
-            toast.error(t('record_added_error'));
+            toast.error(t('record_added_error') || 'Failed to save record.');
         } finally {
             setIsSubmitting(false);
         }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Search, X, Save, Phone, Mail, MapPin, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from '@/lib/actions/suppliers';
 import GlassCard from '@/components/ui/GlassCard';
@@ -86,9 +87,10 @@ export default function SupplierManager() {
             }
             fetchSuppliers();
             handleCloseModal();
+            toast.success(editingSupplier ? 'Fornitore aggiornato con successo' : 'Fornitore creato con successo');
         } catch (error) {
             console.error('Failed to save supplier', error);
-            alert(t('save_error'));
+            toast.error(t('save_error'));
         }
     };
 
@@ -97,9 +99,10 @@ export default function SupplierManager() {
             try {
                 await deleteSupplier(id);
                 fetchSuppliers();
+                toast.success('Fornitore eliminato con successo');
             } catch (error) {
                 console.error('Failed to delete supplier', error);
-                alert(t('delete_error'));
+                toast.error(error.message || t('delete_error'));
             }
         }
     };

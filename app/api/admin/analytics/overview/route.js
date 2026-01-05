@@ -54,41 +54,55 @@ export async function GET(request) {
             .gte('created_at', previousStart)
             .lt('created_at', previousEnd);
 
-        // 2. Active Offers (Absolute)
+        // 2. Active Offers
+        // Active Count (Absolute)
         const { count: activeOffers } = await supabase
             .from('offers')
             .select('*', { count: 'exact', head: true })
             .eq('is_active', true);
 
-        // 3. Revenue
-        // Current Period Revenue
-        let revenueQuery = supabase.from('daily_revenue')
-            .select('total_revenue');
+        // New offers (Trend)
+        const { count: newOffersCurrent } = await supabase.from('offers').select('*', { count: 'exact', head: true }).gte('created_at', start || previousEnd).lte('created_at', end || new Date().toISOString());
+        const { count: newOffersPrevious } = await supabase.from('offers').select('*', { count: 'exact', head: true }).gte('created_at', previousStart).lt('created_at', previousEnd);
+
+        // 3. Revenue & Vouchers
+        // Revenue (Same as before)
+        let revenueQuery = supabase.from('daily_revenue').select('total_revenue');
         if (start) revenueQuery = revenueQuery.gte('date', start);
         if (end) revenueQuery = revenueQuery.lte('date', end);
         const { data: revenueData } = await revenueQuery;
         const revenue = revenueData?.reduce((sum, r) => sum + (Number(r.total_revenue) || 0), 0) || 0;
 
-        // Previous Period Revenue
-        let prevRevenueQuery = supabase.from('daily_revenue')
-            .select('total_revenue')
-            .gte('date', previousStart)
-            .lt('date', previousEnd);
+        let prevRevenueQuery = supabase.from('daily_revenue').select('total_revenue').gte('date', previousStart).lt('date', previousEnd);
         const { data: prevRevenueData } = await prevRevenueQuery;
         const prevRevenue = prevRevenueData?.reduce((sum, r) => sum + (Number(r.total_revenue) || 0), 0) || 0;
 
-        // 4. Voucher Stats
+        // Vouchers Absolute
         const { count: voucherCount } = await supabase.from('vouchers').select('*', { count: 'exact', head: true });
+
+        // Vouchers Trend (New Issued)
+        const { count: newVouchersCurrent } = await supabase.from('vouchers').select('*', { count: 'exact', head: true }).gte('created_at', start || previousEnd).lte('created_at', end || new Date().toISOString());
+        const { count: newVouchersPrevious } = await supabase.from('vouchers').select('*', { count: 'exact', head: true }).gte('created_at', previousStart).lt('created_at', previousEnd);
+
         const { count: redeemedCount } = await supabase.from('vouchers').select('*', { count: 'exact', head: true }).eq('is_used', true);
 
+        // 4. Reviews
+        // Pending Reviews (Absolute)
+        const { count: pendingReviews } = await supabase
+            .from('reviews')
+            .select('*', { count: 'exact', head: true })
+            .eq('is_approved', false);
+
+        // Reviews Trend (New submitted)
+        const { count: newReviewsCurrent } = await supabase.from('reviews').select('*', { count: 'exact', head: true }).gte('created_at', start || previousEnd).lte('created_at', end || new Date().toISOString());
+        const { count: newReviewsPrevious } = await supabase.from('reviews').select('*', { count: 'exact', head: true }).gte('created_at', previousStart).lt('created_at', previousEnd);
+
         // 5. Engagement (Messages)
-        // Current Period - use sent_at since that's the timestamp column for messages
         let msgQuery = supabase.from('whatsapp_messages').select('*', { count: 'exact', head: true });
         if (start) msgQuery = msgQuery.gte('sent_at', start);
         if (end) msgQuery = msgQuery.lte('sent_at', end);
         const { count: totalMessages } = await msgQuery;
 
-        // Previous Period
         const { count: prevMessages } = await supabase.from('whatsapp_messages')
             .select('*', { count: 'exact', head: true })
             .gte('sent_at', previousStart)
@@ -96,7 +110,8 @@ export async function GET(request) {
 
         // Calculate Trends
         const calculateTrend = (current, previous) => {
-            if (!previous) return current > 0 ? 100 : 0;
+            if (!previous && current > 0) return 100;
+            if (!previous && current === 0) return 0;
             return ((current - previous) / previous) * 100;
         };
 
@@ -104,14 +119,17 @@ export async function GET(request) {
             customers: calculateTrend(newCustomersCurrent || 0, newCustomersPrevious || 0),
             revenue: calculateTrend(revenue, prevRevenue),
             messages: calculateTrend(totalMessages || 0, prevMessages || 0),
-            offers: 0 // Stable for now
+            offers: calculateTrend(newOffersCurrent || 0, newOffersPrevious || 0),
+            vouchers: calculateTrend(newVouchersCurrent || 0, newVouchersPrevious || 0),
+            reviews: calculateTrend(newReviewsCurrent || 0, newReviewsPrevious || 0)
         };
 
         return NextResponse.json({
             totalCustomers: totalCustomers || 0,
             activeOffers: activeOffers || 0,
-            totalVouchers: voucherCount,
-            redeemedVouchers: redeemedCount,
+            totalVouchers: voucherCount || 0,
+            redeemedVouchers: redeemedCount || 0,
+            pendingReviews: pendingReviews || 0,
             totalVoucherValue: revenue,
             totalMessages: totalMessages || 0,
             trends // Include calculated trends

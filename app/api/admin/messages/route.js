@@ -31,7 +31,7 @@ export async function GET() {
     // Fetch recent reviews
     const { data: reviews, error: reviewsError } = await supabase
       .from('reviews')
-      .select('id, rating, created_at, customer_name')
+      .select('id, rating, created_at, reviewer_name')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -86,7 +86,7 @@ export async function GET() {
           type: 'review',
           content: `New ${r.rating}-star review received`,
           date: r.created_at,
-          user: r.customer_name || 'Anonymous',
+          user: r.reviewer_name || 'Anonymous',
           status: 'reviewed'
         });
       });

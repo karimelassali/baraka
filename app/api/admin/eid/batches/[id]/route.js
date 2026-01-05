@@ -26,8 +26,16 @@ export async function DELETE(request, { params }) {
     const supabase = await createClient();
 
     try {
-        // First, unlink purchases from this batch (optional, or cascade delete if configured)
-        // But our schema has ON DELETE SET NULL for batch_id in eid_purchases, so we can just delete the batch.
+        // Manually cascade delete purchases because FK might be SET NULL or RESTRICT
+        const { error: purchasesError } = await supabase
+            .from('eid_purchases')
+            .delete()
+            .eq('batch_id', id);
+
+        if (purchasesError) {
+            console.error('Error deleting linked purchases:', purchasesError);
+            throw purchasesError;
+        }
 
         const { error } = await supabase
             .from('eid_purchase_batches')

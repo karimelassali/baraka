@@ -33,6 +33,12 @@ export default function EnhancedAdminDashboardPage() {
     reviews: 0,
     vouchers: 0,
   });
+  const [trends, setTrends] = useState({
+    customers: 0,
+    offers: 0,
+    reviews: 0,
+    vouchers: 0,
+  });
   const [recentActivity, setRecentActivity] = useState([]);
   const [expiringData, setExpiringData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,23 +47,23 @@ export default function EnhancedAdminDashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [customersRes, offersRes, vouchersRes, reviewsData] = await Promise.all([
-          fetch('/api/admin/customers'),
-          fetch('/api/admin/offers'),
-          fetch('/api/admin/vouchers'),
-          getReviews(),
-        ]);
+        const response = await fetch('/api/admin/analytics/overview?range=30d');
+        const data = await response.json();
 
-        const customersData = await customersRes.json();
-        const offersData = await offersRes.json();
-        const vouchersData = await vouchersRes.json();
-
-        setStats({
-          customers: customersData.total || 0,
-          offers: offersData.length || 0,
-          reviews: reviewsData.data ? reviewsData.data.filter(r => !r.approved).length : 0,
-          vouchers: vouchersData.length || 0,
-        });
+        if (response.ok) {
+          setStats({
+            customers: data.totalCustomers || 0,
+            offers: data.activeOffers || 0,
+            reviews: data.pendingReviews || 0,
+            vouchers: data.totalVouchers || 0,
+          });
+          setTrends({
+            customers: data.trends?.customers || 0,
+            offers: data.trends?.offers || 0,
+            reviews: data.trends?.reviews || 0,
+            vouchers: data.trends?.vouchers || 0,
+          });
+        }
       } catch (error) {
         console.error('Failed to fetch stats:', error);
       }
@@ -115,38 +121,44 @@ export default function EnhancedAdminDashboardPage() {
     }
   };
 
+  const formatTrend = (value) => {
+    const num = Number(value);
+    const sign = num >= 0 ? '+' : '';
+    return `${sign}${num.toFixed(1)}%`;
+  };
+
   const statCards = [
     {
       title: t('total_customers'),
       value: stats.customers,
-      change: "+12.5%",
+      change: formatTrend(trends.customers),
       icon: Users,
       color: "bg-blue-500",
-      changeColor: "text-green-500"
+      changeColor: trends.customers >= 0 ? "text-green-500" : "text-red-500"
     },
     {
       title: t('active_offers'),
       value: stats.offers,
-      change: "+8.2%",
+      change: formatTrend(trends.offers),
       icon: Gift,
       color: "bg-purple-500",
-      changeColor: "text-green-500"
+      changeColor: trends.offers >= 0 ? "text-green-500" : "text-red-500"
     },
     {
       title: t('pending_reviews'),
       value: stats.reviews,
-      change: "-3.2%",
+      change: formatTrend(trends.reviews),
       icon: MessageCircle,
       color: "bg-yellow-500",
-      changeColor: "text-red-500"
+      changeColor: trends.reviews >= 0 ? "text-green-500" : "text-red-500"
     },
     {
       title: t('issued_vouchers'),
       value: stats.vouchers,
-      change: "+24.7%",
+      change: formatTrend(trends.vouchers),
       icon: Ticket,
       color: "bg-green-500",
-      changeColor: "text-green-500"
+      changeColor: trends.vouchers >= 0 ? "text-green-500" : "text-red-500"
     }
   ];
 

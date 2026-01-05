@@ -96,7 +96,11 @@ export default function Reports() {
             // Fetch purchases for weight
             const resPurchases = await fetch('/api/admin/eid/purchases?limit=1000');
             const { data: purchases } = await resPurchases.json();
-            const totalPurchasedWeight = purchases.reduce((sum, p) => sum + Number(p.weight || 0), 0);
+            // Only count purchases that belong to an existing batch (not orphans)
+            const totalPurchasedWeight = purchases.reduce((sum, p) => {
+                if (!p.batch_id) return sum;
+                return sum + Number(p.weight || 0);
+            }, 0);
 
             // Fetch reservations for sold weight and prices
             const resReservations = await fetch('/api/admin/eid/reservations?limit=1000');

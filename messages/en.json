@@ -490,7 +490,8 @@
       "valid_until": "Valid until",
       "details": "Details",
       "no_offers": "No offers available",
-      "check_back": "Check back later for new exclusive deals!"
+      "check_back": "Check back later for new exclusive deals!",
+      "contact_whatsapp": "Contact on WhatsApp"
     },
     "Vouchers": {
       "title": "My Vouchers",

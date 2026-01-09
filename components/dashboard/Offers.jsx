@@ -1,10 +1,33 @@
-// components/dashboard/Offers.jsx
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Tag, Calendar, ArrowRight, Clock, Star, Gift, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Tag, Calendar, ArrowRight, Clock, Star, Gift, MessageCircle, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const ENCOURAGING_TEXTS = {
+  en: [
+    { text: "Great Deal!", color: "text-emerald-600" },
+    { text: "Limited Time!", color: "text-amber-600" },
+    { text: "Don't Miss Out!", color: "text-indigo-600" },
+    { text: "Special Offer!", color: "text-purple-600" },
+    { text: "Best Value!", color: "text-blue-600" }
+  ],
+  it: [
+    { text: "Ottimo Affare!", color: "text-emerald-600" },
+    { text: "Tempo Limitato!", color: "text-amber-600" },
+    { text: "Non Perdere l'Occasione!", color: "text-indigo-600" },
+    { text: "Offerta Speciale!", color: "text-purple-600" },
+    { text: "Miglior Prezzo!", color: "text-blue-600" }
+  ],
+  ar: [
+    { text: "صفقة رائعة!", color: "text-emerald-600" },
+    { text: "وقت محدود!", color: "text-amber-600" },
+    { text: "لا تفوت الفرصة!", color: "text-indigo-600" },
+    { text: "عرض خاص!", color: "text-purple-600" },
+    { text: "أفضل قيمة!", color: "text-blue-600" }
+  ]
+};
 
 function Skeleton() {
   return (
@@ -23,10 +46,16 @@ function Skeleton() {
 
 export default function Offers({ limit, user }) {
   const t = useTranslations('Dashboard.Offers');
+  const locale = useLocale();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(10);
   const [expandedOffers, setExpandedOffers] = useState(new Set());
+  const [selectedOffer, setSelectedOffer] = useState(null);
+  const [randomEncouragement, setRandomEncouragement] = useState({ text: "", color: "" });
+
+  // Get texts for current locale, fallback to English
+  const currentTexts = ENCOURAGING_TEXTS[locale] || ENCOURAGING_TEXTS['en'];
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -49,9 +78,11 @@ export default function Offers({ limit, user }) {
     };
 
     fetchOffers();
-  }, []);
+    setRandomEncouragement(currentTexts[Math.floor(Math.random() * currentTexts.length)]);
+  }, [locale]);
 
-  const toggleReadMore = (id) => {
+  const toggleReadMore = (e, id) => {
+    e.stopPropagation();
     setExpandedOffers(prev => {
       const newSet = new Set(prev);
       if (newSet.has(id)) {
@@ -63,9 +94,9 @@ export default function Offers({ limit, user }) {
     });
   };
 
-  const handleWhatsApp = (offer) => {
-    const phoneNumber = '393519003355'; // Baraka phone number
-    // Get user language or default to Italian
+  const handleWhatsApp = (e, offer) => {
+    e.stopPropagation();
+    const phoneNumber = '393245668944'; // Baraka phone number
     const message = `Salve, vorrei maggiori informazioni su: ${offer.title}`;
     const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
@@ -75,12 +106,45 @@ export default function Offers({ limit, user }) {
     setVisibleCount(prev => prev + 10);
   };
 
+  const handleCardClick = (offer) => {
+    setSelectedOffer(offer);
+    setRandomEncouragement(currentTexts[Math.floor(Math.random() * currentTexts.length)]);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedOffer(null);
+  };
+
+  const handleNextOffer = (e) => {
+    e.stopPropagation();
+    if (!selectedOffer) return;
+    const currentIndex = offers.findIndex(o => o.id === selectedOffer.id);
+    const nextIndex = (currentIndex + 1) % offers.length;
+    setSelectedOffer(offers[nextIndex]);
+    setRandomEncouragement(currentTexts[Math.floor(Math.random() * currentTexts.length)]);
+  };
+
+  const handlePrevOffer = (e) => {
+    e.stopPropagation();
+    if (!selectedOffer) return;
+    const currentIndex = offers.findIndex(o => o.id === selectedOffer.id);
+    const prevIndex = (currentIndex - 1 + offers.length) % offers.length;
+    setSelectedOffer(offers[prevIndex]);
+    setRandomEncouragement(currentTexts[Math.floor(Math.random() * currentTexts.length)]);
+  };
+
+  // Helper to check if date is valid and not epoch start
+  const isValidDate = (dateString) => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    // Check if valid date and year > 1970
+    return !isNaN(date.getTime()) && date.getFullYear() > 1970;
+  };
+
   if (loading) {
     return <Skeleton />;
   }
 
-  // If limit is provided (Overview), show only 'limit' items.
-  // Otherwise (Offers Page), show 'visibleCount' items.
   const displayOffers = limit ? offers.slice(0, limit) : offers.slice(0, visibleCount);
 
   return (
@@ -113,7 +177,8 @@ export default function Offers({ limit, user }) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col"
+                  onClick={() => handleCardClick(offer)}
+                  className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
                 >
                   <div className="h-48 relative overflow-hidden">
                     {offer.image_url ? (
@@ -164,10 +229,15 @@ export default function Offers({ limit, user }) {
                         }`}>
                         {offer.offer_type}
                       </span>
-                      {offer.end_date && (
+                      {isValidDate(offer.end_date) ? (
                         <span className="flex items-center text-xs text-gray-500 font-medium">
                           <Clock className="w-3 h-3 mr-1 text-red-500" />
                           {Math.ceil((new Date(offer.end_date) - new Date()) / (1000 * 60 * 60 * 24))} {t('days_left')}
+                        </span>
+                      ) : (
+                        <span className={`flex items-center text-xs font-bold ${randomEncouragement.color}`}>
+                          <Star className="w-3 h-3 mr-1" />
+                          {randomEncouragement.text}
                         </span>
                       )}
                     </div>
@@ -178,7 +248,7 @@ export default function Offers({ limit, user }) {
                       </p>
                       {isLongText && (
                         <button
-                          onClick={() => toggleReadMore(offer.id)}
+                          onClick={(e) => toggleReadMore(e, offer.id)}
                           className="text-xs text-indigo-600 font-medium mt-1 flex items-center hover:text-indigo-800"
                         >
                           {isExpanded ? (
@@ -191,12 +261,19 @@ export default function Offers({ limit, user }) {
                     </div>
 
                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-gray-100">
-                      <span className="text-xs text-gray-500 flex items-center">
-                        <Calendar className="w-3 h-3 mr-1" />
-                        {t('valid_until')} {new Date(offer.end_date).toLocaleDateString()}
-                      </span>
+                      {isValidDate(offer.end_date) ? (
+                        <span className="text-xs text-gray-500 flex items-center">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {t('valid_until')} {new Date(offer.end_date).toLocaleDateString()}
+                        </span>
+                      ) : (
+                        <span className={`text-xs flex items-center font-medium ${randomEncouragement.color}`}>
+                          <Gift className="w-3 h-3 mr-1" />
+                          {randomEncouragement.text}
+                        </span>
+                      )}
                       <button
-                        onClick={() => handleWhatsApp(offer)}
+                        onClick={(e) => handleWhatsApp(e, offer)}
                         className="text-green-600 hover:text-green-700 text-sm font-bold flex items-center group-hover:translate-x-1 transition-transform"
                       >
                         <MessageCircle className="w-4 h-4 mr-1" />
@@ -233,6 +310,113 @@ export default function Offers({ limit, user }) {
           <p className="text-gray-500 text-sm">{t('check_back')}</p>
         </div>
       )}
+
+      {/* Offer Details Modal */}
+      <AnimatePresence>
+        {selectedOffer && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={handleCloseModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden relative flex flex-col max-h-[90vh]"
+            >
+              {/* Navigation Buttons - Moved to Top to avoid hiding title */}
+              <button
+                onClick={handlePrevOffer}
+                className="absolute left-4 top-4 z-20 bg-white/80 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+                aria-label="Previous Offer"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={handleNextOffer}
+                className="absolute right-4 top-4 z-20 bg-white/80 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all backdrop-blur-sm hover:scale-110"
+                aria-label="Next Offer"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+
+              <div className="relative h-64 md:h-80 shrink-0">
+                {selectedOffer.image_url ? (
+                  <img
+                    src={selectedOffer.image_url}
+                    alt={selectedOffer.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center">
+                    <Gift className="w-32 h-32 text-white opacity-50" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+
+                <div className="absolute bottom-0 left-0 p-6 text-white w-full pr-16">
+                  <div className="flex gap-2 mb-2">
+                    {selectedOffer.offer_type === 'WEEKLY' && (
+                      <span className="bg-blue-500/90 backdrop-blur-sm text-white text-xs font-bold px-2 py-1 rounded flex items-center">
+                        <Clock className="w-3 h-3 mr-1" /> WEEKLY
+                      </span>
+                    )}
+                    {selectedOffer.offer_type === 'SPECIAL' && (
+                      <span className="bg-yellow-400/90 backdrop-blur-sm text-yellow-900 text-xs font-bold px-2 py-1 rounded flex items-center">
+                        <Star className="w-3 h-3 mr-1" /> SPECIAL
+                      </span>
+                    )}
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold leading-tight">{selectedOffer.title}</h2>
+                </div>
+              </div>
+
+              <div className="p-6 md:p-8 overflow-y-auto">
+                <div className="flex items-center justify-between mb-6 text-sm text-gray-500 border-b border-gray-100 pb-4">
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-2 text-red-500" />
+                    {isValidDate(selectedOffer.end_date) ? (
+                      <span>
+                        {t('valid_until')} {new Date(selectedOffer.end_date).toLocaleDateString()}
+                      </span>
+                    ) : (
+                      <span className={`font-bold ${randomEncouragement.color}`}>
+                        {randomEncouragement.text}
+                      </span>
+                    )}
+                  </div>
+                  {isValidDate(selectedOffer.end_date) && (
+                    <div className="flex items-center text-orange-600 font-medium">
+                      <Clock className="w-4 h-4 mr-2" />
+                      {Math.ceil((new Date(selectedOffer.end_date) - new Date()) / (1000 * 60 * 60 * 24))} {t('days_left')}
+                    </div>
+                  )}
+                </div>
+
+                <div className="prose prose-red max-w-none mb-8">
+                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-lg">
+                    {selectedOffer.description}
+                  </p>
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <button
+                    onClick={(e) => handleWhatsApp(e, selectedOffer)}
+                    className="bg-[#25D366] hover:bg-[#128C7E] text-white px-6 py-3 rounded-xl font-bold flex items-center shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+                  >
+                    <MessageCircle className="w-5 h-5 mr-2" />
+                    {t('contact_whatsapp')}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

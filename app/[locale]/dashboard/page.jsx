@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useDashboard } from '@/components/dashboard/DashboardContext';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
@@ -13,9 +14,28 @@ import Profile from '@/components/dashboard/Profile';
 import Offers from '@/components/dashboard/Offers';
 import Statistics from '@/components/dashboard/Statistics';
 
+const GREETINGS = [
+  "Good for you!",
+  "Great deal!",
+  "Welcome back!",
+  "Ottimo affare!",
+  "Buon per te!",
+  "Bentornato!",
+  "Bonne affaire!",
+  "C'est super!",
+  "Bienvenue!"
+];
+
 export default function DashboardOverview() {
   const { user, profile } = useDashboard();
   const t = useTranslations('Dashboard');
+  const [greeting, setGreeting] = useState("");
+
+  useEffect(() => {
+    // Pick a random greeting on mount
+    const randomGreeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+    setGreeting(randomGreeting);
+  }, []);
 
   if (!user) return null; // Should be handled by layout/context
 
@@ -27,8 +47,8 @@ export default function DashboardOverview() {
           <h2 className="text-2xl font-bold mb-2">
             {t('welcome_back')}, {profile?.first_name || user.user_metadata?.first_name || user.email?.split('@')[0] || 'User'}!
           </h2>
-          <p className="text-red-100 mb-4">
-            {t('welcome_message') || "Check your latest stats and offers."}
+          <p className="text-red-100 mb-4 text-lg font-medium">
+            {greeting || t('welcome_message') || "Check your latest stats and offers."}
           </p>
         </div>
         <div className="absolute right-0 bottom-0 w-64 h-64 transform translate-x-10 translate-y-10 opacity-20 pointer-events-none">

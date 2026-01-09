@@ -1,11 +1,14 @@
-// components/dashboard/Statistics.jsx
+"use client";
+
 import { useEffect, useState } from 'react';
 import { Star, Ticket, Gift, CreditCard, TrendingUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 export default function Statistics() {
   const t = useTranslations('Dashboard.Statistics');
+  const router = useRouter();
   const [stats, setStats] = useState({
     totalPoints: 0,
     availableVouchers: 0,
@@ -93,7 +96,8 @@ export default function Statistics() {
       icon: Star,
       color: "text-amber-500",
       bgColor: "bg-amber-50",
-      change: stats.pointsTrend || t('no_change')
+      change: stats.pointsTrend || t('no_change'),
+      route: '/dashboard/wallet'
     },
     {
       title: t('available_vouchers'),
@@ -101,7 +105,8 @@ export default function Statistics() {
       icon: Ticket,
       color: "text-red-600",
       bgColor: "bg-red-50",
-      change: stats.voucherTrend || t('no_change')
+      change: stats.voucherTrend || t('no_change'),
+      route: '/dashboard/vouchers'
     },
     {
       title: t('active_offers'),
@@ -109,7 +114,8 @@ export default function Statistics() {
       icon: Gift,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
-      change: t('active')
+      change: t('active'),
+      route: '/dashboard/offers'
     },
     {
       title: t('total_vouchers'),
@@ -117,9 +123,16 @@ export default function Statistics() {
       icon: CreditCard,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
-      change: t('lifetime_rewards')
+      change: t('lifetime_rewards'),
+      route: '/dashboard/vouchers'
     }
   ];
+
+  const handleCardClick = (route) => {
+    if (route) {
+      router.push(route);
+    }
+  };
 
   if (loading) {
     return (
@@ -152,7 +165,8 @@ export default function Statistics() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
-            className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group"
+            onClick={() => handleCardClick(stat.route)}
+            className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group cursor-pointer"
           >
             <div className={`absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity duration-300`}>
               <Icon className={`h-24 w-24 ${stat.color}`} />

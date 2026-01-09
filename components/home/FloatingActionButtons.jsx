@@ -44,7 +44,7 @@ export default function FloatingActionButtons() {
                 </svg>
             ),
             label: "WhatsApp",
-            href: "https://wa.me/1234567890", // Using the number from contact section
+            href: "https://wa.me/393245668944", // Using the number from contact section
             color: "bg-white hover:bg-gray-100", // Changed to white as logo has its own color
             onClick: null
         },

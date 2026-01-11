@@ -22,7 +22,7 @@ import EnhancedStatsCard from '../../../components/admin/EnhancedStatsCard';
 import GlassCard from '../../../components/ui/GlassCard';
 import ExpirationAlerts from '../../../components/admin/ExpirationAlerts';
 import NotificationCenter from '../../../components/admin/NotificationCenter';
-import DBPerformanceTest from '../../../components/admin/DBPerformanceTest';
+
 import { useTranslations } from 'next-intl';
 
 export default function EnhancedAdminDashboardPage() {
@@ -298,7 +298,7 @@ export default function EnhancedAdminDashboardPage() {
 
         {/* Performance / Quick Actions */}
         <div className="space-y-8">
-          <DBPerformanceTest />
+
 
         </div>
       </motion.div>

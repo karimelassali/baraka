@@ -32,21 +32,26 @@ export default function Navbar() {
                         .from('customers')
                         .select('first_name, last_name, email')
                         .eq('auth_id', session.user.id)
-                        .single();
+                        .eq('auth_id', session.user.id)
+                        .maybeSingle();
 
                     if (customerData) {
                         setProfile(customerData);
                     }
 
-                    // Check if admin
-                    const { data: adminData } = await supabase
-                        .from('admin_users')
-                        .select('id')
-                        .eq('auth_id', session.user.id)
-                        .eq('is_active', true)
-                        .single();
+                    // Check if admin safely
+                    try {
+                        const { data: adminData, error: adminError } = await supabase
+                            .from('admin_users')
+                            .select('id')
+                            .eq('auth_id', session.user.id)
+                            .eq('is_active', true)
+                            .maybeSingle(); // Use maybeSingle to avoid 406/errors on empty result
 
-                    if (adminData) setIsAdmin(true);
+                        if (adminData && !adminError) setIsAdmin(true);
+                    } catch (e) {
+                        // Ignore admin check errors (unauthorized/RLS)
+                    }
                 }
             } catch (error) {
                 console.error("Error checking user:", error);
@@ -65,22 +70,27 @@ export default function Navbar() {
                     .from('customers')
                     .select('first_name, last_name, email')
                     .eq('auth_id', session.user.id)
-                    .single();
+                    .eq('auth_id', session.user.id)
+                    .maybeSingle();
 
                 if (customerData) {
                     setProfile(customerData);
                 }
 
-                // Re-check admin status on auth change
-                const { data: adminData } = await supabase
-                    .from('admin_users')
-                    .select('id')
-                    .eq('auth_id', session.user.id)
-                    .eq('is_active', true)
-                    .single();
+                // Re-check admin status on auth change safely
+                try {
+                    const { data: adminData, error: adminError } = await supabase
+                        .from('admin_users')
+                        .select('id')
+                        .eq('auth_id', session.user.id)
+                        .eq('is_active', true)
+                        .maybeSingle();
 
-                if (adminData) setIsAdmin(true);
-                else setIsAdmin(false);
+                    if (adminData && !adminError) setIsAdmin(true);
+                    else setIsAdmin(false);
+                } catch (e) {
+                    setIsAdmin(false);
+                }
             } else {
                 setUser(null);
                 setProfile(null);

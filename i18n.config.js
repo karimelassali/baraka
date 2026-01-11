@@ -4,8 +4,8 @@
 /** @type {import('next-i18n').I18nConfig} */
 const i18nConfig = {
   locales: ['en', 'it', 'fr', 'es', 'ar'],
-  defaultLocale: 'en',
-  localeDetection: true, // Automatically detect the user's preferred language
+  defaultLocale: 'it',
+  localeDetection: false, // Prevent automatic detection to force default
   domains: [
     // Example configuration for different domains per language
     // {

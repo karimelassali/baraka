@@ -92,6 +92,7 @@
     "description": "Your trusted local business providing quality products and services with exceptional customer care.",
     "view_products": "View Products",
     "contact_us": "Contact Us",
+    "login": "Login",
     "quote": "We take pride in quality and customer satisfaction.",
     "team": "Baraka Team",
     "quotes": {
@@ -135,7 +136,8 @@
     "no_weekly_offers": "No weekly offers available at the moment.",
     "permanent": "Permanent",
     "permanent_subtitle": "Always Great Value",
-    "no_permanent_offers": "No permanent offers available at the moment."
+    "no_permanent_offers": "No permanent offers available at the moment.",
+    "claim": "Claim Offer"
   },
   "Reviews": {
     "title": "Customer Reviews",

@@ -2,24 +2,32 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Tag, ShoppingBag, ArrowRight } from "lucide-react";
-import { useTranslations } from 'next-intl';
+import { Tag, ShoppingBag, ArrowRight, Calendar } from "lucide-react";
+import { useTranslations, useLocale } from 'next-intl';
 import Image from "next/image";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 
 export default function OffersSection() {
     const [offers, setOffers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedOffer, setSelectedOffer] = useState(null);
     const t = useTranslations('Offers');
+
+    const locale = useLocale();
 
     useEffect(() => {
         const fetchOffers = async () => {
             try {
-                const response = await fetch('/api/admin/offers');
+                const response = await fetch(`/api/offers?locale=${locale}`);
                 if (response.ok) {
                     const data = await response.json();
-                    // Filter active offers
-                    const activeOffers = data.filter(offer => offer.is_active);
-                    setOffers(activeOffers);
+                    setOffers(data.offers || []);
                 }
             } catch (error) {
                 console.error("Failed to fetch offers", error);
@@ -29,7 +37,7 @@ export default function OffersSection() {
         };
 
         fetchOffers();
-    }, []);
+    }, [locale]);
 
     const weeklyOffers = offers.filter(o => o.offer_type === 'WEEKLY');
     const permanentOffers = offers.filter(o => o.offer_type === 'PERMANENT');
@@ -41,10 +49,11 @@ export default function OffersSection() {
 
         return (
             <motion.div
-                className={`${isSpecial ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'} rounded-xl shadow-sm border p-6 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow duration-300`}
+                className={`${isSpecial ? 'bg-amber-50 border-amber-200' : 'bg-white border-gray-100'} rounded-xl shadow-sm border p-6 flex flex-col sm:flex-row gap-6 hover:shadow-md transition-shadow duration-300 cursor-pointer`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
+                onClick={() => setSelectedOffer(offer)}
             >
                 <div className="bg-gray-100 rounded-xl w-full sm:w-32 h-32 flex-shrink-0 overflow-hidden relative">
                     {offer.image_url ? (
@@ -78,7 +87,10 @@ export default function OffersSection() {
                             <span className="text-red-600 font-bold text-lg">{t('special_offer')}</span>
                         </div>
                         <button
-                            onClick={() => window.open(`https://wa.me/393245668944?text=Hello Baraka! I'm interested in the offer: ${title}`, '_blank')}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`https://wa.me/393245668944?text=Hello Baraka! I'm interested in the offer: ${title}`, '_blank');
+                            }}
                             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full transition duration-300 flex items-center gap-2 text-sm font-medium shadow-md hover:shadow-lg"
                         >
                             <span>Claim</span>
@@ -194,6 +206,70 @@ export default function OffersSection() {
                     </div>
                 )}
             </div>
+
+            {/* Offer Details Modal */}
+            <Dialog open={!!selectedOffer} onOpenChange={(open) => !open && setSelectedOffer(null)}>
+                <DialogContent className="max-w-2xl overflow-hidden p-0 gap-0 border-none rounded-2xl">
+                    {selectedOffer && (
+                        <>
+                            <div className="relative w-full h-80 bg-gray-100">
+                                {selectedOffer.image_url ? (
+                                    <Image
+                                        src={selectedOffer.image_url}
+                                        alt={typeof selectedOffer.title === 'object' ? selectedOffer.title.en || Object.values(selectedOffer.title)[0] : selectedOffer.title}
+                                        fill
+                                        className="object-contain"
+                                        sizes="(max-width: 768px) 100vw, 700px"
+                                        priority
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                        <Tag className="w-16 h-16" />
+                                    </div>
+                                )}
+                                {selectedOffer.badge_text && (
+                                    <div className="absolute top-4 right-4 bg-red-600 text-white font-bold px-3 py-1.5 rounded-full shadow-lg z-10">
+                                        {selectedOffer.badge_text}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-8 bg-white">
+                                <DialogHeader className="mb-6">
+                                    <DialogTitle className="text-3xl font-bold mb-2">
+                                        {typeof selectedOffer.title === 'object' ? selectedOffer.title.en || Object.values(selectedOffer.title)[0] : selectedOffer.title}
+                                    </DialogTitle>
+                                    <div className="flex flex-wrap gap-2 text-sm text-gray-500">
+                                        {selectedOffer.start_date && selectedOffer.end_date && (
+                                            <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md">
+                                                <Calendar className="w-4 h-4" />
+                                                <span>
+                                                    {new Date(selectedOffer.start_date).toLocaleDateString()} - {new Date(selectedOffer.end_date).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-md uppercase text-xs font-semibold tracking-wide">
+                                            {selectedOffer.offer_type}
+                                        </div>
+                                    </div>
+                                </DialogHeader>
+
+                                <DialogDescription className="text-gray-700 text-lg leading-relaxed mb-8">
+                                    {typeof selectedOffer.description === 'object' ? selectedOffer.description.en || Object.values(selectedOffer.description)[0] : selectedOffer.description}
+                                </DialogDescription>
+
+                                <button
+                                    onClick={() => window.open(`https://wa.me/393245668944?text=Hello Baraka! I'm interested in the offer: ${typeof selectedOffer.title === 'object' ? selectedOffer.title.en || Object.values(selectedOffer.title)[0] : selectedOffer.title}`, '_blank')}
+                                    className="w-full bg-red-600 hover:bg-red-700 text-white text-lg font-bold py-4 rounded-xl transition duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                                >
+                                    <span>{t('claim')}</span>
+                                    <ArrowRight className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </DialogContent>
+            </Dialog>
         </section>
     );
 }

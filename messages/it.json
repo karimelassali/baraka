@@ -92,6 +92,7 @@
     "description": "La tua attività locale di fiducia che fornisce prodotti e servizi di qualità con un'assistenza clienti eccezionale.",
     "view_products": "Vedi Prodotti",
     "contact_us": "Contattaci",
+    "login": "Accedi",
     "quote": "Siamo orgogliosi della qualità e della soddisfazione del cliente.",
     "team": "Team Baraka",
     "quotes": {
@@ -135,7 +136,8 @@
     "no_weekly_offers": "Nessuna offerta settimanale disponibile al momento.",
     "permanent": "Permanente",
     "permanent_subtitle": "Sempre Grande Valore",
-    "no_permanent_offers": "Nessuna offerta permanente disponibile al momento."
+    "no_permanent_offers": "Nessuna offerta permanente disponibile al momento.",
+    "claim": "Richiedi Offerta"
   },
   "Reviews": {
     "title": "Recensioni Clienti",

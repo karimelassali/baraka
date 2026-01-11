@@ -5,7 +5,7 @@ import { sendSms } from '@/lib/sms';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
-export async function GET(request) {
+export async function POST(request) {
     try {
         const { searchParams } = new URL(request.url);
         const force = searchParams.get('force') === 'true';

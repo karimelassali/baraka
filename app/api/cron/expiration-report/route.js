@@ -5,7 +5,7 @@ import { generateExpirationEmailHtml } from '@/lib/email/templates/expiration-re
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request) {
+export async function POST(request) {
     try {
         // Initialize Supabase Admin client inside the handler to ensure env vars are loaded
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

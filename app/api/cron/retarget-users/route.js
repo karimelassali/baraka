@@ -13,13 +13,18 @@ export async function POST(request) {
         const offerId = searchParams.get('offer_id');
         const imageUrl = searchParams.get('image_url'); // Optional: MMS Image
 
+        const secret = searchParams.get('secret');
         const authHeader = request.headers.get('authorization');
         const isDev = process.env.NODE_ENV === 'development';
 
-        if (!force || !isDev) {
-            if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-                return new Response('Unauthorized', { status: 401 });
-            }
+        // Check if authorized via Secret Query, Auth Header, or Dev Force
+        const isAuthorized =
+            (process.env.CRON_SECRET && secret === process.env.CRON_SECRET) ||
+            (authHeader === `Bearer ${process.env.CRON_SECRET}`) ||
+            (isDev && force);
+
+        if (!isAuthorized) {
+            return new Response('Unauthorized', { status: 401 });
         }
 
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

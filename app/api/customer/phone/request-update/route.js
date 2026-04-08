@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { sendSms } from '@/lib/sms';
 import { normalizePhone } from '@/lib/phone-utils';
+import { randomInt } from 'crypto';
 
 export async function POST(request) {
     try {
@@ -50,8 +51,8 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Phone number is already in use by another account.' }, { status: 409 });
         }
 
-        // 4. Generate & Save OTP
-        const code = Math.floor(100000 + Math.random() * 900000).toString().padStart(6, '0');
+        // 4. Generate & Save OTP with cryptographically secure random numbers
+        const code = randomInt(100000, 1000000).toString();
 
         // Delete old codes for this phone
         await supabaseAdmin

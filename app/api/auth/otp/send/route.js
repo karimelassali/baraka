@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { sendSms } from '@/lib/sms';
 import { normalizePhone } from '@/lib/phone-utils';
+import { randomInt } from 'crypto';
 
 // Initialize Supabase Admin Client (needed to write to otp_codes if RLS is strict, or just to be safe)
 const supabase = createClient(
@@ -27,8 +28,8 @@ export async function POST(request) {
         // Clean phone number (remove spaces, etc)
         const cleanedPhone = normalizePhone(phone_number);
 
-        // Generate 6-digit code - Ensure string padding
-        const code = Math.floor(100000 + Math.random() * 900000).toString().padStart(6, '0');
+        // Generate 6-digit code - Ensure string padding and secure randomness
+        const code = randomInt(100000, 1000000).toString();
 
         // Save to Database
         // 1. Delete any existing codes for this number (invalidate old ones)

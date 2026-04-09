@@ -2,3 +2,4 @@
 **Vulnerability:** The codebase was using `Math.random()` to generate One-Time Passwords (OTPs) for SMS verification.
 **Learning:** `Math.random()` is not a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG) and can be predicted, making authentication flows vulnerable to brute force or prediction attacks.
 **Prevention:** Always use Node's `crypto` module (`randomInt` or `randomBytes`) or the Web Crypto API (`crypto.getRandomValues`) for any security-sensitive random number generation, such as tokens, passwords, or OTPs.
+\n## 2024-04-09 - [Medium] Weak Randomness in Voucher Generation\n**Vulnerability:** The codebase was using `Math.random()` to generate the random part of voucher codes.\n**Learning:** Similar to OTPs, voucher codes represent financial value and must be unpredictable to prevent guessing attacks.\n**Prevention:** Use `crypto.randomInt` instead of `Math.random` for any security or value-bearing random strings.

@@ -36,7 +36,7 @@ export async function PUT(request, { params }) {
         }
 
         // Use Service Role with fallback
-        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         if (!serviceRoleKey) {
             console.error('CRITICAL: Service Role Key is missing!');
@@ -104,7 +104,7 @@ export async function DELETE(request, { params }) {
         }
 
         // Use Service Role with fallback
-        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         if (!serviceRoleKey) {
             console.error('CRITICAL: Service Role Key is missing!');

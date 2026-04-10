@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 // Initialize Supabase Admin Client
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
     {
         auth: {
             autoRefreshToken: false,
@@ -25,7 +25,7 @@ export async function POST(request) {
 
         // 1. Verify Token
         const jwt = require('jsonwebtoken');
-        const secret = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+        const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
         let payload;
         try {

@@ -14,7 +14,7 @@ export async function GET(request) {
 
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+            process.env.SUPABASE_SERVICE_ROLE_KEY
         );
 
         const { data, error } = await supabase
@@ -45,7 +45,7 @@ export async function DELETE(request) {
 
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+            process.env.SUPABASE_SERVICE_ROLE_KEY
         );
 
         const { error } = await supabase

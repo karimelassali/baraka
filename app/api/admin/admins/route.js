@@ -6,10 +6,10 @@ import { logSystemError, logAdminAction } from '../../../../lib/admin-logger';
 
 // Initialize Supabase Admin Client only if SERVICE_ROLE_KEY is available
 let supabaseAdmin = null;
-if (process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY) {
+if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
     supabaseAdmin = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
         {
             auth: {
                 autoRefreshToken: false,
@@ -102,7 +102,7 @@ export async function POST(request) {
         // 2. Create user in Supabase Auth using Admin Client
         // We need the service role key for this
         if (!supabaseAdmin) {
-            console.error('NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY is missing in environment variables');
+            console.error('SUPABASE_SERVICE_ROLE_KEY is missing in environment variables');
             return NextResponse.json({
                 error: 'Server configuration error: Service role key not found. Check your environment variables.'
             }, { status: 500 });

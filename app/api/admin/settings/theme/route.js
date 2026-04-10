@@ -66,7 +66,7 @@ export async function PUT(request) {
         // 3. Use Service Role Client to ensure write permission (Bypass RLS)
         const supabaseAdmin = createServiceClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+            process.env.SUPABASE_SERVICE_ROLE_KEY,
             {
                 auth: {
                     autoRefreshToken: false,

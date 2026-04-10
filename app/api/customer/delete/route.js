@@ -17,7 +17,7 @@ export async function DELETE(req) {
         // Initialize Supabase Admin Client to delete user from Auth
         const supabaseAdmin = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+            process.env.SUPABASE_SERVICE_ROLE_KEY,
             {
                 auth: {
                     autoRefreshToken: false,

@@ -16,7 +16,7 @@ export async function POST(request) {
         // though ideally this should be a public insert policy.
         const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+            process.env.SUPABASE_SERVICE_ROLE_KEY
         );
 
         // Check if already exists in Waitlist

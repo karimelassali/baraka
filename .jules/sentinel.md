@@ -1,4 +1,4 @@
-## 2024-04-08 - [High] Weak Randomness in OTP Generation
-**Vulnerability:** The codebase was using `Math.random()` to generate One-Time Passwords (OTPs) for SMS verification.
-**Learning:** `Math.random()` is not a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG) and can be predicted, making authentication flows vulnerable to brute force or prediction attacks.
-**Prevention:** Always use Node's `crypto` module (`randomInt` or `randomBytes`) or the Web Crypto API (`crypto.getRandomValues`) for any security-sensitive random number generation, such as tokens, passwords, or OTPs.
+## 2025-10-18 - [Fix Critical Service Role Key Exposure]
+**Vulnerability:** The Supabase Service Role Key was exposed to the client by being prefixed with `NEXT_PUBLIC_` (`NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY`). This allows unauthorized users full read/write access to the database bypassing RLS.
+**Learning:** Developers might mistakenly prefix sensitive keys with `NEXT_PUBLIC_` to make them available to client-side code, not realizing the severe security implications.
+**Prevention:** Ensure that only non-sensitive environment variables use the `NEXT_PUBLIC_` prefix. Sensitive keys like the Service Role Key must never be prefixed this way and should only be accessed server-side using `SUPABASE_SERVICE_ROLE_KEY`.

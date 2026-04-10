@@ -5,7 +5,7 @@ import { createClient as createServerSupabase } from '@/lib/supabase/server';
 // Initialize Supabase Admin Client
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
     {
         auth: {
             autoRefreshToken: false,

@@ -7,7 +7,7 @@ import { randomInt } from 'crypto';
 // Initialize Supabase Admin Client (needed to write to otp_codes if RLS is strict, or just to be safe)
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
     {
         auth: {
             autoRefreshToken: false,

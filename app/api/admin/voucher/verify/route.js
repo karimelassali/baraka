@@ -32,7 +32,7 @@ export async function POST(request) {
     // 3. Service Client (Bypass RLS)
     const supabaseAdmin = createServiceClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
+        process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
     // 4. Find Voucher

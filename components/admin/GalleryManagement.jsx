@@ -101,7 +101,10 @@ export default function GalleryManagement() {
         try {
             // 1. Upload image to Supabase Storage
             const fileExt = selectedFile.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const randomArray = new Uint32Array(1);
+            crypto.getRandomValues(randomArray);
+            const randomStr = randomArray[0].toString(36);
+            const fileName = `${Date.now()}-${randomStr}.${fileExt}`;
             const filePath = `${fileName}`;
 
             const { error: uploadError } = await supabase.storage

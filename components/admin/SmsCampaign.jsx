@@ -309,7 +309,10 @@ export default function SmsCampaign() {
             }
 
             // Generate unique campaign ID
-            const uid = 'sms_' + Math.random().toString(36).substr(2, 9);
+            const randomArray = new Uint32Array(1);
+            crypto.getRandomValues(randomArray);
+            const randomStr = randomArray[0].toString(36);
+            const uid = 'sms_' + randomStr;
 
             // Store campaign data in sessionStorage for the animation page
             sessionStorage.setItem(`campaign_${uid}`, JSON.stringify({

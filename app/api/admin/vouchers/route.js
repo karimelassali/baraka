@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createNotification } from '@/lib/notifications';
 import { logAdminAction } from '../../../../lib/admin-logger';
+import { randomInt } from 'crypto';
 
 export async function POST(request) {
   const cookieStore = await cookies();
@@ -82,7 +83,7 @@ export async function POST(request) {
     }
 
     // Generate a unique voucher code
-    const voucherCode = `VOUCHER${Date.now()}${Math.floor(Math.random() * 1000)}`.toUpperCase();
+    const voucherCode = `VOUCHER${Date.now()}${randomInt(0, 1000)}`.toUpperCase();
 
     // Calculate the value of the voucher (assuming 10 points = 1 currency unit)
     const value = points_to_convert / 10;

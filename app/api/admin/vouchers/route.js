@@ -1,5 +1,6 @@
 import { createClient } from '../../../../lib/supabase/server';
 import { createClient as createServiceClient } from '@supabase/supabase-js';
+import { randomBytes } from 'crypto';
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createNotification } from '@/lib/notifications';
@@ -82,7 +83,8 @@ export async function POST(request) {
     }
 
     // Generate a unique voucher code
-    const voucherCode = `VOUCHER${Date.now()}${Math.floor(Math.random() * 1000)}`.toUpperCase();
+    const randomPart = randomBytes(4).toString('hex').toUpperCase();
+    const voucherCode = `VOUCHER${Date.now()}${randomPart}`;
 
     // Calculate the value of the voucher (assuming 10 points = 1 currency unit)
     const value = points_to_convert / 10;

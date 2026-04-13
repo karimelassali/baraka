@@ -308,8 +308,8 @@ export default function SmsCampaign() {
                 return;
             }
 
-            // Generate unique campaign ID
-            const uid = 'sms_' + Math.random().toString(36).substr(2, 9);
+            // Generate unique campaign ID securely
+            const uid = 'sms_' + window.crypto.randomUUID().replace(/-/g, '').substring(0, 9);
 
             // Store campaign data in sessionStorage for the animation page
             sessionStorage.setItem(`campaign_${uid}`, JSON.stringify({

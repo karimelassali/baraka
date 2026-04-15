@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 export async function POST(request) {
     try {
@@ -44,7 +45,7 @@ export async function POST(request) {
 
         // 2. Create User & Customer (Logic similar to create-client)
         const email = entry.email || `${entry.phone_number.replace(/\D/g, '')}@noemail.baraka`;
-        const password = 'TempPassword123!'; // Default password for now
+        const password = crypto.randomBytes(16).toString('hex'); // Generate secure random temporary password
 
         // Create Auth User
         const { data: authData, error: authError } = await supabase.auth.admin.createUser({
@@ -54,7 +55,8 @@ export async function POST(request) {
             user_metadata: {
                 first_name: entry.first_name,
                 last_name: entry.last_name,
-                phone_number: entry.phone_number
+                phone_number: entry.phone_number,
+                force_password_change: true
             }
         });
 

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { logAdminAction } from '../../../../lib/admin-logger';
 
 export async function POST(request) {
@@ -51,7 +52,7 @@ export async function POST(request) {
         // 1. Create user
         const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: finalEmail,
-            password: password || 'TempPassword123!',
+            password: password || crypto.randomBytes(16).toString('hex'),
             // email_confirm: true, // REMOVED: Don't auto-verify new users
             user_metadata: {
                 first_name: firstName,

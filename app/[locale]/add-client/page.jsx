@@ -561,7 +561,7 @@ export default function AddClientPage() {
                 },
                 body: JSON.stringify({
                     email: formData.email,
-                    password: 'TempPassword123!', // Temporary default password
+
                     firstName: formData.firstName,
                     lastName: formData.lastName,
                     phoneNumber: formData.phoneNumber,

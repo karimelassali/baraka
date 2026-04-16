@@ -85,20 +85,36 @@ export default function Vouchers({ limit }) {
       if (codeElement) {
         qrSection = document.createElement('div');
         qrSection.className = 'mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200';
-        qrSection.innerHTML = `
-          <div class="flex justify-center mb-3">
-            <div id="download-qr-${voucher.id}" class="bg-white p-3 rounded-lg"></div>
-          </div>
-          <p class="text-xs text-center text-gray-600 font-medium mb-2">Scan to verify & redeem</p>
-          <p class="text-xs text-center text-gray-500">Valid until: ${new Date(voucher.expires_at).toLocaleDateString()}</p>
-          <div class="mt-3 pt-3 border-t border-gray-300">
-            <p class="text-xs text-gray-500 text-center">Baraka - Loyalty Program</p>
-          </div>
-        `;
+
+        // Build DOM manually to prevent XSS
+        const qrWrapper = document.createElement('div');
+        qrWrapper.className = 'flex justify-center mb-3';
+        const qrContainer = document.createElement('div');
+        qrContainer.id = `download-qr-${voucher.id}`;
+        qrContainer.className = 'bg-white p-3 rounded-lg';
+        qrWrapper.appendChild(qrContainer);
+        qrSection.appendChild(qrWrapper);
+
+        const instructionP = document.createElement('p');
+        instructionP.className = 'text-xs text-center text-gray-600 font-medium mb-2';
+        instructionP.textContent = 'Scan to verify & redeem';
+        qrSection.appendChild(instructionP);
+
+        const validUntilP = document.createElement('p');
+        validUntilP.className = 'text-xs text-center text-gray-500';
+        validUntilP.textContent = `Valid until: ${new Date(voucher.expires_at).toLocaleDateString()}`;
+        qrSection.appendChild(validUntilP);
+
+        const footerDiv = document.createElement('div');
+        footerDiv.className = 'mt-3 pt-3 border-t border-gray-300';
+        const footerP = document.createElement('p');
+        footerP.className = 'text-xs text-gray-500 text-center';
+        footerP.textContent = 'Baraka - Loyalty Program';
+        footerDiv.appendChild(footerP);
+        qrSection.appendChild(footerDiv);
 
         codeElement.parentNode.insertBefore(qrSection, codeElement.nextSibling);
 
-        const qrContainer = element.querySelector(`#download-qr-${voucher.id}`);
         const qrDataURL = await QRCode.toDataURL(redemptionUrl, { width: 140, margin: 1 });
 
         const img = document.createElement('img');

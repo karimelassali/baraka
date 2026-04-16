@@ -39,10 +39,13 @@ export default function JsonLd() {
         ],
     };
 
+    // Sanitize to prevent XSS
+    const safeJsonLd = JSON.stringify(jsonLd).replace(/</g, '\\u003c');
+
     return (
         <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            dangerouslySetInnerHTML={{ __html: safeJsonLd }}
         />
     );
 }
